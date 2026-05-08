@@ -1,0 +1,33 @@
+.game-choice-root {
+    -fx-background-color: #f7f7fb;
+    -fx-font-family: "Lato", sans-serif;
+}
+
+.game-choice-title {
+    -fx-font-size: 34px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #171717;
+}
+
+.game-choice-buttons {
+    -fx-max-width: fit-content;
+}
+
+.game-choice-button {
+    -fx-background-color: #202124;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-cursor: hand;
+    -fx-font-size: 16px;
+    -fx-font-weight: 600;
+    -fx-padding: 12 18;
+    -fx-text-fill: white;
+}
+
+.game-choice-button:hover {
+    -fx-background-color: #3a3d42;
+}
+
+.game-choice-button:pressed {
+    -fx-background-color: #111214;
+}

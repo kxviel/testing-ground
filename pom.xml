@@ -1,0 +1,208 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>seda-project.control-alt-defeat</groupId>
+    <artifactId>GameBox</artifactId>
+    <version>0.1.0</version>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.version>25</java.version>
+
+        <javafx.version>25.0.2</javafx.version>
+        <slf4j.version>2.0.13</slf4j.version>
+        <logback.version>1.5.32</logback.version>
+
+        <junit.version>6.0.3</junit.version>
+
+        <javafx.maven.version>0.0.8</javafx.maven.version>
+
+        <maven.compiler.version>3.13.0</maven.compiler.version>
+        <exec.maven.version>3.6.1</exec.maven.version>
+        <maven.antrun.version>3.1.0</maven.antrun.version>
+        <maven.resources.version>3.3.1</maven.resources.version>
+
+        <docs.output.dir>${project.build.directory}/docs</docs.output.dir>
+        <docs.latex.dir>${docs.output.dir}/latex</docs.latex.dir>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>GameBox</finalName>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.version}</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
+
+
+            <plugin>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <version>${javafx.maven.version}</version>
+                <configuration>
+                    <mainClass>seda_project.control_alt_defeat.gamebox.Launcher</mainClass>
+                    <launcher>gamebox</launcher>
+                    <jlinkImageName>gamebox</jlinkImageName>
+                    <stripDebug>true</stripDebug>
+                    <noManPages>true</noManPages>
+                    <noHeaderFiles>true</noHeaderFiles>
+                    <options>
+                        <option>--enable-native-access=javafx.graphics</option>
+                    </options>
+                </configuration>
+
+                <executions>
+                    <execution>
+                        <id>jlink</id>
+                        <goals>
+                            <goal>jlink</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>docs</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>${maven.antrun.version}</version>
+                        <executions>
+                            <execution>
+                                <id>prepare-docs-directories</id>
+                                <phase>generate-resources</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <mkdir dir="${docs.output.dir}"/>
+                                        <mkdir dir="${docs.latex.dir}"/>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>${exec.maven.version}</version>
+                        <executions>
+                            <execution>
+                                <id>requirements-example-pass-1</id>
+                                <phase>generate-resources</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>pdflatex</executable>
+                                    <workingDirectory>${project.basedir}/docs</workingDirectory>
+                                    <arguments>
+                                        <argument>-interaction=nonstopmode</argument>
+                                        <argument>-halt-on-error</argument>
+                                        <argument>-output-directory</argument>
+                                        <argument>${docs.latex.dir}</argument>
+                                        <argument>requirements_example.tex</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>requirements-example-pass-2</id>
+                                <phase>generate-resources</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>pdflatex</executable>
+                                    <workingDirectory>${project.basedir}/docs</workingDirectory>
+                                    <arguments>
+                                        <argument>-interaction=nonstopmode</argument>
+                                        <argument>-halt-on-error</argument>
+                                        <argument>-output-directory</argument>
+                                        <argument>${docs.latex.dir}</argument>
+                                        <argument>requirements_memory.tex</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <artifactId>maven-resources-plugin</artifactId>
+                        <version>${maven.resources.version}</version>
+                        <executions>
+                            <execution>
+                                <id>copy-doc-pdfs-to-target</id>
+                                <phase>generate-resources</phase>
+                                <goals>
+                                    <goal>copy-resources</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${docs.output.dir}</outputDirectory>
+                                    <overwrite>true</overwrite>
+                                    <resources>
+                                        <resource>
+                                            <directory>${docs.latex.dir}</directory>
+                                            <includes>
+                                                <include>*.pdf</include>
+                                            </includes>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

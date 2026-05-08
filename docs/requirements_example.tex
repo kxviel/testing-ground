@@ -1,0 +1,215 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{longtable}
+
+\geometry{margin=1in}
+\setlength{\parskip}{0.5em}
+
+\newcommand{\reqref}[1]{\hyperlink{req:#1}{#1}}
+
+\title{Requirements Specification\\[0.5em]\large Vending Machine}
+\author{SEDA Project Tutor}
+\date{\today}
+
+\begin{document}
+
+    \maketitle
+    \tableofcontents
+    \newpage
+
+
+    \section{Document Control and Purpose}
+    This document provides an example requirements specification for a drink vending machine in an office environment.
+    It follows a lightweight Volere-style structure with explicit fit criteria.
+
+    \subsection{Project Goal}
+    Deliver software for a vending machine that allows office users to buy drinks using a simple and reliable interaction flow.
+
+    \subsection{Stakeholders}
+    \begin{itemize}[itemsep=0pt,topsep=0pt,parsep=0pt,partopsep=0pt]
+        \item Office employees buying drinks.
+        \item Facility staff refilling and maintaining the machine.
+    \end{itemize}
+
+
+    \section{Scope and Context}
+
+    \subsection{In Scope}
+    \begin{itemize}[itemsep=0pt,topsep=0pt,parsep=0pt,partopsep=0pt]
+        \item Drink purchase flow (selection, payment, dispense, optional change).
+        \item Stock tracking and out-of-stock handling.
+        \item Cancellation and refund behavior.
+        \item Basic maintenance flow for refill.
+    \end{itemize}
+
+    \subsection{Out of Scope}
+    \begin{itemize}[itemsep=0pt,topsep=0pt,parsep=0pt,partopsep=0pt]
+        \item Remote mobile app ordering.
+        \item Online card payment gateway integration.
+        \item Marketing and loyalty programs.
+    \end{itemize}
+
+    \subsection{Assumptions and Dependencies}
+    \begin{itemize}[itemsep=0pt,topsep=0pt,parsep=0pt,partopsep=0pt]
+        \item Machine is installed indoors in one office building.
+        \item Machine accepts coins only.
+        \item Machine has a display, selection buttons, and dispense unit.
+        \item Maintenance staff can physically refill products.
+    \end{itemize}
+
+    \subsection{Glossary}
+    \begin{itemize}[itemsep=0pt,topsep=0pt,parsep=0pt,partopsep=0pt]
+        \item \textbf{Selection:} A user choice of one drink slot.
+        \item \textbf{Balance:} Total inserted money available for one transaction.
+        \item \textbf{Vend cycle:} Sequence from first input to final dispense/refund result.
+    \end{itemize}
+
+
+    \section{Constraints}
+    \begin{itemize}[itemsep=0pt,topsep=0pt,parsep=0pt,partopsep=0pt]
+        \item \textbf{CON-TECH-01 (Technology):} The implementation language shall be Java version 21 or newer.
+        \item \textbf{CON-PLAT-01 (Platform):} The system shall run on Linux-based kiosk hardware used by the office facility team.
+        \item \textbf{CON-ENV-01 (Environment):} The machine software shall support operation at ambient temperatures from 15°C to 30°C.
+    \end{itemize}
+
+
+    \section{Functional Requirements}
+
+    \subsection{Use Cases}
+    \textbf{UC-01 Buy Drink}
+    \begin{itemize}[itemsep=0pt,topsep=0pt,parsep=0pt,partopsep=0pt]
+        \item \textbf{ID:} UC-01
+        \item \textbf{Description:} Purchase a drink from the machine.
+        \item \textbf{Actor:} Office Employee (Buyer)
+        \item \textbf{Preconditions:} Machine is in sales mode; selected slot is available to users.
+        \item \textbf{Postconditions:} Vend cycle is completed; either one drink is dispensed with optional change, or the cycle ends without dispense.
+        \item \textbf{Successful Course:} User inserts coins, selects a drink, validation succeeds, drink is dispensed, and change is returned if applicable.
+        \item \textbf{Abnormal Course:} Balance is insufficient; system requests additional money or allows cancellation.
+        \item \textbf{Priority:} High
+        \item \textbf{Referenced Requirements:} \reqref{FR-INPUT-01}, \reqref{FR-INPUT-02}, \reqref{FR-FLOW-01}, \reqref{FR-FLOW-02}, \reqref{FR-OUTPUT-01}, \reqref{FR-OUTPUT-02}, \reqref{FR-FLOW-03}
+    \end{itemize}
+
+    \textbf{UC-02 Cancel Purchase}
+    \begin{itemize}[itemsep=0pt,topsep=0pt,parsep=0pt,partopsep=0pt]
+        \item \textbf{ID:} UC-02
+        \item \textbf{Description:} Cancel an active vend cycle before dispense.
+        \item \textbf{Actor:} Office Employee (Buyer)
+        \item \textbf{Preconditions:} Vend cycle is active and no drink has been dispensed yet.
+        \item \textbf{Postconditions:} Active cycle is closed and full inserted balance is refunded.
+        \item \textbf{Successful Course:} User presses cancel and system returns full balance.
+        \item \textbf{Abnormal Course:} Refund output is temporarily unavailable; system blocks new cycle and signals maintenance required.
+        \item \textbf{Priority:} High
+        \item \textbf{Referenced Requirements:} \reqref{FR-OUTPUT-03}
+    \end{itemize}
+
+    \textbf{UC-03 Handle Out-of-Stock}
+    \begin{itemize}
+        \item \textbf{ID:} UC-03
+        \item \textbf{Description:} Handle a drink selection for an empty slot.
+        \item \textbf{Actor:} Office Employee (Buyer)
+        \item \textbf{Preconditions:} Vend cycle is active and selected slot has zero stock.
+        \item \textbf{Postconditions:} No drink is dispensed; user can select another drink or cancel.
+        \item \textbf{Successful Course:} System displays out-of-stock message and keeps current balance unchanged.
+        \item \textbf{Abnormal Course:} If stock state is inconsistent, system blocks the slot and logs an error for maintenance.
+        \item \textbf{Priority:} High
+        \item \textbf{Referenced Requirements:} \reqref{FR-FLOW-01}, \reqref{FR-OUTPUT-04}
+    \end{itemize}
+
+    \textbf{UC-04 Refill Machine}
+    \begin{itemize}
+        \item \textbf{ID:} UC-04
+        \item \textbf{Description:} Refill drink slots and update stock counts.
+        \item \textbf{Actor:} Facility Staff (Maintenance User)
+        \item \textbf{Preconditions:} Maintenance user is authorized and machine is in maintenance mode.
+        \item \textbf{Postconditions:} Updated stock counts are saved and machine returns to sales mode.
+        \item \textbf{Successful Course:} Maintenance user updates slot counts and confirms refill operation.
+        \item \textbf{Abnormal Course:} Invalid stock values are rejected and previous values remain unchanged.
+        \item \textbf{Priority:} Medium
+        \item \textbf{Referenced Requirements:} \reqref{FR-INPUT-03}
+    \end{itemize}
+
+    \subsection{Detailed Functional Requirements}
+    \begin{longtable}{|p{2.1cm}|p{11.6cm}|p{1.3cm}|}
+        \hline
+        \textbf{ID} & \textbf{Description} & \textbf{Prio} \\
+        \hline
+        \hypertarget{req:FR-INPUT-01}{FR-INPUT-01} & The system shall accept coin input and increase the user balance for the active vend cycle by the inserted amount. & High \\
+        \hline
+        \hypertarget{req:FR-INPUT-02}{FR-INPUT-02} & The system shall allow the user to select a drink code shown in the current menu. & High \\
+        \hline
+        \hypertarget{req:FR-FLOW-01}{FR-FLOW-01} & The system shall verify whether the selected drink is in stock before starting dispense. & High \\
+        \hline
+        \hypertarget{req:FR-FLOW-02}{FR-FLOW-02} & The system shall verify whether the user balance is sufficient for the selected drink price. & High \\
+        \hline
+        \hypertarget{req:FR-OUTPUT-01}{FR-OUTPUT-01} & The system shall dispense exactly one unit of the selected drink after successful validation. & High \\
+        \hline
+        \hypertarget{req:FR-OUTPUT-02}{FR-OUTPUT-02} & The system shall return remaining change after successful dispense when user balance is greater than item price. & High \\
+        \hline
+        \hypertarget{req:FR-OUTPUT-03}{FR-OUTPUT-03} & The system shall refund the full inserted balance when the user cancels before dispense. & High \\
+        \hline
+        \hypertarget{req:FR-OUTPUT-04}{FR-OUTPUT-04} & The system shall show an out-of-stock message when a selected item has zero stock. & High \\
+        \hline
+        \hypertarget{req:FR-FLOW-03}{FR-FLOW-03} & The system shall decrease stock by exactly one after each successful dispense. & High \\
+        \hline
+        \hypertarget{req:FR-FLOW-04}{FR-FLOW-04} & The system shall record each completed vend cycle in a local transaction log with timestamp, item code, price, and result. & Medium \\
+        \hline
+        \hypertarget{req:FR-INPUT-03}{FR-INPUT-03} & The system shall provide a maintenance refill mode that allows authorized staff to update stock counts per slot. & Medium \\
+        \hline
+    \end{longtable}
+
+
+    \section{Quality Requirements}
+
+    \subsection{Usability}
+    \begin{itemize}
+        \item \textbf{QR-USAB-01:} The system shall show clear prompts for each step of the purchase flow, so that first-time users can complete a purchase without assistance.
+        Fit criterion: In 10 observed purchase attempts, users complete the flow without operator help.
+
+        \item \textbf{QR-USAB-02:} The display shall show drink code, price, and availability in readable text.
+        Fit criterion: At normal standing distance (1 m), all labels are readable on a 1080p display.
+    \end{itemize}
+
+    \subsection{Performance}
+    \begin{itemize}
+        \item \textbf{QR-PERF-01:} A balance update is shown within 1 second after each valid coin input. \textbf{Reference:} \reqref{FR-INPUT-01}.
+        Fit criterion: In 20 valid inputs, displayed balance updates within $\leq$1.0 s each time.
+
+        \item \textbf{QR-PERF-02:} The item availability and balance check completes within 1 second after a selection. \textbf{Reference:} \reqref{FR-FLOW-01}, \reqref{FR-FLOW-02}.
+        Fit criterion: In 20 selections, result is displayed within $\leq$1.0 s each time.
+
+        \item \textbf{QR-PERF-03:} Successful dispense starts within 2 seconds after validation. \textbf{Reference:} \reqref{FR-OUTPUT-01}.
+        Fit criterion: In 20 successful purchases, dispense starts within $\leq$2.0 s each time.
+
+        \item \textbf{QR-PERF-04:} Change or refund is issued within 2 seconds after transaction finalization. \textbf{Reference:} \reqref{FR-OUTPUT-02}, \reqref{FR-OUTPUT-03}.
+        Fit criterion: In 20 cases, return action completes within $\leq$2.0 s each time.
+    \end{itemize}
+
+    \subsection{Reliability}
+    \begin{itemize}
+        \item \textbf{QR-RELY-01:} The system shall complete 100 consecutive vend cycles without crash or maintenance intervention except for refill.
+        Fit criterion: 100/100 cycles complete and log an outcome.
+
+        \item \textbf{QR-RELY-02:} Stock counters shall remain consistent with successful dispense results.
+        Fit criterion: In an audit of 50 sales, each stock decrement matches exactly one successful vend.
+    \end{itemize}
+
+    \subsection{Maintainability}
+    \begin{itemize}
+        \item \textbf{QR-MAIN-01:} The project shall build with \texttt{mvn clean package} and provide reproducible run instructions.
+        Fit criterion: Build succeeds and README contains a working build/run section.
+
+        \item \textbf{QR-MAIN-02:} Automated tests shall cover purchase validation, dispense outcome, and refund logic.
+        Fit criterion: At least one automated test references each of \reqref{FR-INPUT-01}, \reqref{FR-FLOW-01}, \reqref{FR-FLOW-02}, \reqref{FR-OUTPUT-01}, \reqref{FR-OUTPUT-03}.
+    \end{itemize}
+
+
+    \section{Acceptance Criteria}
+    The example specification is considered acceptable when all High-priority functional and quality requirements are testable and no listed constraint is violated.
+
+\end{document}
+

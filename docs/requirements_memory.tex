@@ -1,0 +1,231 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{longtable}
+
+\geometry{margin=1in}
+\setlength{\parskip}{0.5em}
+
+\newcommand{\reqref}[1]{\hyperlink{req:#1}{#1}}
+
+\title{Requirements Specification\\[0.5em]\large Memory Game (Master Track)}
+\author{
+    \textbf{Team: Zero Run Time Warranty} \\[1em]
+    Kevin Daniel Goveas (431676) \\
+    Sagar Vishwanath Chalageri (431686) \\
+    Shashank Prasad Crpatna Krishnaprasad (431719)
+}
+\date{\today}
+
+\begin{document}
+
+    \maketitle
+    \tableofcontents
+    \newpage
+
+    \section{Document Control and Purpose}
+    This document defines measurable requirements for the master variant of the Memory
+    game project. It follows a lightweight Volere-style structure with explicit fit criteria.
+
+    \subsection{Project Goal}
+    Deliver a Java-based Memory game with configurable matching group size n and syn-
+    chronized two-player multiplayer over local network (LAN) as well as a local hot-seat mode.
+
+    \subsection{Stakeholders}
+    \begin{itemize}[itemsep=0pt,topsep=0pt,parsep=0pt,partopsep=0pt]
+        \item Students implementing game logic and network synchronization.
+        \item Tutors evaluating correctness, quality, and architecture.
+        \item End users (two players that may sit on separate computers in one LAN or share the same computer).
+    \end{itemize}
+
+    \section{Scope and Context}
+
+    \subsection{In Scope}
+    \begin{itemize}[itemsep=0pt,topsep=0pt,parsep=0pt,partopsep=0pt]
+        \item Client-host multiplayer with exactly two players over LAN.
+        \item Local two-player (hot-seat) play where both players share the same machine.
+        \item Configurable matching size n (number of identical cards per match).
+        \item Shared game state synchronization, score tracking, winner determination, restart.
+        \item Automatic dynamic calculation of deck sizes (Small, Medium, Large) based on chosen n.
+    \end{itemize}
+
+    \subsection{Out of Scope}
+    \begin{itemize}[itemsep=0pt,topsep=0pt,parsep=0pt,partopsep=0pt]
+        \item Internet-wide matchmaking.
+        \item AI opponent.
+        \item More than two simultaneous players.
+    \end{itemize}
+
+    \subsection{Assumptions and Dependencies}
+    \begin{itemize}[itemsep=0pt,topsep=0pt,parsep=0pt,partopsep=0pt]
+        \item Users have mouse input available.
+        \item For network play, both players are connected to the same IPv4 LAN.
+        \item For network play, the host device is reachable by a client device.
+        \item Java Runtime Environment (Java 21 or newer) is installed on both devices.
+    \end{itemize}
+
+    \subsection{Glossary}
+    \begin{itemize}[itemsep=0pt,topsep=0pt,parsep=0pt,partopsep=0pt]
+        \item \textbf{n-of-a-kind:} A valid match containing exactly n identical cards.
+        \item \textbf{Attempt:} Opening exactly n currently face-down cards.
+        \item \textbf{Round:} Full game session from Start to Game Over.
+        \item \textbf{Host:} Process that owns authoritative game state.
+        \item \textbf{Client:} Process that receives state updates from host and sends player input.
+    \end{itemize}
+
+    \section{Constraints}
+    \begin{itemize}[itemsep=0pt,topsep=0pt,parsep=0pt,partopsep=0pt]
+        \item \textbf{CON-TECH-01 (Technology):} The implementation language shall be Java version 21 or newer.
+        \item \textbf{CON-PLAT-01 (Platform):} The game shall run on Windows, macOS, and Linux desktop systems.
+        \item \textbf{CON-NET-01 (Network Scope):} Multiplayer shall operate only within one LAN subnet using private IPv4 addresses.
+        \item \textbf{CON-PLAY-01 (Players):} Exactly two human players shall participate in each round.
+        \item \textbf{CON-CONF-01 (Config Range):} The configurable match size n shall be integer 1 to 45 inclusive.
+        \item \textbf{CON-INPUT-01 (Input):} The game shall be fully playable with mouse input only.
+    \end{itemize}
+
+    \section{Functional Requirements}
+
+    \subsection{Use Cases}
+
+    \textbf{UC-01 Create or Join Session}
+    \begin{itemize}[itemsep=0pt,topsep=0pt,parsep=0pt,partopsep=0pt]
+        \item \textbf{ID:} UC-01
+        \item \textbf{Description:} Create or join a two-player LAN session, or start a local hot-seat session.
+        \item \textbf{Actor:} Player
+        \item \textbf{Preconditions:} Application is running.
+        \item \textbf{Postconditions:} Session is established and peers can continue to configuration/start.
+        \item \textbf{Successful Course:} One user hosts, the second user joins, and connection is established (or user selects local play).
+        \item \textbf{Abnormal Course:} Join fails due to unreachable host; user remains in menu and receives an error message.
+        \item \textbf{Priority:} High
+        \item \textbf{Referenced Requirements:} \reqref{FR-NET-01}, \reqref{FR-NET-02}
+    \end{itemize}
+
+    \textbf{UC-02 Configure and Start Game}
+    \begin{itemize}[itemsep=0pt,topsep=0pt,parsep=0pt,partopsep=0pt]
+        \item \textbf{ID:} UC-02
+        \item \textbf{Description:} Configure match parameters and start a synchronized round.
+        \item \textbf{Actor:} Host Player
+        \item \textbf{Preconditions:} Session is established and both peers are connected.
+        \item \textbf{Postconditions:} New round is active on both peers with identical board and initial state.
+        \item \textbf{Successful Course:} Host sets n, system provides three balanced grid sizes, host selects a deck size, starts game, and both peers receive same initial state.
+        \item \textbf{Abnormal Course:} Invalid config values are rejected and start is blocked until values are valid.
+        \item \textbf{Priority:} High
+        \item \textbf{Referenced Requirements:} \reqref{FR-INPUT-01}, \reqref{FR-INPUT-02}, \reqref{FR-GAME-02}, \reqref{FR-GAME-03}
+    \end{itemize}
+
+    \textbf{UC-03 Play Synchronized Turn}
+    \begin{itemize}[itemsep=0pt,topsep=0pt,parsep=0pt,partopsep=0pt]
+        \item \textbf{ID:} UC-03
+        \item \textbf{Description:} Execute one synchronized turn including selection, resolution, and turn update.
+        \item \textbf{Actor:} Active Player
+        \item \textbf{Preconditions:} Active round exists and both peers are synchronized.
+        \item \textbf{Postconditions:} Card states, scores, and active turn are updated consistently on both peers.
+        \item \textbf{Successful Course:} Active player selects cards, system resolves attempt, and propagated state is shown on both peers.
+        \item \textbf{Abnormal Course:} Out-of-turn input is ignored; if network fails during turn, error handling is activated.
+        \item \textbf{Priority:} High
+        \item \textbf{Referenced Requirements:} \reqref{FR-GAME-04}, \reqref{FR-GAME-05}, \reqref{FR-GAME-06}, \reqref{FR-GAME-07}, \reqref{FR-GAME-08}, \reqref{FR-NET-03}, \reqref{FR-NET-05}, \reqref{FR-GAME-09}
+    \end{itemize}
+
+    \textbf{UC-04 End Game and Restart}
+    \begin{itemize}[itemsep=0pt,topsep=0pt,parsep=0pt,partopsep=0pt]
+        \item \textbf{ID:} UC-04
+        \item \textbf{Description:} Complete the round and optionally start the next synchronized round.
+        \item \textbf{Actor:} System and Player
+        \item \textbf{Preconditions:} Active round exists and remaining face-down cards reach zero.
+        \item \textbf{Postconditions:} Winner/draw is displayed; either session waits at end screen or a new synchronized round starts.
+        \item \textbf{Successful Course:} System announces result and players can trigger synchronized restart.
+        \item \textbf{Abnormal Course:} If connection is lost at end screen, restart is blocked and connection-loss state is shown.
+        \item \textbf{Priority:} High
+        \item \textbf{Referenced Requirements:} \reqref{FR-GAME-10}, \reqref{FR-GAME-11}, \reqref{FR-GAME-12}, \reqref{FR-NET-04}
+    \end{itemize}
+
+
+    \subsection{Detailed Functional Requirements}
+    \begin{longtable}{|p{2.1cm}|p{11.6cm}|p{1.3cm}|}
+        \hline
+        \textbf{ID} & \textbf{Rupp sentence} & \textbf{Prio} \\
+        \hline
+        \hypertarget{req:FR-NET-01}{FR-NET-01} & The system shall show Host and Join controls in the main menu, so that players can create or join a session, as well as a Local Game control. & High \\
+        \hline
+        \hypertarget{req:FR-GAME-02}{FR-GAME-02} & The system shall initialize a new round after Start is activated, with all cards face-down, scores reset to 0:0, and the turn indicator showing Player 1. & High \\
+        \hline
+        \hypertarget{req:FR-INPUT-01}{FR-INPUT-01} & The host shall configure n in the range 1 to 45 before game start, so that the match size is defined before any cards are dealt. & High \\
+        \hline
+        \hypertarget{req:FR-INPUT-02}{FR-INPUT-02} & The system shall automatically calculate and present three deck size options (Small, Medium, Large) based on n, so that the game can generate complete matching groups without manual math from the host. & High \\
+        \hline
+        \hypertarget{req:FR-GAME-03}{FR-GAME-03} & The system shall generate a deck where every symbol appears exactly n times, so that every valid match consists of n identical cards. & High \\
+        \hline
+        \hypertarget{req:FR-NET-02}{FR-NET-02} & The system shall synchronize the initial board and starting turn across peers within one round-trip update, so that both players begin from the same state. & High \\
+        \hline
+        \hypertarget{req:FR-GAME-04}{FR-GAME-04} & The active player shall open at most n cards in one attempt, so that card n+1 cannot be opened before the attempt is resolved. & High \\
+        \hline
+        \hypertarget{req:FR-GAME-05}{FR-GAME-05} & The system shall resolve an attempt automatically after the nth card is opened, so that the outcome of the attempt becomes visible. & High \\
+        \hline
+        \hypertarget{req:FR-GAME-06}{FR-GAME-06} & The system shall score one point when all n opened cards match, so that matched cards become non-selectable and the current player is rewarded exactly once. & High \\
+        \hline
+        \hypertarget{req:FR-GAME-07}{FR-GAME-07} & The system shall keep the turn on a match and switch the turn on a mismatch, so that turn ownership follows the game rules consistently. & High \\
+        \hline
+        \hypertarget{req:FR-GAME-08}{FR-GAME-08} & The system shall close mismatched cards after a mismatch, so that both peers return to the same playable state. & High \\
+        \hline
+        \hypertarget{req:FR-NET-03}{FR-NET-03} & The system shall reject player input when it is not that player's turn, so that out-of-turn clicks never alter game state. & High \\
+        \hline
+        \hypertarget{req:FR-GAME-10}{FR-GAME-10} & The system shall end the game when no face-down cards remain and announce the result, so that the winner or draw is displayed on both peers. & High \\
+        \hline
+        \hypertarget{req:FR-GAME-11}{FR-GAME-11} & The system shall determine the outcome from the player scores, so that the player with the higher score wins and equal scores produce a draw. & High \\
+        \hline
+        \hypertarget{req:FR-GAME-12}{FR-GAME-12} & The system shall provide synchronized restart after round end, so that both peers start the next round from the same board. & Medium \\
+        \hline
+        \hypertarget{req:FR-NET-04}{FR-NET-04} & The system shall detect connection loss during a round and inform both players when synchronization is no longer possible. & Medium \\
+        \hline
+        \hypertarget{req:FR-NET-05}{FR-NET-05} & The system shall propagate valid moves from host to client, so that both peers continue the game on the same state. & High \\
+        \hline
+        \hypertarget{req:FR-GAME-09}{FR-GAME-09} & The system shall ignore input on cards that are already matched or currently open, so that invalid selections never change score, turn, or deck state. & Medium \\
+        \hline
+    \end{longtable}
+
+    \section{Quality Requirements}
+
+    \subsection{Usability}
+    \begin{itemize}
+        \item \textbf{QR-USAB-01:} The system shall visibly acknowledge a valid card selection on both peers, so that each player receives clear feedback. Fit criterion: In 10 consecutive valid clicks, both peers show the same card state change each time.
+        \item \textbf{QR-USAB-02:} The main game screen shall fit on a 1920x1080 display without overlapping controls or clipped text, so that the interface remains readable for players. Fit criterion: At the default window size, all visible labels and buttons remain readable and do not overlap.
+    \end{itemize}
+
+    \subsection{Performance}
+    \begin{itemize}
+        \item \textbf{QR-PERF-01:} The main menu is shown within 3 seconds after the game is launched. Reference: \reqref{FR-NET-01}. Fit criterion: In 10 application launches, the main menu is visible within $\le$3.0 s each time.
+        \item \textbf{QR-PERF-02:} A new round is initialized within 1 second after Start is activated. Reference: \reqref{FR-GAME-02}. Fit criterion: In 10 Start actions, the new round is ready within $\le$1.0 s each time.
+        \item \textbf{QR-PERF-03:} A valid card selection is visibly acknowledged within 1 second on both peers. Reference: \reqref{FR-GAME-04}. Fit criterion: In 10 manual valid clicks, both peers show the same card state change within $\le$1.0 s each time.
+        \item \textbf{QR-PERF-04:} An attempt is resolved within 250 ms after the last required card is opened. Reference: \reqref{FR-GAME-05}. Fit criterion: In 10 attempts, resolution starts within $\le$250 ms after the last required card is opened.
+        \item \textbf{QR-PERF-05:} Mismatched cards are closed within 1000 ms after a mismatch. Reference: \reqref{FR-GAME-08}. Fit criterion: In 10 mismatches, the cards are face-down again within $\le$1000 ms each time.
+        \item \textbf{QR-PERF-06:} A restarted round begins within 1 second after Restart is activated. Reference: \reqref{FR-GAME-12}. Fit criterion: In 10 restart actions, the next round is visible within $\le$1.0 s each time.
+        \item \textbf{QR-PERF-07:} Valid moves are propagated from host to client within 1 second on a normal LAN. Reference: \reqref{FR-NET-05}. Fit criterion: In 10 valid moves, the client reflects the move within $\le$1.0 s each time.
+        \item \textbf{QR-PERF-08:} A connection-loss safe state is reached within 3 seconds after the connection is lost. Reference: \reqref{FR-NET-04}. Fit criterion: In 10 simulated connection-loss events, input is disabled and the connection-loss message appears within $\le$3.0 s each time.
+    \end{itemize}
+
+    \subsection{Synchronization}
+    \begin{itemize}
+        \item \textbf{QR-NET-01:} The system shall keep both peers in the same game state after each completed turn, so that the remote game remains synchronized. Fit criterion: In 20 consecutive turns, card states, scores, and active player are identical on both peers after each turn.
+        \item \textbf{QR-NET-02:} The system shall propagate a valid move from host to client, so that remote gameplay remains usable. Fit criterion: In 10 consecutive valid moves on the same LAN, the client reflects the move.
+    \end{itemize}
+
+    \subsection{Reliability and Recoverability}
+    \begin{itemize}
+        \item \textbf{QR-RELY-03:} The system shall complete 10 consecutive full multiplayer rounds without a crash, deadlock, or data loss, so that a complete lab session can be demonstrated reliably. Fit criterion: All 10 rounds finish successfully on the same LAN setup.
+        \item \textbf{QR-RECV-01:} The system shall enter a safe error state when the network connection is lost, so that both players are informed and input is disabled. Fit criterion: When the connection is lost, input is disabled and both players see a connection-loss message.
+    \end{itemize}
+
+    \subsection{Maintainability}
+    \begin{itemize}
+        \item \textbf{QR-MAIN-01:} The project shall build with mvn clean package and the main game rules shall be covered by automated tests, so that the project can be reproduced and checked in CI. Fit criterion: The build completes successfully and each functional requirement ID in this document is represented by at least one automated test.
+        \item \textbf{QR-MAIN-02:} The project shall build with mvn clean package and the README shall describe build and run steps, so that the project can be reproduced by another student. Fit criterion: The build completes successfully and the README contains a reproducible build/run section.
+    \end{itemize}
+
+    \section{Acceptance Criteria}
+    The master project is accepted when all High-priority requirements (FR and QR) are satisfied and no constraint is violated.
+
+\end{document}

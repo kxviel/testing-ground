@@ -1,0 +1,46 @@
+stages:
+  - build
+  - docs
+
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
+  MAVEN_VERSION: "3.9.9"
+  MAVEN_DIST_DIR: "$CI_PROJECT_DIR/.maven-dist"
+  MAVEN_HOME: "$CI_PROJECT_DIR/.maven-dist/apache-maven-$MAVEN_VERSION"
+
+cache:
+  paths:
+    - .m2/repository
+    - .maven-dist/
+
+build:
+  stage: build
+  image: maven:3.9.12-eclipse-temurin-25
+  script:
+    - mvn clean javafx:jlink
+  artifacts:
+    paths:
+      - target/gamebox
+    reports:
+      junit: target/surefire-reports/TEST-*.xml
+    expire_in: 30 days
+
+docs:
+  stage: docs
+  image: texlive/texlive:latest
+  script:
+    - command -v curl >/dev/null || (apt-get update && apt-get install -y curl)
+    - |
+      if [ ! -x "$MAVEN_HOME/bin/mvn" ]; then
+        mkdir -p "$MAVEN_DIST_DIR"
+        curl -fsSL "https://archive.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz" -o "$MAVEN_DIST_DIR/maven.tar.gz"
+        tar -xzf "$MAVEN_DIST_DIR/maven.tar.gz" -C "$MAVEN_DIST_DIR"
+      fi
+    - export PATH="$MAVEN_HOME/bin:$PATH"
+    - mvn -Pdocs generate-resources
+  artifacts:
+    when: always
+    paths:
+      - target/docs/*.pdf
+      - target/docs/latex/*.log
+    expire_in: 30 days

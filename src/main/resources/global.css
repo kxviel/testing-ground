@@ -1,0 +1,31 @@
+
+.root {
+    -fx-background-color: white;
+
+    -fx-font-family: "Lato", sans-serif;
+    -fx-font-size: 14px;
+    -fx-font-weight: 400;
+
+    -fx-text-fill: black;
+}
+
+.label,
+.button,
+.text-field,
+.combo-box {
+    -fx-font-family: "Lato", sans-serif;
+    -fx-text-fill: black;
+}
+
+.text-field {
+    -fx-background-color: white;
+    -fx-border-color: black;
+    -fx-border-width: 1;
+    -fx-border-radius: 4;
+}
+
+.vbox,
+.hbox,
+.grid-pane {
+    -fx-spacing: 0;
+}
