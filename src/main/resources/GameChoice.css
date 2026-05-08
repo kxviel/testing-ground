@@ -13,21 +13,61 @@
     -fx-max-width: fit-content;
 }
 
-.game-choice-button {
-    -fx-background-color: #202124;
+.btn-primary {
+    -fx-alignment: center;
+    -fx-background-insets: 0;
     -fx-background-radius: 6;
     -fx-border-radius: 6;
+    -fx-border-width: 1;
     -fx-cursor: hand;
-    -fx-font-size: 16px;
+    -fx-font-size: 14px;
     -fx-font-weight: 600;
-    -fx-padding: 12 18;
+    -fx-min-height: 36;
+    -fx-padding: 8 16;
+
+    -fx-background-color: #171717;
+    -fx-border-color: #171717;
     -fx-text-fill: white;
 }
 
-.game-choice-button:hover {
-    -fx-background-color: #3a3d42;
+.btn-primary:hover {
+    -fx-background-color: #2f2f2f;
+    -fx-border-color: #2f2f2f;
 }
 
-.game-choice-button:pressed {
-    -fx-background-color: #111214;
+.btn-primary:pressed {
+    -fx-background-color: #0a0a0a;
+    -fx-border-color: #0a0a0a;
+}
+
+.btn-outline {
+    -fx-alignment: center;
+    -fx-background-insets: 0;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
+    -fx-cursor: hand;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-min-height: 36;
+    -fx-padding: 8 16;
+
+    -fx-background-color: white;
+    -fx-border-color: #d4d4d4;
+    -fx-text-fill: #171717;
+}
+
+.btn-outline:hover {
+    -fx-background-color: #f5f5f5;
+    -fx-border-color: #c7c7c7;
+}
+
+.btn-outline:pressed {
+    -fx-background-color: #e5e5e5;
+    -fx-border-color: #b8b8b8;
+}
+
+.btn:disabled {
+    -fx-cursor: default;
+    -fx-opacity: 0.5;
 }
