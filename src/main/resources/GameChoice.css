@@ -9,10 +9,6 @@
     -fx-text-fill: #171717;
 }
 
-.game-choice-buttons {
-    -fx-max-width: fit-content;
-}
-
 .btn-primary {
     -fx-alignment: center;
     -fx-background-insets: 0;
