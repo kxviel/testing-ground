@@ -21,6 +21,7 @@ import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameSetup;
 import seda_project.control_alt_defeat.gamebox.network.GameClient;
 import seda_project.control_alt_defeat.gamebox.network.GameServer;
 import seda_project.control_alt_defeat.gamebox.network.tetris.TetrisLanDiscoveryService;
+import seda_project.control_alt_defeat.gamebox.network.tetris.TetrisProtocol;
 import seda_project.control_alt_defeat.gamebox.util.Router;
 
 import java.util.ArrayList;
@@ -107,9 +108,6 @@ public class TetrisMenuController {
     private String joinedPlayerName;
     private TetrisGameConfig hostConfig = TetrisGameConfig.defaultConfig();
     private boolean gameStarted;
-
-    private static final String JOIN = "JOIN";
-    private static final String START = "START";
 
     @FXML
     public void initialize() {
@@ -202,7 +200,7 @@ public class TetrisMenuController {
         }
 
         gameStarted = true;
-        hostServer.send(START + ":" + hostName + ":" + joinedPlayerName + ":" + hostConfig.serialize());
+        hostServer.send(TetrisProtocol.start(hostName, joinedPlayerName, hostConfig));
         Router.goTo(event, "/tetris/TetrisGame.fxml", new TetrisGameSetup(hostName, joinedPlayerName, hostConfig));
         closeLan();
     }
@@ -481,7 +479,7 @@ public class TetrisMenuController {
             try {
                 joinClient.connect(selectedGame.hostAddress(), selectedGame.tcpPort(), this::onJoinMessage,
                         () -> Platform.runLater(this::onJoinDisconnect));
-                joinClient.send(JOIN + ":" + playerName);
+                joinClient.send(TetrisProtocol.join(playerName));
 
                 Platform.runLater(() -> {
                     startButton.setText("Joined");
@@ -529,11 +527,16 @@ public class TetrisMenuController {
 
     private void onHostMessage(String message) {
         Platform.runLater(() -> {
-            if (!message.startsWith(JOIN + ":")) {
+            if (!TetrisProtocol.isType(message, TetrisProtocol.JOIN)) {
                 return;
             }
 
-            joinedPlayerName = message.substring((JOIN + ":").length()).trim();
+            List<String> fields = TetrisProtocol.fields(message);
+            if (fields.isEmpty()) {
+                return;
+            }
+
+            joinedPlayerName = fields.get(0).trim();
             joinedPlayerLabel.setText("Joined: " + joinedPlayerName);
             hostStartGameButton.setDisable(false);
             udpDiscovery.stopAdvertising();
@@ -543,19 +546,19 @@ public class TetrisMenuController {
 
     private void onJoinMessage(String message) {
         Platform.runLater(() -> {
-            if (!message.startsWith(START + ":")) {
+            if (!TetrisProtocol.isType(message, TetrisProtocol.START)) {
                 return;
             }
 
-            String[] parts = message.split(":", 4);
-            if (parts.length != 4) {
+            List<String> fields = TetrisProtocol.fields(message);
+            if (fields.size() < 3) {
                 return;
             }
 
             gameStarted = true;
-            TetrisGameConfig config = TetrisGameConfig.deserialize(parts[3]);
+            TetrisGameConfig config = TetrisGameConfig.deserialize(fields.get(2));
             Stage stage = (Stage) statusLabel.getScene().getWindow();
-            Router.goTo(stage, "/tetris/TetrisGame.fxml", new TetrisGameSetup(parts[1], parts[2], config));
+            Router.goTo(stage, "/tetris/TetrisGame.fxml", new TetrisGameSetup(fields.get(0), fields.get(1), config));
             closeLan();
         });
     }
