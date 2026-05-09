@@ -7,6 +7,7 @@
 
 <BorderPane maxHeight="Infinity"
             maxWidth="Infinity"
+            fx:id="gameRoot"
             styleClass="tetris-game-root"
             xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
@@ -30,6 +31,7 @@
             <VBox alignment="CENTER_LEFT" spacing="18" minWidth="260" maxWidth="300">
                 <Label text="ZETRIS" styleClass="game-side-title"/>
                 <Label fx:id="configLabel" text="Pieces: Standard" styleClass="subtitle"/>
+                <Label fx:id="resultLabel" text="Game running." styleClass="status-line" wrapText="true"/>
 
                 <Separator/>
 
@@ -47,6 +49,8 @@
 
                 <Separator/>
 
+                <Button fx:id="restartButton" text="Restart" onAction="#onRestart"
+                        visible="false" managed="false" styleClass="btn-outline"/>
                 <Button text="Quit" onAction="#onBackToMenu" styleClass="btn-primary"/>
             </VBox>
         </HBox>
