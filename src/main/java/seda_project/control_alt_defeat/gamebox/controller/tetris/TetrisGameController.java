@@ -22,6 +22,10 @@ import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameConfig;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameSetup;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameState;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisPlayerState;
+import seda_project.control_alt_defeat.gamebox.network.GameClient;
+import seda_project.control_alt_defeat.gamebox.network.GameServer;
+import seda_project.control_alt_defeat.gamebox.network.tetris.TetrisProtocol;
+import seda_project.control_alt_defeat.gamebox.network.tetris.TetrisStateSnapshot;
 import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
 import seda_project.control_alt_defeat.gamebox.util.Router;
 
@@ -59,12 +63,21 @@ public class TetrisGameController implements RouteDataReceiver {
     private TetrisGameSetup setup = new TetrisGameSetup("Player 1", "Player 2", TetrisGameConfig.defaultConfig());
     private TetrisGameState gameState = TetrisGameState.create(setup);
     private Timeline gameLoop;
+    private GameServer hostServer;
+    private GameClient joinClient;
+    private boolean networkClosed;
     private int bottomPieceIndex;
     private int topPieceIndex;
 
     @Override
     public void setRouteData(Object data) {
-        if (data instanceof TetrisGameSetup nextSetup) {
+        if (data instanceof TetrisGameRouteData routeData) {
+            setup = routeData.setup();
+            hostServer = routeData.server();
+            joinClient = routeData.client();
+            setupNetworkCallbacks();
+            startNewGame();
+        } else if (data instanceof TetrisGameSetup nextSetup) {
             setup = nextSetup;
             startNewGame();
         }
@@ -76,15 +89,35 @@ public class TetrisGameController implements RouteDataReceiver {
         startNewGame();
     }
 
+    private void setupNetworkCallbacks() {
+        networkClosed = false;
+
+        if (hostServer != null) {
+            hostServer.setMessageListener(this::onHostMessage);
+            hostServer.setDisconnectListener(() -> Platform.runLater(this::onNetworkDisconnect));
+        }
+        if (joinClient != null) {
+            joinClient.setMessageListener(this::onClientMessage);
+            joinClient.setDisconnectListener(() -> Platform.runLater(this::onNetworkDisconnect));
+        }
+    }
+
     @FXML
     private void onBackToMenu(ActionEvent event) {
         stopGameLoop();
+        closeNetwork(true);
         Router.goTo(event, "/tetris/TetrisMenu.fxml", null);
     }
 
     @FXML
     private void onRestart() {
-        startNewGame();
+        if (isLanClient()) {
+            joinClient.send(TetrisProtocol.restartRequest(setup.playerTwoName()));
+            resultLabel.setText("Waiting for host restart.");
+        } else {
+            startNewGame();
+            sendRestartState();
+        }
         Platform.runLater(gameRoot::requestFocus);
     }
 
@@ -92,8 +125,13 @@ public class TetrisGameController implements RouteDataReceiver {
         bottomPieceIndex = 0;
         topPieceIndex = 0;
         gameState = spawnMissingPieces(TetrisGameState.create(setup).running());
-        startGameLoop();
+        if (isLanClient()) {
+            stopGameLoop();
+        } else {
+            startGameLoop();
+        }
         render();
+        sendState();
     }
 
     private void startGameLoop() {
@@ -121,6 +159,7 @@ public class TetrisGameController implements RouteDataReceiver {
         gameState = gameState.applyGravity();
         gameState = spawnMissingPieces(gameState);
         render();
+        sendState();
 
         if (gameState.isFinished()) {
             stopGameLoop();
@@ -166,8 +205,11 @@ public class TetrisGameController implements RouteDataReceiver {
 
         restartButton.setVisible(finished);
         restartButton.setManaged(finished);
+        restartButton.setDisable(!setup.isLocal() && networkClosed);
 
-        if (finished) {
+        if (!setup.isLocal() && networkClosed) {
+            resultLabel.setText("LAN connection lost.");
+        } else if (finished) {
             resultLabel.setText(resultText());
         } else if (!gameState.bottomPlayer().isPlaying()) {
             resultLabel.setText(gameState.bottomPlayer().playerName() + " lost. "
@@ -234,44 +276,89 @@ public class TetrisGameController implements RouteDataReceiver {
     }
 
     private void onKeyPressed(KeyEvent event) {
-        if (gameState.isFinished()) {
+        if (gameState.isFinished() || networkClosed) {
             return;
         }
 
         KeyCode code = event.getCode();
+        PlayerSide side = sideForKey(code);
 
-        if (!setup.isLocal()) {
-            if (!handleLanKey(code)) {
-                return;
-            }
-        } else if (isBottomKey(code)) {
-            handleBottomKey(code);
-        } else if (isTopKey(code)) {
-            handleTopKey(code);
-        } else {
+        if (side == null) {
             return;
         }
 
+        String command = commandForKey(side, code);
+        if (isLanClient()) {
+            joinClient.send(TetrisProtocol.input(side, command));
+            event.consume();
+            return;
+        }
+
+        applyInput(side, command);
         gameState = spawnMissingPieces(gameState);
         event.consume();
         render();
+        sendState();
 
         if (gameState.isFinished()) {
             stopGameLoop();
         }
     }
 
-    private boolean handleLanKey(KeyCode code) {
-        if (setup.localSide() == PlayerSide.TOP && isTopKey(code)) {
-            handleTopKey(code);
-            return true;
-        }
-        if (setup.localSide() == PlayerSide.BOTTOM && isBottomKey(code)) {
-            handleBottomKey(code);
-            return true;
+    private PlayerSide sideForKey(KeyCode code) {
+        if (!setup.isLocal()) {
+            if (setup.localSide() == PlayerSide.TOP && isTopKey(code)) {
+                return PlayerSide.TOP;
+            }
+            if (setup.localSide() == PlayerSide.BOTTOM && isBottomKey(code)) {
+                return PlayerSide.BOTTOM;
+            }
+
+            return null;
         }
 
-        return false;
+        if (isBottomKey(code)) {
+            return PlayerSide.BOTTOM;
+        }
+        if (isTopKey(code)) {
+            return PlayerSide.TOP;
+        }
+
+        return null;
+    }
+
+    private String commandForKey(PlayerSide side, KeyCode code) {
+        if (side == PlayerSide.BOTTOM) {
+            if (code == KeyCode.LEFT) {
+                return TetrisProtocol.MOVE_LEFT;
+            }
+            if (code == KeyCode.RIGHT) {
+                return TetrisProtocol.MOVE_RIGHT;
+            }
+            if (code == KeyCode.DOWN) {
+                return TetrisProtocol.SOFT_DROP;
+            }
+            if (code == KeyCode.UP) {
+                return TetrisProtocol.ROTATE;
+            }
+        }
+
+        if (side == PlayerSide.TOP) {
+            if (code == KeyCode.A) {
+                return TetrisProtocol.MOVE_LEFT;
+            }
+            if (code == KeyCode.D) {
+                return TetrisProtocol.MOVE_RIGHT;
+            }
+            if (code == KeyCode.W) {
+                return TetrisProtocol.SOFT_DROP;
+            }
+            if (code == KeyCode.S) {
+                return TetrisProtocol.ROTATE;
+            }
+        }
+
+        return "";
     }
 
     private boolean isBottomKey(KeyCode code) {
@@ -288,27 +375,142 @@ public class TetrisGameController implements RouteDataReceiver {
                 || code == KeyCode.S;
     }
 
-    private void handleBottomKey(KeyCode code) {
-        if (code == KeyCode.LEFT) {
+    private void applyInput(PlayerSide side, String command) {
+        if (side == PlayerSide.BOTTOM) {
+            applyBottomInput(command);
+        } else if (side == PlayerSide.TOP) {
+            applyTopInput(command);
+        }
+    }
+
+    private void applyBottomInput(String command) {
+        if (TetrisProtocol.MOVE_LEFT.equals(command)) {
             gameState = gameState.moveLeft(PlayerSide.BOTTOM);
-        } else if (code == KeyCode.RIGHT) {
+        } else if (TetrisProtocol.MOVE_RIGHT.equals(command)) {
             gameState = gameState.moveRight(PlayerSide.BOTTOM);
-        } else if (code == KeyCode.DOWN) {
+        } else if (TetrisProtocol.SOFT_DROP.equals(command)) {
             gameState = gameState.applyGravity(PlayerSide.BOTTOM);
-        } else if (code == KeyCode.UP) {
+        } else if (TetrisProtocol.ROTATE.equals(command)) {
             gameState = gameState.rotateClockwise(PlayerSide.BOTTOM);
         }
     }
 
-    private void handleTopKey(KeyCode code) {
-        if (code == KeyCode.A) {
+    private void applyTopInput(String command) {
+        if (TetrisProtocol.MOVE_LEFT.equals(command)) {
             gameState = gameState.moveRight(PlayerSide.TOP);
-        } else if (code == KeyCode.D) {
+        } else if (TetrisProtocol.MOVE_RIGHT.equals(command)) {
             gameState = gameState.moveLeft(PlayerSide.TOP);
-        } else if (code == KeyCode.W) {
+        } else if (TetrisProtocol.SOFT_DROP.equals(command)) {
             gameState = gameState.applyGravity(PlayerSide.TOP);
-        } else if (code == KeyCode.S) {
+        } else if (TetrisProtocol.ROTATE.equals(command)) {
             gameState = gameState.rotateClockwise(PlayerSide.TOP);
+        }
+    }
+
+    private void onHostMessage(String message) {
+        Platform.runLater(() -> {
+            if (networkClosed) {
+                return;
+            }
+
+            if (TetrisProtocol.isType(message, TetrisProtocol.INPUT)) {
+                List<String> fields = TetrisProtocol.fields(message);
+                if (fields.size() < 2) {
+                    return;
+                }
+
+                PlayerSide side = parseSide(fields.get(0));
+                if (side == PlayerSide.TOP) {
+                    applyInput(side, fields.get(1));
+                    gameState = spawnMissingPieces(gameState);
+                    render();
+                    sendState();
+                }
+            } else if (TetrisProtocol.isType(message, TetrisProtocol.RESTART_REQUEST)) {
+                startNewGame();
+                sendRestartState();
+            } else if (TetrisProtocol.isType(message, TetrisProtocol.QUIT)) {
+                onNetworkDisconnect();
+            }
+        });
+    }
+
+    private void onClientMessage(String message) {
+        Platform.runLater(() -> {
+            if (TetrisProtocol.isType(message, TetrisProtocol.STATE)
+                    || TetrisProtocol.isType(message, TetrisProtocol.RESTART_STATE)) {
+                List<String> fields = TetrisProtocol.fields(message);
+                if (fields.isEmpty()) {
+                    return;
+                }
+
+                gameState = TetrisStateSnapshot.deserialize(fields.get(0), setup.config());
+                render();
+            } else if (TetrisProtocol.isType(message, TetrisProtocol.QUIT)
+                    || TetrisProtocol.isType(message, TetrisProtocol.ERROR)) {
+                onNetworkDisconnect();
+            }
+        });
+    }
+
+    private void onNetworkDisconnect() {
+        if (networkClosed) {
+            return;
+        }
+
+        networkClosed = true;
+        stopGameLoop();
+        closeNetwork(false);
+        render();
+    }
+
+    private void sendState() {
+        if (isLanHost() && !networkClosed) {
+            hostServer.send(TetrisProtocol.state(TetrisStateSnapshot.serialize(gameState)));
+        }
+    }
+
+    private void sendRestartState() {
+        if (isLanHost() && !networkClosed) {
+            hostServer.send(TetrisProtocol.restartState(TetrisStateSnapshot.serialize(gameState)));
+        }
+    }
+
+    private void closeNetwork(boolean sendQuit) {
+        networkClosed = true;
+
+        if (sendQuit) {
+            if (hostServer != null && hostServer.isConnected()) {
+                hostServer.send(TetrisProtocol.quit(setup.playerOneName()));
+            }
+            if (joinClient != null && joinClient.isConnected()) {
+                joinClient.send(TetrisProtocol.quit(setup.playerTwoName()));
+            }
+        }
+
+        if (hostServer != null) {
+            hostServer.close();
+            hostServer = null;
+        }
+        if (joinClient != null) {
+            joinClient.close();
+            joinClient = null;
+        }
+    }
+
+    private boolean isLanHost() {
+        return hostServer != null;
+    }
+
+    private boolean isLanClient() {
+        return joinClient != null;
+    }
+
+    private PlayerSide parseSide(String value) {
+        try {
+            return PlayerSide.valueOf(value);
+        } catch (IllegalArgumentException e) {
+            return null;
         }
     }
 

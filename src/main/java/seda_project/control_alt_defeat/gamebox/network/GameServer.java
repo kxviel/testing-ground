@@ -94,6 +94,14 @@ public class GameServer implements Closeable {
         }
     }
 
+    public void setMessageListener(Consumer<String> messageListener) {
+        this.messageListener = messageListener;
+    }
+
+    public void setDisconnectListener(Runnable disconnectListener) {
+        this.disconnectListener = disconnectListener;
+    }
+
     /**
      * @return true while the client socket is open and the read loop is active
      */

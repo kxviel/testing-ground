@@ -56,6 +56,10 @@ public final class TetrisProtocol {
         return make(ERROR, message);
     }
 
+    public static String quit(String playerName) {
+        return make(QUIT, playerName);
+    }
+
     public static String make(String type, String... fields) {
         String safeType = type == null ? "" : type.trim();
 
