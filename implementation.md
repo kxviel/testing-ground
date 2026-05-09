@@ -27,6 +27,9 @@ This roadmap is intentionally requirement-driven. When the PDF does not specify 
 - [x] Local game loop spawns pieces, advances gravity, detects loss, shows winner/draw, and supports restart.
 - [x] Custom connected-block editor validates, normalizes, saves, and routes session custom pieces.
 - [x] Tetris-specific LAN protocol messages exist separately from Memory protocol.
+- [x] LAN gameplay uses host-authoritative snapshots with joiner input commands.
+- [x] LAN restart, quit, and disconnect paths stop safely and update the game view.
+- [x] README documents current GameBox/Zetris build, run, and play instructions.
 
 ### Next To Do In Order
 
@@ -66,7 +69,7 @@ This roadmap is intentionally requirement-driven. When the PDF does not specify 
    - Define JOIN, START, INPUT, STATE, restart, quit, and error message builders.
    - Use the Tetris protocol for the current LAN setup handshake.
    - Keep this separate from Memory `Protocol`.
-10. [ ] Synchronize LAN gameplay after game start.
+10. [x] Synchronize LAN gameplay after game start.
     - Host owns game state.
     - Joiner renders snapshots.
     - Handle quit/disconnect cleanly.
@@ -1000,11 +1003,11 @@ Completed setup work:
 7. Local game loop and keyboard-controlled model rendering.
 8. Custom connected-block editor and validation.
 9. Tetris-specific LAN protocol messages.
+10. Host-authoritative LAN gameplay synchronization.
+11. LAN restart/disconnect handling.
+12. README/build docs.
 
 Next implementation order:
 
-1. Add host-authoritative LAN gameplay synchronization.
-2. Add LAN restart/disconnect handling.
-3. Add model tests for movement, rotation, gravity, lock, line clear, score, loss, restart.
-4. Update README/build docs.
-5. Run final automated and manual acceptance checks.
+1. Add model tests for movement, rotation, gravity, lock, line clear, score, loss, restart.
+2. Run final automated and manual acceptance checks.

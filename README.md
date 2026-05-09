@@ -1,8 +1,10 @@
-# Multi Match Memory Game – SEDA Project
+# GameBox – SEDA Project
 
-This repository contains a fully functional, configurable k-tuple Memory card matching game built with Java 25 and JavaFX. This project serves as the SEDA master track submission by team **Zero Runtime Warranty**.
+This repository contains GameBox, a JavaFX desktop app by team **Zero Runtime Warranty**. It currently includes the Memory game and an in-progress two-player Zetris implementation.
 
 ## Features
+
+### Memory
 
 - **Configurable K-Tuple** (1–45): Define the exact number of identical cards required to form a valid match.
 - **Dynamic Grid Generation**: The system automatically computes three optimally balanced board sizes (Large, Medium, and Small) based on your chosen matching size.
@@ -10,6 +12,14 @@ This repository contains a fully functional, configurable k-tuple Memory card ma
 - **Network Multiplayer (LAN)**: Host and client play seamlessly over a local network via TCP sockets, featuring instant state synchronization.
 - **Robust Network Lifecycle**: Includes safe hosting cancellation, synchronized "Play Again" transitions, and graceful disconnect handling to prevent UI lockups or thread leaks.
 - **Emoji Card Faces**: Features bright, easily distinguishable emoji symbols for a colorful playing experience.
+
+### Zetris
+
+- **Local Two-Player Mode**: Two players share one keyboard with separate controls.
+- **LAN Mode**: Host advertises over UDP, joiner selects the host, and gameplay state is synchronized over TCP.
+- **Custom Pieces**: Local/host setup can define session-only connected custom blocks.
+- **Two Boards**: Bottom board and inverted top board are visible at the same time.
+- **Gameplay Flow**: Pieces spawn, move, rotate, fall, lock, clear lines, score, detect loss, continue after one player loses, show winner/draw, and restart.
 
 ## Prerequisites
 
@@ -50,6 +60,12 @@ mvn test javafx:jlink
 
 This compiles the project, runs tests, and creates artifacts in `target/`.
 
+For a quick compile without tests:
+
+```sh
+mvn -DskipTests compile
+```
+
 ## Build the Docs
 
 The project includes a `docs` Maven profile that compiles `docs/requirements_memory.tex` to PDF.
@@ -70,12 +86,12 @@ mvn javafx:run
 
 ## How to Play
 
-### Local Game (Hot-Seat)
+### Memory Local Game
 1. Enter your desired **k** value (1–45) and click **Apply**.
 2. Select your preferred board size (**Large**, **Medium**, or **Small Board**).
 3. Click **Local 2-Player**. Both players will take turns clicking cards on the same screen.
 
-### Network Game
+### Memory Network Game
 **For the Host:**
 1. Configure your game settings (k value and board size).
 2. Click **Host Network Game**.
@@ -85,3 +101,32 @@ mvn javafx:run
 1. Click **Join Network Game**.
 2. Enter the Host's IP address and click **Connect**.
 3. You will be automatically placed into the game as soon as the connection is established.
+
+### Zetris Local Game
+1. From the game choice screen, choose **Zetris**.
+2. Choose **Local**.
+3. Enter both player names.
+4. Choose Standard, Extended, or Custom pieces.
+5. Click **Start Local**.
+
+Controls:
+
+- Bottom player: Left/Right to move, Down to move forward, Up to rotate.
+- Top player: A/D to move, W to move forward, S to rotate.
+
+### Zetris LAN Game
+**For the Host:**
+1. Choose **Zetris**.
+2. Choose **LAN**, then **Host**.
+3. Enter your name and click **Start Host**.
+4. Wait for the joiner to appear.
+5. Click **Start Game**.
+
+**For the Joiner:**
+1. Choose **Zetris**.
+2. Choose **LAN**, then **Join**.
+3. Enter your name.
+4. Select the available host and click **Join Game**.
+5. Wait for the host to start the match.
+
+Zetris LAN uses UDP only for discovery. The gameplay connection uses TCP, with the host owning the authoritative game state and the joiner sending input commands.
