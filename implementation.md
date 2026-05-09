@@ -1,6 +1,6 @@
 # Tetris Implementation Roadmap
 
-Source requirements reviewed: `C:\Users\kxviel\Downloads\requirements_tetris_masters.pdf`, extracted on 2026-05-08.
+Source requirements reviewed: `C:\Users\kxviel\Downloads\requirements_tetris_masters.pdf`, extracted on 2026-05-09.
 
 This roadmap is intentionally requirement-driven. When the PDF does not specify a detail, this document records the chosen implementation decision instead of pretending the PDF defined it.
 
@@ -16,19 +16,67 @@ This roadmap is intentionally requirement-driven. When the PDF does not specify 
 - [x] LAN host shows the joined player and enables Start Game after a join.
 - [x] Tetris setup data is passed through router data.
 - [x] Minimal custom config pipe exists for selected piece sets.
-- [x] Dummy Tetris game screen shows two 10x20 boards, names, scores, config, and top-board inversion.
+- [x] Tetris game screen shows two 10x20 boards, names, scores, config, and top-board inversion.
+- [x] Pure Tetris model foundation exists for board, cells, pieces, rotation, player state, and game state.
+- [x] Basic model piece behavior exists for spawn, left/right movement, soft drop, rotation, and invalid move rejection.
+- [x] Gravity and lock behavior exists for bottom and top boards.
+- [x] Dummy board cells were replaced with rendering from `TetrisGameState`.
+- [x] Local keyboard controls update the two model-backed boards.
+- [x] Top board is visually inverted while the model keeps one downward gravity rule.
+- [x] Line clear and one-point-per-line score update exists in the model and UI.
+- [x] Local game loop spawns pieces, advances gravity, detects loss, shows winner/draw, and supports restart.
 
-### To Do
+### Next To Do In Order
 
-- [ ] Build pure Tetris model types for board, pieces, movement, rotation, gravity, lock, score, loss, and restart.
-- [ ] Replace dummy board cells with real model rendering.
-- [ ] Add keyboard input for both local players.
-- [ ] Implement line clear, score update, loss continuation, winner/draw, and restart UI.
-- [ ] Add real custom connected-block editor and validation.
-- [ ] Add Tetris-specific TCP protocol messages for state snapshots and input commands.
-- [ ] Synchronize LAN gameplay state after game start.
-- [ ] Add model and protocol tests.
-- [ ] Run manual two-instance LAN acceptance checks.
+1. [x] Build the pure Tetris model foundation.
+   - Add board, cell, piece, rotation, player state, and game state types.
+   - Keep this package JavaFX-free and network-free.
+2. [x] Implement basic piece behavior in the model.
+   - Spawn standard pieces.
+   - Move left/right.
+   - Soft drop.
+   - Rotate.
+   - Reject invalid moves at board edges and collisions.
+3. [x] Implement gravity and lock behavior.
+   - Bottom board pieces fall downward.
+   - Top board pieces move upward.
+   - Locked cells become part of the settled board.
+4. [x] Replace dummy board cells with real model rendering.
+   - Render both `10x20` boards from model state.
+   - Keep top-board inversion visual and consistent with model coordinates.
+5. [x] Add local keyboard controls.
+   - Bottom player: arrow keys.
+   - Top player: `WASD`.
+   - Keep focus on the game scene after menu/start actions.
+6. [x] Implement line clear and score update.
+   - One point per cleared line.
+   - Update board and score labels immediately.
+7. [x] Implement loss, continuation, winner/draw, and restart.
+   - A lost player stops generating blocks.
+   - The opponent continues.
+   - Game ends after both players lose.
+   - Restart resets both boards and scores.
+8. [ ] Add the real custom connected-block editor.
+   - Validate non-empty orthogonally connected shapes.
+   - Normalize saved shapes.
+   - Add valid custom parts to the session config.
+9. [ ] Add Tetris-specific LAN protocol messages.
+   - Send input commands from client.
+   - Send authoritative snapshots from host.
+   - Keep this separate from Memory `Protocol`.
+10. [ ] Synchronize LAN gameplay after game start.
+    - Host owns game state.
+    - Joiner renders snapshots.
+    - Handle quit/disconnect cleanly.
+11. [ ] Add automated tests.
+    - Model tests first.
+    - Protocol serialization tests next.
+    - Controller/manual checks only where automation is not practical.
+12. [ ] Run final manual acceptance.
+    - Local two-player game.
+    - Two-instance LAN game.
+    - Custom piece validation.
+    - Restart and disconnect behavior.
 
 ## Current Repository State
 
@@ -36,8 +84,9 @@ This roadmap is intentionally requirement-driven. When the PDF does not specify 
 - The app currently contains a completed Memory game and a working first-pass Tetris menu/game shell:
   - `src/main/resources/tetris/TetrisMenu.fxml` contains Local/LAN menu panes and minimal config controls.
   - `src/main/java/seda_project/control_alt_defeat/gamebox/controller/tetris/TetrisMenuController.java` handles Local setup, UDP LAN discovery, TCP join/start handshake, and config routing.
-  - `src/main/resources/tetris/TetrisGame.fxml` contains a dummy two-board Tetris view.
-  - `src/main/java/seda_project/control_alt_defeat/gamebox/controller/tetris/TetrisGameController.java` renders dummy 10x20 boards and setup labels.
+  - `src/main/resources/tetris/TetrisGame.fxml` contains a two-board Tetris view.
+  - `src/main/java/seda_project/control_alt_defeat/gamebox/controller/tetris/TetrisGameController.java` renders `TetrisGameState` into two 10x20 boards.
+  - `src/main/java/seda_project/control_alt_defeat/gamebox/model/tetris/` contains the first pure model foundation types.
   - `src/main/java/seda_project/control_alt_defeat/gamebox/controller/GameChoice.java` routes `playTetris` to `/tetris/TetrisMenu.fxml`.
 - Existing reusable infrastructure:
   - `Router` can switch scenes.
@@ -246,32 +295,29 @@ Requirements covered:
 Actions:
 
 1. Add immutable/basic model types:
-   - `Cell`
-   - `Direction`
-   - `PlayerId`
-   - `BoardOrientation`
-   - `TetrominoType`
+   - `TetrisCell`
+   - `GravityDirection`
+   - `PlayerSide`
+   - `PieceType`
    - `PieceShape`
-   - `ActivePiece`
-   - `Board`
-   - `PlayerState`
+   - `TetrisPiece`
+   - `TetrisBoard`
+   - `TetrisPlayerState`
    - `TetrisGameState`
-2. Make `Board` own only settled cells and dimensions.
-3. Make `ActivePiece` own shape, rotation, and anchor position.
+2. Make `TetrisBoard` own only settled cells and dimensions.
+3. Make `TetrisPiece` own shape, rotation, and anchor position.
 4. Represent top board orientation explicitly:
-   - bottom board gravity direction is downward,
-   - top inverted board gravity direction is upward.
+   - bottom and top board model gravity move downward,
+   - the top board is rotated in the UI so the top player's blocks move upward visually.
 5. Keep all validation in model methods:
-   - `canMove`
-   - `move`
-   - `canRotate`
-   - `rotate`
+   - `canPlace`
+   - `moveLeft`
+   - `moveRight`
+   - `rotateClockwise`
    - `hardDrop` if implemented
-   - `tickGravity`
+   - `applyGravity`
    - `lockPiece`
-6. Use deterministic random injection for tests:
-   - model receives a `PieceGenerator` or seeded random.
-   - tests can force exact pieces.
+6. Keep current piece generation deterministic in the controller until random generation is added.
 
 Edge cases:
 
@@ -279,7 +325,7 @@ Edge cases:
 - Moving into settled cells is rejected.
 - Rotation into wall or settled cells is rejected.
 - Rotation that would leave the board is rejected unless a deliberate wall-kick rule is added.
-- Gravity for top board moves upward, not downward.
+- Top board visual movement appears upward because the rendered board is rotated.
 - Top board display inversion must not corrupt model coordinates.
 - A piece that cannot spawn triggers loss for that player.
 - Model methods must not depend on JavaFX controls or threads.
@@ -288,8 +334,8 @@ Tests:
 
 - Movement validation at all four board edges.
 - Rotation validation near wall and near settled cells.
-- Bottom gravity increases row index.
-- Top gravity decreases row index.
+- Bottom and top model gravity increase row index.
+- Top board visual gravity appears upward in the rotated UI.
 - Locking transfers active piece cells to settled board.
 - Spawn collision sets player lost state.
 
@@ -350,17 +396,17 @@ Requirements covered:
 
 Actions:
 
-1. Add `Board.findCompletedLines()`.
-2. Add `Board.clearLines(List<Integer> rows, BoardOrientation orientation)`.
+1. Add `Board.fullRows()`.
+2. Add `Board.clearRows(List<Integer> rows)`.
 3. For bottom board:
    - remove completed rows,
    - shift rows above downward,
    - fill new empty rows at top.
 4. For top inverted board:
-   - define behavior carefully.
-   - Requirement text says blocks above cleared lines shift downward, but top board blocks move upward. Keep model coordinates consistent and test the chosen rule.
+   - use the same model clear rule as the bottom board,
+   - keep the top board rotation in the UI so cleared rows still look correct for the inverted player.
 5. Update score after clearing lines.
-6. Keep scoring formula centralized in `ScoreCalculator`.
+6. Keep scoring formula in the player/model state until scoring gets more complex.
 7. Implement scoring as exactly one point per cleared line.
 
 Edge cases:
@@ -379,7 +425,7 @@ Tests:
 - Double/multiple line clear.
 - No line clear.
 - Score increases by one point per cleared line.
-- Top board clear behavior matches tests and documented orientation rule.
+- Top board clear behavior matches the documented rotated-view rule.
 
 ### Step 6: Implement Loss, Continuation, Winner, Draw, And Restart Logic
 
@@ -541,17 +587,12 @@ Requirements covered:
 
 Actions:
 
-1. Add a `ControlScheme` model:
-   - move left,
-   - move right,
-   - soft drop or gravity-step,
-   - rotate clockwise,
-   - rotate counterclockwise if supported,
-   - hard drop if supported.
-2. Assign one scheme per local player.
-3. Bind key pressed events at scene level.
+1. Bind key pressed events at scene level in `TetrisGameController`.
+2. Bottom player uses arrow keys.
+3. Top player uses `WASD`.
 4. Route input only to active/non-lost players.
 5. Reject invalid moves via model validation and leave the active piece unchanged.
+6. Leave counterclockwise rotation and hard drop out until explicitly added.
 
 Edge cases:
 
@@ -858,28 +899,28 @@ Done when:
 | `FR-INPUT-02` | Local start validation | Unit/controller test for default names |
 | `FR-INPUT-03` | LAN menu player name field | Controller/manual test |
 | `FR-INPUT-04` | Tetris-only UDP opponent discovery and selection | Discovery tests/manual LAN |
-| `FR-INPUT-05` | `ControlScheme`, game scene key handlers | Model movement tests/manual input |
+| `FR-INPUT-05` | `TetrisGameController` key handlers and model movement methods | Model movement tests/manual input |
 | `FR-INPUT-06` | Game-over restart button | Restart tests/manual |
 | `FR-FLOW-01` | Local session creation | Local start test |
 | `FR-FLOW-02` | UDP discovery followed by TCP host/join connection | LAN integration/manual |
-| `FR-FLOW-03` | `TetrisGameState`, `PlayerState` | Game setup tests |
+| `FR-FLOW-03` | `TetrisGameState`, `TetrisPlayerState` | Game setup tests |
 | `FR-FLOW-04` | Tetris discovery, TCP handshake, and player identity mapping | Discovery/protocol/handshake tests |
-| `FR-FLOW-05` | `canMove`, `move` | Movement validation tests |
-| `FR-FLOW-06` | `canRotate`, `rotate` | Rotation validation tests |
+| `FR-FLOW-05` | `TetrisBoard.canPlace`, `TetrisPlayerState.moveLeft`, `TetrisPlayerState.moveRight`, `TetrisPlayerState.softDrop` | Movement validation tests |
+| `FR-FLOW-06` | `TetrisBoard.canPlace`, `TetrisPlayerState.rotateClockwise` | Rotation validation tests |
 | `FR-FLOW-07` | Validation rejection paths | Invalid action tests |
-| `FR-FLOW-08` | `PieceGenerator`, game loop | Spawn/tick tests |
-| `FR-FLOW-09` | `BoardOrientation`, gravity | Top/bottom gravity tests |
+| `FR-FLOW-08` | `TetrisGameController` game loop and deterministic piece sequence | Spawn/tick tests |
+| `FR-FLOW-09` | `PlayerSide`, `GravityDirection`, rotated top board view | Top/bottom gravity tests |
 | `FR-FLOW-10` | `lockPiece` | Lock tests |
 | `FR-FLOW-11` | Deferred: speed increase on hold; keep constants ready | Not complete in first pass |
-| `FR-FLOW-12` | `findCompletedLines` | Line detection tests |
-| `FR-FLOW-13` | `clearLines` | Line clear/shift tests |
-| `FR-FLOW-14` | `ScoreCalculator`: one point per cleared line | Score tests |
-| `FR-FLOW-15` | Spawn/loss detection | Loss tests |
-| `FR-FLOW-16` | Per-player lost state | Lost player tick tests |
-| `FR-FLOW-17` | Final score storage | Loss score tests |
+| `FR-FLOW-12` | `TetrisBoard.fullRows` | Line detection tests |
+| `FR-FLOW-13` | `TetrisBoard.clearRows` | Line clear/shift tests |
+| `FR-FLOW-14` | `TetrisPlayerState.lockActivePiece`: one point per cleared line | Score tests |
+| `FR-FLOW-15` | `TetrisPlayerState.spawnPiece`, `TetrisPlayerState.lost` | Loss tests |
+| `FR-FLOW-16` | `PlayerStatus.LOST` | Lost player tick tests |
+| `FR-FLOW-17` | `TetrisPlayerState.finalScore` | Loss score tests |
 | `FR-FLOW-18` | Continuation after loss | Continuation tests |
-| `FR-FLOW-19` | Winner/draw resolver | Winner/draw tests |
-| `FR-FLOW-20` | Restart reset method | Restart tests |
+| `FR-FLOW-19` | `TetrisGameController.resultText` | Winner/draw tests |
+| `FR-FLOW-20` | `TetrisGameController.startNewGame` | Restart tests |
 | `FR-FLOW-21` | `TetrisProtocol`, host snapshots | Protocol/sync tests |
 | `FR-FLOW-22` | Disconnect handlers | Disconnect tests/manual |
 | `FR-OUTPUT-01` | `TetrisGame.fxml` board layout | Manual UI verification |
@@ -945,15 +986,22 @@ These are required by the PDF but intentionally not part of the first-pass plan:
 
 ## Suggested Implementation Order
 
-1. Wire Tetris menu route and module exports.
-2. Add Tetris-only UDP discovery.
-3. Build pure model: board, pieces, movement, rotation, gravity.
-4. Add model tests for movement, rotation, gravity, lock, line clear, score, loss, restart.
-5. Build local game UI and local controls.
-6. Add loss/continuation/winner/restart UI.
-7. Add custom part editor and validation.
-8. Connect selected Tetris opponent over TCP using Tetris-specific protocol messages.
-9. Add LAN gameplay synchronization.
-10. Add LAN restart/disconnect handling.
-11. Update documentation.
-12. Run final automated and manual acceptance checks.
+Completed setup work:
+
+1. Tetris menu route and module exports.
+2. Local/LAN menu flow.
+3. UDP discovery and TCP join/start handshake.
+4. Tetris setup/config routing.
+5. Two-board game screen.
+6. Pure model foundation, movement, rotation, gravity, lock, line clear, score, loss, restart.
+7. Local game loop and keyboard-controlled model rendering.
+
+Next implementation order:
+
+1. Add custom connected-block editor and validation.
+2. Add Tetris-specific LAN protocol messages.
+3. Add host-authoritative LAN gameplay synchronization.
+4. Add LAN restart/disconnect handling.
+5. Add model tests for movement, rotation, gravity, lock, line clear, score, loss, restart.
+6. Update README/build docs.
+7. Run final automated and manual acceptance checks.
