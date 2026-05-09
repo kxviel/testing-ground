@@ -46,6 +46,10 @@ public class TetrisGameController implements RouteDataReceiver {
     @FXML
     private Label resultLabel;
     @FXML
+    private Label keymapTitleLabel;
+    @FXML
+    private Label keymapLabel;
+    @FXML
     private Button restartButton;
     @FXML
     private GridPane topBoardGrid;
@@ -135,7 +139,26 @@ public class TetrisGameController implements RouteDataReceiver {
         bottomScoreLabel.setText("Score: " + gameState.bottomPlayer().score());
         topScoreLabel.setText("Score: " + gameState.topPlayer().score());
         configLabel.setText("Pieces: " + gameState.config().displayText());
+        renderKeymap();
         renderResult();
+    }
+
+    private void renderKeymap() {
+        if (setup.isLocal()) {
+            keymapTitleLabel.setText("Controls - Local");
+            keymapLabel.setText("""
+                    Bottom: Left/Right = move, Down = forward, Up = rotate
+                    Top: A/D = move, W = forward, S = rotate""");
+            return;
+        }
+
+        if (setup.localSide() == PlayerSide.TOP) {
+            keymapTitleLabel.setText("Controls - " + gameState.topPlayer().playerName());
+            keymapLabel.setText("A/D = move, W = forward, S = rotate");
+        } else {
+            keymapTitleLabel.setText("Controls - " + gameState.bottomPlayer().playerName());
+            keymapLabel.setText("Left/Right = move, Down = forward, Up = rotate");
+        }
     }
 
     private void renderResult() {
@@ -217,22 +240,14 @@ public class TetrisGameController implements RouteDataReceiver {
 
         KeyCode code = event.getCode();
 
-        if (code == KeyCode.LEFT) {
-            gameState = gameState.moveLeft(PlayerSide.BOTTOM);
-        } else if (code == KeyCode.RIGHT) {
-            gameState = gameState.moveRight(PlayerSide.BOTTOM);
-        } else if (code == KeyCode.DOWN) {
-            gameState = gameState.applyGravity(PlayerSide.BOTTOM);
-        } else if (code == KeyCode.UP) {
-            gameState = gameState.rotateClockwise(PlayerSide.BOTTOM);
-        } else if (code == KeyCode.A) {
-            gameState = gameState.moveLeft(PlayerSide.TOP);
-        } else if (code == KeyCode.D) {
-            gameState = gameState.moveRight(PlayerSide.TOP);
-        } else if (code == KeyCode.S) {
-            gameState = gameState.applyGravity(PlayerSide.TOP);
-        } else if (code == KeyCode.W) {
-            gameState = gameState.rotateClockwise(PlayerSide.TOP);
+        if (!setup.isLocal()) {
+            if (!handleLanKey(code)) {
+                return;
+            }
+        } else if (isBottomKey(code)) {
+            handleBottomKey(code);
+        } else if (isTopKey(code)) {
+            handleTopKey(code);
         } else {
             return;
         }
@@ -243,6 +258,57 @@ public class TetrisGameController implements RouteDataReceiver {
 
         if (gameState.isFinished()) {
             stopGameLoop();
+        }
+    }
+
+    private boolean handleLanKey(KeyCode code) {
+        if (setup.localSide() == PlayerSide.TOP && isTopKey(code)) {
+            handleTopKey(code);
+            return true;
+        }
+        if (setup.localSide() == PlayerSide.BOTTOM && isBottomKey(code)) {
+            handleBottomKey(code);
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean isBottomKey(KeyCode code) {
+        return code == KeyCode.LEFT
+                || code == KeyCode.RIGHT
+                || code == KeyCode.DOWN
+                || code == KeyCode.UP;
+    }
+
+    private boolean isTopKey(KeyCode code) {
+        return code == KeyCode.A
+                || code == KeyCode.D
+                || code == KeyCode.W
+                || code == KeyCode.S;
+    }
+
+    private void handleBottomKey(KeyCode code) {
+        if (code == KeyCode.LEFT) {
+            gameState = gameState.moveLeft(PlayerSide.BOTTOM);
+        } else if (code == KeyCode.RIGHT) {
+            gameState = gameState.moveRight(PlayerSide.BOTTOM);
+        } else if (code == KeyCode.DOWN) {
+            gameState = gameState.applyGravity(PlayerSide.BOTTOM);
+        } else if (code == KeyCode.UP) {
+            gameState = gameState.rotateClockwise(PlayerSide.BOTTOM);
+        }
+    }
+
+    private void handleTopKey(KeyCode code) {
+        if (code == KeyCode.A) {
+            gameState = gameState.moveRight(PlayerSide.TOP);
+        } else if (code == KeyCode.D) {
+            gameState = gameState.moveLeft(PlayerSide.TOP);
+        } else if (code == KeyCode.W) {
+            gameState = gameState.applyGravity(PlayerSide.TOP);
+        } else if (code == KeyCode.S) {
+            gameState = gameState.rotateClockwise(PlayerSide.TOP);
         }
     }
 

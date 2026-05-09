@@ -38,6 +38,12 @@
     -fx-text-fill: #4f5665;
 }
 
+.keymap-label {
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #4f5665;
+}
+
 .subtitle {
     -fx-font-size: 14px;
     -fx-text-fill: #5f6470;
@@ -149,12 +155,12 @@
 .board-cell {
     -fx-background-color: #f7f7fb;
     -fx-border-color: #e1e4ec;
-    -fx-min-width: 22;
-    -fx-min-height: 22;
-    -fx-pref-width: 22;
-    -fx-pref-height: 22;
-    -fx-max-width: 22;
-    -fx-max-height: 22;
+    -fx-min-width: 16;
+    -fx-min-height: 16;
+    -fx-pref-width: 16;
+    -fx-pref-height: 16;
+    -fx-max-width: 16;
+    -fx-max-height: 16;
 }
 
 .board-cell-filled {

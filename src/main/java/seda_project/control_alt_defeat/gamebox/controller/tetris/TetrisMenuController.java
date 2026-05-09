@@ -201,7 +201,7 @@ public class TetrisMenuController {
 
         gameStarted = true;
         hostServer.send(TetrisProtocol.start(hostName, joinedPlayerName, hostConfig));
-        Router.goTo(event, "/tetris/TetrisGame.fxml", new TetrisGameSetup(hostName, joinedPlayerName, hostConfig));
+        Router.goTo(event, "/tetris/TetrisGame.fxml", TetrisGameSetup.host(hostName, joinedPlayerName, hostConfig));
         closeLan();
     }
 
@@ -388,7 +388,7 @@ public class TetrisMenuController {
             return;
         }
 
-        TetrisGameSetup setup = new TetrisGameSetup(playerOne, playerTwo, config);
+        TetrisGameSetup setup = TetrisGameSetup.local(playerOne, playerTwo, config);
         Router.goTo(event, "/tetris/TetrisGame.fxml", setup);
     }
 
@@ -558,7 +558,7 @@ public class TetrisMenuController {
             gameStarted = true;
             TetrisGameConfig config = TetrisGameConfig.deserialize(fields.get(2));
             Stage stage = (Stage) statusLabel.getScene().getWindow();
-            Router.goTo(stage, "/tetris/TetrisGame.fxml", new TetrisGameSetup(fields.get(0), fields.get(1), config));
+            Router.goTo(stage, "/tetris/TetrisGame.fxml", TetrisGameSetup.join(fields.get(0), fields.get(1), config));
             closeLan();
         });
     }
