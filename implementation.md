@@ -30,6 +30,7 @@ This roadmap is intentionally requirement-driven. When the PDF does not specify 
 - [x] LAN gameplay uses host-authoritative snapshots with joiner input commands.
 - [x] LAN restart, quit, and disconnect paths stop safely and update the game view.
 - [x] README documents current GameBox/Zetris build, run, and play instructions.
+- [x] Focused Tetris model and protocol tests were added.
 
 ### Next To Do In Order
 
@@ -73,7 +74,7 @@ This roadmap is intentionally requirement-driven. When the PDF does not specify 
     - Host owns game state.
     - Joiner renders snapshots.
     - Handle quit/disconnect cleanly.
-11. [ ] Add automated tests.
+11. [x] Add automated tests.
     - Model tests first.
     - Protocol serialization tests next.
     - Controller/manual checks only where automation is not practical.
@@ -1006,8 +1007,15 @@ Completed setup work:
 10. Host-authoritative LAN gameplay synchronization.
 11. LAN restart/disconnect handling.
 12. README/build docs.
+13. Focused model/protocol tests.
 
 Next implementation order:
 
-1. Add model tests for movement, rotation, gravity, lock, line clear, score, loss, restart.
-2. Run final automated and manual acceptance checks.
+1. Run final automated and manual acceptance checks.
+
+Current verification notes:
+
+- `mvn -q -DskipTests test-compile` passes.
+- `mvn -q -DskipTests javafx:jlink` passes.
+- Full `mvn test` was not run because the user explicitly asked not to run it.
+- Interactive local/LAN manual acceptance still needs a human two-instance check.
