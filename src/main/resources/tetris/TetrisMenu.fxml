@@ -83,6 +83,9 @@
             <Separator/>
 
             <Label fx:id="hostInfoLabel" text="Not advertising." styleClass="status-line"/>
+            <Label fx:id="joinedPlayerLabel" text="Joined: none" styleClass="status-line"/>
+            <Button fx:id="hostStartGameButton" text="Start Game" onAction="#onHostStartGame"
+                    disable="true" visible="false" managed="false" styleClass="btn-primary"/>
         </VBox>
 
         <VBox fx:id="joinPane" alignment="CENTER" spacing="16" visible="false" managed="false">
@@ -102,7 +105,7 @@
             <Separator/>
 
             <Label text="Available Games" styleClass="field-title"/>
-            <ListView fx:id="availableGamesList" prefHeight="96" maxWidth="360"/>
+            <ListView fx:id="availableGamesList" prefHeight="96" maxWidth="360" onMouseClicked="#onGameSelected"/>
             <Button text="Refresh Games" onAction="#onRefreshGames" styleClass="btn-outline"/>
         </VBox>
     </StackPane>

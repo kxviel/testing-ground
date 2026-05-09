@@ -47,8 +47,9 @@
 }
 
 .status-line {
-    -fx-font-size: 13px;
-    -fx-text-fill: #4f5665;
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #171717;
 }
 
 .button {

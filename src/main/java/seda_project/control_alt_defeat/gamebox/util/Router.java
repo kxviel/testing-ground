@@ -21,20 +21,34 @@ public final class Router {
             Scene currentScene = source.getScene();
             Stage stage = (Stage) currentScene.getWindow();
 
-            FXMLLoader loader = new FXMLLoader(Router.class.getResource(route));
-            Parent root = loader.load();
-            Scene scene = new Scene(root, currentScene.getWidth(), currentScene.getHeight());
-            Object controller = loader.getController();
-
-            if (data != null && controller instanceof RouteDataReceiver receiver) {
-                receiver.setRouteData(data);
-            }
-
-            stage.setScene(scene);
-            Platform.runLater(() -> stage.setMaximized(true));
+            goTo(stage, currentScene.getWidth(), currentScene.getHeight(), route, data);
 
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static void goTo(Stage stage, String route, Object data) {
+        try {
+            Scene currentScene = stage.getScene();
+            goTo(stage, currentScene.getWidth(), currentScene.getHeight(), route, data);
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static void goTo(Stage stage, double width, double height, String route, Object data) throws IOException {
+        FXMLLoader loader = new FXMLLoader(Router.class.getResource(route));
+        Parent root = loader.load();
+        Scene scene = new Scene(root, width, height);
+        Object controller = loader.getController();
+
+        if (data != null && controller instanceof RouteDataReceiver receiver) {
+            receiver.setRouteData(data);
+        }
+
+        stage.setScene(scene);
+        Platform.runLater(() -> stage.setMaximized(true));
     }
 }
