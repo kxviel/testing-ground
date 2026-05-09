@@ -20,6 +20,24 @@
     -fx-text-fill: #171717;
 }
 
+.game-side-title {
+    -fx-font-size: 42px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #171717;
+}
+
+.player-name {
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #171717;
+}
+
+.score-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #4f5665;
+}
+
 .subtitle {
     -fx-font-size: 14px;
     -fx-text-fill: #5f6470;
@@ -117,6 +135,36 @@
     -fx-border-radius: 6;
     -fx-border-color: #cfd2dc;
     -fx-border-width: 1;
+}
+
+.tetris-board {
+    -fx-background-color: #171717;
+    -fx-border-color: #171717;
+    -fx-border-width: 2;
+    -fx-hgap: 1;
+    -fx-vgap: 1;
+    -fx-padding: 2;
+}
+
+.board-cell {
+    -fx-background-color: #f7f7fb;
+    -fx-border-color: #e1e4ec;
+    -fx-min-width: 22;
+    -fx-min-height: 22;
+    -fx-pref-width: 22;
+    -fx-pref-height: 22;
+    -fx-max-width: 22;
+    -fx-max-height: 22;
+}
+
+.board-cell-filled {
+    -fx-background-color: #6b7280;
+    -fx-border-color: #4b5563;
+}
+
+.board-cell-active {
+    -fx-background-color: #2f7edb;
+    -fx-border-color: #13579f;
 }
 
 .button:disabled {

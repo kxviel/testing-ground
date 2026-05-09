@@ -5,16 +5,22 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameConfig;
+import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameSetup;
 import seda_project.control_alt_defeat.gamebox.network.GameClient;
 import seda_project.control_alt_defeat.gamebox.network.GameServer;
 import seda_project.control_alt_defeat.gamebox.network.tetris.TetrisLanDiscoveryService;
 import seda_project.control_alt_defeat.gamebox.util.Router;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class TetrisMenuController {
 
@@ -36,6 +42,8 @@ public class TetrisMenuController {
     private VBox hostPane;
     @FXML
     private VBox joinPane;
+    @FXML
+    private VBox configBox;
 
     @FXML
     private Button localModeButton;
@@ -60,6 +68,13 @@ public class TetrisMenuController {
     private TextField joinPlayerNameField;
 
     @FXML
+    private CheckBox standardPieceCheckBox;
+    @FXML
+    private CheckBox extendedPieceCheckBox;
+    @FXML
+    private CheckBox customPieceCheckBox;
+
+    @FXML
     private Label hostInfoLabel;
     @FXML
     private Label joinedPlayerLabel;
@@ -75,13 +90,11 @@ public class TetrisMenuController {
     private GameClient joinClient;
     private String hostName;
     private String joinedPlayerName;
+    private TetrisGameConfig hostConfig = TetrisGameConfig.defaultConfig();
     private boolean gameStarted;
 
     private static final String JOIN = "JOIN";
     private static final String START = "START";
-
-    public record GameSetup(String playerOneName, String playerTwoName) {
-    }
 
     @FXML
     public void initialize() {
@@ -143,8 +156,8 @@ public class TetrisMenuController {
         }
 
         gameStarted = true;
-        hostServer.send(START + ":" + hostName + ":" + joinedPlayerName);
-        Router.goTo(event, "/tetris/TetrisGame.fxml", new GameSetup(hostName, joinedPlayerName));
+        hostServer.send(START + ":" + hostName + ":" + joinedPlayerName + ":" + hostConfig.serialize());
+        Router.goTo(event, "/tetris/TetrisGame.fxml", new TetrisGameSetup(hostName, joinedPlayerName, hostConfig));
         closeLan();
     }
 
@@ -211,6 +224,7 @@ public class TetrisMenuController {
         setShown(lanPane, view == MenuView.LAN);
         setShown(hostPane, view == MenuView.HOST);
         setShown(joinPane, view == MenuView.JOIN);
+        setShown(configBox, view == MenuView.LOCAL || view == MenuView.HOST);
     }
 
     private MenuView parentView(MenuView view) {
@@ -247,7 +261,12 @@ public class TetrisMenuController {
             return;
         }
 
-        GameSetup setup = new GameSetup(playerOne, playerTwo);
+        TetrisGameConfig config = buildConfig();
+        if (config == null) {
+            return;
+        }
+
+        TetrisGameSetup setup = new TetrisGameSetup(playerOne, playerTwo, config);
         Router.goTo(event, "/tetris/TetrisGame.fxml", setup);
     }
 
@@ -261,6 +280,11 @@ public class TetrisMenuController {
 
         this.hostName = hostName;
         joinedPlayerName = null;
+        TetrisGameConfig config = buildConfig();
+        if (config == null) {
+            return;
+        }
+        hostConfig = config;
         gameStarted = false;
 
         closeHostServer();
@@ -399,14 +423,15 @@ public class TetrisMenuController {
                 return;
             }
 
-            String[] parts = message.split(":", 3);
-            if (parts.length != 3) {
+            String[] parts = message.split(":", 4);
+            if (parts.length != 4) {
                 return;
             }
 
             gameStarted = true;
+            TetrisGameConfig config = TetrisGameConfig.deserialize(parts[3]);
             Stage stage = (Stage) statusLabel.getScene().getWindow();
-            Router.goTo(stage, "/tetris/TetrisGame.fxml", new GameSetup(parts[1], parts[2]));
+            Router.goTo(stage, "/tetris/TetrisGame.fxml", new TetrisGameSetup(parts[1], parts[2], config));
             closeLan();
         });
     }
@@ -446,6 +471,28 @@ public class TetrisMenuController {
             joinClient.close();
             joinClient = null;
         }
+    }
+
+    private TetrisGameConfig buildConfig() {
+        List<String> pieces = new ArrayList<>();
+
+        if (standardPieceCheckBox.isSelected()) {
+            pieces.add("Standard");
+        }
+        if (extendedPieceCheckBox.isSelected()) {
+            pieces.add("Extended");
+        }
+        if (customPieceCheckBox.isSelected()) {
+            pieces.add("Custom");
+        }
+
+        TetrisGameConfig config = new TetrisGameConfig(pieces);
+        if (!config.hasPieces()) {
+            statusLabel.setText("Select at least one piece set.");
+            return null;
+        }
+
+        return config;
     }
 
     private String trimmed(TextField field) {
