@@ -25,6 +25,8 @@ This roadmap is intentionally requirement-driven. When the PDF does not specify 
 - [x] Top board is visually inverted while the model keeps one downward gravity rule.
 - [x] Line clear and one-point-per-line score update exists in the model and UI.
 - [x] Local game loop spawns pieces, advances gravity, detects loss, shows winner/draw, and supports restart.
+- [x] Custom connected-block editor validates, normalizes, saves, and routes session custom pieces.
+- [x] Tetris-specific LAN protocol messages exist separately from Memory protocol.
 
 ### Next To Do In Order
 
@@ -56,13 +58,13 @@ This roadmap is intentionally requirement-driven. When the PDF does not specify 
    - The opponent continues.
    - Game ends after both players lose.
    - Restart resets both boards and scores.
-8. [ ] Add the real custom connected-block editor.
+8. [x] Add the real custom connected-block editor.
    - Validate non-empty orthogonally connected shapes.
    - Normalize saved shapes.
    - Add valid custom parts to the session config.
-9. [ ] Add Tetris-specific LAN protocol messages.
-   - Send input commands from client.
-   - Send authoritative snapshots from host.
+9. [x] Add Tetris-specific LAN protocol messages.
+   - Define JOIN, START, INPUT, STATE, restart, quit, and error message builders.
+   - Use the Tetris protocol for the current LAN setup handshake.
    - Keep this separate from Memory `Protocol`.
 10. [ ] Synchronize LAN gameplay after game start.
     - Host owns game state.
@@ -86,7 +88,8 @@ This roadmap is intentionally requirement-driven. When the PDF does not specify 
   - `src/main/java/seda_project/control_alt_defeat/gamebox/controller/tetris/TetrisMenuController.java` handles Local setup, UDP LAN discovery, TCP join/start handshake, and config routing.
   - `src/main/resources/tetris/TetrisGame.fxml` contains a two-board Tetris view.
   - `src/main/java/seda_project/control_alt_defeat/gamebox/controller/tetris/TetrisGameController.java` renders `TetrisGameState` into two 10x20 boards.
-  - `src/main/java/seda_project/control_alt_defeat/gamebox/model/tetris/` contains the first pure model foundation types.
+  - `src/main/java/seda_project/control_alt_defeat/gamebox/model/tetris/` contains the first pure model foundation types and custom piece validation.
+  - `src/main/java/seda_project/control_alt_defeat/gamebox/network/tetris/TetrisProtocol.java` contains Tetris-specific LAN message builders/parsing.
   - `src/main/java/seda_project/control_alt_defeat/gamebox/controller/GameChoice.java` routes `playTetris` to `/tetris/TetrisMenu.fxml`.
 - Existing reusable infrastructure:
   - `Router` can switch scenes.
@@ -995,13 +998,13 @@ Completed setup work:
 5. Two-board game screen.
 6. Pure model foundation, movement, rotation, gravity, lock, line clear, score, loss, restart.
 7. Local game loop and keyboard-controlled model rendering.
+8. Custom connected-block editor and validation.
+9. Tetris-specific LAN protocol messages.
 
 Next implementation order:
 
-1. Add custom connected-block editor and validation.
-2. Add Tetris-specific LAN protocol messages.
-3. Add host-authoritative LAN gameplay synchronization.
-4. Add LAN restart/disconnect handling.
-5. Add model tests for movement, rotation, gravity, lock, line clear, score, loss, restart.
-6. Update README/build docs.
-7. Run final automated and manual acceptance checks.
+1. Add host-authoritative LAN gameplay synchronization.
+2. Add LAN restart/disconnect handling.
+3. Add model tests for movement, rotation, gravity, lock, line clear, score, loss, restart.
+4. Update README/build docs.
+5. Run final automated and manual acceptance checks.
