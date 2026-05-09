@@ -171,3 +171,25 @@
     -fx-cursor: default;
     -fx-opacity: 0.5;
 }
+
+.custom-piece-grid {
+    -fx-hgap: 2;
+    -fx-vgap: 2;
+}
+
+.custom-cell {
+    -fx-background-color: white;
+    -fx-border-color: #cfd2dc;
+    -fx-min-width: 26;
+    -fx-min-height: 26;
+    -fx-pref-width: 26;
+    -fx-pref-height: 26;
+    -fx-max-width: 26;
+    -fx-max-height: 26;
+    -fx-padding: 0;
+}
+
+.custom-cell-selected {
+    -fx-background-color: #2f7edb;
+    -fx-border-color: #13579f;
+}

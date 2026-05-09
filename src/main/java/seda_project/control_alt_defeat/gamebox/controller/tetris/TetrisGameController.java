@@ -260,7 +260,7 @@ public class TetrisGameController implements RouteDataReceiver {
     }
 
     private PieceShape nextPiece(PlayerSide side) {
-        List<PieceShape> shapes = PieceShape.standardShapes();
+        List<PieceShape> shapes = gameState.config().availableShapes();
 
         if (side == PlayerSide.BOTTOM) {
             PieceShape shape = shapes.get(bottomPieceIndex % shapes.size());

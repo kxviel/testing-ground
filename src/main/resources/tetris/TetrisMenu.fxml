@@ -115,8 +115,17 @@
         <HBox alignment="CENTER" spacing="12">
             <CheckBox fx:id="standardPieceCheckBox" text="Standard" selected="true"/>
             <CheckBox fx:id="extendedPieceCheckBox" text="Extended"/>
-            <CheckBox fx:id="customPieceCheckBox" text="Custom"/>
+            <CheckBox fx:id="customPieceCheckBox" text="Custom" onAction="#onCustomPieceToggle"/>
         </HBox>
+        <VBox fx:id="customEditorBox" alignment="CENTER" spacing="8" visible="false" managed="false">
+            <Label text="Custom Piece" styleClass="field-title"/>
+            <GridPane fx:id="customPieceGrid" alignment="CENTER" styleClass="custom-piece-grid"/>
+            <HBox alignment="CENTER" spacing="8">
+                <Button text="Clear" onAction="#onClearCustomPiece" styleClass="btn-outline"/>
+                <Button text="Save" onAction="#onSaveCustomPiece" styleClass="btn-primary"/>
+            </HBox>
+            <Label fx:id="customPieceStatusLabel" text="" maxWidth="360" wrapText="true" styleClass="status-line"/>
+        </VBox>
     </VBox>
 
     <Label fx:id="statusLabel" text="" maxWidth="560" wrapText="true" styleClass="status-line"/>

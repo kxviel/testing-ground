@@ -10,8 +10,12 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import seda_project.control_alt_defeat.gamebox.model.tetris.BoardPosition;
+import seda_project.control_alt_defeat.gamebox.model.tetris.CustomPieceBuilder;
+import seda_project.control_alt_defeat.gamebox.model.tetris.PieceShape;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameConfig;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameSetup;
 import seda_project.control_alt_defeat.gamebox.network.GameClient;
@@ -44,6 +48,10 @@ public class TetrisMenuController {
     private VBox joinPane;
     @FXML
     private VBox configBox;
+    @FXML
+    private VBox customEditorBox;
+    @FXML
+    private GridPane customPieceGrid;
 
     @FXML
     private Button localModeButton;
@@ -80,12 +88,19 @@ public class TetrisMenuController {
     private Label joinedPlayerLabel;
     @FXML
     private Label statusLabel;
+    @FXML
+    private Label customPieceStatusLabel;
 
     @FXML
     private ListView<TetrisLanDiscoveryService.DiscoveredGame> availableGamesList;
 
+    private static final int CUSTOM_EDITOR_SIZE = 5;
+
     private MenuView currentView = MenuView.MODE_CHOICE;
     private final TetrisLanDiscoveryService udpDiscovery = new TetrisLanDiscoveryService();
+    private final Button[][] customPieceButtons = new Button[CUSTOM_EDITOR_SIZE][CUSTOM_EDITOR_SIZE];
+    private final boolean[][] customPieceCells = new boolean[CUSTOM_EDITOR_SIZE][CUSTOM_EDITOR_SIZE];
+    private final List<PieceShape> customPieces = new ArrayList<>();
     private GameServer hostServer;
     private GameClient joinClient;
     private String hostName;
@@ -98,6 +113,7 @@ public class TetrisMenuController {
 
     @FXML
     public void initialize() {
+        buildCustomPieceGrid();
         availableGamesList.setPlaceholder(new Label("No LAN games found yet."));
         selectView(MenuView.MODE_CHOICE);
     }
@@ -128,6 +144,36 @@ public class TetrisMenuController {
     private void onRefreshGames() {
         startDiscovery();
         statusLabel.setText("Searching for LAN games...");
+    }
+
+    @FXML
+    private void onCustomPieceToggle() {
+        updateCustomEditorVisibility();
+    }
+
+    @FXML
+    private void onSaveCustomPiece() {
+        try {
+            PieceShape shape = CustomPieceBuilder.build("Custom " + (customPieces.size() + 1), selectedCustomCells());
+
+            if (customPieceExists(shape)) {
+                customPieceStatusLabel.setText("Custom piece already saved.");
+                return;
+            }
+
+            customPieces.add(shape);
+            customPieceCheckBox.setSelected(true);
+            clearCustomPieceEditor();
+            customPieceStatusLabel.setText("Saved custom piece " + customPieces.size() + ".");
+        } catch (IllegalArgumentException e) {
+            customPieceStatusLabel.setText(e.getMessage());
+        }
+    }
+
+    @FXML
+    private void onClearCustomPiece() {
+        clearCustomPieceEditor();
+        customPieceStatusLabel.setText("Custom piece cleared.");
     }
 
     @FXML
@@ -195,6 +241,7 @@ public class TetrisMenuController {
 
         currentView = view;
         showOnly(view);
+        updateCustomEditorVisibility();
         setSelected(localModeButton, view == MenuView.LOCAL);
         setSelected(lanModeButton, view == MenuView.LAN || view == MenuView.HOST || view == MenuView.JOIN);
         setSelected(hostRoleButton, view == MenuView.HOST);
@@ -225,6 +272,83 @@ public class TetrisMenuController {
         setShown(hostPane, view == MenuView.HOST);
         setShown(joinPane, view == MenuView.JOIN);
         setShown(configBox, view == MenuView.LOCAL || view == MenuView.HOST);
+    }
+
+    private void buildCustomPieceGrid() {
+        customPieceGrid.getChildren().clear();
+
+        for (int row = 0; row < CUSTOM_EDITOR_SIZE; row++) {
+            for (int column = 0; column < CUSTOM_EDITOR_SIZE; column++) {
+                Button button = new Button();
+                button.getStyleClass().add("custom-cell");
+
+                int cellRow = row;
+                int cellColumn = column;
+                button.setOnAction(event -> toggleCustomCell(cellRow, cellColumn));
+
+                customPieceButtons[row][column] = button;
+                customPieceGrid.add(button, column, row);
+            }
+        }
+    }
+
+    private void toggleCustomCell(int row, int column) {
+        customPieceCells[row][column] = !customPieceCells[row][column];
+        updateCustomCellButton(row, column);
+    }
+
+    private void updateCustomCellButton(int row, int column) {
+        Button button = customPieceButtons[row][column];
+
+        if (customPieceCells[row][column] && !button.getStyleClass().contains("custom-cell-selected")) {
+            button.getStyleClass().add("custom-cell-selected");
+        } else if (!customPieceCells[row][column]) {
+            button.getStyleClass().remove("custom-cell-selected");
+        }
+    }
+
+    private List<BoardPosition> selectedCustomCells() {
+        List<BoardPosition> cells = new ArrayList<>();
+
+        for (int row = 0; row < CUSTOM_EDITOR_SIZE; row++) {
+            for (int column = 0; column < CUSTOM_EDITOR_SIZE; column++) {
+                if (customPieceCells[row][column]) {
+                    cells.add(new BoardPosition(row, column));
+                }
+            }
+        }
+
+        return cells;
+    }
+
+    private boolean customPieceExists(PieceShape shape) {
+        for (PieceShape customPiece : customPieces) {
+            if (customPiece.cells().equals(shape.cells())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void clearCustomPieceEditor() {
+        for (int row = 0; row < CUSTOM_EDITOR_SIZE; row++) {
+            for (int column = 0; column < CUSTOM_EDITOR_SIZE; column++) {
+                customPieceCells[row][column] = false;
+                updateCustomCellButton(row, column);
+            }
+        }
+    }
+
+    private void updateCustomEditorVisibility() {
+        boolean shown = (currentView == MenuView.LOCAL || currentView == MenuView.HOST)
+                && customPieceCheckBox.isSelected();
+
+        setShown(customEditorBox, shown);
+
+        if (shown && customPieces.isEmpty()) {
+            customPieceStatusLabel.setText("Draw a connected piece and save it.");
+        }
     }
 
     private MenuView parentView(MenuView view) {
@@ -486,7 +610,14 @@ public class TetrisMenuController {
             pieces.add("Custom");
         }
 
-        TetrisGameConfig config = new TetrisGameConfig(pieces);
+        if (customPieceCheckBox.isSelected() && customPieces.isEmpty()) {
+            statusLabel.setText("Create and save a custom piece first.");
+            return null;
+        }
+
+        TetrisGameConfig config = new TetrisGameConfig(
+                pieces,
+                customPieceCheckBox.isSelected() ? customPieces : List.of());
         if (!config.hasPieces()) {
             statusLabel.setText("Select at least one piece set.");
             return null;
