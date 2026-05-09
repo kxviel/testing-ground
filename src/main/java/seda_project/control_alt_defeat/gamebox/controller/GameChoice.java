@@ -13,6 +13,6 @@ public class GameChoice {
 
     @FXML
     private void playTetris(ActionEvent event) {
-        Router.goTo(event, "/memory/MemoryMenu.fxml", null);
+        Router.goTo(event, "/tetris/TetrisMenu.fxml", null);
     }
 }

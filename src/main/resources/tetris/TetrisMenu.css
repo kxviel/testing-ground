@@ -1,0 +1,124 @@
+.tetris-menu-root {
+    -fx-background-color: #f7f7fb;
+    -fx-font-family: "Lato", "Segoe UI", sans-serif;
+}
+
+.tetris-game-root {
+    -fx-background-color: #f7f7fb;
+    -fx-font-family: "Lato", "Segoe UI", sans-serif;
+}
+
+.title {
+    -fx-font-size: 34px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #171717;
+}
+
+.game-title {
+    -fx-font-size: 64px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #171717;
+}
+
+.subtitle {
+    -fx-font-size: 14px;
+    -fx-text-fill: #5f6470;
+}
+
+.menu-panel {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-border-color: #dedee8;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-padding: 24;
+}
+
+.section-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #171717;
+}
+
+.field-title {
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #333743;
+}
+
+.status-line {
+    -fx-font-size: 13px;
+    -fx-text-fill: #4f5665;
+}
+
+.button {
+    -fx-alignment: center;
+    -fx-background-insets: 0;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
+    -fx-cursor: hand;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-min-height: 36;
+    -fx-min-width: 96;
+    -fx-padding: 8 16;
+}
+
+.btn-primary {
+    -fx-background-color: #171717;
+    -fx-border-color: #171717;
+    -fx-text-fill: white;
+}
+
+.btn-primary:hover {
+    -fx-background-color: #2f2f2f;
+    -fx-border-color: #2f2f2f;
+}
+
+.btn-primary:pressed {
+    -fx-background-color: #0a0a0a;
+    -fx-border-color: #0a0a0a;
+}
+
+.btn-outline {
+    -fx-background-color: white;
+    -fx-border-color: #cfd2dc;
+    -fx-text-fill: #171717;
+}
+
+.btn-outline:hover {
+    -fx-background-color: #f2f3f7;
+    -fx-border-color: #bfc3cf;
+}
+
+.btn-outline:pressed {
+    -fx-background-color: #e6e8ef;
+    -fx-border-color: #aeb3c1;
+}
+
+.btn-selected {
+    -fx-background-color: #e9f3ff;
+    -fx-border-color: #2f7edb;
+    -fx-text-fill: #13579f;
+}
+
+.text-field {
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-border-color: #cfd2dc;
+    -fx-border-width: 1;
+    -fx-padding: 7 10;
+}
+
+.list-view {
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-border-color: #cfd2dc;
+    -fx-border-width: 1;
+}
+
+.button:disabled {
+    -fx-cursor: default;
+    -fx-opacity: 0.5;
+}
