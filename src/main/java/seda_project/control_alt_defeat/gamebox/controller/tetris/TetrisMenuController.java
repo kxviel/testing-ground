@@ -1,5 +1,8 @@
 package seda_project.control_alt_defeat.gamebox.controller.tetris;
 
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -13,6 +16,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import seda_project.control_alt_defeat.gamebox.model.tetris.BoardPosition;
 import seda_project.control_alt_defeat.gamebox.model.tetris.CustomPieceBuilder;
 import seda_project.control_alt_defeat.gamebox.model.tetris.PieceShape;
@@ -96,12 +100,14 @@ public class TetrisMenuController {
     private ListView<TetrisLanDiscoveryService.DiscoveredGame> availableGamesList;
 
     private static final int CUSTOM_EDITOR_SIZE = 5;
+    private static final int LAN_GAME_STALE_MS = 4_000;
 
     private MenuView currentView = MenuView.MODE_CHOICE;
     private final TetrisLanDiscoveryService udpDiscovery = new TetrisLanDiscoveryService();
     private final Button[][] customPieceButtons = new Button[CUSTOM_EDITOR_SIZE][CUSTOM_EDITOR_SIZE];
     private final boolean[][] customPieceCells = new boolean[CUSTOM_EDITOR_SIZE][CUSTOM_EDITOR_SIZE];
     private final List<PieceShape> customPieces = new ArrayList<>();
+    private Timeline staleGameTimer;
     private GameServer hostServer;
     private GameClient joinClient;
     private String hostName;
@@ -223,11 +229,13 @@ public class TetrisMenuController {
     private void selectView(MenuView view) {
         if (view != MenuView.JOIN) {
             udpDiscovery.stopListening();
+            stopStaleGameTimer();
             availableGamesList.getItems().clear();
             closeJoinClient();
         } else {
             availableGamesList.setDisable(false);
             joinPlayerNameField.setDisable(false);
+            startStaleGameTimer();
         }
         if (view != MenuView.HOST) {
             udpDiscovery.stopAdvertising();
@@ -471,6 +479,7 @@ public class TetrisMenuController {
 
         closeJoinClient();
         udpDiscovery.stopListening();
+        stopStaleGameTimer();
         joinClient = new GameClient();
         gameStarted = false;
 
@@ -527,6 +536,25 @@ public class TetrisMenuController {
         if (availableGamesList.getSelectionModel().isEmpty()) {
             availableGamesList.getSelectionModel().selectFirst();
         }
+    }
+
+    private void startStaleGameTimer() {
+        stopStaleGameTimer();
+        staleGameTimer = new Timeline(new KeyFrame(Duration.millis(1_000), event -> removeStaleGames()));
+        staleGameTimer.setCycleCount(Animation.INDEFINITE);
+        staleGameTimer.play();
+    }
+
+    private void stopStaleGameTimer() {
+        if (staleGameTimer != null) {
+            staleGameTimer.stop();
+            staleGameTimer = null;
+        }
+    }
+
+    private void removeStaleGames() {
+        long cutoff = System.currentTimeMillis() - LAN_GAME_STALE_MS;
+        availableGamesList.getItems().removeIf(game -> game.timestamp() < cutoff);
     }
 
     private void onHostMessage(String message) {
@@ -590,6 +618,7 @@ public class TetrisMenuController {
 
     private void closeLan() {
         udpDiscovery.close();
+        stopStaleGameTimer();
         closeHostServer();
         closeJoinClient();
     }

@@ -164,8 +164,8 @@ These decisions are now locked for the first implementation pass.
      - right shift or Enter: hard drop if hard drop is implemented.
    - Top player:
      - `A`/`D`: move left/right,
-     - `S`: soft drop,
-     - `W`: rotate clockwise,
+     - `W`: soft drop,
+     - `S`: rotate clockwise,
      - Space: hard drop if hard drop is implemented.
    - Invalid key actions are ignored by the model validation rules.
 
@@ -1015,7 +1015,9 @@ Next implementation order:
 
 Current verification notes:
 
+- `mvn -q -DskipTests compile` passes.
 - `mvn -q -DskipTests test-compile` passes.
 - `mvn -q -DskipTests javafx:jlink` passes.
+- Same-machine UDP discovery smoke through `TetrisLanDiscoveryService` passes.
 - Full `mvn test` was not run because the user explicitly asked not to run it.
 - Interactive local/LAN manual acceptance still needs a human two-instance check.

@@ -130,3 +130,4 @@ Controls:
 5. Wait for the host to start the match.
 
 Zetris LAN uses UDP only for discovery. The gameplay connection uses TCP, with the host owning the authoritative game state and the joiner sending input commands.
+If a LAN host does not appear, allow Java through the firewall for UDP port `54322` and TCP port `54321`, then use **Refresh Games** from the join screen.

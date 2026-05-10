@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class TetrisProtocol {
 
@@ -67,7 +68,7 @@ public final class TetrisProtocol {
             return safeType;
         }
 
-        return safeType + ":" + List.of(fields).stream()
+        return safeType + ":" + Stream.of(fields)
                 .map(TetrisProtocol::encode)
                 .collect(Collectors.joining(":"));
     }
