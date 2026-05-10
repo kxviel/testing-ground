@@ -20,6 +20,7 @@ This repository contains GameBox, a JavaFX desktop app by team **Zero Runtime Wa
 - **Custom Pieces**: Local/host setup can define session-only connected custom blocks.
 - **Two Boards**: Bottom board and inverted top board are visible at the same time.
 - **Gameplay Flow**: Pieces spawn, move, rotate, fall, lock, clear lines, score, detect loss, continue after one player loses, show winner/draw, and restart.
+- **Swap Bugs**: Every 8 seconds, each active board can spawn a bug. Hitting one swaps the players' boards and scores.
 
 ## Prerequisites
 

@@ -44,7 +44,8 @@ public class TetrisProtocolTest {
                 piece,
                 2,
                 PlayerStatus.PLAYING,
-                null);
+                null,
+                new BoardPosition(10, 4));
         TetrisPlayerState top = TetrisPlayerState.create("Top", PlayerSide.TOP).lost();
         TetrisGameState state = new TetrisGameState(
                 bottom,
@@ -60,6 +61,7 @@ public class TetrisProtocolTest {
         assertEquals(2, copy.bottomPlayer().score());
         assertEquals(TetrisCell.FILLED, copy.bottomPlayer().board().cellAt(new BoardPosition(19, 1)));
         assertEquals(Rotation.RIGHT, copy.bottomPlayer().activePiece().rotation());
+        assertEquals(new BoardPosition(10, 4), copy.bottomPlayer().bugPosition());
         assertEquals(PlayerStatus.LOST, copy.topPlayer().status());
         assertEquals(TetrisGameStatus.RUNNING, copy.status());
     }

@@ -173,6 +173,11 @@
     -fx-border-color: #13579f;
 }
 
+.board-cell-bug {
+    -fx-background-color: #d93636;
+    -fx-border-color: #8f1f1f;
+}
+
 .button:disabled {
     -fx-cursor: default;
     -fx-opacity: 0.5;

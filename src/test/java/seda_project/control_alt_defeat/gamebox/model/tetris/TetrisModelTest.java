@@ -125,6 +125,50 @@ public class TetrisModelTest {
     }
 
     @Test
+    void touchingBugSwapsBoardsScoresAndActivePieces() {
+        TetrisPiece bottomPiece = new TetrisPiece(
+                PieceShape.standardShape(PieceType.O),
+                new BoardPosition(0, 0),
+                Rotation.SPAWN);
+        TetrisPiece topPiece = new TetrisPiece(
+                PieceShape.standardShape(PieceType.I),
+                new BoardPosition(4, 4),
+                Rotation.SPAWN);
+        TetrisPlayerState bottom = new TetrisPlayerState(
+                "Bottom",
+                PlayerSide.BOTTOM,
+                new TetrisBoard().withCell(new BoardPosition(19, 0), TetrisCell.FILLED),
+                bottomPiece,
+                3,
+                PlayerStatus.PLAYING,
+                null,
+                new BoardPosition(2, 0));
+        TetrisPlayerState top = new TetrisPlayerState(
+                "Top",
+                PlayerSide.TOP,
+                new TetrisBoard().withCell(new BoardPosition(18, 9), TetrisCell.FILLED),
+                topPiece,
+                7,
+                PlayerStatus.PLAYING,
+                null);
+        TetrisGameState state = new TetrisGameState(
+                bottom,
+                top,
+                TetrisGameConfig.defaultConfig(),
+                TetrisGameStatus.RUNNING);
+
+        TetrisGameState swapped = state.applyGravity(PlayerSide.BOTTOM);
+
+        assertEquals("Bottom", swapped.bottomPlayer().playerName());
+        assertEquals("Top", swapped.topPlayer().playerName());
+        assertEquals(7, swapped.bottomPlayer().score());
+        assertEquals(3, swapped.topPlayer().score());
+        assertEquals(topPiece, swapped.bottomPlayer().activePiece());
+        assertEquals(TetrisCell.FILLED, swapped.bottomPlayer().board().cellAt(new BoardPosition(18, 9)));
+        assertNull(swapped.topPlayer().bugPosition());
+    }
+
+    @Test
     void disconnectedCustomPieceIsRejected() {
         List<BoardPosition> cells = List.of(
                 new BoardPosition(0, 0),

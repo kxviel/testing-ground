@@ -66,12 +66,13 @@ public final class TetrisStateSnapshot {
                 player.status().name(),
                 player.finalScore() == null ? "-" : String.valueOf(player.finalScore()),
                 serializeBoard(player.board()),
-                encode(serializePiece(player.activePiece())));
+                encode(serializePiece(player.activePiece())),
+                serializePosition(player.bugPosition()));
     }
 
     private static TetrisPlayerState deserializePlayer(String value, PlayerSide side) {
-        String[] parts = value.split(";", 6);
-        if (parts.length != 6) {
+        String[] parts = value.split(";", 7);
+        if (parts.length < 6) {
             return TetrisPlayerState.create("Player", side);
         }
 
@@ -81,8 +82,9 @@ public final class TetrisStateSnapshot {
         Integer finalScore = "-".equals(parts[3]) ? null : parseInt(parts[3], score);
         TetrisBoard board = deserializeBoard(parts[4]);
         TetrisPiece activePiece = deserializePiece(decode(parts[5]));
+        BoardPosition bugPosition = parts.length < 7 ? null : deserializePosition(parts[6]);
 
-        return new TetrisPlayerState(name, side, board, activePiece, score, status, finalScore);
+        return new TetrisPlayerState(name, side, board, activePiece, score, status, finalScore, bugPosition);
     }
 
     private static String serializeBoard(TetrisBoard board) {
@@ -168,6 +170,27 @@ public final class TetrisStateSnapshot {
         }
 
         return cells;
+    }
+
+    private static String serializePosition(BoardPosition position) {
+        if (position == null) {
+            return "-";
+        }
+
+        return position.row() + "," + position.column();
+    }
+
+    private static BoardPosition deserializePosition(String value) {
+        if (value == null || value.isBlank() || "-".equals(value)) {
+            return null;
+        }
+
+        String[] parts = value.split(",", 2);
+        if (parts.length != 2) {
+            return null;
+        }
+
+        return new BoardPosition(parseInt(parts[0], -1), parseInt(parts[1], -1));
     }
 
     private static String encode(String value) {

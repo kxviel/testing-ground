@@ -29,6 +29,7 @@ This roadmap is intentionally requirement-driven. When the PDF does not specify 
 - [x] Tetris-specific LAN protocol messages exist separately from Memory protocol.
 - [x] LAN gameplay uses host-authoritative snapshots with joiner input commands.
 - [x] LAN restart, quit, and disconnect paths stop safely and update the game view.
+- [x] Swap bugs spawn during gameplay and swap player boards/scores when hit.
 - [x] README documents current GameBox/Zetris build, run, and play instructions.
 - [x] Focused Tetris model and protocol tests were added.
 
@@ -188,19 +189,19 @@ These decisions are now locked for the first implementation pass.
    - Use a small editor grid, normalize saved shapes, allow rotations, and add valid custom parts to the spawn bag.
    - Custom parts are session-only unless persistence is explicitly added later.
 
+9. Swap bug behavior.
+   - PDF requirement `FR-OUTPUT-12` is implemented as red bug cells.
+   - Every 8 seconds, each active board can spawn one bug in an empty visible cell.
+   - Hitting a bug swaps the players' boards, active pieces, scores, and bug positions while keeping names and sides stable.
+
 ## Deferred Decisions
 
-These remain on hold and should not block the first local/LAN core implementation.
+This remains on hold and should not block the first local/LAN core implementation.
 
 1. Speed increase.
    - PDF requirement: `FR-FLOW-11` says speed gradually increases.
    - Current decision: keep speed increase on hold.
    - Acceptance risk: this requirement remains incomplete until a speed curve is implemented.
-
-2. Swap object behavior.
-   - PDF requirement: `FR-OUTPUT-12` says objects should appear and swap the players if hit.
-   - Current decision: keep swap objects on hold.
-   - Acceptance risk: this requirement remains incomplete until the object behavior is specified and implemented.
 
 ## Target Package Layout
 
@@ -614,7 +615,7 @@ Tests:
 - Controller smoke/manual tests for key mapping.
 - Model tests remain the source of truth for validity.
 
-### Deferred Step: Implement Swap Objects After Hold Is Lifted
+### Completed Step: Implement Swap Bugs
 
 Requirements covered:
 
@@ -622,24 +623,21 @@ Requirements covered:
 
 Actions:
 
-1. Add a `SwapObject` model with board position and active/inactive state.
-2. Add a deterministic spawn policy:
-   - random intervals or line-clear based spawn, depending on chosen rule.
-   - keep policy centralized and testable.
-3. Detect collision between active piece and swap object.
-4. Apply the chosen swap behavior.
-5. Synchronize swap events in LAN mode.
-6. Render the object clearly in both local and LAN games.
+1. Add a bug position to each `TetrisPlayerState`.
+2. Spawn a bug every 8 seconds on each active board when that board does not already have one.
+3. Reject bug spawn positions inside settled cells or the active piece.
+4. Detect collision when the active piece moves onto the bug.
+5. Swap player boards, active pieces, scores, and bug positions while preserving player names and sides.
+6. Synchronize bug position and swap results through LAN snapshots.
+7. Render the bug as a distinct red cell.
 
 Edge cases:
 
-- Object spawns inside settled block: reject or choose another position.
-- Object spawns where active piece already exists: reject or trigger immediately only if explicitly desired.
-- Hit during lock step.
-- Hit during line clear.
-- Multiple swap objects active at once, if allowed.
-- Swap exactly when one player has already lost.
-- Swap event must not desynchronize LAN clients.
+- Bug spawn inside settled block is rejected.
+- Bug spawn where the active piece already exists is rejected.
+- At most one bug exists per board.
+- Bugs are cleared when a piece locks or the player loses.
+- LAN clients render host-authoritative snapshots and do not spawn bugs locally.
 
 Tests:
 
@@ -941,7 +939,7 @@ Done when:
 | `FR-OUTPUT-09` | LAN synchronized render | Manual LAN/protocol |
 | `FR-OUTPUT-10` | Winner/draw result view | Winner/manual UI |
 | `FR-OUTPUT-11` | Custom part editor | Validation tests/manual UI |
-| `FR-OUTPUT-12` | Deferred: swap objects on hold | Not complete in first pass |
+| `FR-OUTPUT-12` | 8-second swap bug in `TetrisGameState` and `TetrisGameController` | Model/snapshot tests/manual UI |
 | `QR-USAB-01` | Clear menu mode choices | Manual UI |
 | `QR-USAB-02` | Simple keyboard controls | Manual input |
 | `QR-USAB-03` | Boards/names/scores visible | Manual UI |
@@ -989,7 +987,6 @@ Do not call the first-pass implementation complete until all of these pass:
 These are required by the PDF but intentionally not part of the first-pass plan:
 
 1. `FR-FLOW-11`: speed gradually increases during gameplay.
-2. `FR-OUTPUT-12`: swap objects appear and trigger player-swap behavior when hit.
 
 ## Suggested Implementation Order
 
@@ -1006,8 +1003,9 @@ Completed setup work:
 9. Tetris-specific LAN protocol messages.
 10. Host-authoritative LAN gameplay synchronization.
 11. LAN restart/disconnect handling.
-12. README/build docs.
-13. Focused model/protocol tests.
+12. 8-second swap bug spawning, collision, rendering, and LAN snapshot sync.
+13. README/build docs.
+14. Focused model/protocol tests.
 
 Next implementation order:
 
@@ -1019,5 +1017,6 @@ Current verification notes:
 - `mvn -q -DskipTests test-compile` passes.
 - `mvn -q -DskipTests javafx:jlink` passes.
 - Same-machine UDP discovery smoke through `TetrisLanDiscoveryService` passes.
+- Bug swap and snapshot smoke passes.
 - Full `mvn test` was not run because the user explicitly asked not to run it.
 - Interactive local/LAN manual acceptance still needs a human two-instance check.

@@ -50,6 +50,10 @@ public record TetrisGameState(
         return updatePlayer(side, player -> player.spawnPiece(shape));
     }
 
+    public TetrisGameState spawnBug(PlayerSide side, BoardPosition position) {
+        return updatePlayer(side, player -> player.withBugPosition(position), false);
+    }
+
     public TetrisGameState moveLeft(PlayerSide side) {
         return updatePlayer(side, TetrisPlayerState::moveLeft);
     }
@@ -79,22 +83,53 @@ public record TetrisGameState(
                 bottomPlayer.applyGravity(),
                 topPlayer.applyGravity(),
                 config,
-                status).finishIfNeeded();
+                status).resolveBugHits().finishIfNeeded();
     }
 
     private TetrisGameState updatePlayer(PlayerSide side, Function<TetrisPlayerState, TetrisPlayerState> update) {
+        return updatePlayer(side, update, true);
+    }
+
+    private TetrisGameState updatePlayer(
+            PlayerSide side,
+            Function<TetrisPlayerState, TetrisPlayerState> update,
+            boolean resolveBugHits) {
         if (status == TetrisGameStatus.FINISHED) {
             return this;
         }
 
+        TetrisGameState next;
         if (side == PlayerSide.BOTTOM) {
-            return new TetrisGameState(update.apply(bottomPlayer), topPlayer, config, status).finishIfNeeded();
-        }
-        if (side == PlayerSide.TOP) {
-            return new TetrisGameState(bottomPlayer, update.apply(topPlayer), config, status).finishIfNeeded();
+            next = new TetrisGameState(update.apply(bottomPlayer), topPlayer, config, status);
+        } else if (side == PlayerSide.TOP) {
+            next = new TetrisGameState(bottomPlayer, update.apply(topPlayer), config, status);
+        } else {
+            return this;
         }
 
-        return this;
+        return (resolveBugHits ? next.resolveBugHits() : next).finishIfNeeded();
+    }
+
+    private TetrisGameState resolveBugHits() {
+        boolean bottomHit = bottomPlayer.isTouchingBug();
+        boolean topHit = topPlayer.isTouchingBug();
+
+        if (!bottomHit && !topHit) {
+            return this;
+        }
+
+        TetrisPlayerState cleanBottom = bottomHit ? bottomPlayer.clearBug() : bottomPlayer;
+        TetrisPlayerState cleanTop = topHit ? topPlayer.clearBug() : topPlayer;
+
+        if (!cleanBottom.isPlaying() || !cleanTop.isPlaying()) {
+            return new TetrisGameState(cleanBottom, cleanTop, config, status);
+        }
+
+        return new TetrisGameState(
+                cleanBottom.withPlayStateFrom(cleanTop),
+                cleanTop.withPlayStateFrom(cleanBottom),
+                config,
+                status);
     }
 
     private TetrisGameState finishIfNeeded() {

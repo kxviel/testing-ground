@@ -31,6 +31,7 @@ import seda_project.control_alt_defeat.gamebox.util.Router;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 public class TetrisGameController implements RouteDataReceiver {
@@ -63,11 +64,14 @@ public class TetrisGameController implements RouteDataReceiver {
     private TetrisGameSetup setup = new TetrisGameSetup("Player 1", "Player 2", TetrisGameConfig.defaultConfig());
     private TetrisGameState gameState = TetrisGameState.create(setup);
     private Timeline gameLoop;
+    private Timeline bugLoop;
     private GameServer hostServer;
     private GameClient joinClient;
+    private final Random bugRandom = new Random();
     private boolean networkClosed;
     private int bottomPieceIndex;
     private int topPieceIndex;
+    private static final int BUG_SPAWN_SECONDS = 8;
 
     @Override
     public void setRouteData(Object data) {
@@ -140,12 +144,20 @@ public class TetrisGameController implements RouteDataReceiver {
         gameLoop = new Timeline(new KeyFrame(Duration.millis(550), event -> onGameTick()));
         gameLoop.setCycleCount(Animation.INDEFINITE);
         gameLoop.play();
+
+        bugLoop = new Timeline(new KeyFrame(Duration.seconds(BUG_SPAWN_SECONDS), event -> onBugTick()));
+        bugLoop.setCycleCount(Animation.INDEFINITE);
+        bugLoop.play();
     }
 
     private void stopGameLoop() {
         if (gameLoop != null) {
             gameLoop.stop();
             gameLoop = null;
+        }
+        if (bugLoop != null) {
+            bugLoop.stop();
+            bugLoop = null;
         }
     }
 
@@ -164,6 +176,17 @@ public class TetrisGameController implements RouteDataReceiver {
         if (gameState.isFinished()) {
             stopGameLoop();
         }
+    }
+
+    private void onBugTick() {
+        if (gameState.isFinished() || networkClosed) {
+            return;
+        }
+
+        gameState = spawnBug(gameState, PlayerSide.BOTTOM);
+        gameState = spawnBug(gameState, PlayerSide.TOP);
+        render();
+        sendState();
     }
 
     private void render() {
@@ -256,6 +279,8 @@ public class TetrisGameController implements RouteDataReceiver {
 
                 if (activeCells.contains(position)) {
                     cell.getStyleClass().add("board-cell-active");
+                } else if (position.equals(player.bugPosition())) {
+                    cell.getStyleClass().add("board-cell-bug");
                 } else if (player.board().cellAt(position) == TetrisCell.FILLED) {
                     cell.getStyleClass().add("board-cell-filled");
                 }
@@ -425,6 +450,9 @@ public class TetrisGameController implements RouteDataReceiver {
                     gameState = spawnMissingPieces(gameState);
                     render();
                     sendState();
+                    if (gameState.isFinished()) {
+                        stopGameLoop();
+                    }
                 }
             } else if (TetrisProtocol.isType(message, TetrisProtocol.RESTART_REQUEST)) {
                 startNewGame();
@@ -525,6 +553,24 @@ public class TetrisGameController implements RouteDataReceiver {
         }
 
         return next;
+    }
+
+    private TetrisGameState spawnBug(TetrisGameState state, PlayerSide side) {
+        TetrisPlayerState player = side == PlayerSide.BOTTOM ? state.bottomPlayer() : state.topPlayer();
+        if (!player.isPlaying() || player.bugPosition() != null) {
+            return state;
+        }
+
+        for (int attempt = 0; attempt < 100; attempt++) {
+            BoardPosition position = new BoardPosition(
+                    bugRandom.nextInt(player.board().rows()),
+                    bugRandom.nextInt(player.board().columns()));
+            if (player.canPlaceBug(position)) {
+                return state.spawnBug(side, position);
+            }
+        }
+
+        return state;
     }
 
     private PieceShape nextPiece(PlayerSide side) {
