@@ -1,6 +1,7 @@
 package seda_project.control_alt_defeat.gamebox.model.tetris;
 
 import org.junit.jupiter.api.Test;
+import seda_project.control_alt_defeat.gamebox.model.tetris.enums.*;
 
 import java.util.List;
 

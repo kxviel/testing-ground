@@ -2,15 +2,15 @@ package seda_project.control_alt_defeat.gamebox.network.tetris;
 
 import seda_project.control_alt_defeat.gamebox.model.tetris.BoardPosition;
 import seda_project.control_alt_defeat.gamebox.model.tetris.PieceShape;
-import seda_project.control_alt_defeat.gamebox.model.tetris.PieceType;
-import seda_project.control_alt_defeat.gamebox.model.tetris.PlayerSide;
-import seda_project.control_alt_defeat.gamebox.model.tetris.PlayerStatus;
-import seda_project.control_alt_defeat.gamebox.model.tetris.Rotation;
+import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PieceType;
+import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerSide;
+import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerStatus;
+import seda_project.control_alt_defeat.gamebox.model.tetris.enums.Rotation;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisBoard;
-import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisCell;
+import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisCell;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameConfig;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameState;
-import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameStatus;
+import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisGameStatus;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisPiece;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisPlayerState;
 

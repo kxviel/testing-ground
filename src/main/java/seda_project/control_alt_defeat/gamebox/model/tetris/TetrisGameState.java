@@ -1,5 +1,8 @@
 package seda_project.control_alt_defeat.gamebox.model.tetris;
 
+import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerSide;
+import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisGameStatus;
+
 import java.util.function.Function;
 
 public record TetrisGameState(

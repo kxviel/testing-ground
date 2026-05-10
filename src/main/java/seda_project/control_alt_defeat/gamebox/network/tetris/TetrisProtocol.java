@@ -1,6 +1,6 @@
 package seda_project.control_alt_defeat.gamebox.network.tetris;
 
-import seda_project.control_alt_defeat.gamebox.model.tetris.PlayerSide;
+import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerSide;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameConfig;
 
 import java.nio.charset.StandardCharsets;

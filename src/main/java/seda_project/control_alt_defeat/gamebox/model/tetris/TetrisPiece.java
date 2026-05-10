@@ -1,5 +1,7 @@
 package seda_project.control_alt_defeat.gamebox.model.tetris;
 
+import seda_project.control_alt_defeat.gamebox.model.tetris.enums.Rotation;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
