@@ -30,6 +30,7 @@ This roadmap is intentionally requirement-driven. When the PDF does not specify 
 - [x] LAN gameplay uses host-authoritative snapshots with joiner input commands.
 - [x] LAN restart, quit, and disconnect paths stop safely and update the game view.
 - [x] Swap bugs spawn during gameplay and swap player boards/scores when hit.
+- [x] Blocks render with randomized colors without changing game state.
 - [x] README documents current GameBox/Zetris build, run, and play instructions.
 - [x] Focused Tetris model and protocol tests were added.
 

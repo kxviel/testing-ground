@@ -23,11 +23,11 @@
     </padding>
 
     <Label text="Zetris" styleClass="title"/>
-    <Label text="Set up a local or LAN match" styleClass="subtitle"/>
+    <Label text="Local or LAN match" styleClass="subtitle"/>
 
     <StackPane fx:id="contentStack" maxWidth="560" minHeight="280" styleClass="menu-panel">
         <VBox fx:id="modeChoicePane" alignment="CENTER" spacing="16">
-            <Label text="Choose Match Type" styleClass="section-title"/>
+            <Label text="Match Type" styleClass="section-title"/>
             <HBox alignment="CENTER" spacing="12" styleClass="button-row">
                 <Button fx:id="localModeButton" text="Local" onAction="#onLocalMode" styleClass="btn-outline"/>
                 <Button fx:id="lanModeButton" text="LAN" onAction="#onLanMode" styleClass="btn-outline"/>
@@ -35,7 +35,7 @@
         </VBox>
 
         <VBox fx:id="localPane" alignment="CENTER" spacing="16" visible="false" managed="false">
-            <Label text="Local Mode - Same Device" styleClass="section-title"/>
+            <Label text="Local" styleClass="section-title"/>
 
             <GridPane alignment="CENTER" hgap="12" vgap="12">
                 <columnConstraints>
@@ -43,11 +43,11 @@
                     <ColumnConstraints hgrow="ALWAYS" minWidth="220"/>
                 </columnConstraints>
 
-                <Label text="Player 1 Name" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                <Label text="Player 1" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
                 <TextField fx:id="localPlayerOneField" text="Player 1" promptText="Player 1"
                            GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
-                <Label text="Player 2 Name" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                <Label text="Player 2" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
                 <TextField fx:id="localPlayerTwoField" text="Player 2" promptText="Player 2"
                            GridPane.columnIndex="1" GridPane.rowIndex="1"/>
             </GridPane>
@@ -55,10 +55,10 @@
         </VBox>
 
         <VBox fx:id="lanPane" alignment="CENTER" spacing="16" visible="false" managed="false">
-            <Label text="LAN Mode - Network Play" styleClass="section-title"/>
+            <Label text="LAN" styleClass="section-title"/>
 
             <VBox alignment="CENTER" spacing="10">
-                <Label text="Choose your Role" styleClass="field-title"/>
+                <Label text="Role" styleClass="field-title"/>
                 <HBox alignment="CENTER" spacing="12" styleClass="button-row">
                     <Button fx:id="hostRoleButton" text="Host" onAction="#onHostRole" styleClass="btn-outline"/>
                     <Button fx:id="joinRoleButton" text="Join" onAction="#onJoinRole" styleClass="btn-outline"/>
@@ -67,7 +67,7 @@
         </VBox>
 
         <VBox fx:id="hostPane" alignment="CENTER" spacing="16" visible="false" managed="false">
-            <Label text="LAN Mode - Host Network Play" styleClass="section-title"/>
+            <Label text="Host" styleClass="section-title"/>
 
             <GridPane alignment="CENTER" hgap="12" vgap="12">
                 <columnConstraints>
@@ -75,7 +75,7 @@
                     <ColumnConstraints hgrow="ALWAYS" minWidth="220"/>
                 </columnConstraints>
 
-                <Label text="Enter Your Name" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                <Label text="Name" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
                 <TextField fx:id="hostPlayerNameField" text="Host Player" promptText="Host name"
                            GridPane.columnIndex="1" GridPane.rowIndex="0"/>
             </GridPane>
@@ -89,7 +89,7 @@
         </VBox>
 
         <VBox fx:id="joinPane" alignment="CENTER" spacing="16" visible="false" managed="false">
-            <Label text="LAN Mode - Join Network Play" styleClass="section-title"/>
+            <Label text="Join" styleClass="section-title"/>
 
             <GridPane alignment="CENTER" hgap="12" vgap="12">
                 <columnConstraints>
@@ -97,7 +97,7 @@
                     <ColumnConstraints hgrow="ALWAYS" minWidth="220"/>
                 </columnConstraints>
 
-                <Label text="Enter Your Name" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                <Label text="Name" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
                 <TextField fx:id="joinPlayerNameField" text="Joining Player" promptText="Your name"
                            GridPane.columnIndex="1" GridPane.rowIndex="0"/>
             </GridPane>
@@ -106,7 +106,7 @@
 
             <Label text="Available Games" styleClass="field-title"/>
             <ListView fx:id="availableGamesList" prefHeight="96" maxWidth="360" onMouseClicked="#onGameSelected"/>
-            <Button text="Refresh Games" onAction="#onRefreshGames" styleClass="btn-outline"/>
+            <Button text="Refresh" onAction="#onRefreshGames" styleClass="btn-outline"/>
         </VBox>
     </StackPane>
 

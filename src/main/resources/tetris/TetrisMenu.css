@@ -21,7 +21,7 @@
 }
 
 .game-side-title {
-    -fx-font-size: 42px;
+    -fx-font-size: 36px;
     -fx-font-weight: 800;
     -fx-text-fill: #171717;
 }
@@ -56,6 +56,18 @@
     -fx-border-radius: 8;
     -fx-border-width: 1;
     -fx-padding: 24;
+}
+
+.game-layout {
+    -fx-fill-height: true;
+}
+
+.game-sidebar {
+    -fx-padding: 4 0 0 0;
+}
+
+.boards-stack {
+    -fx-padding: 0;
 }
 
 .section-title {
@@ -164,8 +176,8 @@
 }
 
 .board-cell-filled {
-    -fx-background-color: #6b7280;
-    -fx-border-color: #4b5563;
+    -fx-background-color: #20a162;
+    -fx-border-color: #147246;
 }
 
 .board-cell-active {

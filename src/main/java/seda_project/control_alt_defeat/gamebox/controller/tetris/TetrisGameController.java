@@ -36,6 +36,19 @@ import java.util.Set;
 
 public class TetrisGameController implements RouteDataReceiver {
 
+    private static final int GRAVITY_MS = 550;
+    private static final int BUG_SPAWN_SECONDS = 8;
+    private static final int BUG_SPAWN_ATTEMPTS = 100;
+    private static final String[][] BLOCK_COLORS = {
+            {"#2f7edb", "#13579f"},
+            {"#20a162", "#147246"},
+            {"#d98b1f", "#9d6212"},
+            {"#8b5cf6", "#5b35b7"},
+            {"#df4e7a", "#a82f55"},
+            {"#10a7b5", "#0b737d"},
+            {"#7a8f24", "#536318"}
+    };
+
     @FXML
     private BorderPane gameRoot;
     @FXML
@@ -68,10 +81,10 @@ public class TetrisGameController implements RouteDataReceiver {
     private GameServer hostServer;
     private GameClient joinClient;
     private final Random bugRandom = new Random();
+    private final int blockColorSeed = bugRandom.nextInt();
     private boolean networkClosed;
     private int bottomPieceIndex;
     private int topPieceIndex;
-    private static final int BUG_SPAWN_SECONDS = 8;
 
     @Override
     public void setRouteData(Object data) {
@@ -141,7 +154,7 @@ public class TetrisGameController implements RouteDataReceiver {
     private void startGameLoop() {
         stopGameLoop();
 
-        gameLoop = new Timeline(new KeyFrame(Duration.millis(550), event -> onGameTick()));
+        gameLoop = new Timeline(new KeyFrame(Duration.millis(GRAVITY_MS), event -> onGameTick()));
         gameLoop.setCycleCount(Animation.INDEFINITE);
         gameLoop.play();
 
@@ -169,13 +182,7 @@ public class TetrisGameController implements RouteDataReceiver {
         }
 
         gameState = gameState.applyGravity();
-        gameState = spawnMissingPieces(gameState);
-        render();
-        sendState();
-
-        if (gameState.isFinished()) {
-            stopGameLoop();
-        }
+        finishStateChange();
     }
 
     private void onBugTick() {
@@ -279,10 +286,12 @@ public class TetrisGameController implements RouteDataReceiver {
 
                 if (activeCells.contains(position)) {
                     cell.getStyleClass().add("board-cell-active");
+                    paintBlock(cell, player.side(), position, true);
                 } else if (position.equals(player.bugPosition())) {
                     cell.getStyleClass().add("board-cell-bug");
                 } else if (player.board().cellAt(position) == TetrisCell.FILLED) {
                     cell.getStyleClass().add("board-cell-filled");
+                    paintBlock(cell, player.side(), position, false);
                 }
 
                 grid.add(cell, column, row);
@@ -320,25 +329,19 @@ public class TetrisGameController implements RouteDataReceiver {
         }
 
         applyInput(side, command);
-        gameState = spawnMissingPieces(gameState);
         event.consume();
-        render();
-        sendState();
-
-        if (gameState.isFinished()) {
-            stopGameLoop();
-        }
+        finishStateChange();
     }
 
     private PlayerSide sideForKey(KeyCode code) {
         if (!setup.isLocal()) {
-            if (setup.localSide() == PlayerSide.TOP && isTopKey(code)) {
+            PlayerSide localSide = setup.localSide();
+            if (localSide == PlayerSide.TOP && isTopKey(code)) {
                 return PlayerSide.TOP;
             }
-            if (setup.localSide() == PlayerSide.BOTTOM && isBottomKey(code)) {
+            if (localSide == PlayerSide.BOTTOM && isBottomKey(code)) {
                 return PlayerSide.BOTTOM;
             }
-
             return null;
         }
 
@@ -354,33 +357,23 @@ public class TetrisGameController implements RouteDataReceiver {
 
     private String commandForKey(PlayerSide side, KeyCode code) {
         if (side == PlayerSide.BOTTOM) {
-            if (code == KeyCode.LEFT) {
-                return TetrisProtocol.MOVE_LEFT;
-            }
-            if (code == KeyCode.RIGHT) {
-                return TetrisProtocol.MOVE_RIGHT;
-            }
-            if (code == KeyCode.DOWN) {
-                return TetrisProtocol.SOFT_DROP;
-            }
-            if (code == KeyCode.UP) {
-                return TetrisProtocol.ROTATE;
-            }
+            return switch (code) {
+                case LEFT -> TetrisProtocol.MOVE_LEFT;
+                case RIGHT -> TetrisProtocol.MOVE_RIGHT;
+                case DOWN -> TetrisProtocol.SOFT_DROP;
+                case UP -> TetrisProtocol.ROTATE;
+                default -> "";
+            };
         }
 
         if (side == PlayerSide.TOP) {
-            if (code == KeyCode.A) {
-                return TetrisProtocol.MOVE_LEFT;
-            }
-            if (code == KeyCode.D) {
-                return TetrisProtocol.MOVE_RIGHT;
-            }
-            if (code == KeyCode.W) {
-                return TetrisProtocol.SOFT_DROP;
-            }
-            if (code == KeyCode.S) {
-                return TetrisProtocol.ROTATE;
-            }
+            return switch (code) {
+                case A -> TetrisProtocol.MOVE_LEFT;
+                case D -> TetrisProtocol.MOVE_RIGHT;
+                case W -> TetrisProtocol.SOFT_DROP;
+                case S -> TetrisProtocol.ROTATE;
+                default -> "";
+            };
         }
 
         return "";
@@ -401,34 +394,14 @@ public class TetrisGameController implements RouteDataReceiver {
     }
 
     private void applyInput(PlayerSide side, String command) {
-        if (side == PlayerSide.BOTTOM) {
-            applyBottomInput(command);
-        } else if (side == PlayerSide.TOP) {
-            applyTopInput(command);
-        }
-    }
-
-    private void applyBottomInput(String command) {
         if (TetrisProtocol.MOVE_LEFT.equals(command)) {
-            gameState = gameState.moveLeft(PlayerSide.BOTTOM);
+            gameState = side == PlayerSide.TOP ? gameState.moveRight(side) : gameState.moveLeft(side);
         } else if (TetrisProtocol.MOVE_RIGHT.equals(command)) {
-            gameState = gameState.moveRight(PlayerSide.BOTTOM);
+            gameState = side == PlayerSide.TOP ? gameState.moveLeft(side) : gameState.moveRight(side);
         } else if (TetrisProtocol.SOFT_DROP.equals(command)) {
-            gameState = gameState.applyGravity(PlayerSide.BOTTOM);
+            gameState = gameState.applyGravity(side);
         } else if (TetrisProtocol.ROTATE.equals(command)) {
-            gameState = gameState.rotateClockwise(PlayerSide.BOTTOM);
-        }
-    }
-
-    private void applyTopInput(String command) {
-        if (TetrisProtocol.MOVE_LEFT.equals(command)) {
-            gameState = gameState.moveRight(PlayerSide.TOP);
-        } else if (TetrisProtocol.MOVE_RIGHT.equals(command)) {
-            gameState = gameState.moveLeft(PlayerSide.TOP);
-        } else if (TetrisProtocol.SOFT_DROP.equals(command)) {
-            gameState = gameState.applyGravity(PlayerSide.TOP);
-        } else if (TetrisProtocol.ROTATE.equals(command)) {
-            gameState = gameState.rotateClockwise(PlayerSide.TOP);
+            gameState = gameState.rotateClockwise(side);
         }
     }
 
@@ -447,12 +420,7 @@ public class TetrisGameController implements RouteDataReceiver {
                 PlayerSide side = parseSide(fields.get(0));
                 if (side == PlayerSide.TOP) {
                     applyInput(side, fields.get(1));
-                    gameState = spawnMissingPieces(gameState);
-                    render();
-                    sendState();
-                    if (gameState.isFinished()) {
-                        stopGameLoop();
-                    }
+                    finishStateChange();
                 }
             } else if (TetrisProtocol.isType(message, TetrisProtocol.RESTART_REQUEST)) {
                 startNewGame();
@@ -561,7 +529,7 @@ public class TetrisGameController implements RouteDataReceiver {
             return state;
         }
 
-        for (int attempt = 0; attempt < 100; attempt++) {
+        for (int attempt = 0; attempt < BUG_SPAWN_ATTEMPTS; attempt++) {
             BoardPosition position = new BoardPosition(
                     bugRandom.nextInt(player.board().rows()),
                     bugRandom.nextInt(player.board().columns()));
@@ -575,15 +543,35 @@ public class TetrisGameController implements RouteDataReceiver {
 
     private PieceShape nextPiece(PlayerSide side) {
         List<PieceShape> shapes = gameState.config().availableShapes();
+        int index;
 
         if (side == PlayerSide.BOTTOM) {
-            PieceShape shape = shapes.get(bottomPieceIndex % shapes.size());
-            bottomPieceIndex++;
-            return shape;
+            index = bottomPieceIndex++;
+        } else {
+            index = topPieceIndex++;
         }
 
-        PieceShape shape = shapes.get(topPieceIndex % shapes.size());
-        topPieceIndex++;
-        return shape;
+        return shapes.get(index % shapes.size());
+    }
+
+    private void finishStateChange() {
+        gameState = spawnMissingPieces(gameState);
+        render();
+        sendState();
+
+        if (gameState.isFinished()) {
+            stopGameLoop();
+        }
+    }
+
+    private void paintBlock(Region cell, PlayerSide side, BoardPosition position, boolean active) {
+        String[] colors = BLOCK_COLORS[colorIndex(side, position, active)];
+        cell.setStyle("-fx-background-color: " + colors[0] + "; -fx-border-color: " + colors[1] + ";");
+    }
+
+    private int colorIndex(PlayerSide side, BoardPosition position, boolean active) {
+        int seed = blockColorSeed + position.row() * 31 + position.column() * 17 + side.ordinal() * 13
+                + (active ? 7 : 0);
+        return Math.floorMod(seed, BLOCK_COLORS.length);
     }
 }

@@ -18,12 +18,17 @@
     </stylesheets>
 
     <center>
-        <HBox alignment="CENTER" spacing="48" styleClass="game-layout">
+        <HBox alignment="CENTER" spacing="32" styleClass="game-layout">
             <padding>
-                <Insets top="24" right="40" bottom="24" left="40"/>
+                <Insets top="20" right="32" bottom="20" left="32"/>
             </padding>
 
-            <VBox alignment="CENTER_LEFT" spacing="16" minWidth="300" maxWidth="360" styleClass="game-sidebar">
+            <VBox alignment="CENTER" spacing="14" styleClass="boards-stack">
+                <GridPane fx:id="topBoardGrid" rotate="180" styleClass="tetris-board"/>
+                <GridPane fx:id="bottomBoardGrid" styleClass="tetris-board"/>
+            </VBox>
+
+            <VBox alignment="TOP_LEFT" spacing="12" minWidth="260" maxWidth="320" styleClass="game-sidebar">
                 <Label text="ZETRIS" styleClass="game-side-title"/>
                 <Label fx:id="configLabel" text="Pieces: Standard" styleClass="subtitle"/>
                 <Label fx:id="resultLabel" text="Game running." styleClass="status-line" wrapText="true"/>
@@ -31,13 +36,13 @@
                 <Separator/>
 
                 <VBox alignment="CENTER_LEFT" spacing="6">
-                    <Label text="Top Player" styleClass="field-title"/>
+                    <Label text="Top" styleClass="field-title"/>
                     <Label fx:id="topNameLabel" text="Player 2" styleClass="player-name"/>
                     <Label fx:id="topScoreLabel" text="Score: 0" styleClass="score-label"/>
                 </VBox>
 
                 <VBox alignment="CENTER_LEFT" spacing="6">
-                    <Label text="Bottom Player" styleClass="field-title"/>
+                    <Label text="Bottom" styleClass="field-title"/>
                     <Label fx:id="bottomNameLabel" text="Player 1" styleClass="player-name"/>
                     <Label fx:id="bottomScoreLabel" text="Score: 0" styleClass="score-label"/>
                 </VBox>
@@ -51,14 +56,11 @@
 
                 <Separator/>
 
-                <Button fx:id="restartButton" text="Restart" onAction="#onRestart"
-                        visible="false" managed="false" styleClass="btn-outline"/>
-                <Button text="Quit" onAction="#onBackToMenu" styleClass="btn-primary"/>
-            </VBox>
-
-            <VBox alignment="CENTER" spacing="14" styleClass="boards-stack">
-                <GridPane fx:id="topBoardGrid" rotate="180" styleClass="tetris-board"/>
-                <GridPane fx:id="bottomBoardGrid" styleClass="tetris-board"/>
+                <HBox alignment="CENTER_LEFT" spacing="8">
+                    <Button fx:id="restartButton" text="Restart" onAction="#onRestart"
+                            visible="false" managed="false" styleClass="btn-outline"/>
+                    <Button text="Quit" onAction="#onBackToMenu" styleClass="btn-primary"/>
+                </HBox>
             </VBox>
         </HBox>
     </center>
