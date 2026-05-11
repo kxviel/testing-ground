@@ -50,6 +50,10 @@ public record TetrisGameState(
         return updatePlayer(side, player -> player.spawnPiece(shape));
     }
 
+    public TetrisGameState spawnPiece(PlayerSide side, PieceShape shape, int colorIndex) {
+        return updatePlayer(side, player -> player.spawnPiece(shape, colorIndex));
+    }
+
     public TetrisGameState spawnBug(PlayerSide side, BoardPosition position) {
         return updatePlayer(side, player -> player.withBugPosition(position), false);
     }

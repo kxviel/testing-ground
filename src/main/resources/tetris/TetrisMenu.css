@@ -188,6 +188,17 @@
 .board-cell-bug {
     -fx-background-color: #d93636;
     -fx-border-color: #8f1f1f;
+    -fx-alignment: center;
+    -fx-font-size: 11px;
+    -fx-padding: 0;
+}
+
+.board-game-over {
+    -fx-alignment: center;
+    -fx-background-color: rgba(247, 247, 251, 0.84);
+    -fx-font-size: 24px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #171717;
 }
 
 .button:disabled {

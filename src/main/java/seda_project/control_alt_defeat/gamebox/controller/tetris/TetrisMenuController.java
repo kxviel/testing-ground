@@ -26,12 +26,13 @@ import seda_project.control_alt_defeat.gamebox.network.GameClient;
 import seda_project.control_alt_defeat.gamebox.network.GameServer;
 import seda_project.control_alt_defeat.gamebox.network.tetris.TetrisLanDiscoveryService;
 import seda_project.control_alt_defeat.gamebox.network.tetris.TetrisProtocol;
+import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
 import seda_project.control_alt_defeat.gamebox.util.Router;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TetrisMenuController {
+public class TetrisMenuController implements RouteDataReceiver {
 
     private enum MenuView {
         MODE_CHOICE,
@@ -120,6 +121,13 @@ public class TetrisMenuController {
         buildCustomPieceGrid();
         availableGamesList.setPlaceholder(new Label("No LAN games found yet."));
         selectView(MenuView.MODE_CHOICE);
+    }
+
+    @Override
+    public void setRouteData(Object data) {
+        if (data instanceof String message && !message.isBlank()) {
+            statusLabel.setText(message);
+        }
     }
 
     @FXML

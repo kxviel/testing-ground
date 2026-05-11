@@ -46,13 +46,17 @@ public record TetrisPlayerState(
     }
 
     public TetrisPlayerState spawnPiece(PieceShape shape) {
+        return spawnPiece(shape, -1);
+    }
+
+    public TetrisPlayerState spawnPiece(PieceShape shape, int colorIndex) {
         if (!isPlaying() || shape == null || activePiece != null) {
             return this;
         }
 
         int row = 0;
         int column = (TetrisBoard.COLUMNS - shape.width()) / 2;
-        TetrisPiece piece = new TetrisPiece(shape, new BoardPosition(row, column), Rotation.SPAWN);
+        TetrisPiece piece = new TetrisPiece(shape, new BoardPosition(row, column), Rotation.SPAWN, colorIndex);
 
         if (!board.canPlace(piece)) {
             return lost();

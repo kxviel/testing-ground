@@ -13,9 +13,11 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 import seda_project.control_alt_defeat.gamebox.model.tetris.BoardPosition;
 import seda_project.control_alt_defeat.gamebox.model.tetris.PieceShape;
+import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisBoard;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerSide;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisCell;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameConfig;
@@ -39,6 +41,8 @@ public class TetrisGameController implements RouteDataReceiver {
     private static final int GRAVITY_MS = 550;
     private static final int BUG_SPAWN_SECONDS = 8;
     private static final int BUG_SPAWN_ATTEMPTS = 100;
+    private static final int MENU_RETURN_SECONDS = 2;
+    private static final String OPPONENT_LEFT_MESSAGE = "Your opponent has left the game.";
     private static final String[][] BLOCK_COLORS = {
             {"#2f7edb", "#13579f"},
             {"#20a162", "#147246"},
@@ -81,7 +85,6 @@ public class TetrisGameController implements RouteDataReceiver {
     private GameServer hostServer;
     private GameClient joinClient;
     private final Random bugRandom = new Random();
-    private final int blockColorSeed = bugRandom.nextInt();
     private boolean networkClosed;
     private int bottomPieceIndex;
     private int topPieceIndex;
@@ -274,28 +277,34 @@ public class TetrisGameController implements RouteDataReceiver {
         grid.getChildren().clear();
 
         Set<BoardPosition> activeCells = new HashSet<>();
+        int activeColor = -1;
         if (player.activePiece() != null) {
             activeCells.addAll(player.activePiece().boardCells());
+            activeColor = player.activePiece().colorIndex();
         }
 
         for (int row = 0; row < player.board().rows(); row++) {
             for (int column = 0; column < player.board().columns(); column++) {
                 BoardPosition position = new BoardPosition(row, column);
-                Region cell = new Region();
+                Region cell = position.equals(player.bugPosition()) ? new Label("🐞") : new Region();
                 cell.getStyleClass().add("board-cell");
 
                 if (activeCells.contains(position)) {
                     cell.getStyleClass().add("board-cell-active");
-                    paintBlock(cell, player.side(), position, true);
+                    paintBlock(cell, activeColor);
                 } else if (position.equals(player.bugPosition())) {
                     cell.getStyleClass().add("board-cell-bug");
                 } else if (player.board().cellAt(position) == TetrisCell.FILLED) {
                     cell.getStyleClass().add("board-cell-filled");
-                    paintBlock(cell, player.side(), position, false);
+                    paintBlock(cell, player.board().colorAt(position));
                 }
 
                 grid.add(cell, column, row);
             }
+        }
+
+        if (!player.isPlaying()) {
+            addGameOverOverlay(grid, player.side());
         }
     }
 
@@ -458,6 +467,8 @@ public class TetrisGameController implements RouteDataReceiver {
         stopGameLoop();
         closeNetwork(false);
         render();
+        resultLabel.setText(OPPONENT_LEFT_MESSAGE);
+        returnToMenuAfterDisconnect();
     }
 
     private void sendState() {
@@ -514,10 +525,10 @@ public class TetrisGameController implements RouteDataReceiver {
         TetrisGameState next = state;
 
         if (next.bottomPlayer().isPlaying() && next.bottomPlayer().activePiece() == null) {
-            next = next.spawnPiece(PlayerSide.BOTTOM, nextPiece(PlayerSide.BOTTOM));
+            next = next.spawnPiece(PlayerSide.BOTTOM, nextPiece(PlayerSide.BOTTOM), randomBlockColor());
         }
         if (next.topPlayer().isPlaying() && next.topPlayer().activePiece() == null) {
-            next = next.spawnPiece(PlayerSide.TOP, nextPiece(PlayerSide.TOP));
+            next = next.spawnPiece(PlayerSide.TOP, nextPiece(PlayerSide.TOP), randomBlockColor());
         }
 
         return next;
@@ -564,14 +575,32 @@ public class TetrisGameController implements RouteDataReceiver {
         }
     }
 
-    private void paintBlock(Region cell, PlayerSide side, BoardPosition position, boolean active) {
-        String[] colors = BLOCK_COLORS[colorIndex(side, position, active)];
+    private void paintBlock(Region cell, int colorIndex) {
+        String[] colors = BLOCK_COLORS[Math.floorMod(colorIndex, BLOCK_COLORS.length)];
         cell.setStyle("-fx-background-color: " + colors[0] + "; -fx-border-color: " + colors[1] + ";");
     }
 
-    private int colorIndex(PlayerSide side, BoardPosition position, boolean active) {
-        int seed = blockColorSeed + position.row() * 31 + position.column() * 17 + side.ordinal() * 13
-                + (active ? 7 : 0);
-        return Math.floorMod(seed, BLOCK_COLORS.length);
+    private int randomBlockColor() {
+        return bugRandom.nextInt(BLOCK_COLORS.length);
+    }
+
+    private void addGameOverOverlay(GridPane grid, PlayerSide side) {
+        Label label = new Label("Game Over");
+        label.getStyleClass().add("board-game-over");
+        label.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        if (side == PlayerSide.TOP) {
+            label.setRotate(180);
+        }
+
+        grid.add(label, 0, 0, TetrisBoard.COLUMNS, TetrisBoard.ROWS);
+    }
+
+    private void returnToMenuAfterDisconnect() {
+        Timeline returnTimer = new Timeline(new KeyFrame(Duration.seconds(MENU_RETURN_SECONDS), event -> {
+            Stage stage = (Stage) gameRoot.getScene().getWindow();
+            Router.goTo(stage, "/tetris/TetrisMenu.fxml", OPPONENT_LEFT_MESSAGE);
+        }));
+        returnTimer.setCycleCount(1);
+        returnTimer.play();
     }
 }

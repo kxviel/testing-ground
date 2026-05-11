@@ -21,7 +21,8 @@ This repository contains GameBox, a JavaFX desktop app by team **Zero Runtime Wa
 - **Two Boards**: Bottom board and inverted top board are visible at the same time.
 - **Gameplay Flow**: Pieces spawn, move, rotate, fall, lock, clear lines, score, detect loss, continue after one player loses, show winner/draw, and restart.
 - **Swap Bugs**: Every 8 seconds, each active board can spawn a bug. Hitting one swaps the players' boards and scores.
-- **Random Block Colors**: Active and settled blocks render from a randomized color palette.
+- **Random Block Colors**: Each spawned block gets one random color that stays with it after locking.
+- **LAN Quit Handling**: If an opponent leaves, the game shows a clear message and returns to the Zetris menu.
 
 ## Prerequisites
 

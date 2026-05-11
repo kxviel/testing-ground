@@ -66,12 +66,13 @@ public final class TetrisStateSnapshot {
                 player.status().name(),
                 player.finalScore() == null ? "-" : String.valueOf(player.finalScore()),
                 serializeBoard(player.board()),
+                serializeBoardColors(player.board()),
                 encode(serializePiece(player.activePiece())),
                 serializePosition(player.bugPosition()));
     }
 
     private static TetrisPlayerState deserializePlayer(String value, PlayerSide side) {
-        String[] parts = value.split(";", 7);
+        String[] parts = value.split(";", 8);
         if (parts.length < 6) {
             return TetrisPlayerState.create("Player", side);
         }
@@ -80,9 +81,22 @@ public final class TetrisStateSnapshot {
         int score = parseInt(parts[1], 0);
         PlayerStatus status = parsePlayerStatus(parts[2]);
         Integer finalScore = "-".equals(parts[3]) ? null : parseInt(parts[3], score);
-        TetrisBoard board = deserializeBoard(parts[4]);
-        TetrisPiece activePiece = deserializePiece(decode(parts[5]));
-        BoardPosition bugPosition = parts.length < 7 ? null : deserializePosition(parts[6]);
+        String boardValue = parts[4];
+        String colorValue = "";
+        String pieceValue = parts[5];
+        String bugValue = null;
+
+        if (parts.length >= 8) {
+            colorValue = parts[5];
+            pieceValue = parts[6];
+            bugValue = parts[7];
+        } else if (parts.length == 7) {
+            bugValue = parts[6];
+        }
+
+        TetrisBoard board = deserializeBoard(boardValue, colorValue);
+        TetrisPiece activePiece = deserializePiece(decode(pieceValue));
+        BoardPosition bugPosition = deserializePosition(bugValue);
 
         return new TetrisPlayerState(name, side, board, activePiece, score, status, finalScore, bugPosition);
     }
@@ -101,17 +115,36 @@ public final class TetrisStateSnapshot {
     }
 
     private static TetrisBoard deserializeBoard(String value) {
+        return deserializeBoard(value, "");
+    }
+
+    private static TetrisBoard deserializeBoard(String value, String colorsValue) {
         TetrisCell[][] cells = new TetrisCell[TetrisBoard.ROWS][TetrisBoard.COLUMNS];
+        int[][] colors = new int[TetrisBoard.ROWS][TetrisBoard.COLUMNS];
 
         for (int row = 0; row < TetrisBoard.ROWS; row++) {
             for (int column = 0; column < TetrisBoard.COLUMNS; column++) {
                 int index = row * TetrisBoard.COLUMNS + column;
                 boolean filled = value != null && index < value.length() && value.charAt(index) == '1';
                 cells[row][column] = filled ? TetrisCell.FILLED : TetrisCell.EMPTY;
+                colors[row][column] = filled ? parseColor(colorsValue, index) : -1;
             }
         }
 
-        return new TetrisBoard(cells);
+        return new TetrisBoard(cells, colors);
+    }
+
+    private static String serializeBoardColors(TetrisBoard board) {
+        StringBuilder builder = new StringBuilder(TetrisBoard.ROWS * TetrisBoard.COLUMNS);
+
+        for (int row = 0; row < TetrisBoard.ROWS; row++) {
+            for (int column = 0; column < TetrisBoard.COLUMNS; column++) {
+                int color = board.colorAt(new BoardPosition(row, column));
+                builder.append(color < 0 ? '.' : Character.forDigit(Math.min(color, 35), 36));
+            }
+        }
+
+        return builder.toString();
     }
 
     private static String serializePiece(TetrisPiece piece) {
@@ -125,7 +158,8 @@ public final class TetrisStateSnapshot {
                 serializeCells(piece.shape().cells()),
                 String.valueOf(piece.position().row()),
                 String.valueOf(piece.position().column()),
-                piece.rotation().name());
+                piece.rotation().name(),
+                String.valueOf(piece.colorIndex()));
     }
 
     private static TetrisPiece deserializePiece(String value) {
@@ -133,8 +167,8 @@ public final class TetrisStateSnapshot {
             return null;
         }
 
-        String[] parts = value.split(",", 6);
-        if (parts.length != 6) {
+        String[] parts = value.split(",", 7);
+        if (parts.length < 6) {
             return null;
         }
 
@@ -143,9 +177,10 @@ public final class TetrisStateSnapshot {
         List<BoardPosition> cells = deserializeCells(parts[2]);
         BoardPosition position = new BoardPosition(parseInt(parts[3], 0), parseInt(parts[4], 0));
         Rotation rotation = parseRotation(parts[5]);
+        int colorIndex = parts.length < 7 ? -1 : parseInt(parts[6], -1);
         PieceShape shape = new PieceShape(type, name, cells);
 
-        return new TetrisPiece(shape, position, rotation);
+        return new TetrisPiece(shape, position, rotation, colorIndex);
     }
 
     private static String serializeCells(List<BoardPosition> cells) {
@@ -191,6 +226,15 @@ public final class TetrisStateSnapshot {
         }
 
         return new BoardPosition(parseInt(parts[0], -1), parseInt(parts[1], -1));
+    }
+
+    private static int parseColor(String value, int index) {
+        if (value == null || index >= value.length()) {
+            return -1;
+        }
+
+        char color = value.charAt(index);
+        return color == '.' ? -1 : Character.digit(color, 36);
     }
 
     private static String encode(String value) {
