@@ -84,8 +84,6 @@ public class TetrisMenuController implements RouteDataReceiver {
     @FXML
     private CheckBox standardPieceCheckBox;
     @FXML
-    private CheckBox extendedPieceCheckBox;
-    @FXML
     private CheckBox customPieceCheckBox;
 
     @FXML
@@ -650,9 +648,6 @@ public class TetrisMenuController implements RouteDataReceiver {
 
         if (standardPieceCheckBox.isSelected()) {
             pieces.add("Standard");
-        }
-        if (extendedPieceCheckBox.isSelected()) {
-            pieces.add("Extended");
         }
         if (customPieceCheckBox.isSelected()) {
             pieces.add("Custom");

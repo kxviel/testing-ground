@@ -114,7 +114,6 @@
         <Label text="Pieces" styleClass="field-title"/>
         <HBox alignment="CENTER" spacing="12">
             <CheckBox fx:id="standardPieceCheckBox" text="Standard" selected="true"/>
-            <CheckBox fx:id="extendedPieceCheckBox" text="Extended"/>
             <CheckBox fx:id="customPieceCheckBox" text="Custom" onAction="#onCustomPieceToggle"/>
         </HBox>
         <VBox fx:id="customEditorBox" alignment="CENTER" spacing="8" visible="false" managed="false">

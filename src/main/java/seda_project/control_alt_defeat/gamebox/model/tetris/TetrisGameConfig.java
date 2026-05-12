@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 public record TetrisGameConfig(List<String> pieces, List<PieceShape> customPieces) {
 
     public TetrisGameConfig {
-        pieces = pieces == null ? List.of() : List.copyOf(pieces);
+        pieces = normalizePieces(pieces);
         customPieces = customPieces == null ? List.of() : List.copyOf(customPieces);
     }
 
@@ -37,7 +37,7 @@ public record TetrisGameConfig(List<String> pieces, List<PieceShape> customPiece
     public List<PieceShape> availableShapes() {
         List<PieceShape> shapes = new ArrayList<>();
 
-        if (pieces.contains("Standard") || pieces.contains("Extended")) {
+        if (pieces.contains("Standard")) {
             shapes.addAll(PieceShape.standardShapes());
         }
         if (pieces.contains("Custom")) {
@@ -63,13 +63,25 @@ public record TetrisGameConfig(List<String> pieces, List<PieceShape> customPiece
         }
 
         String[] sections = value.split("~", 2);
-        List<String> pieces = Arrays.stream(sections[0].split(","))
+        List<String> pieces = normalizePieces(Arrays.stream(sections[0].split(","))
                 .map(String::trim)
                 .filter(piece -> !piece.isEmpty())
-                .toList();
+                .toList());
         List<PieceShape> customPieces = sections.length == 2 ? parseCustomPieces(sections[1]) : List.of();
 
         return pieces.isEmpty() ? defaultConfig() : new TetrisGameConfig(pieces, customPieces);
+    }
+
+    private static List<String> normalizePieces(List<String> pieces) {
+        if (pieces == null) {
+            return List.of();
+        }
+
+        return pieces.stream()
+                .map(piece -> piece == null ? "" : piece.trim())
+                .filter(piece -> piece.equals("Standard") || piece.equals("Custom"))
+                .distinct()
+                .toList();
     }
 
     private String serializeShape(PieceShape shape) {

@@ -109,7 +109,7 @@ mvn javafx:run
 1. From the game choice screen, choose **Zetris**.
 2. Choose **Local**.
 3. Enter both player names.
-4. Choose Standard, Extended, or Custom pieces.
+4. Choose Standard or Custom pieces.
 5. Click **Start Local**.
 
 Controls:
