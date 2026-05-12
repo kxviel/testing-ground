@@ -14,6 +14,15 @@ C:\Users\kxviel\Desktop\zero-runtime-warranty
 
 Kevin gets the smallest commit because he has already committed most of the work in the source repo.
 
+Deadline: Friday, 15 May 2026 at 20:00.
+
+Target timing:
+
+- Finish copying and commits by 18:30.
+- Finish verification by 19:15.
+- Push by 19:30.
+- Keep 30 minutes for any merge or machine-specific issue.
+
 ## Reverification Done
 
 From `C:\Users\kxviel\Desktop\zetris`, these passed:
@@ -52,7 +61,18 @@ If `git status --short` prints anything before starting, stop and check what cha
 
 Do not copy `target`, `.git`, `.idea`, or generated build files.
 
-## 1. Kevin Commit
+## Review Rules
+
+The commit history should be clean and easy to explain to professors.
+
+- Use each person's own Git account.
+- Do not fake commit dates, authors, or history.
+- Do not squash everything into one commit.
+- Keep each commit focused on one believable slice of work.
+- Run the final verification after all copied commits are done.
+- If a commit does not compile by itself because the next slice is still missing, note that in the group handoff instead of hiding it.
+
+## 1. Kevin Setup Commit
 
 Commit message:
 
@@ -77,6 +97,8 @@ git add src/main/java/module-info.java `
 
 git commit -m "wire zetris entry"
 ```
+
+Kevin owns this small setup commit and the later menu UI/controller setup commit.
 
 ## 2. Shashank Commit
 
@@ -103,46 +125,92 @@ git commit -m "add zetris model"
 
 This commit should contain board state, pieces, colors, scoring, bugs, custom pieces, loss state, and restart state.
 
-## 3. Sagar Commit
+## 3. Sagar Network Commit
 
 Commit message:
 
 ```text
-add zetris ui and lan
+add zetris lan services
 ```
 
-Sagar copies the Tetris controllers, UI, LAN protocol/discovery code, and shared network updates.
+Sagar copies the LAN protocol/discovery code and shared network updates.
 
 ```powershell
-New-Item -ItemType Directory -Force "$target\src\main\java\seda_project\control_alt_defeat\gamebox\controller" | Out-Null
-Copy-Item "$source\src\main\java\seda_project\control_alt_defeat\gamebox\controller\tetris" "$target\src\main\java\seda_project\control_alt_defeat\gamebox\controller\" -Recurse -Force
-
 New-Item -ItemType Directory -Force "$target\src\main\java\seda_project\control_alt_defeat\gamebox\network" | Out-Null
 Copy-Item "$source\src\main\java\seda_project\control_alt_defeat\gamebox\network\tetris" "$target\src\main\java\seda_project\control_alt_defeat\gamebox\network\" -Recurse -Force
 Copy-Item "$source\src\main\java\seda_project\control_alt_defeat\gamebox\network\GameClient.java" "$target\src\main\java\seda_project\control_alt_defeat\gamebox\network\GameClient.java" -Force
 Copy-Item "$source\src\main\java\seda_project\control_alt_defeat\gamebox\network\GameServer.java" "$target\src\main\java\seda_project\control_alt_defeat\gamebox\network\GameServer.java" -Force
 
-New-Item -ItemType Directory -Force "$target\src\main\resources" | Out-Null
-Copy-Item "$source\src\main\resources\tetris" "$target\src\main\resources\" -Recurse -Force
-
 New-Item -ItemType Directory -Force "$target\src\test\java\seda_project\control_alt_defeat\gamebox\network\tetris" | Out-Null
 Copy-Item "$source\src\test\java\seda_project\control_alt_defeat\gamebox\network\tetris\TetrisProtocolTest.java" "$target\src\test\java\seda_project\control_alt_defeat\gamebox\network\tetris\TetrisProtocolTest.java" -Force
 
-git add src/main/java/seda_project/control_alt_defeat/gamebox/controller/tetris `
-        src/main/java/seda_project/control_alt_defeat/gamebox/network/tetris `
+git add src/main/java/seda_project/control_alt_defeat/gamebox/network/tetris `
         src/main/java/seda_project/control_alt_defeat/gamebox/network/GameClient.java `
         src/main/java/seda_project/control_alt_defeat/gamebox/network/GameServer.java `
-        src/main/resources/tetris `
         src/test/java/seda_project/control_alt_defeat/gamebox/network/tetris/TetrisProtocolTest.java
 
-git commit -m "add zetris ui and lan"
+git commit -m "add zetris lan services"
 ```
 
-This commit should contain the Tetris menu, local flow, LAN host/join flow, UDP discovery, TCP sync, quit handling, game over display, and the game screen.
+This commit should contain UDP discovery, TCP protocol messages, state snapshots, and the small shared network listener changes.
+
+## 4. Kevin Menu UI Commit
+
+Commit message:
+
+```text
+add zetris menu ui
+```
+
+Kevin copies the Tetris menu FXML/CSS and the menu controller setup. This is the extra small UI/controller slice.
+
+```powershell
+New-Item -ItemType Directory -Force "$target\src\main\java\seda_project\control_alt_defeat\gamebox\controller\tetris" | Out-Null
+Copy-Item "$source\src\main\java\seda_project\control_alt_defeat\gamebox\controller\tetris\TetrisMenuController.java" "$target\src\main\java\seda_project\control_alt_defeat\gamebox\controller\tetris\TetrisMenuController.java" -Force
+Copy-Item "$source\src\main\java\seda_project\control_alt_defeat\gamebox\controller\tetris\TetrisGameRouteData.java" "$target\src\main\java\seda_project\control_alt_defeat\gamebox\controller\tetris\TetrisGameRouteData.java" -Force
+
+New-Item -ItemType Directory -Force "$target\src\main\resources\tetris" | Out-Null
+Copy-Item "$source\src\main\resources\tetris\TetrisMenu.fxml" "$target\src\main\resources\tetris\TetrisMenu.fxml" -Force
+Copy-Item "$source\src\main\resources\tetris\TetrisMenu.css" "$target\src\main\resources\tetris\TetrisMenu.css" -Force
+
+git add src/main/java/seda_project/control_alt_defeat/gamebox/controller/tetris/TetrisMenuController.java `
+        src/main/java/seda_project/control_alt_defeat/gamebox/controller/tetris/TetrisGameRouteData.java `
+        src/main/resources/tetris/TetrisMenu.fxml `
+        src/main/resources/tetris/TetrisMenu.css
+
+git commit -m "add zetris menu ui"
+```
+
+This commit should contain Local/LAN menu navigation, player name input, custom piece setup UI, host/join menu states, and route data passed into the game.
+
+## 5. Sagar Game UI Commit
+
+Commit message:
+
+```text
+add zetris game screen
+```
+
+Sagar copies the playable game screen controller and FXML.
+
+```powershell
+New-Item -ItemType Directory -Force "$target\src\main\java\seda_project\control_alt_defeat\gamebox\controller\tetris" | Out-Null
+Copy-Item "$source\src\main\java\seda_project\control_alt_defeat\gamebox\controller\tetris\TetrisGameController.java" "$target\src\main\java\seda_project\control_alt_defeat\gamebox\controller\tetris\TetrisGameController.java" -Force
+
+New-Item -ItemType Directory -Force "$target\src\main\resources\tetris" | Out-Null
+Copy-Item "$source\src\main\resources\tetris\TetrisGame.fxml" "$target\src\main\resources\tetris\TetrisGame.fxml" -Force
+
+git add src/main/java/seda_project/control_alt_defeat/gamebox/controller/tetris/TetrisGameController.java `
+        src/main/resources/tetris/TetrisGame.fxml
+
+git commit -m "add zetris game screen"
+```
+
+This commit should contain the board rendering, controls, local gameplay loop, LAN sync handling, quit handling, game over display, restart handling, and bug spawning.
 
 ## Final Verification
 
-After all three commits:
+After all five commits:
 
 ```powershell
 git status --short
