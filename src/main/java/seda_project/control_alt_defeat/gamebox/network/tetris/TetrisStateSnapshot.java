@@ -15,7 +15,7 @@ import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisPiece;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisPlayerState;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -194,17 +194,11 @@ public final class TetrisStateSnapshot {
             return List.of();
         }
 
-        List<BoardPosition> cells = new ArrayList<>();
-        String[] cellValues = value.split("_");
-
-        for (String cellValue : cellValues) {
-            String[] parts = cellValue.split("\\.", 2);
-            if (parts.length == 2) {
-                cells.add(new BoardPosition(parseInt(parts[0], 0), parseInt(parts[1], 0)));
-            }
-        }
-
-        return cells;
+        return Arrays.stream(value.split("_"))
+                .map(cellValue -> cellValue.split("\\.", 2))
+                .filter(parts -> parts.length == 2)
+                .map(parts -> new BoardPosition(parseInt(parts[0], 0), parseInt(parts[1], 0)))
+                .toList();
     }
 
     private static String serializePosition(BoardPosition position) {

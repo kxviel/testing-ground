@@ -14,29 +14,24 @@ public record PieceShape(PieceType type, String name, List<BoardPosition> cells)
     }
 
     public int height() {
-        int max = 0;
-        for (BoardPosition cell : cells) {
-            max = Math.max(max, cell.row());
-        }
-        return max + 1;
+        return cells.stream()
+                .mapToInt(BoardPosition::row)
+                .max()
+                .orElse(0) + 1;
     }
 
     public int width() {
-        int max = 0;
-        for (BoardPosition cell : cells) {
-            max = Math.max(max, cell.column());
-        }
-        return max + 1;
+        return cells.stream()
+                .mapToInt(BoardPosition::column)
+                .max()
+                .orElse(0) + 1;
     }
 
     public static PieceShape standardShape(PieceType type) {
-        for (PieceShape shape : standardShapes()) {
-            if (shape.type() == type) {
-                return shape;
-            }
-        }
-
-        return standardShapes().get(0);
+        return standardShapes().stream()
+                .filter(shape -> shape.type() == type)
+                .findFirst()
+                .orElseGet(() -> standardShapes().get(0));
     }
 
     public static List<PieceShape> standardShapes() {

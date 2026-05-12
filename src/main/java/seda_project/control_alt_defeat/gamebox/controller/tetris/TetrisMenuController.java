@@ -338,13 +338,8 @@ public class TetrisMenuController implements RouteDataReceiver {
     }
 
     private boolean customPieceExists(PieceShape shape) {
-        for (PieceShape customPiece : customPieces) {
-            if (customPiece.cells().equals(shape.cells())) {
-                return true;
-            }
-        }
-
-        return false;
+        return customPieces.stream()
+                .anyMatch(customPiece -> customPiece.cells().equals(shape.cells()));
     }
 
     private void clearCustomPieceEditor() {

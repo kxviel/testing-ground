@@ -4,7 +4,7 @@ import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerSide;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameConfig;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -91,18 +91,14 @@ public final class TetrisProtocol {
             return List.of();
         }
 
-        String[] parts = message.split(":", -1);
-        List<String> fields = new ArrayList<>();
-
-        for (int i = 1; i < parts.length; i++) {
-            try {
-                fields.add(decode(parts[i]));
-            } catch (IllegalArgumentException e) {
-                return List.of();
-            }
+        try {
+            return Arrays.stream(message.split(":", -1))
+                    .skip(1)
+                    .map(TetrisProtocol::decode)
+                    .toList();
+        } catch (IllegalArgumentException e) {
+            return List.of();
         }
-
-        return List.copyOf(fields);
     }
 
     private static String encode(String value) {

@@ -3,11 +3,12 @@ package seda_project.control_alt_defeat.gamebox.model.tetris;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PieceType;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public final class CustomPieceBuilder {
 
@@ -32,32 +33,28 @@ public final class CustomPieceBuilder {
             return List.of();
         }
 
-        Set<BoardPosition> uniqueCells = new HashSet<>();
-        int minRow = Integer.MAX_VALUE;
-        int minColumn = Integer.MAX_VALUE;
-
-        for (BoardPosition cell : selectedCells) {
-            if (cell == null) {
-                continue;
-            }
-
-            uniqueCells.add(cell);
-            minRow = Math.min(minRow, cell.row());
-            minColumn = Math.min(minColumn, cell.column());
-        }
+        Set<BoardPosition> uniqueCells = selectedCells.stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
 
         if (uniqueCells.isEmpty()) {
             return List.of();
         }
 
-        List<BoardPosition> normalizedCells = new ArrayList<>();
-        for (BoardPosition cell : uniqueCells) {
-            normalizedCells.add(new BoardPosition(cell.row() - minRow, cell.column() - minColumn));
-        }
+        int minRow = uniqueCells.stream()
+                .mapToInt(BoardPosition::row)
+                .min()
+                .orElse(0);
+        int minColumn = uniqueCells.stream()
+                .mapToInt(BoardPosition::column)
+                .min()
+                .orElse(0);
 
-        normalizedCells.sort(Comparator.comparingInt(BoardPosition::row)
-                .thenComparingInt(BoardPosition::column));
-        return List.copyOf(normalizedCells);
+        return uniqueCells.stream()
+                .map(cell -> new BoardPosition(cell.row() - minRow, cell.column() - minColumn))
+                .sorted(Comparator.comparingInt(BoardPosition::row)
+                        .thenComparingInt(BoardPosition::column))
+                .toList();
     }
 
     private static boolean isConnected(List<BoardPosition> cells) {

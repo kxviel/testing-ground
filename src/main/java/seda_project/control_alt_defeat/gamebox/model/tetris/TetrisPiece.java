@@ -2,7 +2,6 @@ package seda_project.control_alt_defeat.gamebox.model.tetris;
 
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.Rotation;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -32,16 +31,12 @@ public record TetrisPiece(PieceShape shape, BoardPosition position, Rotation rot
     }
 
     public List<BoardPosition> boardCells() {
-        List<BoardPosition> cells = new ArrayList<>();
-
-        for (BoardPosition cell : shape.cells()) {
-            BoardPosition rotated = rotate(cell);
-            cells.add(new BoardPosition(
-                    position.row() + rotated.row(),
-                    position.column() + rotated.column()));
-        }
-
-        return cells;
+        return shape.cells().stream()
+                .map(this::rotate)
+                .map(cell -> new BoardPosition(
+                        position.row() + cell.row(),
+                        position.column() + cell.column()))
+                .toList();
     }
 
     private BoardPosition rotate(BoardPosition cell) {

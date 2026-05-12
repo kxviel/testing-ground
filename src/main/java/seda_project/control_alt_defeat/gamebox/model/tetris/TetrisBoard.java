@@ -3,10 +3,10 @@ package seda_project.control_alt_defeat.gamebox.model.tetris;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisCell;
 
 import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class TetrisBoard {
 
@@ -65,17 +65,7 @@ public class TetrisBoard {
     }
 
     public boolean canPlace(TetrisPiece piece) {
-        if (piece == null) {
-            return false;
-        }
-
-        for (BoardPosition cell : piece.boardCells()) {
-            if (!isEmpty(cell)) {
-                return false;
-            }
-        }
-
-        return true;
+        return piece != null && piece.boardCells().stream().allMatch(this::isEmpty);
     }
 
     public TetrisBoard lockPiece(TetrisPiece piece) {
@@ -94,15 +84,10 @@ public class TetrisBoard {
     }
 
     public List<Integer> fullRows() {
-        List<Integer> rows = new ArrayList<>();
-
-        for (int row = 0; row < ROWS; row++) {
-            if (isFullRow(row)) {
-                rows.add(row);
-            }
-        }
-
-        return rows;
+        return IntStream.range(0, ROWS)
+                .filter(this::isFullRow)
+                .boxed()
+                .toList();
     }
 
     public TetrisBoard clearRows(List<Integer> rows) {
@@ -110,12 +95,9 @@ public class TetrisBoard {
             return this;
         }
 
-        Set<Integer> rowsToClear = new HashSet<>();
-        for (Integer row : rows) {
-            if (row != null && row >= 0 && row < ROWS) {
-                rowsToClear.add(row);
-            }
-        }
+        Set<Integer> rowsToClear = rows.stream()
+                .filter(row -> row != null && row >= 0 && row < ROWS)
+                .collect(Collectors.toSet());
 
         if (rowsToClear.isEmpty()) {
             return this;
@@ -163,13 +145,8 @@ public class TetrisBoard {
     }
 
     private boolean isFullRow(int row) {
-        for (int column = 0; column < COLUMNS; column++) {
-            if (cells[row][column] == TetrisCell.EMPTY) {
-                return false;
-            }
-        }
-
-        return true;
+        return IntStream.range(0, COLUMNS)
+                .allMatch(column -> cells[row][column] != TetrisCell.EMPTY);
     }
 
     private static TetrisCell[][] createEmptyCells() {
