@@ -9,31 +9,31 @@
 }
 
 .title {
-    -fx-font-size: 34px;
+    -fx-font-size: 32px;
     -fx-font-weight: 700;
     -fx-text-fill: #171717;
 }
 
 .game-title {
-    -fx-font-size: 64px;
+    -fx-font-size: 56px;
     -fx-font-weight: 800;
     -fx-text-fill: #171717;
 }
 
 .game-side-title {
-    -fx-font-size: 36px;
+    -fx-font-size: 34px;
     -fx-font-weight: 800;
     -fx-text-fill: #171717;
 }
 
 .player-name {
-    -fx-font-size: 16px;
+    -fx-font-size: 17px;
     -fx-font-weight: 700;
     -fx-text-fill: #171717;
 }
 
 .score-label {
-    -fx-font-size: 14px;
+    -fx-font-size: 15px;
     -fx-font-weight: 700;
     -fx-text-fill: #4f5665;
 }
@@ -55,7 +55,7 @@
     -fx-border-color: #dedee8;
     -fx-border-radius: 8;
     -fx-border-width: 1;
-    -fx-padding: 24;
+    -fx-padding: 28;
 }
 
 .game-layout {
@@ -63,7 +63,7 @@
 }
 
 .game-sidebar {
-    -fx-padding: 4 0 0 0;
+    -fx-padding: 6 0 0 0;
 }
 
 .boards-stack {
@@ -71,7 +71,7 @@
 }
 
 .section-title {
-    -fx-font-size: 20px;
+    -fx-font-size: 19px;
     -fx-font-weight: 700;
     -fx-text-fill: #171717;
 }
@@ -97,9 +97,9 @@
     -fx-cursor: hand;
     -fx-font-size: 14px;
     -fx-font-weight: 600;
-    -fx-min-height: 36;
-    -fx-min-width: 96;
-    -fx-padding: 8 16;
+    -fx-min-height: 38;
+    -fx-min-width: 104;
+    -fx-padding: 8 18;
 }
 
 .btn-primary {
@@ -145,7 +145,8 @@
     -fx-border-radius: 6;
     -fx-border-color: #cfd2dc;
     -fx-border-width: 1;
-    -fx-padding: 7 10;
+    -fx-min-height: 36;
+    -fx-padding: 8 11;
 }
 
 .list-view {
@@ -153,6 +154,7 @@
     -fx-border-radius: 6;
     -fx-border-color: #cfd2dc;
     -fx-border-width: 1;
+    -fx-padding: 2;
 }
 
 .tetris-board {
@@ -167,12 +169,12 @@
 .board-cell {
     -fx-background-color: #f7f7fb;
     -fx-border-color: #e1e4ec;
-    -fx-min-width: 16;
-    -fx-min-height: 16;
-    -fx-pref-width: 16;
-    -fx-pref-height: 16;
-    -fx-max-width: 16;
-    -fx-max-height: 16;
+    -fx-min-width: 17;
+    -fx-min-height: 17;
+    -fx-pref-width: 17;
+    -fx-pref-height: 17;
+    -fx-max-width: 17;
+    -fx-max-height: 17;
 }
 
 .board-cell-filled {
@@ -189,14 +191,14 @@
     -fx-background-color: #d93636;
     -fx-border-color: #8f1f1f;
     -fx-alignment: center;
-    -fx-font-size: 11px;
+    -fx-font-size: 12px;
     -fx-padding: 0;
 }
 
 .board-game-over {
     -fx-alignment: center;
     -fx-background-color: rgba(247, 247, 251, 0.84);
-    -fx-font-size: 24px;
+    -fx-font-size: 25px;
     -fx-font-weight: 800;
     -fx-text-fill: #171717;
 }

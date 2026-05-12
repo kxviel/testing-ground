@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 
 <VBox alignment="CENTER"
-      spacing="18"
+      spacing="14"
       maxHeight="Infinity"
       maxWidth="Infinity"
       styleClass="tetris-menu-root"
@@ -19,14 +19,14 @@
     </stylesheets>
 
     <padding>
-        <Insets top="40" right="56" bottom="40" left="56"/>
+        <Insets top="36" right="48" bottom="36" left="48"/>
     </padding>
 
     <Label text="Zetris" styleClass="title"/>
     <Label text="Local or LAN match" styleClass="subtitle"/>
 
-    <StackPane fx:id="contentStack" maxWidth="560" minHeight="280" styleClass="menu-panel">
-        <VBox fx:id="modeChoicePane" alignment="CENTER" spacing="16">
+    <StackPane fx:id="contentStack" maxWidth="580" minHeight="292" styleClass="menu-panel">
+        <VBox fx:id="modeChoicePane" alignment="CENTER" spacing="18">
             <Label text="Match Type" styleClass="section-title"/>
             <HBox alignment="CENTER" spacing="12" styleClass="button-row">
                 <Button fx:id="localModeButton" text="Local" onAction="#onLocalMode" styleClass="btn-outline"/>
@@ -34,10 +34,10 @@
             </HBox>
         </VBox>
 
-        <VBox fx:id="localPane" alignment="CENTER" spacing="16" visible="false" managed="false">
+        <VBox fx:id="localPane" alignment="CENTER" spacing="18" visible="false" managed="false">
             <Label text="Local" styleClass="section-title"/>
 
-            <GridPane alignment="CENTER" hgap="12" vgap="12">
+            <GridPane alignment="CENTER" hgap="14" vgap="12">
                 <columnConstraints>
                     <ColumnConstraints halignment="RIGHT"/>
                     <ColumnConstraints hgrow="ALWAYS" minWidth="220"/>
@@ -54,10 +54,10 @@
 
         </VBox>
 
-        <VBox fx:id="lanPane" alignment="CENTER" spacing="16" visible="false" managed="false">
+        <VBox fx:id="lanPane" alignment="CENTER" spacing="18" visible="false" managed="false">
             <Label text="LAN" styleClass="section-title"/>
 
-            <VBox alignment="CENTER" spacing="10">
+            <VBox alignment="CENTER" spacing="12">
                 <Label text="Role" styleClass="field-title"/>
                 <HBox alignment="CENTER" spacing="12" styleClass="button-row">
                     <Button fx:id="hostRoleButton" text="Host" onAction="#onHostRole" styleClass="btn-outline"/>
@@ -66,10 +66,10 @@
             </VBox>
         </VBox>
 
-        <VBox fx:id="hostPane" alignment="CENTER" spacing="16" visible="false" managed="false">
+        <VBox fx:id="hostPane" alignment="CENTER" spacing="18" visible="false" managed="false">
             <Label text="Host" styleClass="section-title"/>
 
-            <GridPane alignment="CENTER" hgap="12" vgap="12">
+            <GridPane alignment="CENTER" hgap="14" vgap="12">
                 <columnConstraints>
                     <ColumnConstraints halignment="RIGHT"/>
                     <ColumnConstraints hgrow="ALWAYS" minWidth="220"/>
@@ -91,7 +91,7 @@
         <VBox fx:id="joinPane" alignment="CENTER" spacing="16" visible="false" managed="false">
             <Label text="Join" styleClass="section-title"/>
 
-            <GridPane alignment="CENTER" hgap="12" vgap="12">
+            <GridPane alignment="CENTER" hgap="14" vgap="12">
                 <columnConstraints>
                     <ColumnConstraints halignment="RIGHT"/>
                     <ColumnConstraints hgrow="ALWAYS" minWidth="220"/>
@@ -105,18 +105,18 @@
             <Separator/>
 
             <Label text="Available Games" styleClass="field-title"/>
-            <ListView fx:id="availableGamesList" prefHeight="96" maxWidth="360" onMouseClicked="#onGameSelected"/>
+            <ListView fx:id="availableGamesList" prefHeight="104" maxWidth="380" onMouseClicked="#onGameSelected"/>
             <Button text="Refresh" onAction="#onRefreshGames" styleClass="btn-outline"/>
         </VBox>
     </StackPane>
 
-    <VBox fx:id="configBox" alignment="CENTER" spacing="8" visible="false" managed="false">
+    <VBox fx:id="configBox" alignment="CENTER" spacing="10" visible="false" managed="false">
         <Label text="Pieces" styleClass="field-title"/>
         <HBox alignment="CENTER" spacing="12">
             <CheckBox fx:id="standardPieceCheckBox" text="Standard" selected="true"/>
             <CheckBox fx:id="customPieceCheckBox" text="Custom" onAction="#onCustomPieceToggle"/>
         </HBox>
-        <VBox fx:id="customEditorBox" alignment="CENTER" spacing="8" visible="false" managed="false">
+        <VBox fx:id="customEditorBox" alignment="CENTER" spacing="10" visible="false" managed="false">
             <Label text="Custom Piece" styleClass="field-title"/>
             <GridPane fx:id="customPieceGrid" alignment="CENTER" styleClass="custom-piece-grid"/>
             <HBox alignment="CENTER" spacing="8">
