@@ -2,6 +2,8 @@ package seda_project.control_alt_defeat.gamebox.network.tetris;
 
 import seda_project.control_alt_defeat.gamebox.model.tetris.BoardPosition;
 import seda_project.control_alt_defeat.gamebox.model.tetris.PieceShape;
+import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisBoardObject;
+import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisEffectState;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PieceType;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerSide;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerStatus;
@@ -11,6 +13,7 @@ import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisCell;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameConfig;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameState;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisGameStatus;
+import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisItemType;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisPiece;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisPlayerState;
 
@@ -68,11 +71,13 @@ public final class TetrisStateSnapshot {
                 serializeBoard(player.board()),
                 serializeBoardColors(player.board()),
                 encode(serializePiece(player.activePiece())),
-                serializePosition(player.bugPosition()));
+                serializeObject(player.boardObject()),
+                serializeEffects(player.effects()),
+                serializeQueue(player.queuedShapes()));
     }
 
     private static TetrisPlayerState deserializePlayer(String value, PlayerSide side) {
-        String[] parts = value.split(";", 8);
+        String[] parts = value.split(";", -1);
         if (parts.length < 6) {
             return TetrisPlayerState.create("Player", side);
         }
@@ -84,21 +89,41 @@ public final class TetrisStateSnapshot {
         String boardValue = parts[4];
         String colorValue = "";
         String pieceValue = parts[5];
-        String bugValue = null;
+        String objectValue = null;
+        String effectsValue = null;
+        String queueValue = null;
 
-        if (parts.length >= 8) {
+        if (parts.length >= 10) {
             colorValue = parts[5];
             pieceValue = parts[6];
-            bugValue = parts[7];
+            objectValue = parts[7];
+            effectsValue = parts[8];
+            queueValue = parts[9];
+        } else if (parts.length >= 8) {
+            colorValue = parts[5];
+            pieceValue = parts[6];
+            objectValue = parts[7];
         } else if (parts.length == 7) {
-            bugValue = parts[6];
+            objectValue = parts[6];
         }
 
         TetrisBoard board = deserializeBoard(boardValue, colorValue);
         TetrisPiece activePiece = deserializePiece(decode(pieceValue));
-        BoardPosition bugPosition = deserializePosition(bugValue);
+        TetrisBoardObject boardObject = deserializeObject(objectValue);
+        TetrisEffectState effects = deserializeEffects(effectsValue);
+        List<PieceShape> queuedShapes = deserializeQueue(queueValue);
 
-        return new TetrisPlayerState(name, side, board, activePiece, score, status, finalScore, bugPosition);
+        return new TetrisPlayerState(
+                name,
+                side,
+                board,
+                activePiece,
+                score,
+                status,
+                finalScore,
+                boardObject,
+                effects,
+                queuedShapes);
     }
 
     private static String serializeBoard(TetrisBoard board) {
@@ -152,14 +177,18 @@ public final class TetrisStateSnapshot {
             return "-";
         }
 
+        return serializeShape(piece.shape()) + ","
+                + piece.position().row() + ","
+                + piece.position().column() + ","
+                + piece.rotation().name() + ","
+                + piece.colorIndex();
+    }
+
+    private static String serializeShape(PieceShape shape) {
         return String.join(",",
-                piece.shape().type().name(),
-                encode(piece.shape().name()),
-                serializeCells(piece.shape().cells()),
-                String.valueOf(piece.position().row()),
-                String.valueOf(piece.position().column()),
-                piece.rotation().name(),
-                String.valueOf(piece.colorIndex()));
+                shape.type().name(),
+                encode(shape.name()),
+                serializeCells(shape.cells()));
     }
 
     private static TetrisPiece deserializePiece(String value) {
@@ -181,6 +210,19 @@ public final class TetrisStateSnapshot {
         PieceShape shape = new PieceShape(type, name, cells);
 
         return new TetrisPiece(shape, position, rotation, colorIndex);
+    }
+
+    private static PieceShape deserializeShape(String value) {
+        if (value == null || value.isBlank() || "-".equals(value)) {
+            return null;
+        }
+
+        String[] parts = value.split(",", 3);
+        if (parts.length < 3) {
+            return null;
+        }
+
+        return new PieceShape(parsePieceType(parts[0]), decode(parts[1]), deserializeCells(parts[2]));
     }
 
     private static String serializeCells(List<BoardPosition> cells) {
@@ -207,6 +249,83 @@ public final class TetrisStateSnapshot {
         }
 
         return position.row() + "," + position.column();
+    }
+
+    private static String serializeObject(TetrisBoardObject object) {
+        if (object == null) {
+            return "-";
+        }
+
+        return object.type().name() + "@" + serializePosition(object.position());
+    }
+
+    private static TetrisBoardObject deserializeObject(String value) {
+        if (value == null || value.isBlank() || "-".equals(value)) {
+            return null;
+        }
+
+        if (!value.contains("@")) {
+            BoardPosition legacyBugPosition = deserializePosition(value);
+            return legacyBugPosition == null
+                    ? null
+                    : new TetrisBoardObject(TetrisItemType.TELEPORT_SWAP, legacyBugPosition);
+        }
+
+        String[] parts = value.split("@", 2);
+        BoardPosition position = deserializePosition(parts.length == 2 ? parts[1] : "-");
+        if (position == null) {
+            return null;
+        }
+
+        try {
+            return new TetrisBoardObject(TetrisItemType.valueOf(parts[0]), position);
+        } catch (IllegalArgumentException e) {
+            return new TetrisBoardObject(TetrisItemType.TELEPORT_SWAP, position);
+        }
+    }
+
+    private static String serializeEffects(TetrisEffectState effects) {
+        TetrisEffectState safeEffects = effects == null ? TetrisEffectState.none() : effects;
+
+        return safeEffects.gravityPercent()
+                + ","
+                + safeEffects.gravityTicks()
+                + ","
+                + safeEffects.rotationDelayTicks();
+    }
+
+    private static TetrisEffectState deserializeEffects(String value) {
+        if (value == null || value.isBlank()) {
+            return TetrisEffectState.none();
+        }
+
+        String[] parts = value.split(",", 3);
+        return new TetrisEffectState(
+                parts.length > 0 ? parseInt(parts[0], TetrisEffectState.NORMAL_GRAVITY_PERCENT) : TetrisEffectState.NORMAL_GRAVITY_PERCENT,
+                parts.length > 1 ? parseInt(parts[1], 0) : 0,
+                parts.length > 2 ? parseInt(parts[2], 0) : 0);
+    }
+
+    private static String serializeQueue(List<PieceShape> shapes) {
+        if (shapes == null || shapes.isEmpty()) {
+            return "-";
+        }
+
+        return shapes.stream()
+                .map(shape -> encode(serializeShape(shape)))
+                .collect(Collectors.joining("."));
+    }
+
+    private static List<PieceShape> deserializeQueue(String value) {
+        if (value == null || value.isBlank() || "-".equals(value)) {
+            return List.of();
+        }
+
+        return Arrays.stream(value.split("\\."))
+                .map(TetrisStateSnapshot::decode)
+                .map(TetrisStateSnapshot::deserializeShape)
+                .filter(shape -> shape != null)
+                .toList();
     }
 
     private static BoardPosition deserializePosition(String value) {

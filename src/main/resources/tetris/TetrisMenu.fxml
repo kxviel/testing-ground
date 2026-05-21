@@ -116,6 +116,12 @@
             <CheckBox fx:id="standardPieceCheckBox" text="Standard" selected="true"/>
             <CheckBox fx:id="customPieceCheckBox" text="Custom" onAction="#onCustomPieceToggle"/>
         </HBox>
+        <Label text="Speed" styleClass="field-title"/>
+        <ComboBox fx:id="speedChoiceBox" maxWidth="180"/>
+        <HBox alignment="CENTER" spacing="12">
+            <CheckBox fx:id="dualPieceCheckBox" text="Dual blocks"/>
+            <CheckBox fx:id="horizontalModeCheckBox" text="Horizontal"/>
+        </HBox>
         <VBox fx:id="customEditorBox" alignment="CENTER" spacing="10" visible="false" managed="false">
             <Label text="Custom Piece" styleClass="field-title"/>
             <GridPane fx:id="customPieceGrid" alignment="CENTER" styleClass="custom-piece-grid"/>

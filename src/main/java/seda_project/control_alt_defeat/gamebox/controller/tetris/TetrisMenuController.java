@@ -9,6 +9,7 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
@@ -85,6 +86,12 @@ public class TetrisMenuController implements RouteDataReceiver {
     private CheckBox standardPieceCheckBox;
     @FXML
     private CheckBox customPieceCheckBox;
+    @FXML
+    private CheckBox dualPieceCheckBox;
+    @FXML
+    private CheckBox horizontalModeCheckBox;
+    @FXML
+    private ComboBox<String> speedChoiceBox;
 
     @FXML
     private Label hostInfoLabel;
@@ -117,6 +124,8 @@ public class TetrisMenuController implements RouteDataReceiver {
     @FXML
     public void initialize() {
         buildCustomPieceGrid();
+        speedChoiceBox.getItems().setAll("Slow", "Normal", "Fast");
+        speedChoiceBox.getSelectionModel().select("Normal");
         availableGamesList.setPlaceholder(new Label("No LAN games found yet."));
         selectView(MenuView.MODE_CHOICE);
     }
@@ -655,13 +664,26 @@ public class TetrisMenuController implements RouteDataReceiver {
 
         TetrisGameConfig config = new TetrisGameConfig(
                 pieces,
-                customPieceCheckBox.isSelected() ? customPieces : List.of());
+                customPieceCheckBox.isSelected() ? customPieces : List.of(),
+                selectedGravityMillis(),
+                dualPieceCheckBox.isSelected(),
+                horizontalModeCheckBox.isSelected());
         if (!config.hasPieces()) {
             statusLabel.setText("Select at least one piece set.");
             return null;
         }
 
         return config;
+    }
+
+    private int selectedGravityMillis() {
+        String speed = speedChoiceBox.getSelectionModel().getSelectedItem();
+
+        return switch (speed == null ? "Normal" : speed) {
+            case "Slow" -> 750;
+            case "Fast" -> 320;
+            default -> TetrisGameConfig.DEFAULT_GRAVITY_MILLIS;
+        };
     }
 
     private String trimmed(TextField field) {

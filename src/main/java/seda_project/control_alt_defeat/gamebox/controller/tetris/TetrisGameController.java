@@ -17,6 +17,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import seda_project.control_alt_defeat.gamebox.model.tetris.BoardPosition;
 import seda_project.control_alt_defeat.gamebox.model.tetris.PieceShape;
+import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisBoardObject;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisBoard;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerSide;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisCell;
@@ -24,6 +25,7 @@ import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameConfig;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameSetup;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameState;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisPlayerState;
+import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisItemType;
 import seda_project.control_alt_defeat.gamebox.network.GameClient;
 import seda_project.control_alt_defeat.gamebox.network.GameServer;
 import seda_project.control_alt_defeat.gamebox.network.tetris.TetrisProtocol;
@@ -38,9 +40,9 @@ import java.util.Set;
 
 public class TetrisGameController implements RouteDataReceiver {
 
-    private static final int GRAVITY_MS = 550;
-    private static final int BUG_SPAWN_SECONDS = 8;
-    private static final int BUG_SPAWN_ATTEMPTS = 100;
+    private static final int GAME_TICK_MS = 100;
+    private static final int OBJECT_SPAWN_SECONDS = 8;
+    private static final int OBJECT_SPAWN_ATTEMPTS = 100;
     private static final int MENU_RETURN_SECONDS = 2;
     private static final String OPPONENT_LEFT_MESSAGE = "Your opponent has left the game.";
     private static final String[] BLOCK_COLORS = {
@@ -81,13 +83,15 @@ public class TetrisGameController implements RouteDataReceiver {
     private TetrisGameSetup setup = new TetrisGameSetup("Player 1", "Player 2", TetrisGameConfig.defaultConfig());
     private TetrisGameState gameState = TetrisGameState.create(setup);
     private Timeline gameLoop;
-    private Timeline bugLoop;
+    private Timeline objectLoop;
     private GameServer hostServer;
     private GameClient joinClient;
-    private final Random bugRandom = new Random();
+    private final Random objectRandom = new Random();
     private boolean networkClosed;
     private int bottomPieceIndex;
     private int topPieceIndex;
+    private int bottomGravityElapsedMs;
+    private int topGravityElapsedMs;
 
     @Override
     public void setRouteData(Object data) {
@@ -144,6 +148,8 @@ public class TetrisGameController implements RouteDataReceiver {
     private void startNewGame() {
         bottomPieceIndex = 0;
         topPieceIndex = 0;
+        bottomGravityElapsedMs = 0;
+        topGravityElapsedMs = 0;
         gameState = spawnMissingPieces(TetrisGameState.create(setup).running());
         if (isLanClient()) {
             stopGameLoop();
@@ -157,13 +163,13 @@ public class TetrisGameController implements RouteDataReceiver {
     private void startGameLoop() {
         stopGameLoop();
 
-        gameLoop = new Timeline(new KeyFrame(Duration.millis(GRAVITY_MS), event -> onGameTick()));
+        gameLoop = new Timeline(new KeyFrame(Duration.millis(GAME_TICK_MS), event -> onGameTick()));
         gameLoop.setCycleCount(Animation.INDEFINITE);
         gameLoop.play();
 
-        bugLoop = new Timeline(new KeyFrame(Duration.seconds(BUG_SPAWN_SECONDS), event -> onBugTick()));
-        bugLoop.setCycleCount(Animation.INDEFINITE);
-        bugLoop.play();
+        objectLoop = new Timeline(new KeyFrame(Duration.seconds(OBJECT_SPAWN_SECONDS), event -> onObjectTick()));
+        objectLoop.setCycleCount(Animation.INDEFINITE);
+        objectLoop.play();
     }
 
     private void stopGameLoop() {
@@ -171,9 +177,9 @@ public class TetrisGameController implements RouteDataReceiver {
             gameLoop.stop();
             gameLoop = null;
         }
-        if (bugLoop != null) {
-            bugLoop.stop();
-            bugLoop = null;
+        if (objectLoop != null) {
+            objectLoop.stop();
+            objectLoop = null;
         }
     }
 
@@ -184,17 +190,29 @@ public class TetrisGameController implements RouteDataReceiver {
             return;
         }
 
-        gameState = gameState.applyGravity();
+        gameState = gameState.tickEffects();
+        bottomGravityElapsedMs += GAME_TICK_MS;
+        topGravityElapsedMs += GAME_TICK_MS;
+
+        if (bottomGravityElapsedMs >= effectiveGravityMs(gameState.bottomPlayer())) {
+            bottomGravityElapsedMs = 0;
+            gameState = gameState.applyGravity(PlayerSide.BOTTOM);
+        }
+        if (topGravityElapsedMs >= effectiveGravityMs(gameState.topPlayer())) {
+            topGravityElapsedMs = 0;
+            gameState = gameState.applyGravity(PlayerSide.TOP);
+        }
+
         finishStateChange();
     }
 
-    private void onBugTick() {
+    private void onObjectTick() {
         if (gameState.isFinished() || networkClosed) {
             return;
         }
 
-        gameState = spawnBug(gameState, PlayerSide.BOTTOM);
-        gameState = spawnBug(gameState, PlayerSide.TOP);
+        gameState = spawnObject(gameState, PlayerSide.BOTTOM);
+        gameState = spawnObject(gameState, PlayerSide.TOP);
         render();
         sendState();
     }
@@ -286,14 +304,16 @@ public class TetrisGameController implements RouteDataReceiver {
         for (int row = 0; row < player.board().rows(); row++) {
             for (int column = 0; column < player.board().columns(); column++) {
                 BoardPosition position = new BoardPosition(row, column);
-                Region cell = position.equals(player.bugPosition()) ? new Label("🐞") : new Region();
+                TetrisBoardObject object = player.boardObject();
+                boolean hasObject = object != null && position.equals(object.position());
+                Region cell = hasObject ? new Label(object.type().symbol()) : new Region();
                 cell.getStyleClass().add("board-cell");
 
                 if (activeCells.contains(position)) {
                     cell.getStyleClass().add("board-cell-active");
                     paintBlock(cell, activeColor);
-                } else if (position.equals(player.bugPosition())) {
-                    cell.getStyleClass().add("board-cell-bug");
+                } else if (hasObject) {
+                    cell.getStyleClass().add("board-cell-object");
                 } else if (player.board().cellAt(position) == TetrisCell.FILLED) {
                     cell.getStyleClass().add("board-cell-filled");
                     paintBlock(cell, player.board().colorAt(position));
@@ -525,31 +545,36 @@ public class TetrisGameController implements RouteDataReceiver {
         TetrisGameState next = state;
 
         if (next.bottomPlayer().isPlaying() && next.bottomPlayer().activePiece() == null) {
-            next = next.spawnPiece(PlayerSide.BOTTOM, nextPiece(PlayerSide.BOTTOM), randomBlockColor());
+            next = next.spawnPiece(PlayerSide.BOTTOM, nextSpawnShape(next.bottomPlayer(), PlayerSide.BOTTOM), randomBlockColor());
         }
         if (next.topPlayer().isPlaying() && next.topPlayer().activePiece() == null) {
-            next = next.spawnPiece(PlayerSide.TOP, nextPiece(PlayerSide.TOP), randomBlockColor());
+            next = next.spawnPiece(PlayerSide.TOP, nextSpawnShape(next.topPlayer(), PlayerSide.TOP), randomBlockColor());
         }
 
         return next;
     }
 
-    private TetrisGameState spawnBug(TetrisGameState state, PlayerSide side) {
+    private TetrisGameState spawnObject(TetrisGameState state, PlayerSide side) {
         TetrisPlayerState player = side == PlayerSide.BOTTOM ? state.bottomPlayer() : state.topPlayer();
-        if (!player.isPlaying() || player.bugPosition() != null) {
+        if (!player.isPlaying() || player.boardObject() != null) {
             return state;
         }
 
-        for (int attempt = 0; attempt < BUG_SPAWN_ATTEMPTS; attempt++) {
+        for (int attempt = 0; attempt < OBJECT_SPAWN_ATTEMPTS; attempt++) {
             BoardPosition position = new BoardPosition(
-                    bugRandom.nextInt(player.board().rows()),
-                    bugRandom.nextInt(player.board().columns()));
-            if (player.canPlaceBug(position)) {
-                return state.spawnBug(side, position);
+                    objectRandom.nextInt(player.board().rows()),
+                    objectRandom.nextInt(player.board().columns()));
+            TetrisBoardObject object = new TetrisBoardObject(randomObjectType(), position);
+            if (player.canPlaceObject(object)) {
+                return state.spawnObject(side, object);
             }
         }
 
         return state;
+    }
+
+    private PieceShape nextSpawnShape(TetrisPlayerState player, PlayerSide side) {
+        return player.hasQueuedShape() ? player.queuedShapes().getFirst() : nextPiece(side);
     }
 
     private PieceShape nextPiece(PlayerSide side) {
@@ -581,7 +606,16 @@ public class TetrisGameController implements RouteDataReceiver {
     }
 
     private int randomBlockColor() {
-        return bugRandom.nextInt(BLOCK_COLORS.length);
+        return objectRandom.nextInt(BLOCK_COLORS.length);
+    }
+
+    private TetrisItemType randomObjectType() {
+        TetrisItemType[] values = TetrisItemType.values();
+        return values[objectRandom.nextInt(values.length)];
+    }
+
+    private int effectiveGravityMs(TetrisPlayerState player) {
+        return player.effects().gravityMillis(gameState.config().gravityMillis());
     }
 
     private void addGameOverOverlay(GridPane grid, PlayerSide side) {

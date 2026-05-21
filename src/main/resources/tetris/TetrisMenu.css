@@ -187,11 +187,13 @@
     -fx-border-color: #13579f;
 }
 
-.board-cell-bug {
+.board-cell-object {
     -fx-background-color: #d93636;
     -fx-border-color: #8f1f1f;
     -fx-alignment: center;
-    -fx-font-size: 12px;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-text-fill: white;
     -fx-padding: 0;
 }
 

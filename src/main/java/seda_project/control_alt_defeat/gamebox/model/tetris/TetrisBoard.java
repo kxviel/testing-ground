@@ -122,6 +122,65 @@ public class TetrisBoard {
         return new TetrisBoard(nextCells, nextColors);
     }
 
+    public TetrisBoard destroyRadius(BoardPosition center, int radius) {
+        if (center == null || radius < 0) {
+            return this;
+        }
+
+        Set<BoardPosition> positions = IntStream.rangeClosed(center.row() - radius, center.row() + radius)
+                .boxed()
+                .flatMap(row -> IntStream.rangeClosed(center.column() - radius, center.column() + radius)
+                        .mapToObj(column -> new BoardPosition(row, column)))
+                .filter(this::isInside)
+                .filter(position -> distanceSquared(center, position) <= radius * radius)
+                .collect(Collectors.toSet());
+
+        return clearPositions(positions);
+    }
+
+    public TetrisBoard destroyBelow(BoardPosition impact) {
+        if (impact == null) {
+            return this;
+        }
+
+        Set<BoardPosition> positions = IntStream.range(impact.row(), ROWS)
+                .mapToObj(row -> new BoardPosition(row, impact.column()))
+                .filter(this::isInside)
+                .collect(Collectors.toSet());
+
+        return clearPositions(positions);
+    }
+
+    public TetrisBoard addGarbageLines(int count, int holeColumn) {
+        int lines = Math.min(ROWS, Math.max(0, count));
+        if (lines == 0) {
+            return this;
+        }
+
+        int safeHoleColumn = Math.floorMod(holeColumn, COLUMNS);
+        TetrisCell[][] nextCells = createEmptyCells();
+        int[][] nextColors = createEmptyColors();
+
+        for (int row = 0; row < ROWS - lines; row++) {
+            for (int column = 0; column < COLUMNS; column++) {
+                nextCells[row][column] = cells[row + lines][column];
+                nextColors[row][column] = colorIndexes[row + lines][column];
+            }
+        }
+
+        for (int row = ROWS - lines; row < ROWS; row++) {
+            for (int column = 0; column < COLUMNS; column++) {
+                if (column == safeHoleColumn) {
+                    continue;
+                }
+                nextCells[row][column] = TetrisCell.FILLED;
+                nextColors[row][column] = 0;
+            }
+        }
+
+        return new TetrisBoard(nextCells, nextColors);
+    }
+
     public TetrisBoard withCell(BoardPosition position, TetrisCell cell) {
         if (!isInside(position)) {
             throw new IllegalArgumentException("Position outside board: " + position);
@@ -147,6 +206,31 @@ public class TetrisBoard {
     private boolean isFullRow(int row) {
         return IntStream.range(0, COLUMNS)
                 .allMatch(column -> cells[row][column] != TetrisCell.EMPTY);
+    }
+
+    private TetrisBoard clearPositions(Set<BoardPosition> positions) {
+        if (positions == null || positions.isEmpty()) {
+            return this;
+        }
+
+        TetrisCell[][] nextCells = copyCells(cells);
+        int[][] nextColors = copyColors(colorIndexes, nextCells);
+
+        positions.stream()
+                .filter(this::isInside)
+                .forEach(position -> {
+                    nextCells[position.row()][position.column()] = TetrisCell.EMPTY;
+                    nextColors[position.row()][position.column()] = -1;
+                });
+
+        return new TetrisBoard(nextCells, nextColors);
+    }
+
+    private static int distanceSquared(BoardPosition first, BoardPosition second) {
+        int rowDelta = first.row() - second.row();
+        int columnDelta = first.column() - second.column();
+
+        return rowDelta * rowDelta + columnDelta * columnDelta;
     }
 
     private static TetrisCell[][] createEmptyCells() {
