@@ -198,6 +198,7 @@ These decisions are now locked for the first implementation pass.
    - Special objects spawn only on supported free tiles with a clear approach path, not floating in open space, inside locked blocks, or inside blocked cavities.
    - Unused special objects expire after 10 seconds.
    - Hitting a teleporter object swaps the players' boards and active pieces while keeping names, sides, and scores stable.
+   - Clearing a line removes that row from the clearing player's board and adds one garbage row to the opponent.
 
 ## Deferred Decisions
 
@@ -945,6 +946,8 @@ Done when:
 | `FR-OUTPUT-10` | Winner/draw result view | Winner/manual UI |
 | `FR-OUTPUT-11` | Custom part editor | Validation tests/manual UI |
 | `FR-OUTPUT-12` | 4-second special objects in `TetrisGameState` and `TetrisGameController` | Model/snapshot tests/manual UI |
+| `FR-OUTPUT-19` | Line clears remove one player row and add one opponent garbage row | Model line-transfer test |
+| `FR-OUTPUT-23` | Teleporter special object appears through the object bag and swaps player boards/pieces | Model teleporter and item-bag tests |
 | `QR-USAB-01` | Clear menu mode choices | Manual UI |
 | `QR-USAB-02` | Simple keyboard controls | Manual input |
 | `QR-USAB-03` | Boards/names/scores visible | Manual UI |

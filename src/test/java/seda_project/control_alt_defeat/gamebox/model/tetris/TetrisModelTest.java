@@ -129,7 +129,7 @@ public class TetrisModelTest {
     }
 
     @Test
-    void touchingSwapObjectSwapsBoardsAndPiecesButKeepsScores() {
+    void teleporterObjectSwapsBoardsAndPiecesButKeepsScores() {
         TetrisPiece bottomPiece = new TetrisPiece(
                 PieceShape.standardShape(PieceType.O),
                 new BoardPosition(0, 0),
@@ -174,7 +174,7 @@ public class TetrisModelTest {
     }
 
     @Test
-    void clearingLineAddsGarbageLineToOpponent() {
+    void clearingLineClearsPlayerRowAndAddsGarbageLineToOpponent() {
         TetrisBoard bottomBoard = new TetrisBoard();
         for (int column = 2; column < TetrisBoard.COLUMNS; column++) {
             bottomBoard = bottomBoard.withCell(new BoardPosition(19, column), TetrisCell.FILLED);
@@ -200,6 +200,7 @@ public class TetrisModelTest {
                 .filter(column -> next.topPlayer().board().cellAt(new BoardPosition(19, column)) == TetrisCell.FILLED)
                 .count();
         assertEquals(1, next.bottomPlayer().score());
+        assertEquals(TetrisCell.EMPTY, next.bottomPlayer().board().cellAt(new BoardPosition(18, 0)));
         assertEquals(TetrisBoard.COLUMNS - 1, filledCells);
     }
 
