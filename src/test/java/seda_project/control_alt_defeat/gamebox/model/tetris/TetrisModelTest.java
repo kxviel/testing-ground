@@ -3,6 +3,9 @@ package seda_project.control_alt_defeat.gamebox.model.tetris;
 import org.junit.jupiter.api.Test;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.*;
 
+import java.util.EnumSet;
+import java.util.Random;
+import java.util.Set;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -330,5 +333,27 @@ public class TetrisModelTest {
                 new BoardPosition(0, 0),
                 new BoardPosition(0, 1),
                 new BoardPosition(1, 1)), shape.cells());
+    }
+
+    @Test
+    void itemBagReturnsEveryObjectTypeBeforeRepeating() {
+        TetrisItemBag bag = new TetrisItemBag();
+        Random random = new Random(42);
+        Set<TetrisItemType> expectedTypes = EnumSet.allOf(TetrisItemType.class);
+
+        Set<TetrisItemType> firstBag = drawFullBag(bag, random);
+        Set<TetrisItemType> secondBag = drawFullBag(bag, random);
+
+        assertEquals(expectedTypes, firstBag);
+        assertEquals(expectedTypes, secondBag);
+    }
+
+    private static Set<TetrisItemType> drawFullBag(TetrisItemBag bag, Random random) {
+        Set<TetrisItemType> drawnTypes = EnumSet.noneOf(TetrisItemType.class);
+        for (int draw = 0; draw < TetrisItemType.values().length; draw++) {
+            drawnTypes.add(bag.next(random));
+        }
+
+        return drawnTypes;
     }
 }

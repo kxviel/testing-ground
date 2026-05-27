@@ -24,6 +24,7 @@ import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisCell;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameConfig;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameSetup;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameState;
+import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisItemBag;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisPlayerState;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisItemType;
 import seda_project.control_alt_defeat.gamebox.network.GameClient;
@@ -87,6 +88,8 @@ public class TetrisGameController implements RouteDataReceiver {
     private GameServer hostServer;
     private GameClient joinClient;
     private final Random objectRandom = new Random();
+    private final TetrisItemBag bottomObjectBag = new TetrisItemBag();
+    private final TetrisItemBag topObjectBag = new TetrisItemBag();
     private boolean networkClosed;
     private int bottomPieceIndex;
     private int topPieceIndex;
@@ -150,6 +153,8 @@ public class TetrisGameController implements RouteDataReceiver {
         topPieceIndex = 0;
         bottomGravityElapsedMs = 0;
         topGravityElapsedMs = 0;
+        bottomObjectBag.reset();
+        topObjectBag.reset();
         gameState = spawnMissingPieces(TetrisGameState.create(setup).running());
         if (isLanClient()) {
             stopGameLoop();
@@ -564,9 +569,11 @@ public class TetrisGameController implements RouteDataReceiver {
             BoardPosition position = new BoardPosition(
                     objectRandom.nextInt(player.board().rows()),
                     objectRandom.nextInt(player.board().columns()));
-            TetrisBoardObject object = new TetrisBoardObject(randomObjectType(), position);
+            TetrisBoardObject object = new TetrisBoardObject(TetrisItemType.TELEPORT_SWAP, position);
             if (player.canPlaceObject(object)) {
-                return state.spawnObject(side, object);
+                return state.spawnObject(
+                        side,
+                        new TetrisBoardObject(objectBag(side).next(objectRandom), position));
             }
         }
 
@@ -609,9 +616,8 @@ public class TetrisGameController implements RouteDataReceiver {
         return objectRandom.nextInt(BLOCK_COLORS.length);
     }
 
-    private TetrisItemType randomObjectType() {
-        TetrisItemType[] values = TetrisItemType.values();
-        return values[objectRandom.nextInt(values.length)];
+    private TetrisItemBag objectBag(PlayerSide side) {
+        return side == PlayerSide.TOP ? topObjectBag : bottomObjectBag;
     }
 
     private int effectiveGravityMs(TetrisPlayerState player) {
