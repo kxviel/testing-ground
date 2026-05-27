@@ -570,7 +570,7 @@ public class TetrisGameController implements RouteDataReceiver {
                     objectRandom.nextInt(player.board().rows()),
                     objectRandom.nextInt(player.board().columns()));
             TetrisBoardObject object = new TetrisBoardObject(TetrisItemType.TELEPORT_SWAP, position);
-            if (player.canPlaceObject(object)) {
+            if (player.canSpawnObject(object, state.config().gravityDirection(side))) {
                 return state.spawnObject(
                         side,
                         new TetrisBoardObject(objectBag(side).next(objectRandom), position));

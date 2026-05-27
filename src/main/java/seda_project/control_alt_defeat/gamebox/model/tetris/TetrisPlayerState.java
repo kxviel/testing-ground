@@ -271,6 +271,11 @@ public record TetrisPlayerState(
                 && canUseObjectPosition(board, activePiece, object);
     }
 
+    public boolean canSpawnObject(TetrisBoardObject object, GravityDirection gravityDirection) {
+        return canPlaceObject(object)
+                && hasObjectSupport(object.position(), gravityDirection);
+    }
+
     public boolean canPlaceBug(BoardPosition position) {
         return canPlaceObject(new TetrisBoardObject(TetrisItemType.TELEPORT_SWAP, position));
     }
@@ -442,5 +447,14 @@ public record TetrisPlayerState(
 
     private static boolean canKeepObject(TetrisBoard board, TetrisBoardObject object) {
         return object != null && !object.isExpired() && canUseObjectPosition(board, null, object);
+    }
+
+    private boolean hasObjectSupport(BoardPosition position, GravityDirection gravityDirection) {
+        GravityDirection direction = gravityDirection == null ? side.gravityDirection() : gravityDirection;
+        BoardPosition supportPosition = new BoardPosition(
+                position.row() + direction.rowStep(),
+                position.column() + direction.columnStep());
+
+        return !board.isInside(supportPosition) || !board.isEmpty(supportPosition);
     }
 }

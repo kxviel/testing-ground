@@ -345,6 +345,29 @@ public class TetrisModelTest {
     }
 
     @Test
+    void objectSpawnRequiresSupportedFreeTile() {
+        TetrisPlayerState player = TetrisPlayerState.create("Bottom", PlayerSide.BOTTOM);
+        TetrisBoardObject middleObject = new TetrisBoardObject(TetrisItemType.SLOW_SELF, new BoardPosition(8, 5));
+        TetrisBoardObject floorObject = new TetrisBoardObject(TetrisItemType.SLOW_SELF, new BoardPosition(19, 5));
+        TetrisPlayerState withLockedBlock = player.withBoard(new TetrisBoard()
+                .withCell(new BoardPosition(9, 5), TetrisCell.FILLED));
+
+        assertFalse(player.canSpawnObject(middleObject, GravityDirection.DOWN));
+        assertTrue(player.canSpawnObject(floorObject, GravityDirection.DOWN));
+        assertTrue(withLockedBlock.canSpawnObject(middleObject, GravityDirection.DOWN));
+    }
+
+    @Test
+    void objectSpawnUsesHorizontalGravitySupport() {
+        TetrisPlayerState player = TetrisPlayerState.create("Bottom", PlayerSide.BOTTOM);
+        TetrisBoardObject middleObject = new TetrisBoardObject(TetrisItemType.SLOW_SELF, new BoardPosition(8, 5));
+        TetrisBoardObject wallObject = new TetrisBoardObject(TetrisItemType.SLOW_SELF, new BoardPosition(8, 9));
+
+        assertFalse(player.canSpawnObject(middleObject, GravityDirection.RIGHT));
+        assertTrue(player.canSpawnObject(wallObject, GravityDirection.RIGHT));
+    }
+
+    @Test
     void horizontalModeSpawnsAtSideAndFallsSideways() {
         TetrisGameConfig config = new TetrisGameConfig(List.of("Standard"), List.of(), 550, false, true);
         TetrisGameState state = new TetrisGameState(
