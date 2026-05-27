@@ -18,10 +18,56 @@
     </stylesheets>
 
     <center>
-        <HBox alignment="CENTER" spacing="40" styleClass="game-layout">
+        <HBox alignment="CENTER" spacing="28" styleClass="game-layout">
             <padding>
                 <Insets top="22" right="40" bottom="22" left="40"/>
             </padding>
+
+            <VBox alignment="TOP_LEFT" spacing="9" minWidth="260" maxWidth="300" styleClass="object-legend">
+                <Label text="Special Objects" styleClass="field-title"/>
+                <GridPane hgap="8" vgap="6" styleClass="object-legend-grid">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="28" prefWidth="28"/>
+                        <ColumnConstraints hgrow="ALWAYS"/>
+                    </columnConstraints>
+
+                    <Label text="+" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                    <Label text="Speed up opponent" styleClass="object-description" wrapText="true"
+                           GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                    <Label text="-" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                    <Label text="Slow yourself" styleClass="object-description" wrapText="true"
+                           GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                    <Label text="R" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                    <Label text="Delay opponent rotation" styleClass="object-description" wrapText="true"
+                           GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+                    <Label text="r" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                    <Label text="Delay your rotation" styleClass="object-description" wrapText="true"
+                           GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+
+                    <Label text="S" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+                    <Label text="Slow opponent" styleClass="object-description" wrapText="true"
+                           GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+
+                    <Label text="*" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
+                    <Label text="Clear nearby blocks" styleClass="object-description" wrapText="true"
+                           GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+
+                    <Label text="v" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="6"/>
+                    <Label text="Clear blocks below" styleClass="object-description" wrapText="true"
+                           GridPane.columnIndex="1" GridPane.rowIndex="6"/>
+
+                    <Label text="P" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="7"/>
+                    <Label text="Send your piece to opponent" styleClass="object-description" wrapText="true"
+                           GridPane.columnIndex="1" GridPane.rowIndex="7"/>
+
+                    <Label text="T" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="8"/>
+                    <Label text="Swap boards, scores, and pieces" styleClass="object-description" wrapText="true"
+                           GridPane.columnIndex="1" GridPane.rowIndex="8"/>
+                </GridPane>
+            </VBox>
 
             <VBox alignment="CENTER" spacing="16" styleClass="boards-stack">
                 <GridPane fx:id="topBoardGrid" rotate="180" styleClass="tetris-board"/>

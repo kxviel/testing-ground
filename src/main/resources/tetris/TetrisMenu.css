@@ -44,6 +44,36 @@
     -fx-text-fill: #4f5665;
 }
 
+.object-legend {
+    -fx-padding: 6 0 0 0;
+}
+
+.object-legend-grid {
+    -fx-padding: 2 0 0 0;
+}
+
+.object-symbol {
+    -fx-alignment: center;
+    -fx-background-color: #d93636;
+    -fx-background-radius: 4;
+    -fx-border-color: #8f1f1f;
+    -fx-border-radius: 4;
+    -fx-border-width: 1;
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+    -fx-min-height: 24;
+    -fx-min-width: 24;
+    -fx-pref-height: 24;
+    -fx-pref-width: 24;
+    -fx-text-fill: white;
+}
+
+.object-description {
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #4f5665;
+}
+
 .subtitle {
     -fx-font-size: 14px;
     -fx-text-fill: #5f6470;
