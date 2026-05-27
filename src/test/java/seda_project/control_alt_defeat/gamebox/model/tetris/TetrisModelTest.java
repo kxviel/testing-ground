@@ -358,6 +358,17 @@ public class TetrisModelTest {
     }
 
     @Test
+    void objectSpawnRejectsCavitiesBlockedFromSpawnSide() {
+        TetrisBoardObject object = new TetrisBoardObject(TetrisItemType.SLOW_SELF, new BoardPosition(8, 5));
+        TetrisPlayerState player = TetrisPlayerState.create("Bottom", PlayerSide.BOTTOM)
+                .withBoard(new TetrisBoard()
+                        .withCell(new BoardPosition(7, 5), TetrisCell.FILLED)
+                        .withCell(new BoardPosition(9, 5), TetrisCell.FILLED));
+
+        assertFalse(player.canSpawnObject(object, GravityDirection.DOWN));
+    }
+
+    @Test
     void objectSpawnUsesHorizontalGravitySupport() {
         TetrisPlayerState player = TetrisPlayerState.create("Bottom", PlayerSide.BOTTOM);
         TetrisBoardObject middleObject = new TetrisBoardObject(TetrisItemType.SLOW_SELF, new BoardPosition(8, 5));
@@ -365,6 +376,17 @@ public class TetrisModelTest {
 
         assertFalse(player.canSpawnObject(middleObject, GravityDirection.RIGHT));
         assertTrue(player.canSpawnObject(wallObject, GravityDirection.RIGHT));
+    }
+
+    @Test
+    void objectSpawnRejectsHorizontalCavitiesBlockedFromSpawnSide() {
+        TetrisBoardObject object = new TetrisBoardObject(TetrisItemType.SLOW_SELF, new BoardPosition(8, 5));
+        TetrisPlayerState player = TetrisPlayerState.create("Bottom", PlayerSide.BOTTOM)
+                .withBoard(new TetrisBoard()
+                        .withCell(new BoardPosition(8, 4), TetrisCell.FILLED)
+                        .withCell(new BoardPosition(8, 6), TetrisCell.FILLED));
+
+        assertFalse(player.canSpawnObject(object, GravityDirection.RIGHT));
     }
 
     @Test

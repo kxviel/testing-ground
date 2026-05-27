@@ -273,7 +273,8 @@ public record TetrisPlayerState(
 
     public boolean canSpawnObject(TetrisBoardObject object, GravityDirection gravityDirection) {
         return canPlaceObject(object)
-                && hasObjectSupport(object.position(), gravityDirection);
+                && hasObjectSupport(object.position(), gravityDirection)
+                && hasClearObjectApproach(object.position(), gravityDirection);
     }
 
     public boolean canPlaceBug(BoardPosition position) {
@@ -456,5 +457,23 @@ public record TetrisPlayerState(
                 position.column() + direction.columnStep());
 
         return !board.isInside(supportPosition) || !board.isEmpty(supportPosition);
+    }
+
+    private boolean hasClearObjectApproach(BoardPosition position, GravityDirection gravityDirection) {
+        GravityDirection direction = gravityDirection == null ? side.gravityDirection() : gravityDirection;
+        BoardPosition approachPosition = new BoardPosition(
+                position.row() - direction.rowStep(),
+                position.column() - direction.columnStep());
+
+        while (board.isInside(approachPosition)) {
+            if (!board.isEmpty(approachPosition)) {
+                return false;
+            }
+            approachPosition = new BoardPosition(
+                    approachPosition.row() - direction.rowStep(),
+                    approachPosition.column() - direction.columnStep());
+        }
+
+        return true;
     }
 }

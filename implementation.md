@@ -195,7 +195,7 @@ These decisions are now locked for the first implementation pass.
 9. Special object behavior.
    - PDF requirement `FR-OUTPUT-12` is implemented as red special-object cells.
    - Every 4 seconds, each active board can spawn one special object in an empty visible cell.
-   - Special objects spawn only on supported free tiles, not floating in open space or inside locked blocks.
+   - Special objects spawn only on supported free tiles with a clear approach path, not floating in open space, inside locked blocks, or inside blocked cavities.
    - Unused special objects expire after 10 seconds.
    - Hitting a teleporter object swaps the players' boards and active pieces while keeping names, sides, and scores stable.
 
