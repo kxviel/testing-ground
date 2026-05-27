@@ -42,7 +42,7 @@ import java.util.Set;
 public class TetrisGameController implements RouteDataReceiver {
 
     private static final int GAME_TICK_MS = 100;
-    private static final int OBJECT_SPAWN_SECONDS = 8;
+    private static final int OBJECT_SPAWN_SECONDS = 4;
     private static final int OBJECT_SPAWN_ATTEMPTS = 100;
     private static final int MENU_RETURN_SECONDS = 2;
     private static final String OPPONENT_LEFT_MESSAGE = "Your opponent has left the game.";

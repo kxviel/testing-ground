@@ -192,10 +192,10 @@ These decisions are now locked for the first implementation pass.
    - Use a small editor grid, normalize saved shapes, allow rotations, and add valid custom parts to the spawn bag.
    - Custom parts are session-only unless persistence is explicitly added later.
 
-9. Swap bug behavior.
-   - PDF requirement `FR-OUTPUT-12` is implemented as red bug cells.
-   - Every 8 seconds, each active board can spawn one bug in an empty visible cell.
-   - Hitting a bug swaps the players' boards, active pieces, scores, and bug positions while keeping names and sides stable.
+9. Special object behavior.
+   - PDF requirement `FR-OUTPUT-12` is implemented as red special-object cells.
+   - Every 4 seconds, each active board can spawn one special object in an empty visible cell.
+   - Hitting a teleport swap object swaps the players' boards, active pieces, scores, and object positions while keeping names and sides stable.
 
 ## Deferred Decisions
 
@@ -627,7 +627,7 @@ Requirements covered:
 Actions:
 
 1. Add a bug position to each `TetrisPlayerState`.
-2. Spawn a bug every 8 seconds on each active board when that board does not already have one.
+2. Spawn a bug every 4 seconds on each active board when that board does not already have one.
 3. Reject bug spawn positions inside settled cells or the active piece.
 4. Detect collision when the active piece moves onto the bug.
 5. Swap player boards, active pieces, scores, and bug positions while preserving player names and sides.
@@ -942,7 +942,7 @@ Done when:
 | `FR-OUTPUT-09` | LAN synchronized render | Manual LAN/protocol |
 | `FR-OUTPUT-10` | Winner/draw result view | Winner/manual UI |
 | `FR-OUTPUT-11` | Custom part editor | Validation tests/manual UI |
-| `FR-OUTPUT-12` | 8-second swap bug in `TetrisGameState` and `TetrisGameController` | Model/snapshot tests/manual UI |
+| `FR-OUTPUT-12` | 4-second special objects in `TetrisGameState` and `TetrisGameController` | Model/snapshot tests/manual UI |
 | `QR-USAB-01` | Clear menu mode choices | Manual UI |
 | `QR-USAB-02` | Simple keyboard controls | Manual input |
 | `QR-USAB-03` | Boards/names/scores visible | Manual UI |
@@ -1006,7 +1006,7 @@ Completed setup work:
 9. Tetris-specific LAN protocol messages.
 10. Host-authoritative LAN gameplay synchronization.
 11. LAN restart/disconnect handling.
-12. 8-second swap bug spawning, collision, rendering, and LAN snapshot sync.
+12. 4-second special object spawning, collision, rendering, and LAN snapshot sync.
 13. README/build docs.
 14. Focused model/protocol tests.
 
