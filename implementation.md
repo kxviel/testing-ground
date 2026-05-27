@@ -404,6 +404,7 @@ Requirements covered:
 - `FR-FLOW-14`
 - `FR-OUTPUT-06`
 - `FR-OUTPUT-07`
+- `FR-OUTPUT-19`
 - `QR-PERF-03`
 - `QR-RELY-03`
 - `QR-RELY-04`
@@ -422,6 +423,7 @@ Actions:
 5. Update score after clearing lines.
 6. Keep scoring formula in the player/model state until scoring gets more complex.
 7. Implement scoring as exactly one point per cleared line.
+8. Transfer cleared lines so the clearing player's board gains space and the opponent receives one garbage row per cleared line.
 
 Edge cases:
 
@@ -439,6 +441,7 @@ Tests:
 - Double/multiple line clear.
 - No line clear.
 - Score increases by one point per cleared line.
+- `FR-OUTPUT-19`: clearing a line removes the completed row and adds one garbage row to the opponent.
 - Top board clear behavior matches the documented rotated-view rule.
 
 ### Step 6: Implement Loss, Continuation, Winner, Draw, And Restart Logic
@@ -626,6 +629,7 @@ Tests:
 Requirements covered:
 
 - `FR-OUTPUT-12`
+- `FR-OUTPUT-23`
 
 Actions:
 
@@ -636,6 +640,7 @@ Actions:
 5. Swap player boards and active pieces while preserving player names, sides, and scores.
 6. Synchronize bug position and swap results through LAN snapshots.
 7. Render the bug as a distinct red cell.
+8. Keep the teleporter in the shuffled special-object bag so it appears during play before the bag repeats.
 
 Edge cases:
 
@@ -649,6 +654,7 @@ Tests:
 
 - Valid spawn location.
 - Collision triggers exactly one swap.
+- `FR-OUTPUT-23`: teleporter appears through the item bag and swaps boards/pieces without changing scores.
 - Swap state is included in serialized game state.
 - Swap after restart is reset.
 

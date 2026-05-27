@@ -1,5 +1,6 @@
 package seda_project.control_alt_defeat.gamebox.model.tetris;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.*;
 
@@ -129,7 +130,8 @@ public class TetrisModelTest {
     }
 
     @Test
-    void teleporterObjectSwapsBoardsAndPiecesButKeepsScores() {
+    @DisplayName("FR-OUTPUT-23: teleporter object swaps player boards and active pieces without changing scores")
+    void frOutput23TeleporterObjectSwapsBoardsAndPiecesButKeepsScores() {
         TetrisPiece bottomPiece = new TetrisPiece(
                 PieceShape.standardShape(PieceType.O),
                 new BoardPosition(0, 0),
@@ -174,7 +176,8 @@ public class TetrisModelTest {
     }
 
     @Test
-    void clearingLineClearsPlayerRowAndAddsGarbageLineToOpponent() {
+    @DisplayName("FR-OUTPUT-19: clearing a line increases own space and adds one opponent garbage line")
+    void frOutput19ClearingLineClearsPlayerRowAndAddsGarbageLineToOpponent() {
         TetrisBoard bottomBoard = new TetrisBoard();
         for (int column = 2; column < TetrisBoard.COLUMNS; column++) {
             bottomBoard = bottomBoard.withCell(new BoardPosition(19, column), TetrisCell.FILLED);
@@ -453,7 +456,8 @@ public class TetrisModelTest {
     }
 
     @Test
-    void itemBagIncludesTeleporterObject() {
+    @DisplayName("FR-OUTPUT-23: special-object bag includes the teleporter")
+    void frOutput23ItemBagIncludesTeleporterObject() {
         Set<TetrisItemType> drawnTypes = drawFullBag(new TetrisItemBag(), new Random(7));
 
         assertTrue(drawnTypes.contains(TetrisItemType.TELEPORT_SWAP));
