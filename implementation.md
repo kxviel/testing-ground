@@ -29,7 +29,7 @@ This roadmap is intentionally requirement-driven. When the PDF does not specify 
 - [x] Tetris-specific LAN protocol messages exist separately from Memory protocol.
 - [x] LAN gameplay uses host-authoritative snapshots with joiner input commands.
 - [x] LAN restart, quit, and disconnect paths stop safely and update the game view.
-- [x] Swap bugs spawn during gameplay and swap player boards/scores when hit.
+- [x] Special objects spawn during gameplay and apply timed effects or swap player boards/pieces when hit.
 - [x] Each spawned block keeps one random color after locking and through LAN snapshots.
 - [x] Bug cells render with an emoji marker.
 - [x] LAN disconnects show "Your opponent has left the game." and return to the Zetris menu.
@@ -195,7 +195,8 @@ These decisions are now locked for the first implementation pass.
 9. Special object behavior.
    - PDF requirement `FR-OUTPUT-12` is implemented as red special-object cells.
    - Every 4 seconds, each active board can spawn one special object in an empty visible cell.
-   - Hitting a teleport swap object swaps the players' boards, active pieces, scores, and object positions while keeping names and sides stable.
+   - Unused special objects expire after 10 seconds.
+   - Hitting a teleport swap object swaps the players' boards and active pieces while keeping names, sides, and scores stable.
 
 ## Deferred Decisions
 
@@ -630,7 +631,7 @@ Actions:
 2. Spawn a bug every 4 seconds on each active board when that board does not already have one.
 3. Reject bug spawn positions inside settled cells or the active piece.
 4. Detect collision when the active piece moves onto the bug.
-5. Swap player boards, active pieces, scores, and bug positions while preserving player names and sides.
+5. Swap player boards and active pieces while preserving player names, sides, and scores.
 6. Synchronize bug position and swap results through LAN snapshots.
 7. Render the bug as a distinct red cell.
 

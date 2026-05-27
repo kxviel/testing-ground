@@ -81,7 +81,7 @@ public class TetrisProtocolTest {
                 5,
                 PlayerStatus.PLAYING,
                 null,
-                new TetrisBoardObject(TetrisItemType.SLOW_OPPONENT, new BoardPosition(8, 4)),
+                new TetrisBoardObject(TetrisItemType.SLOW_OPPONENT, new BoardPosition(8, 4), 88),
                 new TetrisEffectState(55, 12, 7),
                 List.of(queuedShape));
         TetrisGameState state = new TetrisGameState(
@@ -97,6 +97,7 @@ public class TetrisProtocolTest {
         assertTrue(copy.config().horizontalMode());
         assertEquals(TetrisItemType.SLOW_OPPONENT, copy.bottomPlayer().boardObject().type());
         assertEquals(new BoardPosition(8, 4), copy.bottomPlayer().boardObject().position());
+        assertEquals(88, copy.bottomPlayer().boardObject().lifetimeTicks());
         assertEquals(55, copy.bottomPlayer().effects().gravityPercent());
         assertEquals(12, copy.bottomPlayer().effects().gravityTicks());
         assertEquals(7, copy.bottomPlayer().effects().rotationDelayTicks());

@@ -12,9 +12,9 @@ public record TetrisGameState(
         TetrisGameConfig config,
         TetrisGameStatus status) {
 
-    private static final int OBJECT_EFFECT_TICKS = 60;
-    private static final int FAST_GRAVITY_PERCENT = 55;
-    private static final int SLOW_GRAVITY_PERCENT = 165;
+    private static final int OBJECT_EFFECT_TICKS = 100;
+    private static final int FAST_GRAVITY_PERCENT = 50;
+    private static final int SLOW_GRAVITY_PERCENT = 200;
     private static final int EXPLOSION_RADIUS = 3;
 
     public TetrisGameState {
@@ -198,8 +198,8 @@ public record TetrisGameState(
         PlayerSide otherSide = opponent(triggeringSide);
         TetrisPlayerState triggeringPlayer = player(triggeringSide).clearBoardObject();
         TetrisPlayerState otherPlayer = player(otherSide).clearBoardObject();
-        TetrisPlayerState swappedTriggeringPlayer = triggeringPlayer.withPlayStateFrom(otherPlayer);
-        TetrisPlayerState swappedOtherPlayer = otherPlayer.withPlayStateFrom(triggeringPlayer);
+        TetrisPlayerState swappedTriggeringPlayer = triggeringPlayer.withBoardAndPieceFrom(otherPlayer);
+        TetrisPlayerState swappedOtherPlayer = otherPlayer.withBoardAndPieceFrom(triggeringPlayer);
 
         return withPlayer(triggeringSide, swappedTriggeringPlayer)
                 .withPlayer(otherSide, swappedOtherPlayer);

@@ -256,7 +256,9 @@ public final class TetrisStateSnapshot {
             return "-";
         }
 
-        return object.type().name() + "@" + serializePosition(object.position());
+        return object.type().name() + "@"
+                + serializePosition(object.position()) + "@"
+                + object.lifetimeTicks();
     }
 
     private static TetrisBoardObject deserializeObject(String value) {
@@ -271,16 +273,20 @@ public final class TetrisStateSnapshot {
                     : new TetrisBoardObject(TetrisItemType.TELEPORT_SWAP, legacyBugPosition);
         }
 
-        String[] parts = value.split("@", 2);
-        BoardPosition position = deserializePosition(parts.length == 2 ? parts[1] : "-");
+        String[] parts = value.split("@", 3);
+        BoardPosition position = deserializePosition(parts.length >= 2 ? parts[1] : "-");
         if (position == null) {
             return null;
         }
 
+        int lifetimeTicks = parts.length >= 3
+                ? parseInt(parts[2], TetrisBoardObject.DEFAULT_LIFETIME_TICKS)
+                : TetrisBoardObject.DEFAULT_LIFETIME_TICKS;
+
         try {
-            return new TetrisBoardObject(TetrisItemType.valueOf(parts[0]), position);
+            return new TetrisBoardObject(TetrisItemType.valueOf(parts[0]), position, lifetimeTicks);
         } catch (IllegalArgumentException e) {
-            return new TetrisBoardObject(TetrisItemType.TELEPORT_SWAP, position);
+            return new TetrisBoardObject(TetrisItemType.TELEPORT_SWAP, position, lifetimeTicks);
         }
     }
 

@@ -27,7 +27,7 @@ public record TetrisPlayerState(
         board = board == null ? new TetrisBoard() : board;
         score = Math.max(0, score);
         status = status == null ? PlayerStatus.PLAYING : status;
-        boardObject = canUseObjectPosition(board, null, boardObject) ? boardObject : null;
+        boardObject = canKeepObject(board, boardObject) ? boardObject : null;
         effects = effects == null ? TetrisEffectState.none() : effects;
         queuedShapes = queuedShapes == null
                 ? List.of()
@@ -222,7 +222,7 @@ public record TetrisPlayerState(
     }
 
     public TetrisPlayerState withBoardObject(TetrisBoardObject nextBoardObject) {
-        if (nextBoardObject == null) {
+        if (nextBoardObject == null || nextBoardObject.isExpired()) {
             return clearBoardObject();
         }
         if (!isPlaying() || boardObject != null || !canUseObjectPosition(board, activePiece, nextBoardObject)) {
@@ -267,7 +267,8 @@ public record TetrisPlayerState(
     }
 
     public boolean canPlaceObject(TetrisBoardObject object) {
-        return isPlaying() && boardObject == null && canUseObjectPosition(board, activePiece, object);
+        return isPlaying() && boardObject == null && object != null && !object.isExpired()
+                && canUseObjectPosition(board, activePiece, object);
     }
 
     public boolean canPlaceBug(BoardPosition position) {
@@ -303,7 +304,17 @@ public record TetrisPlayerState(
     }
 
     public TetrisPlayerState tickEffects() {
-        return withEffects(effects.tick());
+        return new TetrisPlayerState(
+                playerName,
+                side,
+                board,
+                activePiece,
+                score,
+                status,
+                finalScore,
+                boardObject == null ? null : boardObject.tick(),
+                effects.tick(),
+                queuedShapes);
     }
 
     public TetrisPlayerState queueShape(PieceShape shape) {
@@ -331,18 +342,18 @@ public record TetrisPlayerState(
         return !queuedShapes.isEmpty();
     }
 
-    public TetrisPlayerState withPlayStateFrom(TetrisPlayerState source) {
+    public TetrisPlayerState withBoardAndPieceFrom(TetrisPlayerState source) {
         return new TetrisPlayerState(
                 playerName,
                 side,
                 source.board,
                 source.activePiece,
-                source.score,
-                source.status,
-                source.finalScore,
-                source.boardObject,
-                source.effects,
-                source.queuedShapes);
+                score,
+                status,
+                finalScore,
+                null,
+                effects,
+                queuedShapes);
     }
 
     public TetrisPlayerState lockActivePiece() {
@@ -427,5 +438,9 @@ public record TetrisPlayerState(
         }
 
         return activePiece == null || !activePiece.boardCells().contains(object.position());
+    }
+
+    private static boolean canKeepObject(TetrisBoard board, TetrisBoardObject object) {
+        return object != null && !object.isExpired() && canUseObjectPosition(board, null, object);
     }
 }

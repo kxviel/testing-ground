@@ -129,7 +129,7 @@ public class TetrisModelTest {
     }
 
     @Test
-    void touchingBugSwapsBoardsScoresAndActivePieces() {
+    void touchingSwapObjectSwapsBoardsAndPiecesButKeepsScores() {
         TetrisPiece bottomPiece = new TetrisPiece(
                 PieceShape.standardShape(PieceType.O),
                 new BoardPosition(0, 0),
@@ -165,9 +165,10 @@ public class TetrisModelTest {
 
         assertEquals("Bottom", swapped.bottomPlayer().playerName());
         assertEquals("Top", swapped.topPlayer().playerName());
-        assertEquals(7, swapped.bottomPlayer().score());
-        assertEquals(3, swapped.topPlayer().score());
+        assertEquals(3, swapped.bottomPlayer().score());
+        assertEquals(7, swapped.topPlayer().score());
         assertEquals(topPiece, swapped.bottomPlayer().activePiece());
+        assertEquals(bottomPiece.withPosition(new BoardPosition(1, 0)), swapped.topPlayer().activePiece());
         assertEquals(TetrisCell.FILLED, swapped.bottomPlayer().board().cellAt(new BoardPosition(18, 9)));
         assertNull(swapped.topPlayer().bugPosition());
     }
@@ -278,12 +279,69 @@ public class TetrisModelTest {
 
         TetrisGameState delayed = state.moveLeft(PlayerSide.BOTTOM).rotateClockwise(PlayerSide.BOTTOM);
         TetrisGameState ready = delayed;
-        for (int tick = 0; tick < 60; tick++) {
+        for (int tick = 0; tick < 99; tick++) {
             ready = ready.tickEffects();
         }
 
         assertEquals(Rotation.SPAWN, delayed.bottomPlayer().activePiece().rotation());
+        assertEquals(Rotation.SPAWN, ready.rotateClockwise(PlayerSide.BOTTOM).bottomPlayer().activePiece().rotation());
+        ready = ready.tickEffects();
         assertEquals(Rotation.RIGHT, ready.rotateClockwise(PlayerSide.BOTTOM).bottomPlayer().activePiece().rotation());
+    }
+
+    @Test
+    void speedObjectsUseDoubleSpeedForTenSeconds() {
+        TetrisGameState spedUp = stateWithBottomObject(TetrisItemType.SPEED_UP_OPPONENT)
+                .moveLeft(PlayerSide.BOTTOM);
+        TetrisGameState slowSelf = stateWithBottomObject(TetrisItemType.SLOW_SELF)
+                .moveLeft(PlayerSide.BOTTOM);
+        TetrisGameState slowOpponent = stateWithBottomObject(TetrisItemType.SLOW_OPPONENT)
+                .moveLeft(PlayerSide.BOTTOM);
+
+        assertEquals(50, spedUp.topPlayer().effects().gravityPercent());
+        assertEquals(100, spedUp.topPlayer().effects().gravityTicks());
+        assertEquals(200, slowSelf.bottomPlayer().effects().gravityPercent());
+        assertEquals(100, slowSelf.bottomPlayer().effects().gravityTicks());
+        assertEquals(200, slowOpponent.topPlayer().effects().gravityPercent());
+        assertEquals(100, slowOpponent.topPlayer().effects().gravityTicks());
+
+        TetrisGameState ready = spedUp;
+        for (int tick = 0; tick < 100; tick++) {
+            ready = ready.tickEffects();
+        }
+
+        assertEquals(100, ready.topPlayer().effects().gravityPercent());
+        assertEquals(0, ready.topPlayer().effects().gravityTicks());
+    }
+
+    @Test
+    void boardObjectsExpireAfterTenSeconds() {
+        TetrisGameState state = stateWithBottomObject(TetrisItemType.EXPLODE_BELOW);
+
+        for (int tick = 0; tick < 99; tick++) {
+            state = state.tickEffects();
+        }
+
+        assertNotNull(state.bottomPlayer().boardObject());
+        state = state.tickEffects();
+        assertNull(state.bottomPlayer().boardObject());
+    }
+
+    @Test
+    void objectPlacementRejectsLockedBlocks() {
+        BoardPosition lockedPosition = new BoardPosition(5, 5);
+        TetrisPlayerState player = new TetrisPlayerState(
+                "Bottom",
+                PlayerSide.BOTTOM,
+                new TetrisBoard().withCell(lockedPosition, TetrisCell.FILLED),
+                null,
+                0,
+                PlayerStatus.PLAYING,
+                null);
+        TetrisBoardObject object = new TetrisBoardObject(TetrisItemType.SLOW_SELF, lockedPosition);
+
+        assertFalse(player.canPlaceObject(object));
+        assertNull(player.withBoardObject(object).boardObject());
     }
 
     @Test
@@ -355,5 +413,25 @@ public class TetrisModelTest {
         }
 
         return drawnTypes;
+    }
+
+    private static TetrisGameState stateWithBottomObject(TetrisItemType type) {
+        TetrisPlayerState bottom = new TetrisPlayerState(
+                "Bottom",
+                PlayerSide.BOTTOM,
+                new TetrisBoard(),
+                new TetrisPiece(PieceShape.standardShape(PieceType.O), new BoardPosition(0, 0), Rotation.SPAWN),
+                0,
+                PlayerStatus.PLAYING,
+                null,
+                new TetrisBoardObject(type, new BoardPosition(0, 0)),
+                null,
+                List.of());
+
+        return new TetrisGameState(
+                bottom,
+                TetrisPlayerState.create("Top", PlayerSide.TOP),
+                TetrisGameConfig.defaultConfig(),
+                TetrisGameStatus.RUNNING);
     }
 }

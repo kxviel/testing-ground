@@ -32,23 +32,23 @@
                     </columnConstraints>
 
                     <Label text="+" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-                    <Label text="Speed up opponent" styleClass="object-description" wrapText="true"
+                    <Label text="Opponent 2x faster (10s)" styleClass="object-description" wrapText="true"
                            GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
                     <Label text="-" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-                    <Label text="Slow yourself" styleClass="object-description" wrapText="true"
+                    <Label text="You 2x slower (10s)" styleClass="object-description" wrapText="true"
                            GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
                     <Label text="R" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
-                    <Label text="Delay opponent rotation" styleClass="object-description" wrapText="true"
+                    <Label text="Delay opponent rotation (10s)" styleClass="object-description" wrapText="true"
                            GridPane.columnIndex="1" GridPane.rowIndex="2"/>
 
                     <Label text="r" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
-                    <Label text="Delay your rotation" styleClass="object-description" wrapText="true"
+                    <Label text="Delay your rotation (10s)" styleClass="object-description" wrapText="true"
                            GridPane.columnIndex="1" GridPane.rowIndex="3"/>
 
                     <Label text="S" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
-                    <Label text="Slow opponent" styleClass="object-description" wrapText="true"
+                    <Label text="Opponent 2x slower (10s)" styleClass="object-description" wrapText="true"
                            GridPane.columnIndex="1" GridPane.rowIndex="4"/>
 
                     <Label text="*" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
@@ -64,7 +64,7 @@
                            GridPane.columnIndex="1" GridPane.rowIndex="7"/>
 
                     <Label text="T" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="8"/>
-                    <Label text="Swap boards, scores, and pieces" styleClass="object-description" wrapText="true"
+                    <Label text="Swap boards and pieces" styleClass="object-description" wrapText="true"
                            GridPane.columnIndex="1" GridPane.rowIndex="8"/>
                 </GridPane>
             </VBox>
