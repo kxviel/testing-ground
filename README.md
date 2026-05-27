@@ -20,7 +20,7 @@ This repository contains GameBox, a JavaFX desktop app by team **Zero Runtime Wa
 - **Custom Pieces**: Local/host setup can define session-only connected custom blocks.
 - **Two Boards**: Bottom board and inverted top board are visible at the same time.
 - **Gameplay Flow**: Pieces spawn, move, rotate, fall, lock, clear lines, score, detect loss, continue after one player loses, show winner/draw, and restart.
-- **Special Objects**: Every 4 seconds, each active board can spawn a shuffled-bag special object on a supported free tile. Objects expire after 10 seconds, timed effects last 10 seconds, speed effects are 2x, and swaps exchange boards/pieces without changing scores.
+- **Special Objects**: Every 4 seconds, each active board can spawn a shuffled-bag special object on a supported free tile. Objects expire after 10 seconds, timed effects last 10 seconds, speed effects are 2x, and the teleporter swaps boards/pieces without changing scores.
 - **Random Block Colors**: Each spawned block gets one random color that stays with it after locking.
 - **LAN Quit Handling**: If an opponent leaves, the game shows a clear message and returns to the Zetris menu.
 

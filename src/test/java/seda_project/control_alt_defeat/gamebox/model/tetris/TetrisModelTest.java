@@ -429,6 +429,13 @@ public class TetrisModelTest {
         assertEquals(expectedTypes, secondBag);
     }
 
+    @Test
+    void itemBagIncludesTeleporterObject() {
+        Set<TetrisItemType> drawnTypes = drawFullBag(new TetrisItemBag(), new Random(7));
+
+        assertTrue(drawnTypes.contains(TetrisItemType.TELEPORT_SWAP));
+    }
+
     private static Set<TetrisItemType> drawFullBag(TetrisItemBag bag, Random random) {
         Set<TetrisItemType> drawnTypes = EnumSet.noneOf(TetrisItemType.class);
         for (int draw = 0; draw < TetrisItemType.values().length; draw++) {

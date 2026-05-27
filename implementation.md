@@ -197,7 +197,7 @@ These decisions are now locked for the first implementation pass.
    - Every 4 seconds, each active board can spawn one special object in an empty visible cell.
    - Special objects spawn only on supported free tiles, not floating in open space or inside locked blocks.
    - Unused special objects expire after 10 seconds.
-   - Hitting a teleport swap object swaps the players' boards and active pieces while keeping names, sides, and scores stable.
+   - Hitting a teleporter object swaps the players' boards and active pieces while keeping names, sides, and scores stable.
 
 ## Deferred Decisions
 

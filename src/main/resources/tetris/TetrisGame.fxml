@@ -64,7 +64,7 @@
                            GridPane.columnIndex="1" GridPane.rowIndex="7"/>
 
                     <Label text="T" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="8"/>
-                    <Label text="Swap boards and pieces" styleClass="object-description" wrapText="true"
+                    <Label text="Teleporter: swap boards/pieces" styleClass="object-description" wrapText="true"
                            GridPane.columnIndex="1" GridPane.rowIndex="8"/>
                 </GridPane>
             </VBox>
