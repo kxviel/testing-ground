@@ -30,8 +30,8 @@ public record TetrisEffectState(int gravityPercent, int gravityTicks, int rotati
         return new TetrisEffectState(nextGravityPercent, nextGravityTicks, nextRotationDelayTicks);
     }
 
-    public boolean canRotate() {
-        return rotationDelayTicks == 0;
+    public boolean hasRotationDelay() {
+        return rotationDelayTicks > 0;
     }
 
     public int gravityMillis(int baseGravityMillis) {

@@ -171,7 +171,7 @@ public record TetrisPlayerState(
     }
 
     public TetrisPlayerState rotateClockwise() {
-        if (!isPlaying() || activePiece == null || !effects.canRotate()) {
+        if (!isPlaying() || activePiece == null) {
             return this;
         }
 

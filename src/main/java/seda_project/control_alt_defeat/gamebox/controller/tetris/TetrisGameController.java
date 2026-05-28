@@ -44,6 +44,8 @@ public class TetrisGameController implements RouteDataReceiver {
     private static final int GAME_TICK_MS = 100;
     private static final int OBJECT_SPAWN_SECONDS = 4;
     private static final int OBJECT_SPAWN_ATTEMPTS = 100;
+    private static final int ROTATION_LAG_MS = 2_000;
+    private static final int ROTATION_LAG_TICKS = ROTATION_LAG_MS / GAME_TICK_MS;
     private static final int MENU_RETURN_SECONDS = 2;
     private static final String OPPONENT_LEFT_MESSAGE = "Your opponent has left the game.";
     private static final String[] BLOCK_COLORS = {
@@ -95,6 +97,8 @@ public class TetrisGameController implements RouteDataReceiver {
     private int topPieceIndex;
     private int bottomGravityElapsedMs;
     private int topGravityElapsedMs;
+    private final RotationLagQueue bottomRotationLagQueue = new RotationLagQueue();
+    private final RotationLagQueue topRotationLagQueue = new RotationLagQueue();
 
     @Override
     public void setRouteData(Object data) {
@@ -155,6 +159,8 @@ public class TetrisGameController implements RouteDataReceiver {
         topGravityElapsedMs = 0;
         bottomObjectBag.reset();
         topObjectBag.reset();
+        bottomRotationLagQueue.clear();
+        topRotationLagQueue.clear();
         gameState = spawnMissingPieces(TetrisGameState.create(setup).running());
         if (isLanClient()) {
             stopGameLoop();
@@ -196,6 +202,7 @@ public class TetrisGameController implements RouteDataReceiver {
         }
 
         gameState = gameState.tickEffects();
+        applyQueuedRotations();
         bottomGravityElapsedMs += GAME_TICK_MS;
         topGravityElapsedMs += GAME_TICK_MS;
 
@@ -435,6 +442,31 @@ public class TetrisGameController implements RouteDataReceiver {
         } else if (TetrisProtocol.SOFT_DROP.equals(command)) {
             gameState = gameState.applyGravity(side);
         } else if (TetrisProtocol.ROTATE.equals(command)) {
+            if (hasRotationLagEffect(side)) {
+                rotationLagQueue(side).enqueue(ROTATION_LAG_TICKS);
+            } else {
+                gameState = gameState.rotateClockwise(side);
+            }
+        }
+    }
+
+    private boolean hasRotationLagEffect(PlayerSide side) {
+        TetrisPlayerState player = side == PlayerSide.TOP ? gameState.topPlayer() : gameState.bottomPlayer();
+        return player.effects().hasRotationDelay();
+    }
+
+    private RotationLagQueue rotationLagQueue(PlayerSide side) {
+        return side == PlayerSide.TOP ? topRotationLagQueue : bottomRotationLagQueue;
+    }
+
+    private void applyQueuedRotations() {
+        applyQueuedRotations(PlayerSide.BOTTOM);
+        applyQueuedRotations(PlayerSide.TOP);
+    }
+
+    private void applyQueuedRotations(PlayerSide side) {
+        int readyRotations = rotationLagQueue(side).tickReadyCount();
+        for (int count = 0; count < readyRotations; count++) {
             gameState = gameState.rotateClockwise(side);
         }
     }

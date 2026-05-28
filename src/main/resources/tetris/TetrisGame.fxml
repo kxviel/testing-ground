@@ -40,11 +40,11 @@
                            GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
                     <Label text="R" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
-                    <Label text="Delay opponent rotation (10s)" styleClass="object-description" wrapText="true"
+                    <Label text="Add 2s lag to opponent rotation key (10s)" styleClass="object-description" wrapText="true"
                            GridPane.columnIndex="1" GridPane.rowIndex="2"/>
 
                     <Label text="r" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
-                    <Label text="Delay your rotation (10s)" styleClass="object-description" wrapText="true"
+                    <Label text="Add 2s lag to your rotation key (10s)" styleClass="object-description" wrapText="true"
                            GridPane.columnIndex="1" GridPane.rowIndex="3"/>
 
                     <Label text="S" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="4"/>

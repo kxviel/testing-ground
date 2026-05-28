@@ -263,7 +263,7 @@ public class TetrisModelTest {
     }
 
     @Test
-    void rotationDelayObjectBlocksRotationUntilItTicksDown() {
+    void rotationDelayObjectAppliesForTenSecondsWithoutBlockingModelRotation() {
         TetrisPlayerState bottom = new TetrisPlayerState(
                 "Bottom",
                 PlayerSide.BOTTOM,
@@ -281,16 +281,19 @@ public class TetrisModelTest {
                 TetrisGameConfig.defaultConfig(),
                 TetrisGameStatus.RUNNING);
 
-        TetrisGameState delayed = state.moveLeft(PlayerSide.BOTTOM).rotateClockwise(PlayerSide.BOTTOM);
+        TetrisGameState delayed = state.moveLeft(PlayerSide.BOTTOM);
+        TetrisGameState rotated = delayed.rotateClockwise(PlayerSide.BOTTOM);
         TetrisGameState ready = delayed;
         for (int tick = 0; tick < 99; tick++) {
             ready = ready.tickEffects();
         }
 
-        assertEquals(Rotation.SPAWN, delayed.bottomPlayer().activePiece().rotation());
-        assertEquals(Rotation.SPAWN, ready.rotateClockwise(PlayerSide.BOTTOM).bottomPlayer().activePiece().rotation());
+        assertEquals(100, delayed.bottomPlayer().effects().rotationDelayTicks());
+        assertEquals(Rotation.RIGHT, rotated.bottomPlayer().activePiece().rotation());
+        assertTrue(ready.bottomPlayer().effects().hasRotationDelay());
         ready = ready.tickEffects();
-        assertEquals(Rotation.RIGHT, ready.rotateClockwise(PlayerSide.BOTTOM).bottomPlayer().activePiece().rotation());
+        assertEquals(0, ready.bottomPlayer().effects().rotationDelayTicks());
+        assertFalse(ready.bottomPlayer().effects().hasRotationDelay());
     }
 
     @Test
