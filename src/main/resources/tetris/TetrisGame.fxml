@@ -52,20 +52,24 @@
                            GridPane.columnIndex="1" GridPane.rowIndex="4"/>
 
                     <Label text="*" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
-                    <Label text="Clear nearby blocks" styleClass="object-description" wrapText="true"
+                    <Label text="Clears nearby blocks within a radius of 3" styleClass="object-description" wrapText="true"
                            GridPane.columnIndex="1" GridPane.rowIndex="5"/>
 
                     <Label text="v" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="6"/>
-                    <Label text="Clear blocks below" styleClass="object-description" wrapText="true"
+                    <Label text="Clears all blocks vertically below it" styleClass="object-description" wrapText="true"
                            GridPane.columnIndex="1" GridPane.rowIndex="6"/>
 
                     <Label text="P" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="7"/>
-                    <Label text="Send your piece to opponent" styleClass="object-description" wrapText="true"
+                    <Label text="Sends your current piece to the opponent as their next falling piece" styleClass="object-description" wrapText="true"
                            GridPane.columnIndex="1" GridPane.rowIndex="7"/>
 
                     <Label text="T" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="8"/>
                     <Label text="Teleporter: swap boards/pieces" styleClass="object-description" wrapText="true"
                            GridPane.columnIndex="1" GridPane.rowIndex="8"/>
+
+                    <Label text="G" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="9"/>
+                    <Label text="Swap falling pieces only" styleClass="object-description" wrapText="true"
+                           GridPane.columnIndex="1" GridPane.rowIndex="9"/>
                 </GridPane>
             </VBox>
 

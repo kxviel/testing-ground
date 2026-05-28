@@ -9,7 +9,8 @@ public enum TetrisItemType {
     EXPLODE_RADIUS("*"),
     EXPLODE_BELOW("v"),
     PORTAL("P"),
-    TELEPORT_SWAP("T");
+    TELEPORT_SWAP("T"),
+    PIECE_SWAP("G");
 
     private final String symbol;
 

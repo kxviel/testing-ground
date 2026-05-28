@@ -565,15 +565,27 @@ public class TetrisGameController implements RouteDataReceiver {
             return state;
         }
 
+        // Choose the object type first so we can apply type-specific spawn rules.
+        TetrisItemType typeToSpawn = objectBag(side).next(objectRandom);
+
         for (int attempt = 0; attempt < OBJECT_SPAWN_ATTEMPTS; attempt++) {
             BoardPosition position = new BoardPosition(
                     objectRandom.nextInt(player.board().rows()),
                     objectRandom.nextInt(player.board().columns()));
-            TetrisBoardObject object = new TetrisBoardObject(TetrisItemType.TELEPORT_SWAP, position);
-            if (player.canSpawnObject(object, state.config().gravityDirection(side))) {
-                return state.spawnObject(
-                        side,
-                        new TetrisBoardObject(objectBag(side).next(objectRandom), position));
+            TetrisBoardObject candidate = new TetrisBoardObject(typeToSpawn, position);
+
+            boolean canSpawn;
+            if (typeToSpawn == TetrisItemType.EXPLODE_RADIUS) {
+                // Bomb (*) must rest on top of already-settled blocks so the
+                // player has to actively navigate into it to trigger the explosion.
+                canSpawn = player.canSpawnObject(candidate, state.config().gravityDirection(side));
+            } else {
+                // All other objects may appear anywhere in an empty cell (floating).
+                canSpawn = player.canPlaceObject(candidate);
+            }
+
+            if (canSpawn) {
+                return state.spawnObject(side, new TetrisBoardObject(typeToSpawn, position));
             }
         }
 
@@ -632,7 +644,10 @@ public class TetrisGameController implements RouteDataReceiver {
             label.setRotate(180);
         }
 
-        grid.add(label, 0, 0, TetrisBoard.COLUMNS, TetrisBoard.ROWS);
+        TetrisPlayerState player = side == PlayerSide.BOTTOM
+                ? gameState.bottomPlayer()
+                : gameState.topPlayer();
+        grid.add(label, 0, 0, TetrisBoard.COLUMNS, player.board().rows());
     }
 
     private void returnToMenuAfterDisconnect() {

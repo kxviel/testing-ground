@@ -127,15 +127,15 @@ public final class TetrisStateSnapshot {
     }
 
     private static String serializeBoard(TetrisBoard board) {
-        StringBuilder builder = new StringBuilder(TetrisBoard.ROWS * TetrisBoard.COLUMNS);
-
-        for (int row = 0; row < TetrisBoard.ROWS; row++) {
+        // Prefix with row count so variable-height boards survive the round trip.
+        StringBuilder builder = new StringBuilder();
+        builder.append(board.rows()).append(':');
+        for (int row = 0; row < board.rows(); row++) {
             for (int column = 0; column < TetrisBoard.COLUMNS; column++) {
                 TetrisCell cell = board.cellAt(new BoardPosition(row, column));
                 builder.append(cell == TetrisCell.FILLED ? '1' : '0');
             }
         }
-
         return builder.toString();
     }
 
@@ -144,13 +144,26 @@ public final class TetrisStateSnapshot {
     }
 
     private static TetrisBoard deserializeBoard(String value, String colorsValue) {
-        TetrisCell[][] cells = new TetrisCell[TetrisBoard.ROWS][TetrisBoard.COLUMNS];
-        int[][] colors = new int[TetrisBoard.ROWS][TetrisBoard.COLUMNS];
+        // Parse optional row-count prefix "<rows>:<cells>"
+        int rows = TetrisBoard.DEFAULT_ROWS;
+        String cellData = value;
+        if (value != null && value.contains(":")) {
+            int colonIdx = value.indexOf(':');
+            try {
+                rows = Integer.parseInt(value.substring(0, colonIdx));
+            } catch (NumberFormatException ignored) {
+                rows = TetrisBoard.DEFAULT_ROWS;
+            }
+            cellData = value.substring(colonIdx + 1);
+        }
 
-        for (int row = 0; row < TetrisBoard.ROWS; row++) {
+        TetrisCell[][] cells = new TetrisCell[rows][TetrisBoard.COLUMNS];
+        int[][] colors = new int[rows][TetrisBoard.COLUMNS];
+
+        for (int row = 0; row < rows; row++) {
             for (int column = 0; column < TetrisBoard.COLUMNS; column++) {
                 int index = row * TetrisBoard.COLUMNS + column;
-                boolean filled = value != null && index < value.length() && value.charAt(index) == '1';
+                boolean filled = cellData != null && index < cellData.length() && cellData.charAt(index) == '1';
                 cells[row][column] = filled ? TetrisCell.FILLED : TetrisCell.EMPTY;
                 colors[row][column] = filled ? parseColor(colorsValue, index) : -1;
             }
@@ -160,9 +173,9 @@ public final class TetrisStateSnapshot {
     }
 
     private static String serializeBoardColors(TetrisBoard board) {
-        StringBuilder builder = new StringBuilder(TetrisBoard.ROWS * TetrisBoard.COLUMNS);
+        StringBuilder builder = new StringBuilder(board.rows() * TetrisBoard.COLUMNS);
 
-        for (int row = 0; row < TetrisBoard.ROWS; row++) {
+        for (int row = 0; row < board.rows(); row++) {
             for (int column = 0; column < TetrisBoard.COLUMNS; column++) {
                 int color = board.colorAt(new BoardPosition(row, column));
                 builder.append(color < 0 ? '.' : Character.forDigit(Math.min(color, 35), 36));

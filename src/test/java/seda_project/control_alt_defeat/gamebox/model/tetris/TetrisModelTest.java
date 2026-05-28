@@ -176,8 +176,8 @@ public class TetrisModelTest {
     }
 
     @Test
-    @DisplayName("FR-OUTPUT-19: clearing a line increases own space and adds one opponent garbage line")
-    void frOutput19ClearingLineClearsPlayerRowAndAddsGarbageLineToOpponent() {
+    @DisplayName("FR-OUTPUT-19: clearing a line grows clearer's board and shrinks opponent's board")
+    void frOutput19ClearingLineGrowsActorBoardAndShrinksOpponentBoard() {
         TetrisBoard bottomBoard = new TetrisBoard();
         for (int column = 2; column < TetrisBoard.COLUMNS; column++) {
             bottomBoard = bottomBoard.withCell(new BoardPosition(19, column), TetrisCell.FILLED);
@@ -199,12 +199,12 @@ public class TetrisModelTest {
 
         TetrisGameState next = state.applyGravity(PlayerSide.BOTTOM);
 
-        long filledCells = IntStream.range(0, TetrisBoard.COLUMNS)
-                .filter(column -> next.topPlayer().board().cellAt(new BoardPosition(19, column)) == TetrisCell.FILLED)
-                .count();
+        // Clearing player (bottom, DOWN gravity) gains 1 extra row at the top
         assertEquals(1, next.bottomPlayer().score());
-        assertEquals(TetrisCell.EMPTY, next.bottomPlayer().board().cellAt(new BoardPosition(18, 0)));
-        assertEquals(TetrisBoard.COLUMNS - 1, filledCells);
+        assertEquals(TetrisBoard.DEFAULT_ROWS + 1, next.bottomPlayer().board().rows());
+
+        // Opponent (top, UP gravity) loses 1 row from the bottom (spawn side)
+        assertEquals(TetrisBoard.DEFAULT_ROWS - 1, next.topPlayer().board().rows());
     }
 
     @Test
@@ -456,11 +456,114 @@ public class TetrisModelTest {
     }
 
     @Test
-    @DisplayName("FR-OUTPUT-23: special-object bag includes the teleporter")
-    void frOutput23ItemBagIncludesTeleporterObject() {
+    @DisplayName("PIECE_SWAP (G): each player gets the opponent's piece shape at their own current position")
+    void pieceSwapObjectSwapsShapesInPlace() {
+        PieceShape oShape = PieceShape.standardShape(PieceType.O);  // 2×2
+        PieceShape iShape = PieceShape.standardShape(PieceType.I);  // 1×4
+
+        // Bottom: O-piece at (0,0), color 1.  Piece fits → it will receive the I at (0,0) in SPAWN rotation.
+        // Top:    I-piece at (16,3), color 2.  Piece fits → it will receive the O at (16,3) in SPAWN rotation.
+        TetrisPlayerState bottom = new TetrisPlayerState(
+                "Bottom",
+                PlayerSide.BOTTOM,
+                new TetrisBoard().withCell(new BoardPosition(19, 0), TetrisCell.FILLED),
+                new TetrisPiece(oShape, new BoardPosition(0, 0), Rotation.SPAWN, 1),
+                2,
+                PlayerStatus.PLAYING,
+                null,
+                new TetrisBoardObject(TetrisItemType.PIECE_SWAP, new BoardPosition(0, 0)),
+                null,
+                List.of());
+        TetrisPlayerState top = new TetrisPlayerState(
+                "Top",
+                PlayerSide.TOP,
+                new TetrisBoard().withCell(new BoardPosition(18, 9), TetrisCell.FILLED),
+                new TetrisPiece(iShape, new BoardPosition(16, 3), Rotation.SPAWN, 2),
+                5,
+                PlayerStatus.PLAYING,
+                null);
+        TetrisGameState state = new TetrisGameState(
+                bottom,
+                top,
+                TetrisGameConfig.defaultConfig(),
+                TetrisGameStatus.RUNNING);
+
+        // Trigger the swap via movement into the object
+        TetrisGameState next = state.moveLeft(PlayerSide.BOTTOM);
+
+        // Scores and boards must be unchanged
+        assertEquals(2, next.bottomPlayer().score());
+        assertEquals(5, next.topPlayer().score());
+        assertEquals(TetrisCell.FILLED, next.bottomPlayer().board().cellAt(new BoardPosition(19, 0)));
+        assertEquals(TetrisCell.FILLED, next.topPlayer().board().cellAt(new BoardPosition(18, 9)));
+
+        // Object must be cleared from bottom's board
+        assertNull(next.bottomPlayer().boardObject());
+
+        // Bottom player now has the I-piece (top's shape) at bottom's original position (0,0)
+        // using top's color index (2)
+        assertNotNull(next.bottomPlayer().activePiece());
+        assertEquals(iShape, next.bottomPlayer().activePiece().shape());
+        assertEquals(new BoardPosition(0, 0), next.bottomPlayer().activePiece().position());
+        assertEquals(2, next.bottomPlayer().activePiece().colorIndex());
+
+        // Top player now has the O-piece (bottom's shape) at top's original position (16,3)
+        // using bottom's color index (1)
+        assertNotNull(next.topPlayer().activePiece());
+        assertEquals(oShape, next.topPlayer().activePiece().shape());
+        assertEquals(new BoardPosition(16, 3), next.topPlayer().activePiece().position());
+        assertEquals(1, next.topPlayer().activePiece().colorIndex());
+    }
+
+    @Test
+    @DisplayName("PIECE_SWAP (G): falls back to re-queue when swapped shape cannot fit at current position")
+    void pieceSwapFallsBackToRespawnWhenShapeDoesNotFit() {
+        PieceShape oShape = PieceShape.standardShape(PieceType.O);  // 2×2
+        PieceShape iShape = PieceShape.standardShape(PieceType.I);  // 1×4 wide
+
+        // Block columns 1..9 in row 0 so the I-piece (width 4) cannot fit at column 9
+        TetrisBoard cramped = new TetrisBoard();
+        for (int c = 1; c < TetrisBoard.COLUMNS; c++) {
+            cramped = cramped.withCell(new BoardPosition(1, c), TetrisCell.FILLED);
+        }
+
+        // Bottom: O-piece jammed into column 9 row 0 — the I-piece (width 4) won't fit there
+        TetrisPlayerState bottom = new TetrisPlayerState(
+                "Bottom",
+                PlayerSide.BOTTOM,
+                cramped,
+                new TetrisPiece(oShape, new BoardPosition(0, 8), Rotation.SPAWN, 1),
+                0,
+                PlayerStatus.PLAYING,
+                null,
+                new TetrisBoardObject(TetrisItemType.PIECE_SWAP, new BoardPosition(0, 8)),
+                null,
+                List.of());
+        TetrisPlayerState top = new TetrisPlayerState(
+                "Top",
+                PlayerSide.TOP,
+                new TetrisBoard(),
+                new TetrisPiece(iShape, new BoardPosition(16, 3), Rotation.SPAWN, 2),
+                0,
+                PlayerStatus.PLAYING,
+                null);
+        TetrisGameState state = new TetrisGameState(
+                bottom, top, TetrisGameConfig.defaultConfig(), TetrisGameStatus.RUNNING);
+
+        TetrisGameState next = state.moveLeft(PlayerSide.BOTTOM);
+
+        // Bottom could not fit the I-piece → active piece nulled, I-shape queued for respawn
+        assertNull(next.bottomPlayer().activePiece());
+        assertTrue(next.bottomPlayer().hasQueuedShape());
+        assertEquals(iShape, next.bottomPlayer().queuedShapes().getFirst());
+    }
+
+    @Test
+    @DisplayName("Item bag includes PIECE_SWAP (G) object")
+    void itemBagIncludesPieceSwapObject() {
         Set<TetrisItemType> drawnTypes = drawFullBag(new TetrisItemBag(), new Random(7));
 
-        assertTrue(drawnTypes.contains(TetrisItemType.TELEPORT_SWAP));
+        assertTrue(drawnTypes.contains(TetrisItemType.PIECE_SWAP));
     }
 
     private static Set<TetrisItemType> drawFullBag(TetrisItemBag bag, Random random) {
