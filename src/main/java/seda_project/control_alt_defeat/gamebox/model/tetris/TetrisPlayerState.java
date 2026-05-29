@@ -8,6 +8,7 @@ import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisItemType
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 public record TetrisPlayerState(
         String playerName,
@@ -70,10 +71,14 @@ public record TetrisPlayerState(
     }
 
     public static TetrisPlayerState create(String playerName, PlayerSide side) {
+        return create(playerName, side, false);
+    }
+
+    public static TetrisPlayerState create(String playerName, PlayerSide side, boolean horizontalMode) {
         return new TetrisPlayerState(
                 playerName,
                 side,
-                new TetrisBoard(),
+                TetrisBoard.createDefault(horizontalMode),
                 null,
                 0,
                 PlayerStatus.PLAYING,
@@ -107,7 +112,7 @@ public record TetrisPlayerState(
 
         TetrisPiece piece = new TetrisPiece(
                 spawnShape,
-                spawnPosition(spawnShape, gravityDirection, board.rows()),
+                spawnPosition(spawnShape, gravityDirection, board),
                 Rotation.SPAWN,
                 colorIndex);
 
@@ -167,7 +172,7 @@ public record TetrisPlayerState(
             return moved;
         }
 
-        return lockActivePiece();
+        return lockActivePiece(gravityDirection);
     }
 
     public TetrisPlayerState rotateClockwise() {
@@ -175,8 +180,14 @@ public record TetrisPlayerState(
             return this;
         }
 
-        TetrisPiece rotated = activePiece.withRotation(activePiece.rotation().clockwise());
-        return board.canPlace(rotated) ? withActivePiece(rotated) : this;
+        if (effects.hasRotationDelayEffect()) {
+            if (!effects.canAcceptRotationInput()) {
+                return this;
+            }
+            return withEffects(effects.scheduleRotationLag(TetrisEffectState.ROTATION_LAG_TICKS));
+        }
+
+        return rotateImmediate();
     }
 
     public TetrisPlayerState withBoard(TetrisBoard nextBoard) {
@@ -310,7 +321,9 @@ public record TetrisPlayerState(
     }
 
     public TetrisPlayerState tickEffects() {
-        return new TetrisPlayerState(
+        TetrisEffectState previousEffects = effects;
+        TetrisEffectState nextEffects = effects.tick();
+        TetrisPlayerState next = new TetrisPlayerState(
                 playerName,
                 side,
                 board,
@@ -319,17 +332,20 @@ public record TetrisPlayerState(
                 status,
                 finalScore,
                 boardObject == null ? null : boardObject.tick(),
-                effects.tick(),
+                nextEffects,
                 queuedShapes);
+
+        if (previousEffects.shouldApplyDelayedRotation()) {
+            return next.rotateImmediate();
+        }
+
+        return next;
     }
 
     public TetrisPlayerState queueShape(PieceShape shape) {
         if (shape == null) {
             return this;
         }
-
-        List<PieceShape> nextQueue = new java.util.ArrayList<>(queuedShapes);
-        nextQueue.add(shape);
 
         return new TetrisPlayerState(
                 playerName,
@@ -341,7 +357,7 @@ public record TetrisPlayerState(
                 finalScore,
                 boardObject,
                 effects,
-                nextQueue);
+                Stream.concat(queuedShapes.stream(), Stream.of(shape)).toList());
     }
 
     /** Prepends {@code shape} to the front of the spawn queue so it is the very next piece. */
@@ -350,10 +366,6 @@ public record TetrisPlayerState(
             return this;
         }
 
-        List<PieceShape> nextQueue = new java.util.ArrayList<>();
-        nextQueue.add(shape);
-        nextQueue.addAll(queuedShapes);
-
         return new TetrisPlayerState(
                 playerName,
                 side,
@@ -364,7 +376,7 @@ public record TetrisPlayerState(
                 finalScore,
                 boardObject,
                 effects,
-                nextQueue);
+                Stream.concat(Stream.of(shape), queuedShapes.stream()).toList());
     }
 
     public boolean hasQueuedShape() {
@@ -385,21 +397,32 @@ public record TetrisPlayerState(
                 queuedShapes);
     }
 
-    public TetrisPlayerState lockActivePiece() {
+    public TetrisPlayerState lockActivePiece(GravityDirection gravityDirection) {
         if (activePiece == null || !board.canPlace(activePiece)) {
             return this;
         }
 
         TetrisBoard lockedBoard = board.lockPiece(activePiece);
-        List<Integer> fullRows = lockedBoard.fullRows();
-        TetrisBoard clearedBoard = lockedBoard.clearRows(fullRows);
+        GravityDirection direction = gravityDirection == null ? side.gravityDirection() : gravityDirection;
+        int clearedLines;
+        TetrisBoard clearedBoard;
+
+        if (direction.isHorizontal()) {
+            List<Integer> fullColumns = lockedBoard.fullColumns();
+            clearedBoard = lockedBoard.clearColumns(fullColumns);
+            clearedLines = fullColumns.size();
+        } else {
+            List<Integer> fullRows = lockedBoard.fullRows();
+            clearedBoard = lockedBoard.clearRows(fullRows);
+            clearedLines = fullRows.size();
+        }
 
         return new TetrisPlayerState(
                 playerName,
                 side,
                 clearedBoard,
                 null,
-                score + fullRows.size(),
+                score + clearedLines,
                 status,
                 finalScore,
                 boardObject,
@@ -407,25 +430,14 @@ public record TetrisPlayerState(
                 queuedShapes);
     }
 
-    // -------------------------------------------------------------------
-    // Variable-height row operations (Feature 2)
-    // -------------------------------------------------------------------
-
-    /**
-     * Reward for a DOWN-gravity player who cleared rows: prepends N empty rows
-     * at the top (row-0 side), shifting the active piece and board object down
-     * so they stay in the same relative position above the existing stack.
-     */
     public TetrisPlayerState addTopRows(int count) {
         int n = Math.max(0, count);
         if (n == 0) return this;
         TetrisBoard newBoard = board.addRowsAtTop(n);
-        // Shift active piece down by n rows
         TetrisPiece newPiece = activePiece == null ? null
                 : activePiece.withPosition(new BoardPosition(
                         activePiece.position().row() + n,
                         activePiece.position().column()));
-        // Shift board object down by n rows
         TetrisBoardObject newObject = boardObject == null ? null
                 : new TetrisBoardObject(
                         boardObject.type(),
@@ -434,11 +446,6 @@ public record TetrisPlayerState(
         return new TetrisPlayerState(playerName, side, newBoard, newPiece, score, status, finalScore, newObject, effects, queuedShapes);
     }
 
-    /**
-     * Reward for an UP-gravity player who cleared rows: appends N empty rows
-     * at the bottom (high-index side). No position adjustment needed because
-     * the piece and stacked blocks are at the top of the array.
-     */
     public TetrisPlayerState addBottomRows(int count) {
         int n = Math.max(0, count);
         if (n == 0) return this;
@@ -446,16 +453,10 @@ public record TetrisPlayerState(
         return new TetrisPlayerState(playerName, side, newBoard, activePiece, score, status, finalScore, boardObject, effects, queuedShapes);
     }
 
-    /**
-     * Penalty for a DOWN-gravity opponent: removes N rows from the top (spawn
-     * side). The active piece is shifted up or nulled if it falls in the
-     * removed zone. Board object is adjusted similarly.
-     */
     public TetrisPlayerState removeTopRows(int count) {
         int n = Math.min(count, board.rows() - TetrisBoard.MIN_ROWS);
         if (n <= 0) return this;
         TetrisBoard newBoard = board.removeRowsFromTop(n);
-        // Shift active piece up by n; null it if it was in the removed zone
         TetrisPiece newPiece = null;
         if (activePiece != null) {
             int newRow = activePiece.position().row() - n;
@@ -465,7 +466,6 @@ public record TetrisPlayerState(
                 newPiece = newBoard.canPlace(shifted) ? shifted : null;
             }
         }
-        // Shift board object similarly
         TetrisBoardObject newObject = null;
         if (boardObject != null) {
             int newRow = boardObject.position().row() - n;
@@ -477,26 +477,109 @@ public record TetrisPlayerState(
         return new TetrisPlayerState(playerName, side, newBoard, newPiece, score, status, finalScore, newObject, effects, queuedShapes);
     }
 
-    /**
-     * Penalty for an UP-gravity opponent: removes N rows from the bottom (spawn
-     * side). The active piece is nulled if it is now out of bounds. Board
-     * object is cleared if it falls in the removed zone.
-     */
     public TetrisPlayerState removeBottomRows(int count) {
         int n = Math.min(count, board.rows() - TetrisBoard.MIN_ROWS);
         if (n <= 0) return this;
         TetrisBoard newBoard = board.removeRowsFromBottom(n);
-        // Keep active piece only if it still fits on the shrunk board
         TetrisPiece newPiece = null;
         if (activePiece != null) {
             newPiece = newBoard.canPlace(activePiece) ? activePiece : null;
         }
-        // Keep board object only if its position is still inside the new board
         TetrisBoardObject newObject = null;
         if (boardObject != null && newBoard.isInside(boardObject.position())) {
             newObject = boardObject;
         }
         return new TetrisPlayerState(playerName, side, newBoard, newPiece, score, status, finalScore, newObject, effects, queuedShapes);
+    }
+
+    public TetrisPlayerState addLeftColumns(int count) {
+        return shiftForColumnChange(board.addColumnsAtLeft(count), count);
+    }
+
+    public TetrisPlayerState addRightColumns(int count) {
+        return new TetrisPlayerState(
+                playerName,
+                side,
+                board.addColumnsAtRight(count),
+                activePiece,
+                score,
+                status,
+                finalScore,
+                boardObject,
+                effects,
+                queuedShapes);
+    }
+
+    public TetrisPlayerState removeLeftColumns(int count) {
+        int removed = Math.min(count, board.columns() - TetrisBoard.MIN_COLUMNS);
+        if (removed <= 0) {
+            return this;
+        }
+        return shiftForColumnChange(board.removeColumnsFromLeft(removed), -removed);
+    }
+
+    public TetrisPlayerState removeRightColumns(int count) {
+        int removed = Math.min(count, board.columns() - TetrisBoard.MIN_COLUMNS);
+        if (removed <= 0) {
+            return this;
+        }
+
+        TetrisBoard newBoard = board.removeColumnsFromRight(removed);
+        TetrisPiece newPiece = activePiece != null && newBoard.canPlace(activePiece) ? activePiece : null;
+        TetrisBoardObject newObject = boardObject != null && newBoard.isInside(boardObject.position())
+                ? boardObject
+                : null;
+        return new TetrisPlayerState(
+                playerName,
+                side,
+                newBoard,
+                newPiece,
+                score,
+                status,
+                finalScore,
+                newObject,
+                effects,
+                queuedShapes);
+    }
+
+    private TetrisPlayerState shiftForColumnChange(TetrisBoard newBoard, int columnDelta) {
+        if (columnDelta == 0) {
+            return this;
+        }
+
+        TetrisPiece newPiece = null;
+        if (activePiece != null) {
+            int newColumn = activePiece.position().column() + columnDelta;
+            if (newColumn >= 0) {
+                TetrisPiece shifted = activePiece.withPosition(
+                        new BoardPosition(activePiece.position().row(), newColumn));
+                newPiece = newBoard.canPlace(shifted) ? shifted : null;
+            }
+        }
+
+        TetrisBoardObject newObject = null;
+        if (boardObject != null) {
+            int newColumn = boardObject.position().column() + columnDelta;
+            BoardPosition newPosition = new BoardPosition(boardObject.position().row(), newColumn);
+            if (newColumn >= 0 && newBoard.isInside(newPosition)) {
+                newObject = new TetrisBoardObject(
+                        boardObject.type(),
+                        newPosition,
+                        boardObject.lifetimeTicks());
+            }
+        }
+
+        return new TetrisPlayerState(
+                playerName,
+                side,
+                newBoard,
+                newPiece,
+                score,
+                status,
+                finalScore,
+                newObject,
+                effects,
+                queuedShapes);
     }
 
     public TetrisPlayerState lost() {
@@ -526,20 +609,34 @@ public record TetrisPlayerState(
         return board.canPlace(moved) ? withActivePiece(moved) : this;
     }
 
-    private static BoardPosition spawnPosition(PieceShape shape, GravityDirection gravityDirection, int boardRows) {
+    private static BoardPosition spawnPosition(
+            PieceShape shape,
+            GravityDirection gravityDirection,
+            TetrisBoard board) {
         GravityDirection direction = gravityDirection == null ? GravityDirection.DOWN : gravityDirection;
+        int boardRows = board.rows();
+        int boardColumns = board.columns();
         int row = switch (direction) {
             case DOWN -> 0;
             case UP -> boardRows - shape.height();
             case LEFT, RIGHT -> (boardRows - shape.height()) / 2;
         };
         int column = switch (direction) {
-            case DOWN, UP -> (TetrisBoard.COLUMNS - shape.width()) / 2;
+            case DOWN, UP -> (boardColumns - shape.width()) / 2;
             case RIGHT -> 0;
-            case LEFT -> TetrisBoard.COLUMNS - shape.width();
+            case LEFT -> boardColumns - shape.width();
         };
 
         return new BoardPosition(row, column);
+    }
+
+    private TetrisPlayerState rotateImmediate() {
+        if (!isPlaying() || activePiece == null) {
+            return this;
+        }
+
+        TetrisPiece rotated = activePiece.withRotation(activePiece.rotation().clockwise());
+        return board.canPlace(rotated) ? withActivePiece(rotated) : this;
     }
 
     private static int perpendicularRowStep(GravityDirection gravityDirection, int direction) {

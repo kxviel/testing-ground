@@ -27,6 +27,25 @@ public record PieceShape(PieceType type, String name, List<BoardPosition> cells)
                 .orElse(0) + 1;
     }
 
+    /** Rotates the shape 90 degrees clockwise and normalizes it to the origin. */
+    public PieceShape rotateClockwise90() {
+        int height = height();
+        List<BoardPosition> rotated = cells.stream()
+                .map(cell -> new BoardPosition(cell.column(), height - 1 - cell.row()))
+                .toList();
+        return normalize(rotated, type, name);
+    }
+
+    private static PieceShape normalize(List<BoardPosition> rotatedCells, PieceType pieceType, String shapeName) {
+        int minRow = rotatedCells.stream().mapToInt(BoardPosition::row).min().orElse(0);
+        int minColumn = rotatedCells.stream().mapToInt(BoardPosition::column).min().orElse(0);
+        List<BoardPosition> normalized = rotatedCells.stream()
+                .map(cell -> new BoardPosition(cell.row() - minRow, cell.column() - minColumn))
+                .distinct()
+                .toList();
+        return new PieceShape(pieceType, shapeName, normalized);
+    }
+
     public static PieceShape standardShape(PieceType type) {
         return standardShapes().stream()
                 .filter(shape -> shape.type() == type)

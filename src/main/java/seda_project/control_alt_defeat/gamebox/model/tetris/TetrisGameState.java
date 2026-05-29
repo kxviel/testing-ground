@@ -35,9 +35,10 @@ public record TetrisGameState(
                 ? new TetrisGameSetup("Player 1", "Player 2", TetrisGameConfig.defaultConfig())
                 : setup;
 
+        boolean horizontalMode = safeSetup.config().horizontalMode();
         return new TetrisGameState(
-                TetrisPlayerState.create(safeSetup.playerOneName(), PlayerSide.BOTTOM),
-                TetrisPlayerState.create(safeSetup.playerTwoName(), PlayerSide.TOP),
+                TetrisPlayerState.create(safeSetup.playerOneName(), PlayerSide.BOTTOM, horizontalMode),
+                TetrisPlayerState.create(safeSetup.playerTwoName(), PlayerSide.TOP, horizontalMode),
                 safeSetup.config(),
                 TetrisGameStatus.READY);
     }
@@ -175,46 +176,74 @@ public record TetrisGameState(
                     actor.withBoard(actor.board().destroyRadius(object.position(), EXPLOSION_RADIUS)));
             case EXPLODE_BELOW -> next.withPlayer(
                     side,
-                    actor.withBoard(actor.board().destroyBelow(object.position())));
+                    actor.withBoard(actor.board().destroyAlongGravity(
+                            object.position(),
+                            config.gravityDirection(side))));
             case PORTAL -> actor.activePiece() == null
                     ? next
                     : next.withPlayer(side, actor.withActivePiece(null))
-                            .withPlayer(opponentSide, opponent.queueShape(actor.activePiece().shape()));
+                            .withPlayer(opponentSide, opponent.queueShapeFirst(actor.activePiece().shape()));
             case TELEPORT_SWAP -> swapPlayStates(side);
             case PIECE_SWAP -> swapActivePieces(next, side);
         };
     }
 
-    /**
-     * Feature 2 – Row reward/penalty:
-     * - Clearing player: gains N empty rows at their SPAWN side (more headroom).
-     * - Opponent: loses N rows from THEIR spawn side (less space).
-     *
-     * For DOWN gravity: spawn side = top (row 0).  addTopRows / removeTopRows.
-     * For UP gravity:   spawn side = bottom (last row). addBottomRows / removeBottomRows.
-     */
     private TetrisGameState transferClearedRows(PlayerSide side, int clearedRows) {
         if (clearedRows <= 0) {
             return this;
         }
 
         PlayerSide opponentSide = opponent(side);
+        GravityDirection actorGravity = config.gravityDirection(side);
+        GravityDirection opponentGravity = config.gravityDirection(opponentSide);
 
-        // Reward: clearing player gains rows at their spawn side
         TetrisPlayerState actor = player(side);
-        boolean actorDown = config.gravityDirection(side) != GravityDirection.UP;
-        TetrisPlayerState rewardedActor = actorDown
-                ? actor.addTopRows(clearedRows)
-                : actor.addBottomRows(clearedRows);
+        TetrisPlayerState rewardedActor = actorGravity.isHorizontal()
+                ? rewardHorizontalClear(actor, clearedRows, actorGravity)
+                : rewardVerticalClear(actor, clearedRows, actorGravity);
 
-        // Penalty: opponent loses rows from their spawn side
         TetrisPlayerState opp = player(opponentSide);
-        boolean oppDown = config.gravityDirection(opponentSide) != GravityDirection.UP;
-        TetrisPlayerState penalisedOpp = oppDown
-                ? opp.removeTopRows(clearedRows)
-                : opp.removeBottomRows(clearedRows);
+        TetrisPlayerState penalisedOpp = opponentGravity.isHorizontal()
+                ? penalizeHorizontalClear(opp, clearedRows, opponentGravity)
+                : penalizeVerticalClear(opp, clearedRows, opponentGravity);
 
         return withPlayer(side, rewardedActor).withPlayer(opponentSide, penalisedOpp);
+    }
+
+    private static TetrisPlayerState rewardVerticalClear(
+            TetrisPlayerState actor,
+            int clearedRows,
+            GravityDirection gravity) {
+        return gravity == GravityDirection.UP
+                ? actor.addBottomRows(clearedRows)
+                : actor.addTopRows(clearedRows);
+    }
+
+    private static TetrisPlayerState penalizeVerticalClear(
+            TetrisPlayerState opponent,
+            int clearedRows,
+            GravityDirection gravity) {
+        return gravity == GravityDirection.UP
+                ? opponent.removeBottomRows(clearedRows)
+                : opponent.removeTopRows(clearedRows);
+    }
+
+    private static TetrisPlayerState rewardHorizontalClear(
+            TetrisPlayerState actor,
+            int clearedColumns,
+            GravityDirection gravity) {
+        return gravity == GravityDirection.LEFT
+                ? actor.addRightColumns(clearedColumns)
+                : actor.addLeftColumns(clearedColumns);
+    }
+
+    private static TetrisPlayerState penalizeHorizontalClear(
+            TetrisPlayerState opponent,
+            int clearedColumns,
+            GravityDirection gravity) {
+        return gravity == GravityDirection.LEFT
+                ? opponent.removeRightColumns(clearedColumns)
+                : opponent.removeLeftColumns(clearedColumns);
     }
 
     private TetrisGameState swapPlayStates(PlayerSide triggeringSide) {
@@ -228,26 +257,11 @@ public record TetrisGameState(
                 .withPlayer(otherSide, swappedOtherPlayer);
     }
 
-    /**
-     * Feature 1 – G object: swaps the currently falling pieces in-place.
-     *
-     * Each player immediately receives the opponent's piece shape at their OWN
-     * current board position (not re-spawned from the edge). Edge-case ladder:
-     *
-     *  1. Try the opponent's shape at the current position + current rotation.
-     *  2. If that overlaps settled blocks or is out of bounds, reset to
-     *     {@link Rotation#SPAWN} at the same position.
-     *  3. If it still doesn't fit, null the active piece and front-queue the
-     *     opponent's shape so it respawns normally from the spawn edge.
-     *
-     * If either player has no active piece the swap is skipped entirely.
-     */
     private TetrisGameState swapActivePieces(TetrisGameState base, PlayerSide triggeringSide) {
         PlayerSide otherSide = opponent(triggeringSide);
         TetrisPlayerState actor = base.player(triggeringSide);
         TetrisPlayerState other = base.player(otherSide);
 
-        // Both players must have an active piece; otherwise nothing to swap.
         if (actor.activePiece() == null || other.activePiece() == null) {
             return base;
         }
@@ -255,18 +269,13 @@ public record TetrisGameState(
         TetrisPiece actorPiece = actor.activePiece();
         TetrisPiece otherPiece = other.activePiece();
 
-        // Build swapped pieces: each player gets the opponent's shape placed at
-        // their own current position, using the opponent's color so it is
-        // visually clear the piece arrived from the other board.
         TetrisPiece newActorPiece = buildSwappedPiece(otherPiece.shape(), actorPiece, otherPiece.colorIndex(), actor.board());
         TetrisPiece newOtherPiece = buildSwappedPiece(actorPiece.shape(), otherPiece, actorPiece.colorIndex(), other.board());
 
-        // Apply to actor: replace piece in-place or null+re-queue
         TetrisPlayerState newActor = newActorPiece != null
                 ? actor.withActivePiece(newActorPiece)
                 : actor.withActivePiece(null).queueShapeFirst(otherPiece.shape());
 
-        // Apply to other: replace piece in-place or null+re-queue
         TetrisPlayerState newOther = newOtherPiece != null
                 ? other.withActivePiece(newOtherPiece)
                 : other.withActivePiece(null).queueShapeFirst(actorPiece.shape());
@@ -274,35 +283,21 @@ public record TetrisGameState(
         return base.withPlayer(triggeringSide, newActor).withPlayer(otherSide, newOther);
     }
 
-    /**
-     * Attempts to place {@code newShape} at the position of {@code currentPiece}
-     * so the piece appears in-place after the swap.
-     *
-     * <ol>
-     *   <li>Try {@code newShape} at {@code currentPiece}'s position + rotation.</li>
-     *   <li>Fall back to {@link Rotation#SPAWN} at the same position.</li>
-     *   <li>Return {@code null} if neither fits — the caller will re-queue the
-     *       shape so it respawns from the spawn edge instead.</li>
-     * </ol>
-     */
     private static TetrisPiece buildSwappedPiece(
             PieceShape newShape,
             TetrisPiece currentPiece,
             int colorIndex,
             TetrisBoard board) {
-        // Attempt 1: same position, same rotation
         TetrisPiece candidate = new TetrisPiece(
                 newShape, currentPiece.position(), currentPiece.rotation(), colorIndex);
         if (board.canPlace(candidate)) {
             return candidate;
         }
-        // Attempt 2: same position, reset to SPAWN rotation
         TetrisPiece spawnRotation = new TetrisPiece(
                 newShape, currentPiece.position(), Rotation.SPAWN, colorIndex);
         if (board.canPlace(spawnRotation)) {
             return spawnRotation;
         }
-        // Attempt 3: cannot fit at current position at all
         return null;
     }
 

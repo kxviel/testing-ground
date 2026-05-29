@@ -18,16 +18,13 @@
     </stylesheets>
 
     <center>
-        <HBox alignment="CENTER" spacing="28" styleClass="game-layout">
-            <padding>
-                <Insets top="22" right="40" bottom="22" left="40"/>
-            </padding>
+        <HBox alignment="CENTER" styleClass="game-layout">
 
-            <VBox alignment="TOP_LEFT" spacing="9" minWidth="260" maxWidth="300" styleClass="object-legend">
+            <VBox styleClass="game-panel object-legend">
                 <Label text="Special Objects" styleClass="field-title"/>
-                <GridPane hgap="8" vgap="6" styleClass="object-legend-grid">
+                <GridPane styleClass="object-legend-grid">
                     <columnConstraints>
-                        <ColumnConstraints minWidth="28" prefWidth="28"/>
+                        <ColumnConstraints minWidth="24" prefWidth="24"/>
                         <ColumnConstraints hgrow="ALWAYS"/>
                     </columnConstraints>
 
@@ -40,11 +37,11 @@
                            GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
                     <Label text="R" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
-                    <Label text="Add 2s lag to opponent rotation key (10s)" styleClass="object-description" wrapText="true"
+                    <Label text="Opponent rotation lags 2s per press (10s)" styleClass="object-description" wrapText="true"
                            GridPane.columnIndex="1" GridPane.rowIndex="2"/>
 
                     <Label text="r" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
-                    <Label text="Add 2s lag to your rotation key (10s)" styleClass="object-description" wrapText="true"
+                    <Label text="Your rotation lags 2s per press (10s)" styleClass="object-description" wrapText="true"
                            GridPane.columnIndex="1" GridPane.rowIndex="3"/>
 
                     <Label text="S" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
@@ -56,7 +53,7 @@
                            GridPane.columnIndex="1" GridPane.rowIndex="5"/>
 
                     <Label text="v" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="6"/>
-                    <Label text="Clears all blocks vertically below it" styleClass="object-description" wrapText="true"
+                    <Label text="Clears blocks below it in your gravity direction" styleClass="object-description" wrapText="true"
                            GridPane.columnIndex="1" GridPane.rowIndex="6"/>
 
                     <Label text="P" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="7"/>
@@ -73,44 +70,50 @@
                 </GridPane>
             </VBox>
 
-            <VBox alignment="CENTER" spacing="16" styleClass="boards-stack">
+            <VBox alignment="CENTER" styleClass="boards-stack">
                 <GridPane fx:id="topBoardGrid" rotate="180" styleClass="tetris-board"/>
                 <GridPane fx:id="bottomBoardGrid" styleClass="tetris-board"/>
             </VBox>
 
-            <VBox alignment="TOP_LEFT" spacing="14" minWidth="280" maxWidth="328" styleClass="game-sidebar">
-                <Label text="ZETRIS" styleClass="game-side-title"/>
-                <Label fx:id="configLabel" text="Pieces: Standard" styleClass="subtitle"/>
-                <Label fx:id="resultLabel" text="Game running." styleClass="status-line" wrapText="true"/>
+            <VBox styleClass="game-panel game-sidebar">
+                <VBox styleClass="game-sidebar-inner">
+                    <VBox styleClass="game-sidebar-header">
+                        <Label text="ZETRIS" styleClass="game-side-title"/>
+                        <Label fx:id="configLabel" text="Pieces: Standard" styleClass="subtitle"/>
+                        <Label fx:id="resultLabel" text="Game running." styleClass="status-line" wrapText="true"/>
+                    </VBox>
 
-                <Separator/>
+                    <Separator styleClass="game-separator"/>
 
-                <VBox alignment="CENTER_LEFT" spacing="7">
-                    <Label text="Top" styleClass="field-title"/>
-                    <Label fx:id="topNameLabel" text="Player 2" styleClass="player-name"/>
-                    <Label fx:id="topScoreLabel" text="Score: 0" styleClass="score-label"/>
+                    <VBox styleClass="game-player-block">
+                        <Label text="Top" styleClass="field-title"/>
+                        <Label fx:id="topNameLabel" text="Player 2" styleClass="player-name"/>
+                        <Label fx:id="topScoreLabel" text="Score: 0" styleClass="score-label"/>
+                    </VBox>
+
+                    <Separator styleClass="game-separator"/>
+
+                    <VBox styleClass="game-player-block">
+                        <Label text="Bottom" styleClass="field-title"/>
+                        <Label fx:id="bottomNameLabel" text="Player 1" styleClass="player-name"/>
+                        <Label fx:id="bottomScoreLabel" text="Score: 0" styleClass="score-label"/>
+                    </VBox>
+
+                    <Separator styleClass="game-separator"/>
+
+                    <VBox styleClass="keymap-block">
+                        <Label fx:id="keymapTitleLabel" text="Controls" styleClass="field-title"/>
+                        <Label fx:id="keymapLabel" text="" styleClass="keymap-label" wrapText="true"/>
+                    </VBox>
+
+                    <Separator styleClass="game-separator"/>
+
+                    <HBox styleClass="game-actions">
+                        <Button fx:id="restartButton" text="Restart" onAction="#onRestart"
+                                visible="false" managed="false" styleClass="btn-outline"/>
+                        <Button text="Quit" onAction="#onBackToMenu" styleClass="btn-primary"/>
+                    </HBox>
                 </VBox>
-
-                <VBox alignment="CENTER_LEFT" spacing="7">
-                    <Label text="Bottom" styleClass="field-title"/>
-                    <Label fx:id="bottomNameLabel" text="Player 1" styleClass="player-name"/>
-                    <Label fx:id="bottomScoreLabel" text="Score: 0" styleClass="score-label"/>
-                </VBox>
-
-                <Separator/>
-
-                <VBox alignment="CENTER_LEFT" spacing="7">
-                    <Label fx:id="keymapTitleLabel" text="Controls" styleClass="field-title"/>
-                    <Label fx:id="keymapLabel" text="" styleClass="keymap-label" wrapText="true"/>
-                </VBox>
-
-                <Separator/>
-
-                <HBox alignment="CENTER_LEFT" spacing="10">
-                    <Button fx:id="restartButton" text="Restart" onAction="#onRestart"
-                            visible="false" managed="false" styleClass="btn-outline"/>
-                    <Button text="Quit" onAction="#onBackToMenu" styleClass="btn-primary"/>
-                </HBox>
             </VBox>
         </HBox>
     </center>

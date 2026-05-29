@@ -1,5 +1,6 @@
 package seda_project.control_alt_defeat.gamebox.model.tetris;
 
+import seda_project.control_alt_defeat.gamebox.model.tetris.enums.GravityDirection;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisCell;
 
 import java.util.Arrays;
@@ -11,55 +12,79 @@ import java.util.stream.IntStream;
 public class TetrisBoard {
 
     public static final int DEFAULT_ROWS = 20;
+    public static final int DEFAULT_COLUMNS = 10;
+    public static final int HORIZONTAL_ROWS = 10;
+    public static final int HORIZONTAL_COLUMNS = 20;
     public static final int MIN_ROWS = 4;
-    public static final int COLUMNS = 10;
+    public static final int MIN_COLUMNS = 4;
+
+    /** @deprecated use {@link #DEFAULT_COLUMNS} or {@link #columns()} */
+    @Deprecated
+    public static final int COLUMNS = DEFAULT_COLUMNS;
 
     /**
      * Kept for backwards-compatibility so existing call-sites that reference
-     * TetrisBoard.ROWS still compile.  New code should call board.rows() instead.
+     * TetrisBoard.ROWS still compile. New code should call board.rows() instead.
      */
     public static final int ROWS = DEFAULT_ROWS;
 
     private final int rows;
+    private final int columns;
     private final TetrisCell[][] cells;
     private final int[][] colorIndexes;
 
+    public static TetrisBoard createDefault(boolean horizontalMode) {
+        return horizontalMode
+                ? new TetrisBoard(HORIZONTAL_ROWS, HORIZONTAL_COLUMNS)
+                : new TetrisBoard();
+    }
+
     public TetrisBoard() {
-        this(DEFAULT_ROWS, createEmptyCells(DEFAULT_ROWS), createEmptyColors(DEFAULT_ROWS));
+        this(DEFAULT_ROWS, DEFAULT_COLUMNS);
+    }
+
+    public TetrisBoard(int rows, int columns) {
+        int safeRows = Math.max(MIN_ROWS, rows);
+        int safeColumns = Math.max(MIN_COLUMNS, columns);
+        this.rows = safeRows;
+        this.columns = safeColumns;
+        this.cells = createEmptyCells(safeRows, safeColumns);
+        this.colorIndexes = createEmptyColors(safeRows, safeColumns);
     }
 
     public TetrisBoard(TetrisCell[][] cells) {
-        this(cells == null ? DEFAULT_ROWS : cells.length, cells, null);
+        this(cells, null);
     }
 
     public TetrisBoard(TetrisCell[][] cells, int[][] colorIndexes) {
-        this(cells == null ? DEFAULT_ROWS : cells.length, cells, colorIndexes);
+        int inferredRows = cells == null ? DEFAULT_ROWS : cells.length;
+        int inferredColumns = inferColumns(cells, DEFAULT_COLUMNS);
+        this.rows = Math.max(MIN_ROWS, inferredRows);
+        this.columns = Math.max(MIN_COLUMNS, inferredColumns);
+        this.cells = copyCells(cells, this.rows, this.columns);
+        this.colorIndexes = copyColors(colorIndexes, this.cells, this.rows, this.columns);
     }
 
-    /** Primary internal constructor – all other constructors delegate here. */
-    private TetrisBoard(int rows, TetrisCell[][] cells, int[][] colorIndexes) {
+    private TetrisBoard(int rows, int columns, TetrisCell[][] cells, int[][] colorIndexes) {
         this.rows = Math.max(MIN_ROWS, rows);
-        this.cells = copyCells(cells, this.rows);
-        this.colorIndexes = copyColors(colorIndexes, this.cells, this.rows);
+        this.columns = Math.max(MIN_COLUMNS, columns);
+        this.cells = copyCells(cells, this.rows, this.columns);
+        this.colorIndexes = copyColors(colorIndexes, this.cells, this.rows, this.columns);
     }
-
-    // -----------------------------------------------------------------------
-    // Accessors
-    // -----------------------------------------------------------------------
 
     public int rows() {
         return rows;
     }
 
     public int columns() {
-        return COLUMNS;
+        return columns;
     }
 
     public boolean isInside(BoardPosition position) {
         return position.row() >= 0
                 && position.row() < rows
                 && position.column() >= 0
-                && position.column() < COLUMNS;
+                && position.column() < columns;
     }
 
     public TetrisCell cellAt(BoardPosition position) {
@@ -91,14 +116,14 @@ public class TetrisBoard {
             return this;
         }
 
-        TetrisCell[][] nextCells = copyCells(cells, rows);
-        int[][] nextColors = copyColors(colorIndexes, nextCells, rows);
+        TetrisCell[][] nextCells = copyCells(cells, rows, columns);
+        int[][] nextColors = copyColors(colorIndexes, nextCells, rows, columns);
         for (BoardPosition cell : piece.boardCells()) {
             nextCells[cell.row()][cell.column()] = TetrisCell.FILLED;
             nextColors[cell.row()][cell.column()] = piece.colorIndex();
         }
 
-        return new TetrisBoard(rows, nextCells, nextColors);
+        return new TetrisBoard(rows, columns, nextCells, nextColors);
     }
 
     public List<Integer> fullRows() {
@@ -108,36 +133,73 @@ public class TetrisBoard {
                 .toList();
     }
 
-    public TetrisBoard clearRows(List<Integer> rows) {
-        if (rows == null || rows.isEmpty()) {
+    public List<Integer> fullColumns() {
+        return IntStream.range(0, columns)
+                .filter(this::isFullColumn)
+                .boxed()
+                .toList();
+    }
+
+    public TetrisBoard clearRows(List<Integer> rowsToClear) {
+        if (rowsToClear == null || rowsToClear.isEmpty()) {
             return this;
         }
 
-        Set<Integer> rowsToClear = rows.stream()
-                .filter(row -> row != null && row >= 0 && row < this.rows)
+        Set<Integer> clearedRows = rowsToClear.stream()
+                .filter(row -> row != null && row >= 0 && row < rows)
                 .collect(Collectors.toSet());
 
-        if (rowsToClear.isEmpty()) {
+        if (clearedRows.isEmpty()) {
             return this;
         }
 
-        TetrisCell[][] nextCells = createEmptyCells(this.rows);
-        int[][] nextColors = createEmptyColors(this.rows);
-        int writeRow = this.rows - 1;
+        TetrisCell[][] nextCells = createEmptyCells(rows, columns);
+        int[][] nextColors = createEmptyColors(rows, columns);
+        int writeRow = rows - 1;
 
-        for (int row = this.rows - 1; row >= 0; row--) {
-            if (rowsToClear.contains(row)) {
+        for (int row = rows - 1; row >= 0; row--) {
+            if (clearedRows.contains(row)) {
                 continue;
             }
 
-            for (int column = 0; column < COLUMNS; column++) {
-                nextCells[writeRow][column] = cells[row][column];
-                nextColors[writeRow][column] = colorIndexes[row][column];
-            }
+            System.arraycopy(cells[row], 0, nextCells[writeRow], 0, columns);
+            System.arraycopy(colorIndexes[row], 0, nextColors[writeRow], 0, columns);
             writeRow--;
         }
 
-        return new TetrisBoard(this.rows, nextCells, nextColors);
+        return new TetrisBoard(rows, columns, nextCells, nextColors);
+    }
+
+    public TetrisBoard clearColumns(List<Integer> columnsToClear) {
+        if (columnsToClear == null || columnsToClear.isEmpty()) {
+            return this;
+        }
+
+        Set<Integer> clearedColumns = columnsToClear.stream()
+                .filter(column -> column != null && column >= 0 && column < columns)
+                .collect(Collectors.toSet());
+
+        if (clearedColumns.isEmpty()) {
+            return this;
+        }
+
+        TetrisCell[][] nextCells = createEmptyCells(rows, columns);
+        int[][] nextColors = createEmptyColors(rows, columns);
+        int writeColumn = columns - 1;
+
+        for (int column = columns - 1; column >= 0; column--) {
+            if (clearedColumns.contains(column)) {
+                continue;
+            }
+
+            for (int row = 0; row < rows; row++) {
+                nextCells[row][writeColumn] = cells[row][column];
+                nextColors[row][writeColumn] = colorIndexes[row][column];
+            }
+            writeColumn--;
+        }
+
+        return new TetrisBoard(rows, columns, nextCells, nextColors);
     }
 
     public TetrisBoard destroyRadius(BoardPosition center, int radius) {
@@ -157,14 +219,33 @@ public class TetrisBoard {
     }
 
     public TetrisBoard destroyBelow(BoardPosition impact) {
+        return destroyAlongGravity(impact, GravityDirection.DOWN);
+    }
+
+    public TetrisBoard destroyAlongGravity(BoardPosition impact, GravityDirection gravityDirection) {
         if (impact == null) {
             return this;
         }
 
-        Set<BoardPosition> positions = IntStream.range(impact.row(), rows)
-                .mapToObj(row -> new BoardPosition(row, impact.column()))
-                .filter(this::isInside)
-                .collect(Collectors.toSet());
+        GravityDirection direction = gravityDirection == null ? GravityDirection.DOWN : gravityDirection;
+        Set<BoardPosition> positions = switch (direction) {
+            case DOWN -> IntStream.range(impact.row(), rows)
+                    .mapToObj(row -> new BoardPosition(row, impact.column()))
+                    .filter(this::isInside)
+                    .collect(Collectors.toSet());
+            case UP -> IntStream.rangeClosed(0, impact.row())
+                    .mapToObj(row -> new BoardPosition(row, impact.column()))
+                    .filter(this::isInside)
+                    .collect(Collectors.toSet());
+            case RIGHT -> IntStream.range(impact.column(), columns)
+                    .mapToObj(column -> new BoardPosition(impact.row(), column))
+                    .filter(this::isInside)
+                    .collect(Collectors.toSet());
+            case LEFT -> IntStream.rangeClosed(0, impact.column())
+                    .mapToObj(column -> new BoardPosition(impact.row(), column))
+                    .filter(this::isInside)
+                    .collect(Collectors.toSet());
+        };
 
         return clearPositions(positions);
     }
@@ -175,19 +256,17 @@ public class TetrisBoard {
             return this;
         }
 
-        int safeHoleColumn = Math.floorMod(holeColumn, COLUMNS);
-        TetrisCell[][] nextCells = createEmptyCells(rows);
-        int[][] nextColors = createEmptyColors(rows);
+        int safeHoleColumn = Math.floorMod(holeColumn, columns);
+        TetrisCell[][] nextCells = createEmptyCells(rows, columns);
+        int[][] nextColors = createEmptyColors(rows, columns);
 
         for (int row = 0; row < rows - lines; row++) {
-            for (int column = 0; column < COLUMNS; column++) {
-                nextCells[row][column] = cells[row + lines][column];
-                nextColors[row][column] = colorIndexes[row + lines][column];
-            }
+            System.arraycopy(cells[row + lines], 0, nextCells[row], 0, columns);
+            System.arraycopy(colorIndexes[row + lines], 0, nextColors[row], 0, columns);
         }
 
         for (int row = rows - lines; row < rows; row++) {
-            for (int column = 0; column < COLUMNS; column++) {
+            for (int column = 0; column < columns; column++) {
                 if (column == safeHoleColumn) {
                     continue;
                 }
@@ -196,125 +275,175 @@ public class TetrisBoard {
             }
         }
 
-        return new TetrisBoard(rows, nextCells, nextColors);
+        return new TetrisBoard(rows, columns, nextCells, nextColors);
     }
 
-    // -----------------------------------------------------------------------
-    // Variable-height row operations (Feature 2)
-    // -----------------------------------------------------------------------
-
-    /**
-     * Adds {@code count} empty rows at the TOP (row-0 side) of the board,
-     * shifting all existing content DOWN by {@code count}. Used as the
-     * reward for the clearing player whose gravity is DOWN.
-     */
     public TetrisBoard addRowsAtTop(int count) {
         int n = Math.max(0, count);
-        if (n == 0) return this;
-        int newRows = rows + n;
-        TetrisCell[][] newCells = createEmptyCells(newRows);
-        int[][] newColors = createEmptyColors(newRows);
-        for (int row = 0; row < rows; row++) {
-            for (int col = 0; col < COLUMNS; col++) {
-                newCells[row + n][col] = cells[row][col];
-                newColors[row + n][col] = colorIndexes[row][col];
-            }
+        if (n == 0) {
+            return this;
         }
-        return new TetrisBoard(newRows, newCells, newColors);
+
+        int newRows = rows + n;
+        TetrisCell[][] newCells = createEmptyCells(newRows, columns);
+        int[][] newColors = createEmptyColors(newRows, columns);
+        for (int row = 0; row < rows; row++) {
+            System.arraycopy(cells[row], 0, newCells[row + n], 0, columns);
+            System.arraycopy(colorIndexes[row], 0, newColors[row + n], 0, columns);
+        }
+        return new TetrisBoard(newRows, columns, newCells, newColors);
     }
 
-    /**
-     * Appends {@code count} empty rows at the BOTTOM (high-index side) of the
-     * board. Used as the reward for the clearing player whose gravity is UP.
-     */
     public TetrisBoard addRowsAtBottom(int count) {
         int n = Math.max(0, count);
-        if (n == 0) return this;
-        int newRows = rows + n;
-        TetrisCell[][] newCells = createEmptyCells(newRows);
-        int[][] newColors = createEmptyColors(newRows);
-        for (int row = 0; row < rows; row++) {
-            for (int col = 0; col < COLUMNS; col++) {
-                newCells[row][col] = cells[row][col];
-                newColors[row][col] = colorIndexes[row][col];
-            }
+        if (n == 0) {
+            return this;
         }
-        return new TetrisBoard(newRows, newCells, newColors);
+
+        int newRows = rows + n;
+        TetrisCell[][] newCells = createEmptyCells(newRows, columns);
+        int[][] newColors = createEmptyColors(newRows, columns);
+        for (int row = 0; row < rows; row++) {
+            System.arraycopy(cells[row], 0, newCells[row], 0, columns);
+            System.arraycopy(colorIndexes[row], 0, newColors[row], 0, columns);
+        }
+        return new TetrisBoard(newRows, columns, newCells, newColors);
     }
 
-    /**
-     * Removes {@code count} rows from the TOP (row-0 side), shifting the
-     * remaining content UP. Board height is capped at MIN_ROWS minimum.
-     * Used as the penalty for an opponent whose gravity is DOWN (spawn side = top).
-     */
     public TetrisBoard removeRowsFromTop(int count) {
         int n = Math.min(count, rows - MIN_ROWS);
-        if (n <= 0) return this;
-        int newRows = rows - n;
-        TetrisCell[][] newCells = createEmptyCells(newRows);
-        int[][] newColors = createEmptyColors(newRows);
-        for (int row = 0; row < newRows; row++) {
-            for (int col = 0; col < COLUMNS; col++) {
-                newCells[row][col] = cells[row + n][col];
-                newColors[row][col] = colorIndexes[row + n][col];
-            }
+        if (n <= 0) {
+            return this;
         }
-        return new TetrisBoard(newRows, newCells, newColors);
+
+        int newRows = rows - n;
+        TetrisCell[][] newCells = createEmptyCells(newRows, columns);
+        int[][] newColors = createEmptyColors(newRows, columns);
+        for (int row = 0; row < newRows; row++) {
+            System.arraycopy(cells[row + n], 0, newCells[row], 0, columns);
+            System.arraycopy(colorIndexes[row + n], 0, newColors[row], 0, columns);
+        }
+        return new TetrisBoard(newRows, columns, newCells, newColors);
     }
 
-    /**
-     * Removes {@code count} rows from the BOTTOM (high-index side).
-     * Board height is capped at MIN_ROWS minimum.
-     * Used as the penalty for an opponent whose gravity is UP (spawn side = bottom).
-     */
     public TetrisBoard removeRowsFromBottom(int count) {
         int n = Math.min(count, rows - MIN_ROWS);
-        if (n <= 0) return this;
+        if (n <= 0) {
+            return this;
+        }
+
         int newRows = rows - n;
-        TetrisCell[][] newCells = createEmptyCells(newRows);
-        int[][] newColors = createEmptyColors(newRows);
+        TetrisCell[][] newCells = createEmptyCells(newRows, columns);
+        int[][] newColors = createEmptyColors(newRows, columns);
         for (int row = 0; row < newRows; row++) {
-            for (int col = 0; col < COLUMNS; col++) {
+            System.arraycopy(cells[row], 0, newCells[row], 0, columns);
+            System.arraycopy(colorIndexes[row], 0, newColors[row], 0, columns);
+        }
+        return new TetrisBoard(newRows, columns, newCells, newColors);
+    }
+
+    public TetrisBoard addColumnsAtLeft(int count) {
+        int n = Math.max(0, count);
+        if (n == 0) {
+            return this;
+        }
+
+        int newColumns = columns + n;
+        TetrisCell[][] newCells = createEmptyCells(rows, newColumns);
+        int[][] newColors = createEmptyColors(rows, newColumns);
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < columns; col++) {
+                newCells[row][col + n] = cells[row][col];
+                newColors[row][col + n] = colorIndexes[row][col];
+            }
+        }
+        return new TetrisBoard(rows, newColumns, newCells, newColors);
+    }
+
+    public TetrisBoard addColumnsAtRight(int count) {
+        int n = Math.max(0, count);
+        if (n == 0) {
+            return this;
+        }
+
+        int newColumns = columns + n;
+        TetrisCell[][] newCells = createEmptyCells(rows, newColumns);
+        int[][] newColors = createEmptyColors(rows, newColumns);
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < columns; col++) {
                 newCells[row][col] = cells[row][col];
                 newColors[row][col] = colorIndexes[row][col];
             }
         }
-        return new TetrisBoard(newRows, newCells, newColors);
+        return new TetrisBoard(rows, newColumns, newCells, newColors);
     }
 
-    // -----------------------------------------------------------------------
-    // Cell mutation
-    // -----------------------------------------------------------------------
+    public TetrisBoard removeColumnsFromLeft(int count) {
+        int n = Math.min(count, columns - MIN_COLUMNS);
+        if (n <= 0) {
+            return this;
+        }
+
+        int newColumns = columns - n;
+        TetrisCell[][] newCells = createEmptyCells(rows, newColumns);
+        int[][] newColors = createEmptyColors(rows, newColumns);
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < newColumns; col++) {
+                newCells[row][col] = cells[row][col + n];
+                newColors[row][col] = colorIndexes[row][col + n];
+            }
+        }
+        return new TetrisBoard(rows, newColumns, newCells, newColors);
+    }
+
+    public TetrisBoard removeColumnsFromRight(int count) {
+        int n = Math.min(count, columns - MIN_COLUMNS);
+        if (n <= 0) {
+            return this;
+        }
+
+        int newColumns = columns - n;
+        TetrisCell[][] newCells = createEmptyCells(rows, newColumns);
+        int[][] newColors = createEmptyColors(rows, newColumns);
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < newColumns; col++) {
+                newCells[row][col] = cells[row][col];
+                newColors[row][col] = colorIndexes[row][col];
+            }
+        }
+        return new TetrisBoard(rows, newColumns, newCells, newColors);
+    }
 
     public TetrisBoard withCell(BoardPosition position, TetrisCell cell) {
         if (!isInside(position)) {
             throw new IllegalArgumentException("Position outside board: " + position);
         }
 
-        TetrisCell[][] nextCells = copyCells(cells, rows);
-        int[][] nextColors = copyColors(colorIndexes, nextCells, rows);
+        TetrisCell[][] nextCells = copyCells(cells, rows, columns);
+        int[][] nextColors = copyColors(colorIndexes, nextCells, rows, columns);
         nextCells[position.row()][position.column()] = cell == null ? TetrisCell.EMPTY : cell;
         nextColors[position.row()][position.column()] = nextCells[position.row()][position.column()] == TetrisCell.EMPTY
                 ? -1
                 : 0;
-        return new TetrisBoard(rows, nextCells, nextColors);
+        return new TetrisBoard(rows, columns, nextCells, nextColors);
     }
 
     public TetrisCell[][] cells() {
-        return copyCells(cells, rows);
+        return copyCells(cells, rows, columns);
     }
 
     public int[][] colors() {
-        return copyColors(colorIndexes, cells, rows);
+        return copyColors(colorIndexes, cells, rows, columns);
     }
 
-    // -----------------------------------------------------------------------
-    // Private helpers
-    // -----------------------------------------------------------------------
-
     private boolean isFullRow(int row) {
-        return IntStream.range(0, COLUMNS)
+        return IntStream.range(0, columns)
                 .allMatch(column -> cells[row][column] != TetrisCell.EMPTY);
+    }
+
+    private boolean isFullColumn(int column) {
+        return IntStream.range(0, rows)
+                .allMatch(row -> cells[row][column] != TetrisCell.EMPTY);
     }
 
     private TetrisBoard clearPositions(Set<BoardPosition> positions) {
@@ -322,8 +451,8 @@ public class TetrisBoard {
             return this;
         }
 
-        TetrisCell[][] nextCells = copyCells(cells, rows);
-        int[][] nextColors = copyColors(colorIndexes, nextCells, rows);
+        TetrisCell[][] nextCells = copyCells(cells, rows, columns);
+        int[][] nextColors = copyColors(colorIndexes, nextCells, rows, columns);
 
         positions.stream()
                 .filter(this::isInside)
@@ -332,7 +461,7 @@ public class TetrisBoard {
                     nextColors[position.row()][position.column()] = -1;
                 });
 
-        return new TetrisBoard(rows, nextCells, nextColors);
+        return new TetrisBoard(rows, columns, nextCells, nextColors);
     }
 
     private static int distanceSquared(BoardPosition first, BoardPosition second) {
@@ -342,35 +471,43 @@ public class TetrisBoard {
         return rowDelta * rowDelta + columnDelta * columnDelta;
     }
 
-    private static TetrisCell[][] createEmptyCells(int rows) {
-        TetrisCell[][] cells = new TetrisCell[rows][COLUMNS];
-        for (TetrisCell[] row : cells) {
-            Arrays.fill(row, TetrisCell.EMPTY);
+    private static int inferColumns(TetrisCell[][] cells, int defaultColumns) {
+        if (cells == null || cells.length == 0 || cells[0] == null) {
+            return defaultColumns;
         }
-        return cells;
+
+        return Math.max(MIN_COLUMNS, cells[0].length);
     }
 
-    private static int[][] createEmptyColors(int rows) {
-        int[][] colors = new int[rows][COLUMNS];
+    private static TetrisCell[][] createEmptyCells(int rows, int columns) {
+        TetrisCell[][] boardCells = new TetrisCell[rows][columns];
+        for (TetrisCell[] row : boardCells) {
+            Arrays.fill(row, TetrisCell.EMPTY);
+        }
+        return boardCells;
+    }
+
+    private static int[][] createEmptyColors(int rows, int columns) {
+        int[][] colors = new int[rows][columns];
         for (int[] row : colors) {
             Arrays.fill(row, -1);
         }
         return colors;
     }
 
-    private static TetrisCell[][] copyCells(TetrisCell[][] source, int rows) {
+    private static TetrisCell[][] copyCells(TetrisCell[][] source, int rows, int columns) {
         if (source == null || source.length != rows) {
-            return createEmptyCells(rows);
+            return createEmptyCells(rows, columns);
         }
 
-        TetrisCell[][] copy = new TetrisCell[rows][COLUMNS];
+        TetrisCell[][] copy = new TetrisCell[rows][columns];
         for (int row = 0; row < rows; row++) {
-            if (source[row] == null || source[row].length != COLUMNS) {
+            if (source[row] == null || source[row].length < columns) {
                 Arrays.fill(copy[row], TetrisCell.EMPTY);
                 continue;
             }
 
-            for (int column = 0; column < COLUMNS; column++) {
+            for (int column = 0; column < columns; column++) {
                 TetrisCell cell = source[row][column];
                 copy[row][column] = cell == null ? TetrisCell.EMPTY : cell;
             }
@@ -379,18 +516,18 @@ public class TetrisBoard {
         return copy;
     }
 
-    private static int[][] copyColors(int[][] source, TetrisCell[][] copiedCells, int rows) {
-        int[][] copy = createEmptyColors(rows);
+    private static int[][] copyColors(int[][] source, TetrisCell[][] copiedCells, int rows, int columns) {
+        int[][] copy = createEmptyColors(rows, columns);
         if (source == null || source.length != rows) {
             return copy;
         }
 
         for (int row = 0; row < rows; row++) {
-            if (source[row] == null || source[row].length != COLUMNS) {
+            if (source[row] == null || source[row].length < columns) {
                 continue;
             }
 
-            for (int column = 0; column < COLUMNS; column++) {
+            for (int column = 0; column < columns; column++) {
                 if (copiedCells[row][column] == TetrisCell.FILLED) {
                     copy[row][column] = Math.max(-1, source[row][column]);
                 }

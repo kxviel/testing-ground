@@ -19,6 +19,9 @@ public record TetrisGameConfig(
         boolean horizontalMode) {
 
     public static final int DEFAULT_GRAVITY_MILLIS = 550;
+    public static final int GRAVITY_RAMP_INTERVAL_MILLIS = 15_000;
+    public static final int GRAVITY_RAMP_STEP_MILLIS = 20;
+    public static final int MIN_DYNAMIC_GRAVITY_MILLIS = 80;
     private static final int MIN_GRAVITY_MILLIS = 180;
     private static final int MAX_GRAVITY_MILLIS = 1_100;
 
@@ -69,11 +72,17 @@ public record TetrisGameConfig(
         }
 
         if (!dualPieces) {
+            if (horizontalMode) {
+                return shapes.stream().map(PieceShape::rotateClockwise90).toList();
+            }
             return List.copyOf(shapes);
         }
 
         return IntStream.range(0, shapes.size())
-                .mapToObj(index -> combineShapes(shapes.get(index), shapes.get((index + 1) % shapes.size())))
+                .mapToObj(index -> combineDualShapes(
+                        shapes.get(index),
+                        shapes.get((index + 1) % shapes.size()),
+                        horizontalMode))
                 .toList();
     }
 
@@ -83,6 +92,13 @@ public record TetrisGameConfig(
         }
 
         return side == PlayerSide.TOP ? GravityDirection.LEFT : GravityDirection.RIGHT;
+    }
+
+    public int gravityMillisAtElapsed(int elapsedMillis) {
+        int safeElapsedMillis = Math.max(0, elapsedMillis);
+        int rampSteps = safeElapsedMillis / GRAVITY_RAMP_INTERVAL_MILLIS;
+        int rampedGravity = gravityMillis - (rampSteps * GRAVITY_RAMP_STEP_MILLIS);
+        return Math.max(MIN_DYNAMIC_GRAVITY_MILLIS, rampedGravity);
     }
 
     public String serialize() {
@@ -105,10 +121,7 @@ public record TetrisGameConfig(
                 .map(String::trim)
                 .filter(piece -> !piece.isEmpty())
                 .toList());
-        List<PieceShape> customPieces = sections.length == 2 ? parseCustomPieces(sections[1]) : List.of();
-        if (sections.length >= 2) {
-            customPieces = parseCustomPieces(sections[1]);
-        }
+        List<PieceShape> customPieces = sections.length >= 2 ? parseCustomPieces(sections[1]) : List.of();
         ConfigOptions options = sections.length >= 3 ? parseOptions(sections[2]) : ConfigOptions.defaults();
 
         return pieces.isEmpty()
@@ -144,8 +157,9 @@ public record TetrisGameConfig(
         return options.isEmpty() ? "" : " - " + String.join(", ", options);
     }
 
-    private static PieceShape combineShapes(PieceShape first, PieceShape second) {
-        int offset = Math.min(TetrisBoard.COLUMNS - second.width(), first.width() + 1);
+    private static PieceShape combineDualShapes(PieceShape first, PieceShape second, boolean horizontalMode) {
+        int boardColumns = horizontalMode ? TetrisBoard.HORIZONTAL_COLUMNS : TetrisBoard.DEFAULT_COLUMNS;
+        int offset = Math.min(boardColumns - second.width(), first.width() + 1);
         if (offset <= first.cells().stream().mapToInt(BoardPosition::column).max().orElse(0)) {
             offset = first.width();
         }
@@ -158,7 +172,11 @@ public record TetrisGameConfig(
                 .distinct()
                 .toList();
 
-        return new PieceShape(PieceType.CUSTOM, "Dual " + first.name() + "+" + second.name(), cells);
+        PieceShape combined = new PieceShape(
+                PieceType.CUSTOM,
+                "Dual " + first.name() + "+" + second.name(),
+                cells);
+        return horizontalMode ? combined.rotateClockwise90() : combined;
     }
 
     private String serializeShape(PieceShape shape) {
@@ -172,17 +190,14 @@ public record TetrisGameConfig(
             return List.of();
         }
 
-        List<PieceShape> shapes = new ArrayList<>();
-        String[] shapeValues = value.split(";");
+        List<List<BoardPosition>> shapes = Arrays.stream(value.split(";"))
+                .map(TetrisGameConfig::parseCells)
+                .filter(cells -> !cells.isEmpty())
+                .toList();
 
-        for (String shapeValue : shapeValues) {
-            List<BoardPosition> cells = parseCells(shapeValue);
-            if (!cells.isEmpty()) {
-                shapes.add(CustomPieceBuilder.build("Custom " + (shapes.size() + 1), cells));
-            }
-        }
-
-        return List.copyOf(shapes);
+        return IntStream.range(0, shapes.size())
+                .mapToObj(index -> CustomPieceBuilder.build("Custom " + (index + 1), shapes.get(index)))
+                .toList();
     }
 
     private static List<BoardPosition> parseCells(String value) {
@@ -190,22 +205,12 @@ public record TetrisGameConfig(
             return List.of();
         }
 
-        List<BoardPosition> cells = new ArrayList<>();
-        String[] cellValues = value.split("_");
-
-        for (String cellValue : cellValues) {
-            String[] parts = cellValue.split("\\.", 2);
-            if (parts.length != 2) {
-                continue;
-            }
-
-            try {
-                cells.add(new BoardPosition(Integer.parseInt(parts[0]), Integer.parseInt(parts[1])));
-            } catch (NumberFormatException ignored) {
-            }
-        }
-
-        return cells;
+        return Arrays.stream(value.split("_"))
+                .map(cellValue -> cellValue.split("\\.", 2))
+                .filter(parts -> parts.length == 2)
+                .map(parts -> parseBoardPosition(parts[0], parts[1]))
+                .filter(java.util.Objects::nonNull)
+                .toList();
     }
 
     private static ConfigOptions parseOptions(String value) {
@@ -229,6 +234,14 @@ public record TetrisGameConfig(
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {
             return defaultValue;
+        }
+    }
+
+    private static BoardPosition parseBoardPosition(String row, String column) {
+        try {
+            return new BoardPosition(Integer.parseInt(row), Integer.parseInt(column));
+        } catch (NumberFormatException e) {
+            return null;
         }
     }
 

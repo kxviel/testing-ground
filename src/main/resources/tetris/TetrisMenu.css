@@ -1,135 +1,88 @@
-.tetris-menu-root {
-    -fx-background-color: #f7f7fb;
-    -fx-font-family: "Lato", "Segoe UI", sans-serif;
-}
+/* -------------------------------------------------------------------------- */
+/* Shared foundation                                                          */
+/* -------------------------------------------------------------------------- */
 
+.tetris-menu-root,
 .tetris-game-root {
     -fx-background-color: #f7f7fb;
     -fx-font-family: "Lato", "Segoe UI", sans-serif;
 }
 
 .title {
-    -fx-font-size: 32px;
+    -fx-font-size: 30px;
     -fx-font-weight: 700;
     -fx-text-fill: #171717;
-}
-
-.game-title {
-    -fx-font-size: 56px;
-    -fx-font-weight: 800;
-    -fx-text-fill: #171717;
-}
-
-.game-side-title {
-    -fx-font-size: 34px;
-    -fx-font-weight: 800;
-    -fx-text-fill: #171717;
-}
-
-.player-name {
-    -fx-font-size: 17px;
-    -fx-font-weight: 700;
-    -fx-text-fill: #171717;
-}
-
-.score-label {
-    -fx-font-size: 15px;
-    -fx-font-weight: 700;
-    -fx-text-fill: #4f5665;
-}
-
-.keymap-label {
-    -fx-font-size: 13px;
-    -fx-font-weight: 600;
-    -fx-text-fill: #4f5665;
-}
-
-.object-legend {
-    -fx-padding: 6 0 0 0;
-}
-
-.object-legend-grid {
-    -fx-padding: 2 0 0 0;
-}
-
-.object-symbol {
-    -fx-alignment: center;
-    -fx-background-color: #d93636;
-    -fx-background-radius: 4;
-    -fx-border-color: #8f1f1f;
-    -fx-border-radius: 4;
-    -fx-border-width: 1;
-    -fx-font-size: 12px;
-    -fx-font-weight: 800;
-    -fx-min-height: 24;
-    -fx-min-width: 24;
-    -fx-pref-height: 24;
-    -fx-pref-width: 24;
-    -fx-text-fill: white;
-}
-
-.object-description {
-    -fx-font-size: 13px;
-    -fx-font-weight: 600;
-    -fx-text-fill: #4f5665;
+    -fx-padding: 0;
 }
 
 .subtitle {
     -fx-font-size: 14px;
     -fx-text-fill: #5f6470;
-}
-
-.menu-panel {
-    -fx-background-color: white;
-    -fx-background-radius: 8;
-    -fx-border-color: #dedee8;
-    -fx-border-radius: 8;
-    -fx-border-width: 1;
-    -fx-padding: 28;
-}
-
-.game-layout {
-    -fx-fill-height: true;
-}
-
-.game-sidebar {
-    -fx-padding: 6 0 0 0;
-}
-
-.boards-stack {
     -fx-padding: 0;
 }
 
 .section-title {
-    -fx-font-size: 19px;
+    -fx-font-size: 18px;
     -fx-font-weight: 700;
     -fx-text-fill: #171717;
+    -fx-padding: 0 0 2 0;
 }
 
 .field-title {
-    -fx-font-size: 13px;
+    -fx-font-size: 12px;
     -fx-font-weight: 700;
     -fx-text-fill: #333743;
+    -fx-padding: 0 0 2 0;
 }
 
 .status-line {
-    -fx-font-size: 14px;
-    -fx-font-weight: 700;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
     -fx-text-fill: #171717;
+    -fx-line-spacing: 2px;
 }
 
+/* Panels (menu + game) */
+.menu-panel,
+.game-panel {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-border-color: #dedee8;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(23, 23, 23, 0.04), 8, 0, 0, 2);
+}
+
+.menu-panel {
+    -fx-padding: 22 26;
+}
+
+.game-panel {
+    -fx-padding: 16 18;
+}
+
+.game-separator {
+    -fx-padding: 4 0;
+}
+
+.game-separator .line {
+    -fx-border-color: #e8eaf0;
+    -fx-background-color: #e8eaf0;
+}
+
+/* Buttons */
 .button {
     -fx-alignment: center;
     -fx-background-insets: 0;
-    -fx-background-radius: 6;
-    -fx-border-radius: 6;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
     -fx-border-width: 1;
     -fx-cursor: hand;
     -fx-font-size: 14px;
     -fx-font-weight: 600;
-    -fx-min-height: 38;
-    -fx-min-width: 104;
-    -fx-padding: 8 18;
+    -fx-min-height: 36;
+    -fx-min-width: 100;
+    -fx-padding: 8 16;
 }
 
 .btn-primary {
@@ -170,41 +123,325 @@
     -fx-text-fill: #13579f;
 }
 
+.button:disabled {
+    -fx-cursor: default;
+    -fx-opacity: 0.5;
+}
+
+.button-row {
+    -fx-spacing: 10;
+    -fx-padding: 2 0 0 0;
+}
+
+/* Form controls */
 .text-field {
-    -fx-background-radius: 6;
-    -fx-border-radius: 6;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
     -fx-border-color: #cfd2dc;
     -fx-border-width: 1;
     -fx-min-height: 36;
-    -fx-padding: 8 11;
+    -fx-padding: 8 12;
+}
+
+.combo-box {
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #cfd2dc;
+    -fx-min-height: 36;
+}
+
+.check-box {
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #333743;
+    -fx-padding: 2 0;
 }
 
 .list-view {
-    -fx-background-radius: 6;
-    -fx-border-radius: 6;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
     -fx-border-color: #cfd2dc;
     -fx-border-width: 1;
-    -fx-padding: 2;
+    -fx-padding: 4;
+}
+
+.menu-form-grid {
+    -fx-hgap: 12;
+    -fx-vgap: 10;
+    -fx-padding: 4 0 0 0;
+    -fx-alignment: center;
+}
+
+.menu-form-grid .text-field {
+    -fx-min-width: 120;
+    -fx-pref-width: 168;
+    -fx-max-width: 168;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Menu                                                                       */
+/* -------------------------------------------------------------------------- */
+
+.tetris-menu-root {
+    -fx-padding: 20 28 18 28;
+}
+
+.menu-header {
+    -fx-spacing: 4;
+    -fx-padding: 0 0 8 0;
+}
+
+.menu-body {
+    -fx-alignment: top-center;
+    -fx-spacing: 18;
+    -fx-padding: 12 0 0 0;
+    -fx-min-height: 248;
+}
+
+.menu-pane-content {
+    -fx-spacing: 16;
+    -fx-padding: 4 8;
+}
+
+.menu-footer {
+    -fx-spacing: 10;
+    -fx-padding: 16 0 0 0;
+    -fx-min-height: 80;
+}
+
+.menu-footer .status-line {
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+}
+
+.menu-config-column {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-border-color: #dedee8;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-padding: 14 12 12 12;
+    -fx-effect: dropshadow(gaussian, rgba(23, 23, 23, 0.04), 8, 0, 0, 2);
+}
+
+.menu-config-content {
+    -fx-spacing: 16;
+    -fx-padding: 2 6 10 4;
+}
+
+.menu-config-content .section-title {
+    -fx-font-size: 17px;
+    -fx-padding: 0 0 4 0;
+}
+
+.menu-config-section {
+    -fx-spacing: 8;
+}
+
+.menu-config-checks {
+    -fx-spacing: 4;
+    -fx-padding: 2 0 0 0;
+}
+
+.menu-config-content .combo-box {
+    -fx-max-width: infinity;
+    -fx-pref-width: 200;
+}
+
+.menu-custom-editor {
+    -fx-spacing: 10;
+    -fx-padding: 4 0 0 0;
+}
+
+.menu-custom-editor .separator {
+    -fx-padding: 2 0 6 0;
+}
+
+.menu-custom-editor .custom-cell {
+    -fx-min-width: 22;
+    -fx-min-height: 22;
+    -fx-pref-width: 22;
+    -fx-pref-height: 22;
+    -fx-max-width: 22;
+    -fx-max-height: 22;
+}
+
+.menu-custom-editor .status-line {
+    -fx-font-size: 12px;
+}
+
+.menu-custom-editor .button-row {
+    -fx-padding: 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Game screen                                                                */
+/* -------------------------------------------------------------------------- */
+
+.tetris-game-root {
+    -fx-padding: 0;
+}
+
+.game-layout {
+    -fx-alignment: center;
+    -fx-spacing: 20;
+    -fx-padding: 20 24 20 24;
+}
+
+.object-legend {
+    -fx-spacing: 10;
+    -fx-min-width: 248;
+    -fx-pref-width: 256;
+    -fx-max-width: 268;
+}
+
+.object-legend .field-title {
+    -fx-padding: 0 0 4 0;
+}
+
+.object-legend-grid {
+    -fx-hgap: 10;
+    -fx-vgap: 8;
+    -fx-padding: 0;
+}
+
+.object-symbol {
+    -fx-alignment: center;
+    -fx-background-color: #d93636;
+    -fx-background-radius: 5;
+    -fx-border-color: #8f1f1f;
+    -fx-border-radius: 5;
+    -fx-border-width: 1;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-min-height: 22;
+    -fx-min-width: 22;
+    -fx-pref-height: 22;
+    -fx-pref-width: 22;
+    -fx-text-fill: white;
+    -fx-padding: 0;
+}
+
+.object-description {
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #4f5665;
+    -fx-line-spacing: 1px;
+    -fx-padding: 0 0 0 2;
+}
+
+.boards-stack {
+    -fx-spacing: 14;
+    -fx-padding: 4 8;
+    -fx-alignment: center;
 }
 
 .tetris-board {
     -fx-background-color: #171717;
     -fx-border-color: #171717;
     -fx-border-width: 2;
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
     -fx-hgap: 1;
     -fx-vgap: 1;
-    -fx-padding: 2;
+    -fx-padding: 3;
 }
 
 .board-cell {
     -fx-background-color: #f7f7fb;
     -fx-border-color: #e1e4ec;
-    -fx-min-width: 17;
-    -fx-min-height: 17;
-    -fx-pref-width: 17;
-    -fx-pref-height: 17;
-    -fx-max-width: 17;
-    -fx-max-height: 17;
+    -fx-border-width: 0.5;
+}
+
+.board-cell-vertical {
+    -fx-min-width: 16;
+    -fx-min-height: 16;
+    -fx-pref-width: 16;
+    -fx-pref-height: 16;
+    -fx-max-width: 16;
+    -fx-max-height: 16;
+}
+
+.board-cell-horizontal {
+    -fx-min-width: 13;
+    -fx-min-height: 13;
+    -fx-pref-width: 13;
+    -fx-pref-height: 13;
+    -fx-max-width: 13;
+    -fx-max-height: 13;
+}
+
+.game-sidebar {
+    -fx-min-width: 264;
+    -fx-pref-width: 276;
+    -fx-max-width: 292;
+}
+
+.game-sidebar-inner {
+    -fx-spacing: 0;
+}
+
+.game-sidebar-header {
+    -fx-spacing: 6;
+    -fx-padding: 0 0 8 0;
+}
+
+.game-player-block,
+.keymap-block {
+    -fx-spacing: 4;
+    -fx-padding: 10 0 8 0;
+}
+
+.game-side-title {
+    -fx-font-size: 28px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #171717;
+    -fx-padding: 0 0 2 0;
+}
+
+.game-sidebar .subtitle {
+    -fx-font-size: 13px;
+}
+
+.game-sidebar .status-line {
+    -fx-font-size: 13px;
+    -fx-padding: 2 0 0 0;
+}
+
+.game-player-block {
+    -fx-spacing: 4;
+    -fx-padding: 0;
+}
+
+.player-name {
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #171717;
+    -fx-padding: 0;
+}
+
+.score-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #4f5665;
+    -fx-padding: 0;
+}
+
+.keymap-block {
+    -fx-spacing: 6;
+}
+
+.keymap-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #4f5665;
+    -fx-line-spacing: 3px;
+    -fx-padding: 0;
+}
+
+.game-actions {
+    -fx-spacing: 10;
+    -fx-padding: 4 0 0 0;
 }
 
 .board-cell-filled {
@@ -221,7 +458,7 @@
     -fx-background-color: #d93636;
     -fx-border-color: #8f1f1f;
     -fx-alignment: center;
-    -fx-font-size: 11px;
+    -fx-font-size: 10px;
     -fx-font-weight: 800;
     -fx-text-fill: white;
     -fx-padding: 0;
@@ -229,35 +466,69 @@
 
 .board-game-over {
     -fx-alignment: center;
-    -fx-background-color: rgba(247, 247, 251, 0.84);
-    -fx-font-size: 25px;
+    -fx-background-color: rgba(247, 247, 251, 0.88);
+    -fx-font-size: 22px;
     -fx-font-weight: 800;
     -fx-text-fill: #171717;
+    -fx-padding: 16;
 }
 
-.button:disabled {
-    -fx-cursor: default;
-    -fx-opacity: 0.5;
+/* Horizontal boards: slightly tighter columns, balanced gutters */
+.tetris-game-horizontal .game-layout {
+    -fx-spacing: 16;
+    -fx-padding: 18 20 18 20;
 }
 
+.tetris-game-horizontal .object-legend {
+    -fx-min-width: 228;
+    -fx-pref-width: 236;
+    -fx-max-width: 244;
+}
+
+.tetris-game-horizontal .object-description {
+    -fx-font-size: 11px;
+}
+
+.tetris-game-horizontal .game-sidebar {
+    -fx-min-width: 248;
+    -fx-pref-width: 258;
+    -fx-max-width: 268;
+}
+
+.tetris-game-horizontal .boards-stack {
+    -fx-spacing: 12;
+    -fx-padding: 2 4;
+}
+
+/* Custom piece editor (menu) */
 .custom-piece-grid {
-    -fx-hgap: 2;
-    -fx-vgap: 2;
+    -fx-hgap: 3;
+    -fx-vgap: 3;
+    -fx-padding: 2 0;
 }
 
 .custom-cell {
     -fx-background-color: white;
     -fx-border-color: #cfd2dc;
-    -fx-min-width: 26;
-    -fx-min-height: 26;
-    -fx-pref-width: 26;
-    -fx-pref-height: 26;
-    -fx-max-width: 26;
-    -fx-max-height: 26;
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
+    -fx-min-width: 24;
+    -fx-min-height: 24;
+    -fx-pref-width: 24;
+    -fx-pref-height: 24;
+    -fx-max-width: 24;
+    -fx-max-height: 24;
     -fx-padding: 0;
 }
 
 .custom-cell-selected {
     -fx-background-color: #2f7edb;
     -fx-border-color: #13579f;
+}
+
+/* Legacy alias */
+.game-title {
+    -fx-font-size: 56px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #171717;
 }

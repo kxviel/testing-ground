@@ -87,7 +87,7 @@ public class TetrisModelTest {
                 PlayerStatus.PLAYING,
                 null);
 
-        TetrisPlayerState locked = player.lockActivePiece();
+        TetrisPlayerState locked = player.lockActivePiece(GravityDirection.DOWN);
 
         assertEquals(1, locked.score());
         assertEquals(TetrisCell.FILLED, locked.board().cellAt(new BoardPosition(19, 0)));
@@ -263,7 +263,37 @@ public class TetrisModelTest {
     }
 
     @Test
-    void rotationDelayObjectAppliesForTenSecondsWithoutBlockingModelRotation() {
+    void portalQueuesTransferredPieceBeforeExistingQueuedShapes() {
+        PieceShape portalShape = PieceShape.standardShape(PieceType.O);
+        PieceShape existingQueuedShape = PieceShape.standardShape(PieceType.I);
+        TetrisPlayerState bottom = new TetrisPlayerState(
+                "Bottom",
+                PlayerSide.BOTTOM,
+                new TetrisBoard(),
+                new TetrisPiece(portalShape, new BoardPosition(0, 0), Rotation.SPAWN),
+                0,
+                PlayerStatus.PLAYING,
+                null,
+                new TetrisBoardObject(TetrisItemType.PORTAL, new BoardPosition(0, 0)),
+                null,
+                List.of());
+        TetrisPlayerState top = TetrisPlayerState.create("Top", PlayerSide.TOP)
+                .queueShape(existingQueuedShape);
+        TetrisGameState state = new TetrisGameState(
+                bottom,
+                top,
+                TetrisGameConfig.defaultConfig(),
+                TetrisGameStatus.RUNNING);
+
+        TetrisGameState next = state.moveLeft(PlayerSide.BOTTOM)
+                .spawnPiece(PlayerSide.TOP, PieceShape.standardShape(PieceType.T));
+
+        assertEquals(portalShape, next.topPlayer().activePiece().shape());
+        assertEquals(existingQueuedShape, next.topPlayer().queuedShapes().getFirst());
+    }
+
+    @Test
+    void rotationDelayObjectAppliesRotationAfterTwoSecondLag() {
         TetrisPlayerState bottom = new TetrisPlayerState(
                 "Bottom",
                 PlayerSide.BOTTOM,
@@ -281,19 +311,25 @@ public class TetrisModelTest {
                 TetrisGameConfig.defaultConfig(),
                 TetrisGameStatus.RUNNING);
 
-        TetrisGameState delayed = state.moveLeft(PlayerSide.BOTTOM);
-        TetrisGameState rotated = delayed.rotateClockwise(PlayerSide.BOTTOM);
-        TetrisGameState ready = delayed;
-        for (int tick = 0; tick < 99; tick++) {
-            ready = ready.tickEffects();
+        TetrisGameState withEffect = state.moveLeft(PlayerSide.BOTTOM);
+        TetrisGameState lagScheduled = withEffect.rotateClockwise(PlayerSide.BOTTOM);
+
+        assertTrue(withEffect.bottomPlayer().effects().hasRotationDelayEffect());
+        assertEquals(100, withEffect.bottomPlayer().effects().rotationEffectTicks());
+        assertEquals(Rotation.SPAWN, lagScheduled.bottomPlayer().activePiece().rotation());
+        assertTrue(lagScheduled.bottomPlayer().effects().rotationLagTicks() > 0);
+        assertEquals(
+                lagScheduled,
+                lagScheduled.rotateClockwise(PlayerSide.BOTTOM));
+
+        TetrisGameState afterLag = lagScheduled;
+        for (int tick = 0; tick < 19; tick++) {
+            afterLag = afterLag.tickEffects();
         }
 
-        assertEquals(100, delayed.bottomPlayer().effects().rotationDelayTicks());
-        assertEquals(Rotation.RIGHT, rotated.bottomPlayer().activePiece().rotation());
-        assertTrue(ready.bottomPlayer().effects().hasRotationDelay());
-        ready = ready.tickEffects();
-        assertEquals(0, ready.bottomPlayer().effects().rotationDelayTicks());
-        assertFalse(ready.bottomPlayer().effects().hasRotationDelay());
+        assertEquals(Rotation.SPAWN, afterLag.bottomPlayer().activePiece().rotation());
+        afterLag = afterLag.tickEffects();
+        assertEquals(Rotation.RIGHT, afterLag.bottomPlayer().activePiece().rotation());
     }
 
     @Test
@@ -400,15 +436,86 @@ public class TetrisModelTest {
     void horizontalModeSpawnsAtSideAndFallsSideways() {
         TetrisGameConfig config = new TetrisGameConfig(List.of("Standard"), List.of(), 550, false, true);
         TetrisGameState state = new TetrisGameState(
-                TetrisPlayerState.create("Bottom", PlayerSide.BOTTOM),
-                TetrisPlayerState.create("Top", PlayerSide.TOP),
+                TetrisPlayerState.create("Bottom", PlayerSide.BOTTOM, true),
+                TetrisPlayerState.create("Top", PlayerSide.TOP, true),
                 config,
-                TetrisGameStatus.RUNNING).spawnPiece(PlayerSide.BOTTOM, PieceShape.standardShape(PieceType.O));
+                TetrisGameStatus.RUNNING).spawnPiece(
+                        PlayerSide.BOTTOM,
+                        config.availableShapes().getFirst());
+
+        assertEquals(TetrisBoard.HORIZONTAL_ROWS, state.bottomPlayer().board().rows());
+        assertEquals(TetrisBoard.HORIZONTAL_COLUMNS, state.bottomPlayer().board().columns());
 
         TetrisGameState next = state.applyGravity(PlayerSide.BOTTOM);
 
         assertEquals(0, state.bottomPlayer().activePiece().position().column());
         assertEquals(1, next.bottomPlayer().activePiece().position().column());
+    }
+
+    @Test
+    void horizontalTopPlayerSpawnsAtRightAndFallsLeft() {
+        TetrisGameConfig config = new TetrisGameConfig(List.of("Standard"), List.of(), 550, false, true);
+        PieceShape shape = config.availableShapes().getFirst();
+        TetrisGameState state = new TetrisGameState(
+                TetrisPlayerState.create("Bottom", PlayerSide.BOTTOM, true),
+                TetrisPlayerState.create("Top", PlayerSide.TOP, true),
+                config,
+                TetrisGameStatus.RUNNING).spawnPiece(PlayerSide.TOP, shape);
+
+        TetrisGameState next = state.applyGravity(PlayerSide.TOP);
+
+        assertEquals(TetrisBoard.HORIZONTAL_COLUMNS - shape.width(), state.topPlayer().activePiece().position().column());
+        assertEquals(state.topPlayer().activePiece().position().column() - 1, next.topPlayer().activePiece().position().column());
+    }
+
+    @Test
+    void horizontalModeClearsFullColumnsAndTransfersWidth() {
+        TetrisBoard board = new TetrisBoard(TetrisBoard.HORIZONTAL_ROWS, TetrisBoard.HORIZONTAL_COLUMNS);
+        for (int row = 0; row < TetrisBoard.HORIZONTAL_ROWS; row++) {
+            if (row != 7 && row != 8) {
+                board = board.withCell(new BoardPosition(row, 19), TetrisCell.FILLED);
+            }
+        }
+
+        TetrisGameConfig config = new TetrisGameConfig(List.of("Standard"), List.of(), 550, false, true);
+        PieceShape oShape = PieceShape.standardShape(PieceType.O).rotateClockwise90();
+        TetrisPlayerState bottom = new TetrisPlayerState(
+                "Bottom",
+                PlayerSide.BOTTOM,
+                board,
+                new TetrisPiece(
+                        oShape,
+                        new BoardPosition(7, 18),
+                        Rotation.SPAWN),
+                0,
+                PlayerStatus.PLAYING,
+                null);
+        TetrisGameState state = new TetrisGameState(
+                bottom,
+                TetrisPlayerState.create("Top", PlayerSide.TOP, true),
+                config,
+                TetrisGameStatus.RUNNING);
+
+        TetrisGameState next = state.applyGravity(PlayerSide.BOTTOM);
+
+        assertEquals(1, next.bottomPlayer().score());
+        assertEquals(TetrisBoard.HORIZONTAL_COLUMNS + 1, next.bottomPlayer().board().columns());
+        assertEquals(TetrisBoard.HORIZONTAL_COLUMNS - 1, next.topPlayer().board().columns());
+    }
+
+    @Test
+    void dualPiecesSpawnCleanlyInVerticalAndHorizontalModes() {
+        for (boolean horizontalMode : List.of(false, true)) {
+            TetrisGameConfig config = new TetrisGameConfig(List.of("Standard"), List.of(), 550, true, horizontalMode);
+            for (PlayerSide side : PlayerSide.values()) {
+                TetrisPlayerState player = TetrisPlayerState.create("Player", side, horizontalMode);
+                for (PieceShape shape : config.availableShapes()) {
+                    TetrisPlayerState spawned = player.spawnPiece(shape, 0, config.gravityDirection(side));
+                    assertEquals(PlayerStatus.PLAYING, spawned.status(), shape.name() + " should spawn for " + side);
+                    assertNotNull(spawned.activePiece(), shape.name() + " should fit on spawn for " + side);
+                }
+            }
+        }
     }
 
     @Test
@@ -421,6 +528,40 @@ public class TetrisModelTest {
         assertTrue(copy.dualPieces());
         assertTrue(copy.horizontalMode());
         assertTrue(copy.availableShapes().getFirst().name().startsWith("Dual "));
+    }
+
+    @Test
+    void gravitySpeedRampsDownOverTime() {
+        TetrisGameConfig config = TetrisGameConfig.defaultConfig();
+
+        assertEquals(550, config.gravityMillisAtElapsed(0));
+        assertEquals(550, config.gravityMillisAtElapsed(14_999));
+        assertEquals(530, config.gravityMillisAtElapsed(15_000));
+        assertEquals(510, config.gravityMillisAtElapsed(30_000));
+    }
+
+    @Test
+    void otherPlayerContinuesAfterOnePlayerLoses() {
+        TetrisPlayerState bottom = TetrisPlayerState.create("Bottom", PlayerSide.BOTTOM).lost();
+        TetrisPlayerState top = new TetrisPlayerState(
+                "Top",
+                PlayerSide.TOP,
+                new TetrisBoard(),
+                new TetrisPiece(PieceShape.standardShape(PieceType.O), new BoardPosition(17, 0), Rotation.SPAWN),
+                0,
+                PlayerStatus.PLAYING,
+                null);
+        TetrisGameState state = new TetrisGameState(
+                bottom,
+                top,
+                TetrisGameConfig.defaultConfig(),
+                TetrisGameStatus.RUNNING);
+
+        TetrisGameState next = state.applyGravity(PlayerSide.TOP);
+
+        assertFalse(next.isFinished());
+        assertEquals(PlayerStatus.LOST, next.bottomPlayer().status());
+        assertEquals(new BoardPosition(18, 0), next.topPlayer().activePiece().position());
     }
 
     @Test

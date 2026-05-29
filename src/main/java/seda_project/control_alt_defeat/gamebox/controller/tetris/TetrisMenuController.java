@@ -32,6 +32,7 @@ import seda_project.control_alt_defeat.gamebox.util.Router;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 public class TetrisMenuController implements RouteDataReceiver {
 
@@ -324,26 +325,19 @@ public class TetrisMenuController implements RouteDataReceiver {
 
     private void updateCustomCellButton(int row, int column) {
         Button button = customPieceButtons[row][column];
-
-        if (customPieceCells[row][column] && !button.getStyleClass().contains("custom-cell-selected")) {
+        button.getStyleClass().remove("custom-cell-selected");
+        if (customPieceCells[row][column]) {
             button.getStyleClass().add("custom-cell-selected");
-        } else if (!customPieceCells[row][column]) {
-            button.getStyleClass().remove("custom-cell-selected");
         }
     }
 
     private List<BoardPosition> selectedCustomCells() {
-        List<BoardPosition> cells = new ArrayList<>();
-
-        for (int row = 0; row < CUSTOM_EDITOR_SIZE; row++) {
-            for (int column = 0; column < CUSTOM_EDITOR_SIZE; column++) {
-                if (customPieceCells[row][column]) {
-                    cells.add(new BoardPosition(row, column));
-                }
-            }
-        }
-
-        return cells;
+        return IntStream.range(0, CUSTOM_EDITOR_SIZE)
+                .boxed()
+                .flatMap(row -> IntStream.range(0, CUSTOM_EDITOR_SIZE)
+                        .filter(column -> customPieceCells[row][column])
+                        .mapToObj(column -> new BoardPosition(row, column)))
+                .toList();
     }
 
     private boolean customPieceExists(PieceShape shape) {
@@ -397,13 +391,8 @@ public class TetrisMenuController implements RouteDataReceiver {
     }
 
     private void startLocalGame(ActionEvent event) {
-        String playerOne = trimmed(localPlayerOneField);
-        String playerTwo = trimmed(localPlayerTwoField);
-
-        if (playerOne.isEmpty() || playerTwo.isEmpty()) {
-            statusLabel.setText("Enter both local player names before starting.");
-            return;
-        }
+        String playerOne = defaultIfBlank(trimmed(localPlayerOneField), "Player 1");
+        String playerTwo = defaultIfBlank(trimmed(localPlayerTwoField), "Player 2");
 
         TetrisGameConfig config = buildConfig();
         if (config == null) {
@@ -534,12 +523,14 @@ public class TetrisMenuController implements RouteDataReceiver {
     }
 
     private void addOrUpdateGame(TetrisLanDiscoveryService.DiscoveredGame game) {
-        for (int i = 0; i < availableGamesList.getItems().size(); i++) {
-            TetrisLanDiscoveryService.DiscoveredGame current = availableGamesList.getItems().get(i);
-            if (current.sessionId().equals(game.sessionId())) {
-                availableGamesList.getItems().set(i, game);
-                return;
-            }
+        int existingIndex = IntStream.range(0, availableGamesList.getItems().size())
+                .filter(index -> availableGamesList.getItems().get(index).sessionId().equals(game.sessionId()))
+                .findFirst()
+                .orElse(-1);
+
+        if (existingIndex >= 0) {
+            availableGamesList.getItems().set(existingIndex, game);
+            return;
         }
 
         availableGamesList.getItems().add(game);
@@ -688,5 +679,9 @@ public class TetrisMenuController implements RouteDataReceiver {
 
     private String trimmed(TextField field) {
         return field.getText() == null ? "" : field.getText().trim();
+    }
+
+    static String defaultIfBlank(String value, String fallback) {
+        return value == null || value.isBlank() ? fallback : value.trim();
     }
 }

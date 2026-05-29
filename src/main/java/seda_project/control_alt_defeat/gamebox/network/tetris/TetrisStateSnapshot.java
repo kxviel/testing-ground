@@ -127,11 +127,10 @@ public final class TetrisStateSnapshot {
     }
 
     private static String serializeBoard(TetrisBoard board) {
-        // Prefix with row count so variable-height boards survive the round trip.
         StringBuilder builder = new StringBuilder();
-        builder.append(board.rows()).append(':');
+        builder.append(board.rows()).append('x').append(board.columns()).append(':');
         for (int row = 0; row < board.rows(); row++) {
-            for (int column = 0; column < TetrisBoard.COLUMNS; column++) {
+            for (int column = 0; column < board.columns(); column++) {
                 TetrisCell cell = board.cellAt(new BoardPosition(row, column));
                 builder.append(cell == TetrisCell.FILLED ? '1' : '0');
             }
@@ -144,25 +143,32 @@ public final class TetrisStateSnapshot {
     }
 
     private static TetrisBoard deserializeBoard(String value, String colorsValue) {
-        // Parse optional row-count prefix "<rows>:<cells>"
         int rows = TetrisBoard.DEFAULT_ROWS;
+        int columns = TetrisBoard.DEFAULT_COLUMNS;
         String cellData = value;
+
         if (value != null && value.contains(":")) {
             int colonIdx = value.indexOf(':');
-            try {
-                rows = Integer.parseInt(value.substring(0, colonIdx));
-            } catch (NumberFormatException ignored) {
-                rows = TetrisBoard.DEFAULT_ROWS;
-            }
+            String dimensionPrefix = value.substring(0, colonIdx);
             cellData = value.substring(colonIdx + 1);
+
+            if (dimensionPrefix.contains("x")) {
+                String[] dimensions = dimensionPrefix.split("x", 2);
+                rows = parseInt(dimensions[0], TetrisBoard.DEFAULT_ROWS);
+                columns = dimensions.length > 1
+                        ? parseInt(dimensions[1], TetrisBoard.DEFAULT_COLUMNS)
+                        : TetrisBoard.DEFAULT_COLUMNS;
+            } else {
+                rows = parseInt(dimensionPrefix, TetrisBoard.DEFAULT_ROWS);
+            }
         }
 
-        TetrisCell[][] cells = new TetrisCell[rows][TetrisBoard.COLUMNS];
-        int[][] colors = new int[rows][TetrisBoard.COLUMNS];
+        TetrisCell[][] cells = new TetrisCell[rows][columns];
+        int[][] colors = new int[rows][columns];
 
         for (int row = 0; row < rows; row++) {
-            for (int column = 0; column < TetrisBoard.COLUMNS; column++) {
-                int index = row * TetrisBoard.COLUMNS + column;
+            for (int column = 0; column < columns; column++) {
+                int index = row * columns + column;
                 boolean filled = cellData != null && index < cellData.length() && cellData.charAt(index) == '1';
                 cells[row][column] = filled ? TetrisCell.FILLED : TetrisCell.EMPTY;
                 colors[row][column] = filled ? parseColor(colorsValue, index) : -1;
@@ -173,10 +179,10 @@ public final class TetrisStateSnapshot {
     }
 
     private static String serializeBoardColors(TetrisBoard board) {
-        StringBuilder builder = new StringBuilder(board.rows() * TetrisBoard.COLUMNS);
+        StringBuilder builder = new StringBuilder(board.rows() * board.columns());
 
         for (int row = 0; row < board.rows(); row++) {
-            for (int column = 0; column < TetrisBoard.COLUMNS; column++) {
+            for (int column = 0; column < board.columns(); column++) {
                 int color = board.colorAt(new BoardPosition(row, column));
                 builder.append(color < 0 ? '.' : Character.forDigit(Math.min(color, 35), 36));
             }
@@ -310,7 +316,9 @@ public final class TetrisStateSnapshot {
                 + ","
                 + safeEffects.gravityTicks()
                 + ","
-                + safeEffects.rotationDelayTicks();
+                + safeEffects.rotationEffectTicks()
+                + ","
+                + safeEffects.rotationLagTicks();
     }
 
     private static TetrisEffectState deserializeEffects(String value) {
@@ -318,11 +326,12 @@ public final class TetrisStateSnapshot {
             return TetrisEffectState.none();
         }
 
-        String[] parts = value.split(",", 3);
+        String[] parts = value.split(",", -1);
         return new TetrisEffectState(
                 parts.length > 0 ? parseInt(parts[0], TetrisEffectState.NORMAL_GRAVITY_PERCENT) : TetrisEffectState.NORMAL_GRAVITY_PERCENT,
                 parts.length > 1 ? parseInt(parts[1], 0) : 0,
-                parts.length > 2 ? parseInt(parts[2], 0) : 0);
+                parts.length > 2 ? parseInt(parts[2], 0) : 0,
+                parts.length > 3 ? parseInt(parts[3], 0) : 0);
     }
 
     private static String serializeQueue(List<PieceShape> shapes) {
