@@ -200,14 +200,12 @@ These decisions are now locked for the first implementation pass.
    - Hitting a teleporter object swaps the players' boards and active pieces while keeping names, sides, and scores stable.
    - Clearing a line removes that row from the clearing player's board and adds one garbage row to the opponent.
 
-## Deferred Decisions
-
-This remains on hold and should not block the first local/LAN core implementation.
+## Speed Ramp Decision
 
 1. Speed increase.
    - PDF requirement: `FR-FLOW-11` says speed gradually increases.
-   - Current decision: keep speed increase on hold.
-   - Acceptance risk: this requirement remains incomplete until a speed curve is implemented.
+   - Current implementation: decrease the base gravity interval by 20 ms every 15 seconds, capped at an 80 ms floor.
+   - Rationale: this keeps the ramp predictable, easy to test, and compatible with the existing per-player gravity effect modifiers.
 
 ## Target Package Layout
 
@@ -520,8 +518,8 @@ Actions:
    - the controller supplies elapsed time,
    - the model decides when gravity steps occur.
 3. Maintain per-player timers so a lost player stops while the opponent continues.
-4. Keep the speed constant in the first implementation pass.
-5. Put speed-related values behind a `SpeedProfile` or constants class so `FR-FLOW-11` can be added later without rewriting the game loop.
+4. Keep the gravity ramp deterministic and host-authoritative.
+5. Put speed-related values behind `TetrisGameConfig` constants so the ramp stays centralized and testable.
 6. Render only after model updates.
 7. Pause input briefly only when needed for visual clarity; do not block the JavaFX application thread.
 
@@ -537,10 +535,6 @@ Tests:
 - Gravity tick moves active piece at the expected interval.
 - Lost player no longer ticks.
 - Restart resets speed and accumulated time.
-
-Deferred speed note:
-
-- `FR-FLOW-11` remains incomplete until speed increase is taken off hold.
 
 ### Step 8: Build The Tetris Game UI
 
@@ -928,7 +922,7 @@ Done when:
 | `FR-FLOW-08` | `TetrisGameController` game loop and deterministic piece sequence | Spawn/tick tests |
 | `FR-FLOW-09` | `PlayerSide`, `GravityDirection`, rotated top board view | Top/bottom gravity tests |
 | `FR-FLOW-10` | `lockPiece` | Lock tests |
-| `FR-FLOW-11` | Deferred: speed increase on hold; keep constants ready | Not complete in first pass |
+| `FR-FLOW-11` | `TetrisGameConfig.gravityMillisAtElapsed` and `TetrisGameController` elapsed-tick loop | Gravity ramp tests |
 | `FR-FLOW-12` | `TetrisBoard.fullRows` | Line detection tests |
 | `FR-FLOW-13` | `TetrisBoard.clearRows` | Line clear/shift tests |
 | `FR-FLOW-14` | `TetrisPlayerState.lockActivePiece`: one point per cleared line | Score tests |
@@ -995,12 +989,6 @@ Do not call the first-pass implementation complete until all of these pass:
 20. Custom connected blocks can be designed and invalid disconnected blocks are rejected.
 21. `mvn test` passes.
 22. `mvn javafx:jlink` passes.
-
-## Deferred Acceptance Items
-
-These are required by the PDF but intentionally not part of the first-pass plan:
-
-1. `FR-FLOW-11`: speed gradually increases during gameplay.
 
 ## Suggested Implementation Order
 
