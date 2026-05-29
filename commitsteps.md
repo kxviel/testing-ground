@@ -19,7 +19,9 @@ Important:
 - always copy from the detached export worktree created in Step 1
 - start only if `zero-runtime-warranty` has a clean working tree
 
-## Step 1: create the pinned export and copy the exact parity set
+## Step 1: Sagar creates the pinned export and copies the exact parity set
+
+Sagar runs this first copy/paste block in PowerShell.
 
 ```powershell
 $sourceRepo = 'C:\Users\kevka\Desktop\zetris'
@@ -90,7 +92,9 @@ foreach ($relative in $deleteFiles) {
 }
 ```
 
-## Step 2: verify the copied files before staging
+## Step 2: Kevin verifies the copied files before staging
+
+After Sagar finishes Step 1, Kevin runs this second copy/paste block in PowerShell.
 
 ```powershell
 $sourceRepo = 'C:\Users\kevka\Desktop\zetris'
@@ -165,7 +169,9 @@ if ($missing.Count -or $mismatched.Count -or $stillPresent.Count) {
 }
 ```
 
-## Step 3: stage, run the parity audit, run tests, and commit
+## Step 3: Kevin stages, runs the parity audit, runs tests, and commits
+
+Kevin runs this final copy/paste block only after Step 2 prints no missing files, no hash mismatches, and no files still present that should have been deleted.
 
 ```powershell
 $sourceWorktree = 'C:\Users\kevka\Desktop\zetris-37b54ba-export'
