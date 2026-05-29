@@ -165,21 +165,11 @@ public record TetrisGameState(
         }
 
         return switch (object.type()) {
-            case SPEED_UP_OPPONENT -> next.withPlayer(
-                    opponentSide,
-                    opponent.withEffects(opponent.effects().withGravityPercent(FAST_GRAVITY_PERCENT, OBJECT_EFFECT_TICKS)));
-            case SLOW_SELF -> next.withPlayer(
-                    side,
-                    actor.withEffects(actor.effects().withGravityPercent(SLOW_GRAVITY_PERCENT, OBJECT_EFFECT_TICKS)));
-            case ROTATION_DELAY_OPPONENT -> next.withPlayer(
-                    opponentSide,
-                    opponent.withEffects(opponent.effects().withRotationDelay(OBJECT_EFFECT_TICKS)));
-            case ROTATION_DELAY_SELF -> next.withPlayer(
-                    side,
-                    actor.withEffects(actor.effects().withRotationDelay(OBJECT_EFFECT_TICKS)));
-            case SLOW_OPPONENT -> next.withPlayer(
-                    opponentSide,
-                    opponent.withEffects(opponent.effects().withGravityPercent(SLOW_GRAVITY_PERCENT, OBJECT_EFFECT_TICKS)));
+            case SPEED_UP_OPPONENT -> withGravityEffect(next, opponentSide, opponent, FAST_GRAVITY_PERCENT);
+            case SLOW_SELF -> withGravityEffect(next, side, actor, SLOW_GRAVITY_PERCENT);
+            case ROTATION_DELAY_OPPONENT -> withRotationDelayEffect(next, opponentSide, opponent);
+            case ROTATION_DELAY_SELF -> withRotationDelayEffect(next, side, actor);
+            case SLOW_OPPONENT -> withGravityEffect(next, opponentSide, opponent, SLOW_GRAVITY_PERCENT);
             case EXPLODE_RADIUS -> next.withPlayer(
                     side,
                     actor.withBoard(actor.board().destroyRadius(object.position(), EXPLOSION_RADIUS)));
@@ -195,6 +185,25 @@ public record TetrisGameState(
             case TELEPORT_SWAP -> swapPlayStates(side);
             case PIECE_SWAP -> swapActivePieces(next, side);
         };
+    }
+
+    private static TetrisGameState withGravityEffect(
+            TetrisGameState state,
+            PlayerSide side,
+            TetrisPlayerState player,
+            int gravityPercent) {
+        return state.withPlayer(
+                side,
+                player.withEffects(player.effects().withGravityPercent(gravityPercent, OBJECT_EFFECT_TICKS)));
+    }
+
+    private static TetrisGameState withRotationDelayEffect(
+            TetrisGameState state,
+            PlayerSide side,
+            TetrisPlayerState player) {
+        return state.withPlayer(
+                side,
+                player.withEffects(player.effects().withRotationDelay(OBJECT_EFFECT_TICKS)));
     }
 
     private TetrisGameState transferClearedRows(PlayerSide side, int clearedRows) {
