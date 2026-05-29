@@ -869,18 +869,60 @@ public class TetrisModelTest {
     }
 
     @Test
-    @DisplayName("PIECE_SWAP (G): falls back to re-queue when swapped shape cannot fit at current position")
+    @DisplayName("PIECE_SWAP (G): nudges swapped pieces back inside the board in horizontal mode")
+    void pieceSwapKeepsHorizontalOpponentPieceInsideBoard() {
+        TetrisGameConfig config = new TetrisGameConfig(List.of("Standard"), List.of(), 550, false, true);
+        PieceShape lShape = config.availableShapes().stream()
+                .filter(shape -> shape.name().equals("L"))
+                .findFirst()
+                .orElseThrow();
+        PieceShape iShape = config.availableShapes().stream()
+                .filter(shape -> shape.name().equals("I"))
+                .findFirst()
+                .orElseThrow();
+
+        TetrisPlayerState bottom = TetrisPlayerState.create("Bottom", PlayerSide.BOTTOM, true)
+                .spawnPiece(lShape, -1, config.gravityDirection(PlayerSide.BOTTOM));
+        TetrisBoardObject swapObject = new TetrisBoardObject(
+                TetrisItemType.PIECE_SWAP,
+                bottom.activePiece().withPosition(new BoardPosition(
+                        bottom.activePiece().position().row(),
+                        bottom.activePiece().position().column() + 1)).boardCells().getFirst());
+        bottom = new TetrisPlayerState(
+                bottom.playerName(),
+                bottom.side(),
+                bottom.board(),
+                bottom.activePiece(),
+                bottom.score(),
+                bottom.status(),
+                bottom.finalScore(),
+                swapObject,
+                bottom.effects(),
+                bottom.queuedShapes());
+        TetrisPlayerState top = TetrisPlayerState.create("Top", PlayerSide.TOP, true)
+                .spawnPiece(iShape, -1, config.gravityDirection(PlayerSide.TOP));
+        TetrisGameState state = new TetrisGameState(bottom, top, config, TetrisGameStatus.RUNNING);
+
+        TetrisGameState next = state.applyGravity(PlayerSide.BOTTOM);
+
+        assertNotNull(next.topPlayer().activePiece());
+        assertEquals(lShape, next.topPlayer().activePiece().shape());
+        assertTrue(next.topPlayer().board().canPlace(next.topPlayer().activePiece()));
+    }
+
+    @Test
+    @DisplayName("PIECE_SWAP (G): falls back to re-queue when swapped shape still cannot fit after nudging")
     void pieceSwapFallsBackToRespawnWhenShapeDoesNotFit() {
         PieceShape oShape = PieceShape.standardShape(PieceType.O);  // 2×2
         PieceShape iShape = PieceShape.standardShape(PieceType.I);  // 1×4 wide
 
-        // Block columns 1..9 in row 0 so the I-piece (width 4) cannot fit at column 9
+        // Block row 0 columns 0..7 so the incoming I-piece cannot fit anywhere after bounds correction.
         TetrisBoard cramped = new TetrisBoard();
-        for (int c = 1; c < TetrisBoard.COLUMNS; c++) {
-            cramped = cramped.withCell(new BoardPosition(1, c), TetrisCell.FILLED);
+        for (int c = 0; c < 8; c++) {
+            cramped = cramped.withCell(new BoardPosition(0, c), TetrisCell.FILLED);
         }
 
-        // Bottom: O-piece jammed into column 9 row 0 — the I-piece (width 4) won't fit there
+        // Bottom: O-piece sits in the only open 2x2 space at the right edge, but the incoming I-piece cannot fit.
         TetrisPlayerState bottom = new TetrisPlayerState(
                 "Bottom",
                 PlayerSide.BOTTOM,

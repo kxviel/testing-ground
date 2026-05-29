@@ -378,17 +378,49 @@ public record TetrisGameState(
             TetrisPiece currentPiece,
             int colorIndex,
             TetrisBoard board) {
-        TetrisPiece candidate = new TetrisPiece(
-                newShape, currentPiece.position(), currentPiece.rotation(), colorIndex);
+        TetrisPiece candidate = fitSwappedPiece(new TetrisPiece(
+                newShape, currentPiece.position(), currentPiece.rotation(), colorIndex), board);
         if (board.canPlace(candidate)) {
             return candidate;
         }
-        TetrisPiece spawnRotation = new TetrisPiece(
-                newShape, currentPiece.position(), Rotation.SPAWN, colorIndex);
+        TetrisPiece spawnRotation = fitSwappedPiece(new TetrisPiece(
+                newShape, currentPiece.position(), Rotation.SPAWN, colorIndex), board);
         if (board.canPlace(spawnRotation)) {
             return spawnRotation;
         }
         return null;
+    }
+
+    private static TetrisPiece fitSwappedPiece(TetrisPiece piece, TetrisBoard board) {
+        if (piece == null || board == null) {
+            return piece;
+        }
+
+        int minRow = piece.boardCells().stream().mapToInt(BoardPosition::row).min().orElse(piece.position().row());
+        int maxRow = piece.boardCells().stream().mapToInt(BoardPosition::row).max().orElse(piece.position().row());
+        int minColumn = piece.boardCells().stream()
+                .mapToInt(BoardPosition::column)
+                .min()
+                .orElse(piece.position().column());
+        int maxColumn = piece.boardCells().stream()
+                .mapToInt(BoardPosition::column)
+                .max()
+                .orElse(piece.position().column());
+
+        int rowOffset = minRow < 0
+                ? -minRow
+                : Math.min(0, board.rows() - 1 - maxRow);
+        int columnOffset = minColumn < 0
+                ? -minColumn
+                : Math.min(0, board.columns() - 1 - maxColumn);
+
+        if (rowOffset == 0 && columnOffset == 0) {
+            return piece;
+        }
+
+        return piece.withPosition(new BoardPosition(
+                piece.position().row() + rowOffset,
+                piece.position().column() + columnOffset));
     }
 
     private TetrisGameState withPlayer(PlayerSide side, TetrisPlayerState player) {
