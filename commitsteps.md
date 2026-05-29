@@ -1,32 +1,32 @@
-# Make `zero-runtime-warranty` match `zetris`
+# Apply Verified Zetris Changes
 
-This checklist syncs `C:\Users\kevka\Desktop\zero-runtime-warranty` to the exact committed `zetris` snapshot below:
+This is a local transfer checklist for Kevin and Sagar. Do not commit this helper file into `zero-runtime-warranty`.
 
-- source repo: `C:\Users\kevka\Desktop\zetris`
-- source commit: `37b54ba2d2d1de11fddac67a021706b57286de43`
-- source commit message: `Add Zetris hand-in verification coverage`
+Goal:
 
-Scope:
+- make `C:\Users\kevka\Desktop\zero-runtime-warranty` match the verified Zetris code, resources, tests, and project docs from the pinned local source snapshot
+- keep the destination commit message focused on the work done, not on the transfer process
+- run hash checks, a full parity audit, and tests before committing
 
-- copy every tracked file that currently differs between the two repos and affects code, resources, tests, build output, or project docs
-- delete the tracked files that still exist only in `zero-runtime-warranty`
-- do not copy this helper file itself into `zero-runtime-warranty`
+Pinned source snapshot:
+
+- commit: `cdf78454475e9dbe8af8a575c893060ce4757568`
 
 Important:
 
-- do not drag files out of the live `C:\Users\kevka\Desktop\zetris` working tree
-- that working tree currently has local uncommitted deletions
-- always copy from the detached export worktree created in Step 1
 - start only if `zero-runtime-warranty` has a clean working tree
+- do not drag files from the live working tree by hand
+- always copy from the detached export worktree created in Step 1
+- `commitsteps.md` is intentionally excluded from the destination repo
 
-## Step 1: Sagar creates the pinned export and copies the exact parity set
+## Step 1: Sagar copies the exact verified file set
 
 Sagar runs this first copy/paste block in PowerShell.
 
 ```powershell
 $sourceRepo = 'C:\Users\kevka\Desktop\zetris'
-$sourceCommit = '37b54ba2d2d1de11fddac67a021706b57286de43'
-$sourceWorktree = 'C:\Users\kevka\Desktop\zetris-37b54ba-export'
+$sourceCommit = 'cdf78454475e9dbe8af8a575c893060ce4757568'
+$sourceWorktree = 'C:\Users\kevka\Desktop\zetris-cdf7845-export'
 $dest = 'C:\Users\kevka\Desktop\zero-runtime-warranty'
 
 git -C $dest status --short
@@ -45,9 +45,6 @@ git -C $sourceRepo worktree add --detach $sourceWorktree $sourceCommit
 
 $copyFiles = @(
   'README.md',
-  'commit_steps.md',
-  'implementation.md',
-  'overview.md',
   'RequirementsTetrisMasters_SecondHandIn.pdf',
   'src\main\java\seda_project\control_alt_defeat\gamebox\controller\tetris\TetrisGameController.java',
   'src\main\java\seda_project\control_alt_defeat\gamebox\controller\tetris\TetrisMenuController.java',
@@ -92,21 +89,16 @@ foreach ($relative in $deleteFiles) {
 }
 ```
 
-## Step 2: Kevin verifies the copied files before staging
+## Step 2: Kevin verifies Sagar's copy
 
-After Sagar finishes Step 1, Kevin runs this second copy/paste block in PowerShell.
+Kevin runs this second copy/paste block in PowerShell after Sagar finishes Step 1.
 
 ```powershell
-$sourceRepo = 'C:\Users\kevka\Desktop\zetris'
-$sourceCommit = '37b54ba2d2d1de11fddac67a021706b57286de43'
-$sourceWorktree = 'C:\Users\kevka\Desktop\zetris-37b54ba-export'
+$sourceWorktree = 'C:\Users\kevka\Desktop\zetris-cdf7845-export'
 $dest = 'C:\Users\kevka\Desktop\zero-runtime-warranty'
 
 $copyFiles = @(
   'README.md',
-  'commit_steps.md',
-  'implementation.md',
-  'overview.md',
   'RequirementsTetrisMasters_SecondHandIn.pdf',
   'src\main\java\seda_project\control_alt_defeat\gamebox\controller\tetris\TetrisGameController.java',
   'src\main\java\seda_project\control_alt_defeat\gamebox\controller\tetris\TetrisMenuController.java',
@@ -169,19 +161,16 @@ if ($missing.Count -or $mismatched.Count -or $stillPresent.Count) {
 }
 ```
 
-## Step 3: Kevin stages, runs the parity audit, runs tests, and commits
+## Step 3: Kevin stages, audits, tests, and commits
 
 Kevin runs this final copy/paste block only after Step 2 prints no missing files, no hash mismatches, and no files still present that should have been deleted.
 
 ```powershell
-$sourceWorktree = 'C:\Users\kevka\Desktop\zetris-37b54ba-export'
+$sourceWorktree = 'C:\Users\kevka\Desktop\zetris-cdf7845-export'
 $dest = 'C:\Users\kevka\Desktop\zero-runtime-warranty'
 
 $copyFiles = @(
   'README.md',
-  'commit_steps.md',
-  'implementation.md',
-  'overview.md',
   'RequirementsTetrisMasters_SecondHandIn.pdf',
   'src\main\java\seda_project\control_alt_defeat\gamebox\controller\tetris\TetrisGameController.java',
   'src\main\java\seda_project\control_alt_defeat\gamebox\controller\tetris\TetrisMenuController.java',
@@ -246,9 +235,9 @@ if ($onlyInSource.Count -or $onlyInDest.Count -or $modified.Count) {
 $env:JAVA_HOME = 'C:\Program Files\JetBrains\IntelliJ IDEA 2026.1.2\jbr'
 & 'C:\Program Files\JetBrains\IntelliJ IDEA 2026.1.2\plugins\maven\lib\maven3\bin\mvn.cmd' test
 
-git commit -m "Sync zero-runtime-warranty to zetris parity snapshot"
+git commit -m "Implement Zetris second hand-in requirements"
 
-git -C 'C:\Users\kevka\Desktop\zetris' worktree remove 'C:\Users\kevka\Desktop\zetris-37b54ba-export' --force
+git -C 'C:\Users\kevka\Desktop\zetris' worktree remove 'C:\Users\kevka\Desktop\zetris-cdf7845-export' --force
 ```
 
-If the parity audit and `mvn test` both pass, `zero-runtime-warranty` matches the pinned `zetris` snapshot for the tracked project files in scope.
+The destination commit message is intentionally feature-focused. It should not mention the transfer process.
