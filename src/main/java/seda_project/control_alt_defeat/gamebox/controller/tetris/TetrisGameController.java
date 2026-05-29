@@ -595,7 +595,10 @@ public class TetrisGameController implements RouteDataReceiver {
             return state;
         }
 
-        TetrisItemType typeToSpawn = objectBag(side).next(objectRandom);
+        TetrisItemType typeToSpawn = objectBag(side).next(objectRandom, eligibleObjectTypes(state, side));
+        if (typeToSpawn == null) {
+            return state;
+        }
         TetrisBoardObject spawnedObject = findSpawnObject(
                 player,
                 typeToSpawn,
@@ -603,6 +606,21 @@ public class TetrisGameController implements RouteDataReceiver {
                 objectRandom,
                 OBJECT_SPAWN_ATTEMPTS);
         return spawnedObject == null ? state : state.spawnObject(side, spawnedObject);
+    }
+
+    static Set<TetrisItemType> eligibleObjectTypes(TetrisGameState state, PlayerSide side) {
+        if (state == null || side == null) {
+            return Set.of();
+        }
+
+        TetrisPlayerState player = side == PlayerSide.BOTTOM ? state.bottomPlayer() : state.topPlayer();
+        if (player == null || !player.isPlaying()) {
+            return Set.of();
+        }
+
+        PlayerSide opponentSide = side == PlayerSide.BOTTOM ? PlayerSide.TOP : PlayerSide.BOTTOM;
+        TetrisPlayerState opponent = opponentSide == PlayerSide.BOTTOM ? state.bottomPlayer() : state.topPlayer();
+        return TetrisItemType.eligibleForOpponentState(opponent != null && opponent.isPlaying());
     }
 
     static TetrisBoardObject findSpawnObject(

@@ -600,6 +600,117 @@ public class TetrisModelTest {
     }
 
     @Test
+    void opponentDependencyClassificationMatchesObjectEffects() {
+        Set<TetrisItemType> opponentDependentTypes = EnumSet.noneOf(TetrisItemType.class);
+        for (TetrisItemType type : TetrisItemType.values()) {
+            if (type.requiresActiveOpponent()) {
+                opponentDependentTypes.add(type);
+            }
+        }
+
+        assertEquals(
+                EnumSet.of(
+                        TetrisItemType.SPEED_UP_OPPONENT,
+                        TetrisItemType.ROTATION_DELAY_OPPONENT,
+                        TetrisItemType.SLOW_OPPONENT,
+                        TetrisItemType.PORTAL,
+                        TetrisItemType.TELEPORT_SWAP,
+                        TetrisItemType.PIECE_SWAP),
+                opponentDependentTypes);
+    }
+
+    @Test
+    void itemBagOnlyReturnsEligibleObjectsWhenOpponentHasLost() {
+        TetrisItemBag bag = new TetrisItemBag();
+        Random random = new Random(42);
+        Set<TetrisItemType> eligibleTypes = EnumSet.of(
+                TetrisItemType.SLOW_SELF,
+                TetrisItemType.ROTATION_DELAY_SELF,
+                TetrisItemType.EXPLODE_RADIUS,
+                TetrisItemType.EXPLODE_BELOW);
+
+        Set<TetrisItemType> firstBag = drawFullBag(bag, random, eligibleTypes);
+        Set<TetrisItemType> secondBag = drawFullBag(bag, random, eligibleTypes);
+
+        assertEquals(eligibleTypes, firstBag);
+        assertEquals(eligibleTypes, secondBag);
+    }
+
+    @Test
+    void itemBagDropsDisallowedRemainingObjectsWhenEligibilityChanges() {
+        TetrisItemBag bag = new TetrisItemBag();
+        Random random = new Random(42);
+        Set<TetrisItemType> eligibleTypes = EnumSet.of(
+                TetrisItemType.SLOW_SELF,
+                TetrisItemType.ROTATION_DELAY_SELF,
+                TetrisItemType.EXPLODE_RADIUS,
+                TetrisItemType.EXPLODE_BELOW);
+
+        assertNotNull(bag.next(random));
+
+        for (int draw = 0; draw < 20; draw++) {
+            TetrisItemType type = bag.next(random, eligibleTypes);
+
+            assertNotNull(type);
+            assertTrue(eligibleTypes.contains(type), type.name());
+        }
+    }
+
+    @Test
+    void opponentObjectsAreClearedWithoutEffectAfterOpponentLoses() {
+        for (TetrisItemType type : EnumSet.allOf(TetrisItemType.class)) {
+            if (!type.requiresActiveOpponent()) {
+                continue;
+            }
+
+            TetrisGameState state = stateWithBottomObjectAndLostTop(type);
+            TetrisGameState next = state.moveLeft(PlayerSide.BOTTOM);
+
+            assertNull(next.bottomPlayer().boardObject(), type.name());
+            assertEquals(state.bottomPlayer().activePiece(), next.bottomPlayer().activePiece(), type.name());
+            assertEquals(state.topPlayer(), next.topPlayer(), type.name());
+        }
+    }
+
+    @Test
+    void opponentObjectsOnTopAreClearedWithoutEffectAfterBottomLoses() {
+        for (TetrisItemType type : EnumSet.allOf(TetrisItemType.class)) {
+            if (!type.requiresActiveOpponent()) {
+                continue;
+            }
+
+            TetrisGameState state = stateWithTopObjectAndLostBottom(type);
+            TetrisGameState next = state.moveLeft(PlayerSide.TOP);
+
+            assertNull(next.topPlayer().boardObject(), type.name());
+            assertEquals(state.topPlayer().activePiece(), next.topPlayer().activePiece(), type.name());
+            assertEquals(state.bottomPlayer(), next.bottomPlayer(), type.name());
+        }
+    }
+
+    @Test
+    void selfContainedObjectsStillWorkAfterOpponentLoses() {
+        TetrisGameState slowSelf = stateWithBottomObjectAndLostTop(TetrisItemType.SLOW_SELF)
+                .moveLeft(PlayerSide.BOTTOM);
+        TetrisGameState delaySelf = stateWithBottomObjectAndLostTop(TetrisItemType.ROTATION_DELAY_SELF)
+                .moveLeft(PlayerSide.BOTTOM);
+        TetrisGameState radiusExplosion = stateWithBottomObjectAndLostTop(
+                TetrisItemType.EXPLODE_RADIUS,
+                new TetrisBoard().withCell(new BoardPosition(1, 1), TetrisCell.FILLED))
+                .moveLeft(PlayerSide.BOTTOM);
+        TetrisGameState belowExplosion = stateWithBottomObjectAndLostTop(
+                TetrisItemType.EXPLODE_BELOW,
+                new TetrisBoard().withCell(new BoardPosition(5, 0), TetrisCell.FILLED))
+                .moveLeft(PlayerSide.BOTTOM);
+
+        assertEquals(200, slowSelf.bottomPlayer().effects().gravityPercent());
+        assertEquals(100, slowSelf.bottomPlayer().effects().gravityTicks());
+        assertEquals(100, delaySelf.bottomPlayer().effects().rotationEffectTicks());
+        assertEquals(TetrisCell.EMPTY, radiusExplosion.bottomPlayer().board().cellAt(new BoardPosition(1, 1)));
+        assertEquals(TetrisCell.EMPTY, belowExplosion.bottomPlayer().board().cellAt(new BoardPosition(5, 0)));
+    }
+
+    @Test
     @DisplayName("PIECE_SWAP (G): each player gets the opponent's piece shape at their own current position")
     void pieceSwapObjectSwapsShapesInPlace() {
         PieceShape oShape = PieceShape.standardShape(PieceType.O);  // 2×2
@@ -719,6 +830,18 @@ public class TetrisModelTest {
         return drawnTypes;
     }
 
+    private static Set<TetrisItemType> drawFullBag(
+            TetrisItemBag bag,
+            Random random,
+            Set<TetrisItemType> eligibleTypes) {
+        Set<TetrisItemType> drawnTypes = EnumSet.noneOf(TetrisItemType.class);
+        for (int draw = 0; draw < eligibleTypes.size(); draw++) {
+            drawnTypes.add(bag.next(random, eligibleTypes));
+        }
+
+        return drawnTypes;
+    }
+
     private static TetrisGameState stateWithBottomObject(TetrisItemType type) {
         TetrisPlayerState bottom = new TetrisPlayerState(
                 "Bottom",
@@ -735,6 +858,50 @@ public class TetrisModelTest {
         return new TetrisGameState(
                 bottom,
                 TetrisPlayerState.create("Top", PlayerSide.TOP),
+                TetrisGameConfig.defaultConfig(),
+                TetrisGameStatus.RUNNING);
+    }
+
+    private static TetrisGameState stateWithBottomObjectAndLostTop(TetrisItemType type) {
+        return stateWithBottomObjectAndLostTop(type, new TetrisBoard());
+    }
+
+    private static TetrisGameState stateWithBottomObjectAndLostTop(TetrisItemType type, TetrisBoard board) {
+        TetrisPlayerState bottom = new TetrisPlayerState(
+                "Bottom",
+                PlayerSide.BOTTOM,
+                board,
+                new TetrisPiece(PieceShape.standardShape(PieceType.O), new BoardPosition(0, 0), Rotation.SPAWN),
+                0,
+                PlayerStatus.PLAYING,
+                null,
+                new TetrisBoardObject(type, new BoardPosition(0, 0)),
+                null,
+                List.of());
+
+        return new TetrisGameState(
+                bottom,
+                TetrisPlayerState.create("Top", PlayerSide.TOP).lost(),
+                TetrisGameConfig.defaultConfig(),
+                TetrisGameStatus.RUNNING);
+    }
+
+    private static TetrisGameState stateWithTopObjectAndLostBottom(TetrisItemType type) {
+        TetrisPlayerState top = new TetrisPlayerState(
+                "Top",
+                PlayerSide.TOP,
+                new TetrisBoard(),
+                new TetrisPiece(PieceShape.standardShape(PieceType.O), new BoardPosition(0, 0), Rotation.SPAWN),
+                0,
+                PlayerStatus.PLAYING,
+                null,
+                new TetrisBoardObject(type, new BoardPosition(0, 0)),
+                null,
+                List.of());
+
+        return new TetrisGameState(
+                TetrisPlayerState.create("Bottom", PlayerSide.BOTTOM).lost(),
+                top,
                 TetrisGameConfig.defaultConfig(),
                 TetrisGameStatus.RUNNING);
     }

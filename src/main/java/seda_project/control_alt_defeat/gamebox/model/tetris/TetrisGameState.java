@@ -155,6 +155,10 @@ public record TetrisGameState(
         TetrisPlayerState opponent = player(opponentSide);
         TetrisGameState next = withPlayer(side, actor);
 
+        if (object.type().requiresActiveOpponent() && !opponent.isPlaying()) {
+            return next;
+        }
+
         return switch (object.type()) {
             case SPEED_UP_OPPONENT -> next.withPlayer(
                     opponentSide,
