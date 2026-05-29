@@ -383,20 +383,6 @@ public record TetrisPlayerState(
         return !queuedShapes.isEmpty();
     }
 
-    public TetrisPlayerState withBoardAndPieceFrom(TetrisPlayerState source) {
-        return new TetrisPlayerState(
-                playerName,
-                side,
-                source.board,
-                source.activePiece,
-                score,
-                status,
-                finalScore,
-                null,
-                effects,
-                queuedShapes);
-    }
-
     public TetrisPlayerState lockActivePiece(GravityDirection gravityDirection) {
         if (activePiece == null || !board.canPlace(activePiece)) {
             return this;

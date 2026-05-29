@@ -1,11 +1,16 @@
 package seda_project.control_alt_defeat.gamebox.model.tetris;
 
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.GravityDirection;
+import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PieceType;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerSide;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.Rotation;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisGameStatus;
+import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisCell;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisItemType;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 
 public record TetrisGameState(
@@ -254,11 +259,85 @@ public record TetrisGameState(
         PlayerSide otherSide = opponent(triggeringSide);
         TetrisPlayerState triggeringPlayer = player(triggeringSide).clearBoardObject();
         TetrisPlayerState otherPlayer = player(otherSide).clearBoardObject();
-        TetrisPlayerState swappedTriggeringPlayer = triggeringPlayer.withBoardAndPieceFrom(otherPlayer);
-        TetrisPlayerState swappedOtherPlayer = otherPlayer.withBoardAndPieceFrom(triggeringPlayer);
+        TetrisPlayerState swappedTriggeringPlayer = swapBoardAndPiece(triggeringPlayer, otherPlayer);
+        TetrisPlayerState swappedOtherPlayer = swapBoardAndPiece(otherPlayer, triggeringPlayer);
 
         return withPlayer(triggeringSide, swappedTriggeringPlayer)
                 .withPlayer(otherSide, swappedOtherPlayer);
+    }
+
+    private TetrisPlayerState swapBoardAndPiece(TetrisPlayerState target, TetrisPlayerState source) {
+        TetrisBoard swappedBoard = mirrorBoard(source.board());
+        TetrisPiece swappedPiece = mirrorPiece(source.activePiece(), source.board(), swappedBoard);
+        return new TetrisPlayerState(
+                target.playerName(),
+                target.side(),
+                swappedBoard,
+                swappedPiece,
+                target.score(),
+                target.status(),
+                target.finalScore(),
+                null,
+                target.effects(),
+                target.queuedShapes());
+    }
+
+    private TetrisBoard mirrorBoard(TetrisBoard sourceBoard) {
+        TetrisCell[][] cells = sourceBoard.cells();
+        int[][] colors = sourceBoard.colors();
+        TetrisCell[][] mirroredCells = new TetrisCell[sourceBoard.rows()][sourceBoard.columns()];
+        int[][] mirroredColors = new int[sourceBoard.rows()][sourceBoard.columns()];
+
+        for (int row = 0; row < sourceBoard.rows(); row++) {
+            for (int column = 0; column < sourceBoard.columns(); column++) {
+                BoardPosition mirroredPosition = mirrorPosition(
+                        new BoardPosition(row, column),
+                        sourceBoard.rows(),
+                        sourceBoard.columns());
+                mirroredCells[mirroredPosition.row()][mirroredPosition.column()] = cells[row][column];
+                mirroredColors[mirroredPosition.row()][mirroredPosition.column()] = colors[row][column];
+            }
+        }
+
+        return new TetrisBoard(mirroredCells, mirroredColors);
+    }
+
+    private TetrisPiece mirrorPiece(TetrisPiece sourcePiece, TetrisBoard sourceBoard, TetrisBoard mirroredBoard) {
+        if (sourcePiece == null) {
+            return null;
+        }
+
+        Set<BoardPosition> mirroredCells = sourcePiece.boardCells().stream()
+                .map(position -> mirrorPosition(position, sourceBoard.rows(), sourceBoard.columns()))
+                .collect(HashSet::new, Set::add, Set::addAll);
+
+        int minRow = mirroredCells.stream().mapToInt(BoardPosition::row).min().orElse(0);
+        int minColumn = mirroredCells.stream().mapToInt(BoardPosition::column).min().orElse(0);
+        BoardPosition anchor = new BoardPosition(minRow, minColumn);
+
+        for (PieceShape shape : config.availableShapes()) {
+            for (Rotation rotation : Rotation.values()) {
+                TetrisPiece candidate = new TetrisPiece(shape, anchor, rotation, sourcePiece.colorIndex());
+                if (mirroredCells.equals(new HashSet<>(candidate.boardCells())) && mirroredBoard.canPlace(candidate)) {
+                    return candidate;
+                }
+            }
+        }
+
+        List<BoardPosition> normalizedCells = mirroredCells.stream()
+                .map(position -> new BoardPosition(position.row() - minRow, position.column() - minColumn))
+                .toList();
+        PieceShape fallbackShape = new PieceShape(PieceType.CUSTOM, sourcePiece.shape().name(), normalizedCells);
+        TetrisPiece fallback = new TetrisPiece(fallbackShape, anchor, Rotation.SPAWN, sourcePiece.colorIndex());
+        return mirroredBoard.canPlace(fallback) ? fallback : null;
+    }
+
+    private BoardPosition mirrorPosition(BoardPosition position, int rows, int columns) {
+        if (config.horizontalMode()) {
+            return new BoardPosition(position.row(), columns - 1 - position.column());
+        }
+
+        return new BoardPosition(rows - 1 - position.row(), position.column());
     }
 
     private TetrisGameState swapActivePieces(TetrisGameState base, PlayerSide triggeringSide) {
