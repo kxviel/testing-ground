@@ -267,13 +267,24 @@ public record TetrisGameState(
     }
 
     private TetrisPlayerState swapBoardAndPiece(TetrisPlayerState target, TetrisPlayerState source) {
-        TetrisBoard swappedBoard = mirrorBoard(source.board());
-        TetrisPiece swappedPiece = mirrorPiece(source.activePiece(), source.board(), swappedBoard);
+        if (!config.horizontalMode()) {
+            return transferredState(target, source.board(), source.activePiece());
+        }
+
+        TetrisBoard swappedBoard = mirrorBoardAcrossColumns(source.board());
+        TetrisPiece swappedPiece = mirrorPieceAcrossColumns(source.activePiece(), source.board(), swappedBoard);
+        return transferredState(target, swappedBoard, swappedPiece);
+    }
+
+    private static TetrisPlayerState transferredState(
+            TetrisPlayerState target,
+            TetrisBoard board,
+            TetrisPiece activePiece) {
         return new TetrisPlayerState(
                 target.playerName(),
                 target.side(),
-                swappedBoard,
-                swappedPiece,
+                board,
+                activePiece,
                 target.score(),
                 target.status(),
                 target.finalScore(),
@@ -282,7 +293,7 @@ public record TetrisGameState(
                 target.queuedShapes());
     }
 
-    private TetrisBoard mirrorBoard(TetrisBoard sourceBoard) {
+    private TetrisBoard mirrorBoardAcrossColumns(TetrisBoard sourceBoard) {
         TetrisCell[][] cells = sourceBoard.cells();
         int[][] colors = sourceBoard.colors();
         TetrisCell[][] mirroredCells = new TetrisCell[sourceBoard.rows()][sourceBoard.columns()];
@@ -290,10 +301,7 @@ public record TetrisGameState(
 
         for (int row = 0; row < sourceBoard.rows(); row++) {
             for (int column = 0; column < sourceBoard.columns(); column++) {
-                BoardPosition mirroredPosition = mirrorPosition(
-                        new BoardPosition(row, column),
-                        sourceBoard.rows(),
-                        sourceBoard.columns());
+                BoardPosition mirroredPosition = new BoardPosition(row, mirrorColumn(sourceBoard.columns(), column));
                 mirroredCells[mirroredPosition.row()][mirroredPosition.column()] = cells[row][column];
                 mirroredColors[mirroredPosition.row()][mirroredPosition.column()] = colors[row][column];
             }
@@ -302,13 +310,16 @@ public record TetrisGameState(
         return new TetrisBoard(mirroredCells, mirroredColors);
     }
 
-    private TetrisPiece mirrorPiece(TetrisPiece sourcePiece, TetrisBoard sourceBoard, TetrisBoard mirroredBoard) {
+    private TetrisPiece mirrorPieceAcrossColumns(
+            TetrisPiece sourcePiece,
+            TetrisBoard sourceBoard,
+            TetrisBoard mirroredBoard) {
         if (sourcePiece == null) {
             return null;
         }
 
         Set<BoardPosition> mirroredCells = sourcePiece.boardCells().stream()
-                .map(position -> mirrorPosition(position, sourceBoard.rows(), sourceBoard.columns()))
+                .map(position -> new BoardPosition(position.row(), mirrorColumn(sourceBoard.columns(), position.column())))
                 .collect(HashSet::new, Set::add, Set::addAll);
 
         int minRow = mirroredCells.stream().mapToInt(BoardPosition::row).min().orElse(0);
@@ -332,12 +343,8 @@ public record TetrisGameState(
         return mirroredBoard.canPlace(fallback) ? fallback : null;
     }
 
-    private BoardPosition mirrorPosition(BoardPosition position, int rows, int columns) {
-        if (config.horizontalMode()) {
-            return new BoardPosition(position.row(), columns - 1 - position.column());
-        }
-
-        return new BoardPosition(rows - 1 - position.row(), position.column());
+    private static int mirrorColumn(int columns, int column) {
+        return columns - 1 - column;
     }
 
     private TetrisGameState swapActivePieces(TetrisGameState base, PlayerSide triggeringSide) {

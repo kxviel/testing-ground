@@ -169,10 +169,10 @@ public class TetrisModelTest {
         assertEquals("Top", swapped.topPlayer().playerName());
         assertEquals(3, swapped.bottomPlayer().score());
         assertEquals(7, swapped.topPlayer().score());
-        assertEquals(new TetrisPiece(PieceShape.standardShape(PieceType.I), new BoardPosition(15, 4), Rotation.SPAWN), swapped.bottomPlayer().activePiece());
-        assertEquals(new TetrisPiece(PieceShape.standardShape(PieceType.O), new BoardPosition(17, 0), Rotation.SPAWN), swapped.topPlayer().activePiece());
-        assertEquals(TetrisCell.FILLED, swapped.bottomPlayer().board().cellAt(new BoardPosition(1, 9)));
-        assertEquals(TetrisCell.FILLED, swapped.topPlayer().board().cellAt(new BoardPosition(0, 0)));
+        assertEquals(topPiece, swapped.bottomPlayer().activePiece());
+        assertEquals(bottomPiece.withPosition(new BoardPosition(1, 0)), swapped.topPlayer().activePiece());
+        assertEquals(TetrisCell.FILLED, swapped.bottomPlayer().board().cellAt(new BoardPosition(18, 9)));
+        assertEquals(TetrisCell.FILLED, swapped.topPlayer().board().cellAt(new BoardPosition(19, 0)));
         assertNull(swapped.topPlayer().bugPosition());
     }
 
