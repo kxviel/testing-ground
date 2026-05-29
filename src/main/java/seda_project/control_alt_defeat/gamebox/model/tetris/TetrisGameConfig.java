@@ -5,6 +5,7 @@ import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PieceType;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerSide;
 
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -57,12 +58,24 @@ public record TetrisGameConfig(
     }
 
     public List<PieceShape> availableShapes() {
-        List<PieceShape> shapes = selectedShapes();
+        List<PieceShape> shapes = new ArrayList<>();
+
+        if (pieces.contains("Standard")) {
+            shapes.addAll(PieceShape.standardShapes());
+        }
+        if (pieces.contains("Custom")) {
+            shapes.addAll(customPieces);
+        }
+
+        if (shapes.isEmpty()) {
+            shapes.addAll(PieceShape.standardShapes());
+        }
 
         if (!dualPieces) {
-            return horizontalMode
-                    ? shapes.stream().map(PieceShape::rotateClockwise90).toList()
-                    : shapes;
+            if (horizontalMode) {
+                return shapes.stream().map(PieceShape::rotateClockwise90).toList();
+            }
+            return List.copyOf(shapes);
         }
 
         return IntStream.range(0, shapes.size())
@@ -185,15 +198,6 @@ public record TetrisGameConfig(
         return IntStream.range(0, shapes.size())
                 .mapToObj(index -> CustomPieceBuilder.build("Custom " + (index + 1), shapes.get(index)))
                 .toList();
-    }
-
-    private List<PieceShape> selectedShapes() {
-        List<PieceShape> selected = Stream.concat(
-                        pieces.contains("Standard") ? PieceShape.standardShapes().stream() : Stream.empty(),
-                        pieces.contains("Custom") ? customPieces.stream() : Stream.empty())
-                .toList();
-
-        return selected.isEmpty() ? PieceShape.standardShapes() : selected;
     }
 
     private static List<BoardPosition> parseCells(String value) {

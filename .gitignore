@@ -16,6 +16,7 @@
 *.war
 *.nar
 *.ear
+runtime/*
 *.tar.gz
 *.rar
 
