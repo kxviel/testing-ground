@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane styleClass="hex-game-root"
+            xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="seda_project.control_alt_defeat.gamebox.controller.hexchess.HexChessSetupController">
+
+    <stylesheets>
+        <URL value="@HexChess.css"/>
+    </stylesheets>
+
+    <top>
+        <VBox alignment="CENTER" styleClass="hex-game-header">
+            <Label text="Custom Position" styleClass="title"/>
+            <Label text="Build a valid Hexagon Chess starting position" styleClass="subtitle"/>
+        </VBox>
+    </top>
+
+    <center>
+        <HBox alignment="CENTER" spacing="18" BorderPane.alignment="CENTER">
+            <Pane fx:id="boardPane"
+                  minWidth="720"
+                  minHeight="590"
+                  prefWidth="720"
+                  prefHeight="590"
+                  styleClass="hex-board-panel"/>
+
+            <VBox alignment="TOP_LEFT" minWidth="280" prefWidth="300" maxWidth="320" styleClass="hex-side-panel">
+                <Label text="Players" styleClass="section-title"/>
+                <GridPane styleClass="hex-form-grid">
+                    <columnConstraints>
+                        <ColumnConstraints halignment="RIGHT" minWidth="72" prefWidth="72"/>
+                        <ColumnConstraints hgrow="NEVER" minWidth="170" prefWidth="170"/>
+                    </columnConstraints>
+                    <Label text="White" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                    <TextField fx:id="whiteNameField" text="White" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                    <Label text="Black" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                    <TextField fx:id="blackNameField" text="Black" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                </GridPane>
+
+                <Separator/>
+                <Label text="Piece" styleClass="section-title"/>
+                <ComboBox fx:id="colorChoiceBox" maxWidth="Infinity"/>
+                <ComboBox fx:id="typeChoiceBox" maxWidth="Infinity"/>
+                <Label fx:id="selectedLabel" text="Selected: none" styleClass="status-line"/>
+                <Button text="Remove Piece" onAction="#onRemovePiece" styleClass="btn-outline"/>
+
+                <Separator/>
+                <Label text="Side To Move" styleClass="section-title"/>
+                <ComboBox fx:id="turnChoiceBox" maxWidth="Infinity"/>
+
+                <HBox styleClass="button-row">
+                    <Button text="Standard" onAction="#onLoadStandard" styleClass="btn-outline"/>
+                    <Button text="Clear" onAction="#onClearBoard" styleClass="btn-outline"/>
+                </HBox>
+
+                <Label fx:id="validationLabel" text="" wrapText="true" styleClass="status-line"/>
+
+                <Separator/>
+                <HBox styleClass="button-row">
+                    <Button text="Back" onAction="#onBack" styleClass="btn-outline"/>
+                    <Button text="Start" onAction="#onStart" styleClass="btn-primary"/>
+                </HBox>
+            </VBox>
+        </HBox>
+    </center>
+
+    <padding>
+        <Insets top="18" right="24" bottom="18" left="24"/>
+    </padding>
+</BorderPane>

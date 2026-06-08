@@ -156,6 +156,11 @@
     -fx-fill: #f87171;
 }
 
+.hex-cell-promotion {
+    -fx-stroke: #171717;
+    -fx-stroke-width: 2;
+}
+
 .hex-piece {
     -fx-font-size: 22px;
     -fx-font-weight: 800;

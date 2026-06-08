@@ -41,13 +41,31 @@ public record HexGameState(
     }
 
     public static HexGameState standard() {
-        HexBoard board = HexBoard.standard();
-        Map<String, Integer> repetitions = Map.of(positionKey(board, HexPieceColor.WHITE, null), 1);
-        return new HexGameState(
-                board,
-                HexPieceColor.WHITE,
+        return create(HexBoard.standard(), HexPieceColor.WHITE);
+    }
+
+    public static HexGameState create(HexBoard board, HexPieceColor startingTurn) {
+        HexBoard safeBoard = board == null ? HexBoard.standard() : board;
+        HexPieceColor safeTurn = startingTurn == null ? HexPieceColor.WHITE : startingTurn;
+        Map<String, Integer> repetitions = Map.of(positionKey(safeBoard, safeTurn, null), 1);
+        boolean check = new HexGameState(
+                safeBoard,
+                safeTurn,
                 HexGameStatus.RUNNING,
-                "White to move.",
+                "",
+                null,
+                null,
+                null,
+                0,
+                repetitions,
+                0,
+                0).isInCheck(safeTurn);
+
+        return new HexGameState(
+                safeBoard,
+                safeTurn,
+                check ? HexGameStatus.CHECK : HexGameStatus.RUNNING,
+                check ? safeTurn.displayName() + " is in check." : safeTurn.displayName() + " to move.",
                 null,
                 null,
                 null,
@@ -105,18 +123,23 @@ public record HexGameState(
     }
 
     public HexGameState offerDraw() {
+        return offerDraw(turn);
+    }
+
+    public HexGameState offerDraw(HexPieceColor player) {
         if (!isActive()) {
             return this;
         }
 
+        HexPieceColor offerBy = player == null ? turn : player;
         return new HexGameState(
                 board,
                 turn,
                 status,
-                turn.displayName() + " offered a draw.",
+                offerBy.displayName() + " offered a draw.",
                 lastMove,
                 enPassantTarget,
-                turn,
+                offerBy,
                 halfMoveClock,
                 repetitionCounts,
                 whiteScore,
@@ -151,16 +174,21 @@ public record HexGameState(
     }
 
     public HexGameState resign() {
+        return resign(turn);
+    }
+
+    public HexGameState resign(HexPieceColor player) {
         if (!isActive()) {
             return this;
         }
 
-        HexPieceColor winner = turn.opponent();
+        HexPieceColor loser = player == null ? turn : player;
+        HexPieceColor winner = loser.opponent();
         return new HexGameState(
                 board,
                 turn,
                 HexGameStatus.RESIGNED,
-                turn.displayName() + " resigned. " + winner.displayName() + " wins.",
+                loser.displayName() + " resigned. " + winner.displayName() + " wins.",
                 lastMove,
                 enPassantTarget,
                 null,

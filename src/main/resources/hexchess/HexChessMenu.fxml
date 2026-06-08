@@ -50,7 +50,24 @@
 
         <HBox alignment="CENTER" styleClass="button-row">
             <Button text="Custom Setup" onAction="#onCustomSetup" styleClass="btn-outline"/>
-            <Button text="LAN" onAction="#onLanMode" styleClass="btn-outline"/>
+        </HBox>
+
+        <Separator/>
+        <Label text="LAN" styleClass="section-title"/>
+        <HBox alignment="CENTER" styleClass="button-row">
+            <Button text="Host LAN" onAction="#onHostLan" styleClass="btn-outline"/>
+        </HBox>
+        <GridPane styleClass="hex-form-grid">
+            <columnConstraints>
+                <ColumnConstraints halignment="RIGHT" minWidth="72" prefWidth="72"/>
+                <ColumnConstraints hgrow="NEVER" minWidth="210" prefWidth="210"/>
+            </columnConstraints>
+            <Label text="Host IP" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+            <TextField fx:id="lanHostField" promptText="192.168.1.20"
+                       GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+        </GridPane>
+        <HBox alignment="CENTER" styleClass="button-row">
+            <Button text="Join LAN" onAction="#onJoinLan" styleClass="btn-outline"/>
         </HBox>
 
         <Label fx:id="statusLabel" text="" wrapText="true" maxWidth="430" styleClass="status-line"/>

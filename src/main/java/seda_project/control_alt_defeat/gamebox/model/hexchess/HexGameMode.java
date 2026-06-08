@@ -2,5 +2,7 @@ package seda_project.control_alt_defeat.gamebox.model.hexchess;
 
 public enum HexGameMode {
     LOCAL,
-    BOT
+    BOT,
+    NETWORK_HOST,
+    NETWORK_CLIENT
 }
