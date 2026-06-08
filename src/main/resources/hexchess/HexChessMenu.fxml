@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="TOP_CENTER"
+      spacing="0"
+      styleClass="hex-menu-root"
+      xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="seda_project.control_alt_defeat.gamebox.controller.hexchess.HexChessMenuController">
+
+    <stylesheets>
+        <URL value="@HexChess.css"/>
+    </stylesheets>
+
+    <padding>
+        <Insets top="28" right="36" bottom="28" left="36"/>
+    </padding>
+
+    <VBox alignment="CENTER" styleClass="hex-header">
+        <Label text="Hexagon Chess" styleClass="title"/>
+        <Label text="Glinski-style local board" styleClass="subtitle"/>
+    </VBox>
+
+    <VBox alignment="TOP_CENTER" maxWidth="520" styleClass="menu-panel">
+        <Label text="Players" styleClass="section-title"/>
+
+        <GridPane styleClass="hex-form-grid">
+            <columnConstraints>
+                <ColumnConstraints halignment="RIGHT" minWidth="72" prefWidth="72"/>
+                <ColumnConstraints hgrow="NEVER" minWidth="210" prefWidth="210"/>
+            </columnConstraints>
+
+            <Label text="White" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+            <TextField fx:id="whiteNameField" text="White" promptText="White player"
+                       GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+            <Label text="Black" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+            <TextField fx:id="blackNameField" text="Black" promptText="Black player"
+                       GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+        </GridPane>
+
+        <HBox alignment="CENTER" styleClass="button-row">
+            <Button text="Local" onAction="#onStartLocal" styleClass="btn-primary"/>
+            <Button text="Bot" onAction="#onStartBot" styleClass="btn-outline"/>
+        </HBox>
+
+        <HBox alignment="CENTER" styleClass="button-row">
+            <Button text="Custom Setup" onAction="#onCustomSetup" styleClass="btn-outline"/>
+            <Button text="LAN" onAction="#onLanMode" styleClass="btn-outline"/>
+        </HBox>
+
+        <Label fx:id="statusLabel" text="" wrapText="true" maxWidth="430" styleClass="status-line"/>
+    </VBox>
+
+    <HBox alignment="CENTER" styleClass="hex-footer">
+        <Button text="Back" onAction="#onBack" styleClass="btn-outline"/>
+    </HBox>
+</VBox>

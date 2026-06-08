@@ -1,0 +1,179 @@
+.hex-menu-root,
+.hex-game-root {
+    -fx-background-color: #f7f7fb;
+    -fx-font-family: "Lato", "Segoe UI", sans-serif;
+}
+
+.title {
+    -fx-font-size: 30px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #171717;
+}
+
+.subtitle {
+    -fx-font-size: 14px;
+    -fx-text-fill: #5f6470;
+}
+
+.section-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #171717;
+}
+
+.status-line {
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #333743;
+    -fx-line-spacing: 2px;
+}
+
+.hex-header,
+.hex-game-header {
+    -fx-spacing: 4;
+    -fx-padding: 0 0 18 0;
+}
+
+.hex-footer {
+    -fx-padding: 18 0 0 0;
+}
+
+.menu-panel,
+.hex-side-panel,
+.hex-board-panel {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-border-color: #dedee8;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(23, 23, 23, 0.04), 8, 0, 0, 2);
+}
+
+.menu-panel {
+    -fx-padding: 24 28;
+    -fx-spacing: 16;
+}
+
+.hex-side-panel {
+    -fx-padding: 18;
+    -fx-spacing: 12;
+}
+
+.hex-board-panel {
+    -fx-padding: 10;
+}
+
+.hex-form-grid {
+    -fx-hgap: 12;
+    -fx-vgap: 10;
+    -fx-alignment: center;
+}
+
+.button {
+    -fx-alignment: center;
+    -fx-background-insets: 0;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-cursor: hand;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-min-height: 36;
+    -fx-min-width: 100;
+    -fx-padding: 8 16;
+}
+
+.btn-primary {
+    -fx-background-color: #171717;
+    -fx-border-color: #171717;
+    -fx-text-fill: white;
+}
+
+.btn-primary:hover {
+    -fx-background-color: #2f2f2f;
+    -fx-border-color: #2f2f2f;
+}
+
+.btn-outline {
+    -fx-background-color: white;
+    -fx-border-color: #cfd2dc;
+    -fx-text-fill: #171717;
+}
+
+.btn-outline:hover {
+    -fx-background-color: #f2f3f7;
+    -fx-border-color: #bfc3cf;
+}
+
+.button-row {
+    -fx-spacing: 10;
+    -fx-padding: 2 0 0 0;
+}
+
+.text-field {
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #cfd2dc;
+    -fx-border-width: 1;
+    -fx-min-height: 36;
+    -fx-padding: 8 12;
+}
+
+.hex-cell {
+    -fx-stroke: #6b4a28;
+    -fx-stroke-width: 1;
+    -fx-cursor: hand;
+}
+
+.hex-cell-light {
+    -fx-fill: #f7c895;
+}
+
+.hex-cell-mid {
+    -fx-fill: #e5aa68;
+}
+
+.hex-cell-dark {
+    -fx-fill: #cf873d;
+}
+
+.hex-cell-selected {
+    -fx-stroke: #0f62fe;
+    -fx-stroke-width: 3;
+}
+
+.hex-cell-legal {
+    -fx-fill: #9fd3b5;
+}
+
+.hex-cell-last-from,
+.hex-cell-last-to {
+    -fx-stroke: #7c3aed;
+    -fx-stroke-width: 3;
+}
+
+.hex-cell-check {
+    -fx-fill: #f87171;
+}
+
+.hex-piece {
+    -fx-font-size: 22px;
+    -fx-font-weight: 800;
+    -fx-text-alignment: center;
+}
+
+.hex-piece-white {
+    -fx-fill: white;
+    -fx-stroke: #171717;
+    -fx-stroke-width: 0.8;
+}
+
+.hex-piece-black {
+    -fx-fill: #171717;
+}
+
+.hex-notation {
+    -fx-font-size: 9px;
+    -fx-font-weight: 700;
+    -fx-fill: rgba(23, 23, 23, 0.45);
+}

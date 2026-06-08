@@ -15,4 +15,9 @@ public class GameChoice {
     private void playTetris(ActionEvent event) {
         Router.goTo(event, "/tetris/TetrisMenu.fxml", null);
     }
+
+    @FXML
+    private void playHexChess(ActionEvent event) {
+        Router.goTo(event, "/hexchess/HexChessMenu.fxml", null);
+    }
 }
