@@ -95,7 +95,7 @@ public final class HexChessProtocol {
             boolean enPassant = fields.size() >= 4 && Boolean.parseBoolean(fields.get(3));
 
             return new HexMove(
-                    HexCoordinate.of(fields.get(0)),
+                    HexCoordinate.of(fields.getFirst()),
                     HexCoordinate.of(fields.get(1)),
                     promotion,
                     enPassant);

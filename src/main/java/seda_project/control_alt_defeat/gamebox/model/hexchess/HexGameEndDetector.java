@@ -8,7 +8,7 @@ public final class HexGameEndDetector {
     private HexGameEndDetector() {
     }
 
-    public static HexGameResolution evaluate(
+    static HexGameResolution evaluate(
             HexBoard board,
             HexPieceColor turn,
             HexCoordinate enPassantTarget,

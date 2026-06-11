@@ -43,6 +43,7 @@ public class HexChessMenuController {
             FXCollections.observableArrayList();
     private final Map<String, HexChessLanDiscoveryService.DiscoveredGame> discoveredGamesBySession =
             new LinkedHashMap<>();
+    private GameServer pendingHostServer;
 
     @FXML
     private void initialize() {
@@ -78,19 +79,19 @@ public class HexChessMenuController {
     @FXML
     private void onHostLan(ActionEvent event) {
         Stage stage = stageFrom(event);
-        GameServer server = new GameServer();
+        closePendingHostServer();
 
+        GameServer server;
         try {
-            server.listen(GameServer.DEFAULT_PORT, message -> {
-            }, () -> {
-            });
+            server = createListeningServer();
         } catch (IOException e) {
             statusLabel.setText("Could not host LAN game: " + e.getMessage());
             return;
         }
 
+        pendingHostServer = server;
         discoveryService.startAdvertising(
-                playerName(HexGameMode.NETWORK_HOST),
+                hostPlayerName(),
                 GameServer.DEFAULT_PORT,
                 message -> Platform.runLater(() -> statusLabel.setText(message)));
         statusLabel.setText("Hosting on " + GameServer.getLocalAddress() + ":" + GameServer.DEFAULT_PORT
@@ -99,6 +100,7 @@ public class HexChessMenuController {
         Thread waitThread = new Thread(() -> {
             try {
                 server.waitForClient();
+                clearPendingHostServer(server);
                 closeDiscovery();
                 Platform.runLater(() -> Router.goTo(
                         stage,
@@ -107,7 +109,6 @@ public class HexChessMenuController {
             } catch (IOException e) {
                 Platform.runLater(() -> statusLabel.setText("LAN host failed: " + e.getMessage()));
                 closeDiscovery();
-                server.close();
             }
         }, "hexchess-host-wait");
         waitThread.setDaemon(true);
@@ -184,8 +185,21 @@ public class HexChessMenuController {
         return new HexChessGameSetup(whiteName, blackName, mode);
     }
 
-    private String playerName(HexGameMode mode) {
-        return setup(mode).whiteName();
+    private GameServer createListeningServer() throws IOException {
+        GameServer server = new GameServer();
+        try {
+            server.listen(GameServer.DEFAULT_PORT, message -> {
+            }, () -> {
+            });
+            return server;
+        } catch (IOException e) {
+            server.close();
+            throw e;
+        }
+    }
+
+    private String hostPlayerName() {
+        return setup(HexGameMode.NETWORK_HOST).whiteName();
     }
 
     private void startListeningForLanGames() {
@@ -203,6 +217,20 @@ public class HexChessMenuController {
 
     private void closeDiscovery() {
         discoveryService.close();
+        closePendingHostServer();
+    }
+
+    private void closePendingHostServer() {
+        if (pendingHostServer != null) {
+            pendingHostServer.close();
+            pendingHostServer = null;
+        }
+    }
+
+    private void clearPendingHostServer(GameServer server) {
+        if (pendingHostServer == server) {
+            pendingHostServer = null;
+        }
     }
 
     private void bindOptionalLabel(Label label) {

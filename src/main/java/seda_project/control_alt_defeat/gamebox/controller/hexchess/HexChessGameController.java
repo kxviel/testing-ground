@@ -28,7 +28,6 @@ import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
 import seda_project.control_alt_defeat.gamebox.util.Router;
 
 import java.util.List;
-import java.util.Optional;
 
 public class HexChessGameController implements RouteDataReceiver {
 
@@ -247,7 +246,7 @@ public class HexChessGameController implements RouteDataReceiver {
         pause.setOnFinished(event -> {
             HexGameState stateBeforeBotMove = gameState;
             Thread botThread = new Thread(() -> {
-                Optional<HexMove> botMove = HexChessBot.chooseMove(stateBeforeBotMove);
+                HexMove botMove = HexChessBot.chooseMove(stateBeforeBotMove).orElse(null);
                 Platform.runLater(() -> finishBotMove(stateBeforeBotMove, botMove));
             }, "hexchess-bot");
             botThread.setDaemon(true);
@@ -256,13 +255,15 @@ public class HexChessGameController implements RouteDataReceiver {
         pause.play();
     }
 
-    private void finishBotMove(HexGameState stateBeforeBotMove, Optional<HexMove> botMove) {
+    private void finishBotMove(HexGameState stateBeforeBotMove, HexMove botMove) {
         if (gameState == stateBeforeBotMove
                 && botThinking
                 && setup.mode() == HexGameMode.BOT
                 && gameState.turn() == HexPieceColor.BLACK
                 && gameState.isActive()) {
-            botMove.ifPresent(move -> gameState = gameState.play(move));
+            if (botMove != null) {
+                gameState = gameState.play(botMove);
+            }
             broadcastStateIfHost();
         }
 
@@ -273,10 +274,10 @@ public class HexChessGameController implements RouteDataReceiver {
     private void processHostMessage(String message) {
         if (HexChessProtocol.isType(message, HexChessProtocol.JOIN)) {
             List<String> fields = HexChessProtocol.fields(message);
-            if (!fields.isEmpty() && !fields.get(0).isBlank()) {
+            if (!fields.isEmpty() && !fields.getFirst().isBlank()) {
                 setup = new HexChessGameSetup(
                         setup.whiteName(),
-                        fields.get(0),
+                        fields.getFirst(),
                         HexGameMode.NETWORK_HOST,
                         setup.initialBoard(),
                         setup.startingTurn());
@@ -308,7 +309,7 @@ public class HexChessGameController implements RouteDataReceiver {
             List<String> fields = HexChessProtocol.fields(message);
             if (fields.size() >= 3) {
                 setup = new HexChessGameSetup(
-                        fields.get(0),
+                        fields.getFirst(),
                         fields.get(1),
                         HexGameMode.NETWORK_CLIENT);
                 gameState = HexChessStateSnapshot.deserialize(fields.get(2));
@@ -318,13 +319,13 @@ public class HexChessGameController implements RouteDataReceiver {
         } else if (HexChessProtocol.isType(message, HexChessProtocol.STATE)) {
             List<String> fields = HexChessProtocol.fields(message);
             if (!fields.isEmpty()) {
-                gameState = HexChessStateSnapshot.deserialize(fields.get(0));
+                gameState = HexChessStateSnapshot.deserialize(fields.getFirst());
                 clearSelection();
                 render();
             }
         } else if (HexChessProtocol.isType(message, HexChessProtocol.ERROR)) {
             List<String> fields = HexChessProtocol.fields(message);
-            statusLabel.setText(fields.isEmpty() ? "Network error." : fields.get(0));
+            statusLabel.setText(fields.isEmpty() ? "Network error." : fields.getFirst());
         } else if (HexChessProtocol.isType(message, HexChessProtocol.QUIT)) {
             statusLabel.setText("Host left the game.");
         }

@@ -27,6 +27,7 @@ public class HexChessLanDiscoveryService implements Closeable {
     private static final int TIMEOUT_MS = 1_000;
 
     private final String sessionId = UUID.randomUUID().toString();
+    private final Object advertisingMonitor = new Object();
 
     private volatile boolean advertising;
     private volatile boolean listening;
@@ -63,8 +64,10 @@ public class HexChessLanDiscoveryService implements Closeable {
                         DatagramPacket packet = new DatagramPacket(data, data.length, address, DISCOVERY_PORT);
                         socket.send(packet);
                     }
-                    Thread.sleep(TIMEOUT_MS);
+                    waitForNextAdvertisement();
                 }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             } catch (Exception e) {
                 if (advertising) {
                     onError.accept("Could not advertise Hex Chess game: " + e.getMessage());
@@ -118,6 +121,9 @@ public class HexChessLanDiscoveryService implements Closeable {
             advertisingSocket.close();
             advertisingSocket = null;
         }
+        synchronized (advertisingMonitor) {
+            advertisingMonitor.notifyAll();
+        }
     }
 
     public void stopListening() {
@@ -139,6 +145,14 @@ public class HexChessLanDiscoveryService implements Closeable {
         String name = Base64.getEncoder().encodeToString(safePlayerName.getBytes(StandardCharsets.UTF_8));
         return PREFIX + ":" + GAME_TYPE + ":" + sessionId + ":" + tcpPort + ":" + name + ":"
                 + System.currentTimeMillis();
+    }
+
+    private void waitForNextAdvertisement() throws InterruptedException {
+        synchronized (advertisingMonitor) {
+            if (advertising) {
+                advertisingMonitor.wait(TIMEOUT_MS);
+            }
+        }
     }
 
     private DiscoveredGame parse(DatagramPacket packet) {
