@@ -19,7 +19,7 @@
         <VBox alignment="CENTER" styleClass="hex-game-header">
             <Label text="POSITION BUILDER" styleClass="eyebrow"/>
             <Label text="Custom Position" styleClass="title"/>
-            <Label text="Build a valid Hexagon Chess starting position" styleClass="subtitle"/>
+            <Label text="Build a valid Chexsagon starting position" styleClass="subtitle"/>
         </VBox>
     </top>
 

@@ -27,6 +27,6 @@
     <VBox alignment="CENTER" spacing="14" styleClass="game-choice-buttons">
         <Button onAction="#playMemory" text="EarlyAlzheimers - Advanced Memory Game" maxWidth="-Infinity" styleClass="btn-primary"/>
         <Button onAction="#playTetris" text="Zetris - Advanced Tetris" maxWidth="-Infinity" styleClass="btn-primary"/>
-        <Button onAction="#playHexChess" text="Hexagon Chess - Glinski Variant" maxWidth="-Infinity" styleClass="btn-primary"/>
+        <Button onAction="#playHexChess" text="Chexsagon - Glinski Variant" maxWidth="-Infinity" styleClass="btn-primary"/>
     </VBox>
 </VBox>

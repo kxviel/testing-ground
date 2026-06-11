@@ -18,7 +18,7 @@
     <top>
         <VBox alignment="CENTER" styleClass="hex-game-header">
             <Label text="LIVE MATCH" styleClass="eyebrow"/>
-            <Label text="Hexagon Chess" styleClass="title"/>
+            <Label text="Chexsagon" styleClass="title"/>
             <Label fx:id="modeLabel" text="" styleClass="subtitle"/>
         </VBox>
     </top>
