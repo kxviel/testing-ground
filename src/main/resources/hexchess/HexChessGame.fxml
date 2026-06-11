@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
 <?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.canvas.Canvas?>
@@ -27,8 +28,11 @@
         <HBox alignment="TOP_CENTER" spacing="18" styleClass="hex-stage" BorderPane.alignment="CENTER">
             <VBox minWidth="852"
                   prefWidth="852"
-                  maxWidth="852"
-                  styleClass="hex-board-panel board-surface">
+                  maxWidth="852">
+                <styleClass>
+                    <String fx:value="hex-board-panel"/>
+                    <String fx:value="board-surface"/>
+                </styleClass>
                 <HBox alignment="CENTER_LEFT" styleClass="board-header">
                     <VBox spacing="2">
                         <Label text="Board" styleClass="section-title"/>
@@ -45,7 +49,11 @@
             </VBox>
 
             <VBox minWidth="288" prefWidth="304" maxWidth="320" styleClass="hex-side-panel">
-                <VBox styleClass="sidebar-section hero-section">
+                <VBox>
+                    <styleClass>
+                        <String fx:value="sidebar-section"/>
+                        <String fx:value="hero-section"/>
+                    </styleClass>
                     <Label text="Turn" styleClass="panel-label"/>
                     <Label fx:id="turnLabel" styleClass="turn-display"/>
                     <Label fx:id="statusLabel" wrapText="true" minHeight="52" styleClass="status-box"/>
@@ -57,7 +65,12 @@
                     <Label text="Position" styleClass="panel-label"/>
                     <Label fx:id="scoreLabel" styleClass="stat-line"/>
                     <Label fx:id="lastMoveLabel" wrapText="true" styleClass="stat-line"/>
-                    <Label fx:id="drawOfferLabel" wrapText="true" styleClass="stat-line accent-line"/>
+                    <Label fx:id="drawOfferLabel" wrapText="true">
+                        <styleClass>
+                            <String fx:value="stat-line"/>
+                            <String fx:value="accent-line"/>
+                        </styleClass>
+                    </Label>
                 </VBox>
 
                 <Separator/>

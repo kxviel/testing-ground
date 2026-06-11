@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
 <?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.canvas.Canvas?>
@@ -27,8 +28,11 @@
         <HBox alignment="TOP_CENTER" spacing="18" styleClass="hex-stage" BorderPane.alignment="CENTER">
             <VBox minWidth="752"
                   prefWidth="752"
-                  maxWidth="752"
-                  styleClass="hex-board-panel board-surface">
+                  maxWidth="752">
+                <styleClass>
+                    <String fx:value="hex-board-panel"/>
+                    <String fx:value="board-surface"/>
+                </styleClass>
                 <HBox alignment="CENTER_LEFT" styleClass="board-header">
                     <VBox spacing="2">
                         <Label text="Board Editor" styleClass="section-title"/>
