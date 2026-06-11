@@ -19,7 +19,7 @@
         <VBox alignment="CENTER" styleClass="hex-game-header">
             <Label text="LIVE MATCH" styleClass="eyebrow"/>
             <Label text="Chexsagon" styleClass="title"/>
-            <Label fx:id="modeLabel" text="" styleClass="subtitle"/>
+            <Label fx:id="modeLabel" styleClass="subtitle"/>
         </VBox>
     </top>
 
@@ -44,20 +44,20 @@
                 </StackPane>
             </VBox>
 
-            <VBox alignment="TOP_LEFT" minWidth="288" prefWidth="304" maxWidth="320" styleClass="hex-side-panel">
+            <VBox minWidth="288" prefWidth="304" maxWidth="320" styleClass="hex-side-panel">
                 <VBox styleClass="sidebar-section hero-section">
                     <Label text="Turn" styleClass="panel-label"/>
-                    <Label fx:id="turnLabel" text="" styleClass="turn-display"/>
-                    <Label fx:id="statusLabel" text="" wrapText="true" minHeight="52" styleClass="status-box"/>
+                    <Label fx:id="turnLabel" styleClass="turn-display"/>
+                    <Label fx:id="statusLabel" wrapText="true" minHeight="52" styleClass="status-box"/>
                 </VBox>
 
                 <Separator/>
 
                 <VBox styleClass="sidebar-section">
                     <Label text="Position" styleClass="panel-label"/>
-                    <Label fx:id="scoreLabel" text="" styleClass="stat-line"/>
-                    <Label fx:id="lastMoveLabel" text="" wrapText="true" styleClass="stat-line"/>
-                    <Label fx:id="drawOfferLabel" text="" wrapText="true" styleClass="stat-line accent-line"/>
+                    <Label fx:id="scoreLabel" styleClass="stat-line"/>
+                    <Label fx:id="lastMoveLabel" wrapText="true" styleClass="stat-line"/>
+                    <Label fx:id="drawOfferLabel" wrapText="true" styleClass="stat-line accent-line"/>
                 </VBox>
 
                 <Separator/>

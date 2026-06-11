@@ -6,7 +6,6 @@
 <?import javafx.scene.layout.*?>
 
 <VBox alignment="TOP_CENTER"
-      spacing="0"
       styleClass="hex-menu-root"
       xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
@@ -27,7 +26,7 @@
     </VBox>
 
     <HBox alignment="TOP_CENTER" styleClass="hex-menu-layout">
-        <VBox alignment="TOP_LEFT" styleClass="menu-card">
+        <VBox styleClass="menu-card">
             <Label text="Players" styleClass="section-title"/>
             <Label text="Set names once, then launch a local game, bot game, or custom board."
                    wrapText="true" styleClass="section-copy"/>
@@ -55,7 +54,7 @@
             </VBox>
         </VBox>
 
-        <VBox alignment="TOP_LEFT" styleClass="menu-card">
+        <VBox styleClass="menu-card">
             <HBox alignment="CENTER_LEFT" styleClass="section-header">
                 <VBox spacing="2">
                     <Label text="LAN" styleClass="section-title"/>
@@ -93,7 +92,7 @@
 
             <Button text="Join LAN" onAction="#onJoinLan" maxWidth="Infinity" styleClass="btn-outline"/>
 
-            <Label fx:id="statusLabel" text="" wrapText="true" maxWidth="Infinity" minHeight="44"
+            <Label fx:id="statusLabel" wrapText="true" maxWidth="Infinity" minHeight="44"
                    styleClass="status-box"/>
         </VBox>
     </HBox>

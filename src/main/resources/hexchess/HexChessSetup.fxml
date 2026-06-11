@@ -44,7 +44,7 @@
                 </StackPane>
             </VBox>
 
-            <VBox alignment="TOP_LEFT" minWidth="300" prefWidth="316" maxWidth="330" styleClass="hex-side-panel">
+            <VBox minWidth="300" prefWidth="316" maxWidth="330" styleClass="hex-side-panel">
                 <VBox styleClass="sidebar-section">
                     <Label text="Players" styleClass="panel-label"/>
                     <GridPane styleClass="hex-form-grid">
@@ -80,7 +80,7 @@
                         <Button text="Clear" onAction="#onClearBoard" maxWidth="Infinity"
                                 styleClass="btn-danger" HBox.hgrow="ALWAYS"/>
                     </HBox>
-                    <Label fx:id="validationLabel" text="" wrapText="true" minHeight="56" styleClass="status-box"/>
+                    <Label fx:id="validationLabel" wrapText="true" minHeight="56" styleClass="status-box"/>
                 </VBox>
 
                 <Separator/>
