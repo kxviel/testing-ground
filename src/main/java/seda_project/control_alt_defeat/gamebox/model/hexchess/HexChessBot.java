@@ -14,26 +14,31 @@ public final class HexChessBot {
             return Optional.empty();
         }
 
-        List<HexMove> legalMoves = state.legalMovesForTurn();
-        if (legalMoves.isEmpty()) {
+        List<MoveCandidate> candidates = state.legalMovesForTurn()
+                .stream()
+                .map(move -> MoveCandidate.from(state, move))
+                .toList();
+        if (candidates.isEmpty()) {
             return Optional.empty();
         }
 
-        Optional<HexMove> mateInOne = legalMoves.stream()
-                .filter(move -> state.play(move).status() == HexGameStatus.CHECKMATE)
+        Optional<HexMove> mateInOne = candidates.stream()
+                .filter(MoveCandidate::isMate)
+                .map(MoveCandidate::move)
                 .findFirst();
 
         if (mateInOne.isPresent()) {
             return mateInOne;
         }
 
-        List<HexMove> safeMoves = legalMoves.stream()
-                .filter(move -> !opponentHasMateInOne(state.play(move)))
+        List<MoveCandidate> safeMoves = candidates.stream()
+                .filter(candidate -> !opponentHasMateInOne(candidate.nextState()))
                 .toList();
 
         return safeMoves.stream()
-                .min(moveOrder(state))
-                .or(() -> legalMoves.stream().min(moveOrder(state)));
+                .min(moveOrder())
+                .or(() -> candidates.stream().min(moveOrder()))
+                .map(MoveCandidate::move);
     }
 
     private static boolean opponentHasMateInOne(HexGameState state) {
@@ -43,15 +48,34 @@ public final class HexChessBot {
                 .anyMatch(move -> state.play(move).status() == HexGameStatus.CHECKMATE);
     }
 
-    private static Comparator<HexMove> moveOrder(HexGameState state) {
+    private static Comparator<MoveCandidate> moveOrder() {
         return Comparator
-                .comparing((HexMove move) -> !isCapture(state, move))
-                .thenComparing(move -> state.play(move).isInCheck(state.play(move).turn()) ? 0 : 1)
-                .thenComparing(move -> move.from().notation())
-                .thenComparing(move -> move.to().notation());
+                .comparing((MoveCandidate candidate) -> !candidate.isCapture())
+                .thenComparing(candidate -> candidate.givesCheck() ? 0 : 1)
+                .thenComparing(candidate -> candidate.move().from().notation())
+                .thenComparing(candidate -> candidate.move().to().notation());
     }
 
     private static boolean isCapture(HexGameState state, HexMove move) {
         return state.board().pieceAt(move.to()).isPresent() || move.enPassant();
+    }
+
+    private record MoveCandidate(
+            HexMove move,
+            HexGameState nextState,
+            boolean isCapture,
+            boolean givesCheck,
+            boolean isMate) {
+
+        private static MoveCandidate from(HexGameState state, HexMove move) {
+            HexGameState nextState = state.play(move);
+
+            return new MoveCandidate(
+                    move,
+                    nextState,
+                    HexChessBot.isCapture(state, move),
+                    nextState.isInCheck(nextState.turn()),
+                    nextState.status() == HexGameStatus.CHECKMATE);
+        }
     }
 }

@@ -25,53 +25,68 @@
         <Label text="Glinski-style local board" styleClass="subtitle"/>
     </VBox>
 
-    <VBox alignment="TOP_CENTER" maxWidth="520" styleClass="menu-panel">
-        <Label text="Players" styleClass="section-title"/>
+    <HBox alignment="TOP_CENTER" styleClass="hex-menu-layout">
+        <VBox alignment="TOP_LEFT" styleClass="menu-card">
+            <Label text="Players" styleClass="section-title"/>
 
-        <GridPane styleClass="hex-form-grid">
-            <columnConstraints>
-                <ColumnConstraints halignment="RIGHT" minWidth="72" prefWidth="72"/>
-                <ColumnConstraints hgrow="NEVER" minWidth="210" prefWidth="210"/>
-            </columnConstraints>
+            <GridPane styleClass="hex-form-grid">
+                <columnConstraints>
+                    <ColumnConstraints halignment="RIGHT" minWidth="58" prefWidth="58"/>
+                    <ColumnConstraints hgrow="ALWAYS" minWidth="190" prefWidth="210"/>
+                </columnConstraints>
 
-            <Label text="White" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-            <TextField fx:id="whiteNameField" text="White" promptText="White player"
-                       GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                <Label text="White" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                <TextField fx:id="whiteNameField" text="White" promptText="White player"
+                           GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
-            <Label text="Black" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-            <TextField fx:id="blackNameField" text="Black" promptText="Black player"
-                       GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-        </GridPane>
+                <Label text="Black" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                <TextField fx:id="blackNameField" text="Black" promptText="Black player"
+                           GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+            </GridPane>
 
-        <HBox alignment="CENTER" styleClass="button-row">
-            <Button text="Local" onAction="#onStartLocal" styleClass="btn-primary"/>
-            <Button text="Bot" onAction="#onStartBot" styleClass="btn-outline"/>
-        </HBox>
+            <VBox alignment="CENTER" styleClass="menu-action-stack">
+                <Button text="Start Local" onAction="#onStartLocal" maxWidth="Infinity" styleClass="btn-primary"/>
+                <Button text="Play Bot" onAction="#onStartBot" maxWidth="Infinity" styleClass="btn-outline"/>
+                <Button text="Custom Setup" onAction="#onCustomSetup" maxWidth="Infinity" styleClass="btn-outline"/>
+            </VBox>
+        </VBox>
 
-        <HBox alignment="CENTER" styleClass="button-row">
-            <Button text="Custom Setup" onAction="#onCustomSetup" styleClass="btn-outline"/>
-        </HBox>
+        <VBox alignment="TOP_LEFT" styleClass="menu-card">
+            <HBox alignment="CENTER_LEFT" styleClass="section-header">
+                <Label text="LAN" styleClass="section-title"/>
+                <Pane HBox.hgrow="ALWAYS"/>
+                <Button text="Refresh" onAction="#onRefreshLan" styleClass="btn-small"/>
+            </HBox>
 
-        <Separator/>
-        <Label text="LAN" styleClass="section-title"/>
-        <HBox alignment="CENTER" styleClass="button-row">
-            <Button text="Host LAN" onAction="#onHostLan" styleClass="btn-outline"/>
-        </HBox>
-        <GridPane styleClass="hex-form-grid">
-            <columnConstraints>
-                <ColumnConstraints halignment="RIGHT" minWidth="72" prefWidth="72"/>
-                <ColumnConstraints hgrow="NEVER" minWidth="210" prefWidth="210"/>
-            </columnConstraints>
-            <Label text="Host IP" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-            <TextField fx:id="lanHostField" promptText="192.168.1.20"
-                       GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-        </GridPane>
-        <HBox alignment="CENTER" styleClass="button-row">
-            <Button text="Join LAN" onAction="#onJoinLan" styleClass="btn-outline"/>
-        </HBox>
+            <HBox alignment="CENTER_LEFT" styleClass="button-row">
+                <Button text="Host LAN" onAction="#onHostLan" styleClass="btn-outline"/>
+                <Button fx:id="joinSelectedLanButton" text="Join Selected"
+                        onAction="#onJoinSelectedLan" styleClass="btn-outline"/>
+            </HBox>
 
-        <Label fx:id="statusLabel" text="" wrapText="true" maxWidth="430" styleClass="status-line"/>
-    </VBox>
+            <ListView fx:id="lanGamesList" prefHeight="92" maxHeight="104" maxWidth="Infinity">
+                <placeholder>
+                    <Label text="No LAN games found" styleClass="empty-list-label"/>
+                </placeholder>
+            </ListView>
+
+            <Separator/>
+
+            <GridPane styleClass="hex-form-grid">
+                <columnConstraints>
+                    <ColumnConstraints halignment="RIGHT" minWidth="58" prefWidth="58"/>
+                    <ColumnConstraints hgrow="ALWAYS" minWidth="190" prefWidth="210"/>
+                </columnConstraints>
+                <Label text="Host IP" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                <TextField fx:id="lanHostField" promptText="192.168.1.20"
+                           GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+            </GridPane>
+
+            <Button text="Join LAN" onAction="#onJoinLan" maxWidth="Infinity" styleClass="btn-outline"/>
+
+            <Label fx:id="statusLabel" text="" wrapText="true" maxWidth="Infinity" styleClass="status-line"/>
+        </VBox>
+    </HBox>
 
     <HBox alignment="CENTER" styleClass="hex-footer">
         <Button text="Back" onAction="#onBack" styleClass="btn-outline"/>

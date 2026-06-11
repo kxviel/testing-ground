@@ -1,14 +1,9 @@
 package seda_project.control_alt_defeat.gamebox.model.hexchess;
 
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public record HexGameState(
         HexBoard board,
@@ -22,15 +17,6 @@ public record HexGameState(
         Map<String, Integer> repetitionCounts,
         double whiteScore,
         double blackScore) {
-
-    private static final int FIFTY_MOVE_RULE_PLY = 100;
-    private static final List<HexCoordinate> WHITE_PAWN_STARTS = coordinates(
-            "b1", "c2", "d3", "e4", "f5", "g4", "h3", "i2", "k1");
-    private static final List<HexCoordinate> BLACK_PAWN_STARTS = coordinates(
-            "b7", "c7", "d7", "e7", "f7", "g7", "h7", "i7", "k7");
-    private static final List<Jump> WHITE_PAWN_ATTACKS = List.of(new Jump(-1, 2), new Jump(1, 1));
-    private static final List<Jump> BLACK_PAWN_ATTACKS = List.of(new Jump(-1, -1), new Jump(1, -2));
-    private static final List<Jump> KNIGHT_JUMPS = createKnightJumps();
 
     public HexGameState {
         board = board == null ? HexBoard.standard() : board;
@@ -47,25 +33,14 @@ public record HexGameState(
     public static HexGameState create(HexBoard board, HexPieceColor startingTurn) {
         HexBoard safeBoard = board == null ? HexBoard.standard() : board;
         HexPieceColor safeTurn = startingTurn == null ? HexPieceColor.WHITE : startingTurn;
-        Map<String, Integer> repetitions = Map.of(positionKey(safeBoard, safeTurn, null), 1);
-        boolean check = new HexGameState(
-                safeBoard,
-                safeTurn,
-                HexGameStatus.RUNNING,
-                "",
-                null,
-                null,
-                null,
-                0,
-                repetitions,
-                0,
-                0).isInCheck(safeTurn);
+        Map<String, Integer> repetitions = Map.of(HexPositionKey.from(safeBoard, safeTurn, null), 1);
+        HexGameResolution resolution = HexGameEndDetector.evaluate(safeBoard, safeTurn, null, 0, repetitions);
 
         return new HexGameState(
                 safeBoard,
                 safeTurn,
-                check ? HexGameStatus.CHECK : HexGameStatus.RUNNING,
-                check ? safeTurn.displayName() + " is in check." : safeTurn.displayName() + " to move.",
+                resolution.status(),
+                resolution.message(),
                 null,
                 null,
                 null,
@@ -88,7 +63,7 @@ public record HexGameState(
             return List.of();
         }
 
-        return legalMovesFor(board, color, enPassantTarget);
+        return HexLegalMoveValidator.legalMoves(board, color, enPassantTarget);
     }
 
     public List<HexMove> legalMovesFrom(HexCoordinate from) {
@@ -98,11 +73,7 @@ public record HexGameState(
             return List.of();
         }
 
-        return pseudoMoves(board, from, enPassantTarget, false)
-                .stream()
-                .filter(move -> keepsOwnKingSafe(board, move, piece.get().color()))
-                .sorted(Comparator.comparing(move -> move.to().notation()))
-                .toList();
+        return HexLegalMoveValidator.legalMovesFrom(board, from, enPassantTarget);
     }
 
     public HexGameState play(HexMove requestedMove) {
@@ -112,7 +83,7 @@ public record HexGameState(
 
         Optional<HexMove> legalMove = legalMovesFrom(requestedMove.from())
                 .stream()
-                .filter(move -> sameMoveIntent(move, requestedMove))
+                .filter(move -> HexMoveRules.sameMoveIntent(move, requestedMove))
                 .findFirst();
 
         if (legalMove.isEmpty()) {
@@ -147,16 +118,34 @@ public record HexGameState(
     }
 
     public HexGameState acceptDraw() {
+        return acceptDraw(turn);
+    }
+
+    public HexGameState acceptDraw(HexPieceColor player) {
+        HexPieceColor acceptingPlayer = player == null ? turn : player;
         if (!isActive() || drawOfferBy == null) {
             return this;
+        }
+
+        if (drawOfferBy == acceptingPlayer) {
+            return withMessage("Only the opponent can accept a draw offer.");
         }
 
         return drawn("Draw offer accepted.");
     }
 
     public HexGameState declineDraw() {
+        return declineDraw(turn);
+    }
+
+    public HexGameState declineDraw(HexPieceColor player) {
+        HexPieceColor decliningPlayer = player == null ? turn : player;
         if (drawOfferBy == null) {
             return this;
+        }
+
+        if (drawOfferBy == decliningPlayer) {
+            return withMessage("Only the opponent can decline a draw offer.");
         }
 
         return new HexGameState(
@@ -199,32 +188,39 @@ public record HexGameState(
     }
 
     public boolean isInCheck(HexPieceColor color) {
-        return isInCheck(board, color);
+        return HexLegalMoveValidator.isInCheck(board, color);
     }
 
     public boolean hasDrawOfferForTurn() {
-        return drawOfferBy != null && drawOfferBy != turn;
+        return hasDrawOfferFor(turn);
+    }
+
+    public boolean hasDrawOfferFor(HexPieceColor player) {
+        return drawOfferBy != null && drawOfferBy != player;
     }
 
     private HexGameState applyLegalMove(HexMove move) {
         HexPiece movingPiece = board.pieceAt(move.from())
                 .orElseThrow(() -> new IllegalStateException("Legal move has no moving piece."));
         HexCoordinate capturedAt = move.enPassant()
-                ? enPassantCapturedAt(move, movingPiece.color()).orElse(move.to())
+                ? HexMoveRules.enPassantCapturedAt(move, movingPiece.color()).orElse(move.to())
                 : move.to();
         HexPiece capturedPiece = board.pieceAt(capturedAt).orElse(null);
-        HexPieceType promotion = promotionFor(move, movingPiece);
+        HexPieceType promotion = HexMoveRules.promotionFor(move, movingPiece);
         HexBoard nextBoard = board.applyMove(move, capturedAt, promotion);
         HexPieceColor nextTurn = turn.opponent();
-        HexCoordinate nextEnPassantTarget = nextEnPassantTarget(move, movingPiece).orElse(null);
+        HexCoordinate nextEnPassantTarget = HexMoveRules.nextEnPassantTarget(move, movingPiece).orElse(null);
         int nextHalfMoveClock = movingPiece.type() == HexPieceType.PAWN || capturedPiece != null
                 ? 0
                 : halfMoveClock + 1;
 
         Map<String, Integer> nextRepetitions = incrementRepetition(
                 repetitionCounts,
-                positionKey(nextBoard, nextTurn, nextEnPassantTarget));
+                HexPositionKey.from(nextBoard, nextTurn, nextEnPassantTarget));
         HexMoveRecord nextLastMove = new HexMoveRecord(move, movingPiece, capturedPiece, capturedAt);
+        HexPieceColor nextDrawOfferBy = drawOfferBy != null && movingPiece.color() == drawOfferBy
+                ? drawOfferBy
+                : null;
 
         return resolveAfterMove(
                 nextBoard,
@@ -232,7 +228,8 @@ public record HexGameState(
                 nextLastMove,
                 nextEnPassantTarget,
                 nextHalfMoveClock,
-                nextRepetitions);
+                nextRepetitions,
+                nextDrawOfferBy);
     }
 
     private HexGameState resolveAfterMove(
@@ -241,64 +238,38 @@ public record HexGameState(
             HexMoveRecord nextLastMove,
             HexCoordinate nextEnPassantTarget,
             int nextHalfMoveClock,
-            Map<String, Integer> nextRepetitions) {
-        boolean check = isInCheck(nextBoard, nextTurn);
-        List<HexMove> nextLegalMoves = legalMovesFor(nextBoard, nextTurn, nextEnPassantTarget);
-        HexPieceColor mover = nextTurn.opponent();
+            Map<String, Integer> nextRepetitions,
+            HexPieceColor nextDrawOfferBy) {
+        HexGameResolution resolution = HexGameEndDetector.evaluate(
+                nextBoard,
+                nextTurn,
+                nextEnPassantTarget,
+                nextHalfMoveClock,
+                nextRepetitions);
 
-        if (check && nextLegalMoves.isEmpty()) {
+        if (resolution.terminal()) {
             return new HexGameState(
                     nextBoard,
                     nextTurn,
-                    HexGameStatus.CHECKMATE,
-                    "Checkmate. " + mover.displayName() + " wins.",
+                    resolution.status(),
+                    resolution.message(),
                     nextLastMove,
                     nextEnPassantTarget,
                     null,
                     nextHalfMoveClock,
                     nextRepetitions,
-                    mover == HexPieceColor.WHITE ? 1 : 0,
-                    mover == HexPieceColor.BLACK ? 1 : 0);
-        }
-
-        if (!check && nextLegalMoves.isEmpty()) {
-            return new HexGameState(
-                    nextBoard,
-                    nextTurn,
-                    HexGameStatus.STALEMATE,
-                    "Stalemate. " + mover.displayName() + " gets 0.75 points.",
-                    nextLastMove,
-                    nextEnPassantTarget,
-                    null,
-                    nextHalfMoveClock,
-                    nextRepetitions,
-                    mover == HexPieceColor.WHITE ? 0.75 : 0.25,
-                    mover == HexPieceColor.BLACK ? 0.75 : 0.25);
-        }
-
-        if (nextHalfMoveClock >= FIFTY_MOVE_RULE_PLY) {
-            return drawn(nextBoard, nextTurn, nextLastMove, nextEnPassantTarget, nextHalfMoveClock, nextRepetitions,
-                    "Draw by 50-move rule.");
-        }
-
-        if (nextRepetitions.values().stream().anyMatch(count -> count >= 3)) {
-            return drawn(nextBoard, nextTurn, nextLastMove, nextEnPassantTarget, nextHalfMoveClock, nextRepetitions,
-                    "Draw by threefold repetition.");
-        }
-
-        if (hasKingsOnly(nextBoard)) {
-            return drawn(nextBoard, nextTurn, nextLastMove, nextEnPassantTarget, nextHalfMoveClock, nextRepetitions,
-                    "Draw by insufficient material.");
+                    resolution.whiteScore(),
+                    resolution.blackScore());
         }
 
         return new HexGameState(
                 nextBoard,
                 nextTurn,
-                check ? HexGameStatus.CHECK : HexGameStatus.RUNNING,
-                check ? nextTurn.displayName() + " is in check." : nextTurn.displayName() + " to move.",
+                resolution.status(),
+                resolution.message(),
                 nextLastMove,
                 nextEnPassantTarget,
-                null,
+                nextDrawOfferBy,
                 nextHalfMoveClock,
                 nextRepetitions,
                 whiteScore,
@@ -346,289 +317,9 @@ public record HexGameState(
                 blackScore);
     }
 
-    private static List<HexMove> legalMovesFor(
-            HexBoard board,
-            HexPieceColor color,
-            HexCoordinate enPassantTarget) {
-        return board.piecesOf(color)
-                .flatMap(entry -> pseudoMoves(board, entry.getKey(), enPassantTarget, false)
-                        .stream()
-                        .filter(move -> keepsOwnKingSafe(board, move, color)))
-                .toList();
-    }
-
-    private static boolean keepsOwnKingSafe(HexBoard board, HexMove move, HexPieceColor color) {
-        HexCoordinate capturedAt = move.enPassant()
-                ? enPassantCapturedAt(move, color).orElse(move.to())
-                : move.to();
-        HexPiece movingPiece = board.pieceAt(move.from()).orElse(null);
-        HexPieceType promotion = promotionFor(move, movingPiece);
-        HexBoard nextBoard = board.applyMove(move, capturedAt, promotion);
-
-        return !isInCheck(nextBoard, color);
-    }
-
-    private static boolean isInCheck(HexBoard board, HexPieceColor color) {
-        return board.kingPosition(color)
-                .filter(king -> isAttacked(board, king, color.opponent()))
-                .isPresent();
-    }
-
-    private static boolean isAttacked(HexBoard board, HexCoordinate target, HexPieceColor byColor) {
-        return board.piecesOf(byColor)
-                .flatMap(entry -> pseudoMoves(board, entry.getKey(), null, true).stream())
-                .anyMatch(move -> move.to().equals(target));
-    }
-
-    private static List<HexMove> pseudoMoves(
-            HexBoard board,
-            HexCoordinate from,
-            HexCoordinate enPassantTarget,
-            boolean attacksOnly) {
-        HexPiece piece = board.pieceAt(from).orElse(null);
-        if (piece == null) {
-            return List.of();
-        }
-
-        return switch (piece.type()) {
-            case KING -> stepMoves(board, from, HexDirection.queenDirections(), piece.color(), attacksOnly);
-            case QUEEN -> slidingMoves(board, from, HexDirection.queenDirections(), piece.color(), attacksOnly);
-            case ROOK -> slidingMoves(board, from, HexDirection.rookDirections(), piece.color(), attacksOnly);
-            case BISHOP -> slidingMoves(board, from, HexDirection.bishopDirections(), piece.color(), attacksOnly);
-            case KNIGHT -> jumpMoves(board, from, KNIGHT_JUMPS, piece.color(), attacksOnly);
-            case PAWN -> pawnMoves(board, from, piece.color(), enPassantTarget, attacksOnly);
-            case CUSTOM -> List.of();
-        };
-    }
-
-    private static List<HexMove> slidingMoves(
-            HexBoard board,
-            HexCoordinate from,
-            List<HexDirection> directions,
-            HexPieceColor color,
-            boolean attacksOnly) {
-        return directions.stream()
-                .flatMap(direction -> slidingMovesInDirection(board, from, direction, color, attacksOnly).stream())
-                .toList();
-    }
-
-    private static List<HexMove> slidingMovesInDirection(
-            HexBoard board,
-            HexCoordinate from,
-            HexDirection direction,
-            HexPieceColor color,
-            boolean attacksOnly) {
-        List<HexMove> moves = new java.util.ArrayList<>();
-
-        for (HexCoordinate target : HexBoardGeometry.ray(from, direction)) {
-            Optional<HexPiece> targetPiece = board.pieceAt(target);
-
-            if (targetPiece.isEmpty()) {
-                moves.add(new HexMove(from, target));
-                continue;
-            }
-
-            if (attacksOnly || targetPiece.get().color() != color) {
-                moves.add(new HexMove(from, target));
-            }
-            break;
-        }
-
-        return moves;
-    }
-
-    private static List<HexMove> stepMoves(
-            HexBoard board,
-            HexCoordinate from,
-            List<HexDirection> directions,
-            HexPieceColor color,
-            boolean attacksOnly) {
-        return directions.stream()
-                .map(direction -> HexBoardGeometry.neighbor(from, direction))
-                .flatMap(Optional::stream)
-                .filter(canLandOn(board, color, attacksOnly))
-                .map(target -> new HexMove(from, target))
-                .toList();
-    }
-
-    private static List<HexMove> jumpMoves(
-            HexBoard board,
-            HexCoordinate from,
-            List<Jump> jumps,
-            HexPieceColor color,
-            boolean attacksOnly) {
-        return jumps.stream()
-                .map(jump -> HexBoardGeometry.shift(from, jump.qDelta(), jump.rDelta()))
-                .flatMap(Optional::stream)
-                .filter(canLandOn(board, color, attacksOnly))
-                .map(target -> new HexMove(from, target))
-                .toList();
-    }
-
-    private static Predicate<HexCoordinate> canLandOn(HexBoard board, HexPieceColor color, boolean attacksOnly) {
-        return target -> attacksOnly
-                || board.pieceAt(target)
-                .map(piece -> piece.color() != color)
-                .orElse(true);
-    }
-
-    private static List<HexMove> pawnMoves(
-            HexBoard board,
-            HexCoordinate from,
-            HexPieceColor color,
-            HexCoordinate enPassantTarget,
-            boolean attacksOnly) {
-        List<Jump> attacks = color == HexPieceColor.WHITE ? WHITE_PAWN_ATTACKS : BLACK_PAWN_ATTACKS;
-
-        if (attacksOnly) {
-            return attacks.stream()
-                    .map(jump -> HexBoardGeometry.shift(from, jump.qDelta(), jump.rDelta()))
-                    .flatMap(Optional::stream)
-                    .map(target -> new HexMove(from, target))
-                    .toList();
-        }
-
-        Stream<HexMove> captures = attacks.stream()
-                .map(jump -> HexBoardGeometry.shift(from, jump.qDelta(), jump.rDelta()))
-                .flatMap(Optional::stream)
-                .filter(target -> isEnemyPiece(board, target, color)
-                        || target.equals(enPassantTarget))
-                .map(target -> new HexMove(
-                        from,
-                        target,
-                        promotionAt(target, color).orElse(null),
-                        target.equals(enPassantTarget)));
-
-        Stream<HexMove> forwardMoves = forwardPawnMoves(board, from, color);
-
-        return Stream.concat(forwardMoves, captures).toList();
-    }
-
-    private static Stream<HexMove> forwardPawnMoves(HexBoard board, HexCoordinate from, HexPieceColor color) {
-        HexDirection forward = color == HexPieceColor.WHITE ? HexDirection.NORTH : HexDirection.SOUTH;
-        Optional<HexCoordinate> oneStep = HexBoardGeometry.neighbor(from, forward)
-                .filter(board::isEmpty);
-
-        Stream<HexMove> singleMove = oneStep.stream()
-                .map(target -> new HexMove(from, target, promotionAt(target, color).orElse(null), false));
-
-        Stream<HexMove> doubleMove = oneStep
-                .filter(ignored -> isPawnStart(from, color))
-                .flatMap(target -> HexBoardGeometry.neighbor(target, forward))
-                .filter(board::isEmpty)
-                .map(target -> new HexMove(from, target))
-                .stream();
-
-        return Stream.concat(singleMove, doubleMove);
-    }
-
-    private static Optional<HexPieceType> promotionAt(HexCoordinate target, HexPieceColor color) {
-        return HexBoardGeometry.isPromotionSquare(target, color)
-                ? Optional.of(HexPieceType.QUEEN)
-                : Optional.empty();
-    }
-
-    private static boolean isEnemyPiece(HexBoard board, HexCoordinate target, HexPieceColor color) {
-        return board.pieceAt(target)
-                .map(piece -> piece.color() != color)
-                .orElse(false);
-    }
-
-    private static boolean isPawnStart(HexCoordinate coordinate, HexPieceColor color) {
-        return color == HexPieceColor.WHITE
-                ? WHITE_PAWN_STARTS.contains(coordinate)
-                : BLACK_PAWN_STARTS.contains(coordinate);
-    }
-
-    private static Optional<HexCoordinate> nextEnPassantTarget(HexMove move, HexPiece movingPiece) {
-        if (movingPiece.type() != HexPieceType.PAWN) {
-            return Optional.empty();
-        }
-
-        AxialCoordinate from = HexBoardGeometry.axial(move.from());
-        AxialCoordinate to = HexBoardGeometry.axial(move.to());
-
-        if (Math.abs(to.r() - from.r()) != 2 || to.q() != from.q()) {
-            return Optional.empty();
-        }
-
-        int step = movingPiece.color() == HexPieceColor.WHITE ? 1 : -1;
-        return HexBoardGeometry.shift(move.from(), 0, step);
-    }
-
-    private static Optional<HexCoordinate> enPassantCapturedAt(HexMove move, HexPieceColor color) {
-        int behind = color == HexPieceColor.WHITE ? -1 : 1;
-        return HexBoardGeometry.shift(move.to(), 0, behind);
-    }
-
-    private static HexPieceType promotionFor(HexMove move, HexPiece piece) {
-        if (piece == null || piece.type() != HexPieceType.PAWN) {
-            return null;
-        }
-
-        return move.promotion();
-    }
-
-    private static boolean sameMoveIntent(HexMove legalMove, HexMove requestedMove) {
-        return legalMove.from().equals(requestedMove.from())
-                && legalMove.to().equals(requestedMove.to())
-                && (requestedMove.promotion() == null || requestedMove.promotion() == legalMove.promotion());
-    }
-
-    private static boolean hasKingsOnly(HexBoard board) {
-        return board.pieces()
-                .values()
-                .stream()
-                .allMatch(piece -> piece.type() == HexPieceType.KING);
-    }
-
     private static Map<String, Integer> incrementRepetition(Map<String, Integer> counts, String key) {
         Map<String, Integer> next = new LinkedHashMap<>(counts);
         next.merge(key, 1, Integer::sum);
         return Map.copyOf(next);
     }
-
-    private static String positionKey(HexBoard board, HexPieceColor turn, HexCoordinate enPassantTarget) {
-        String pieces = board.pieces()
-                .entrySet()
-                .stream()
-                .sorted(Map.Entry.comparingByKey())
-                .map(entry -> entry.getKey().notation()
-                        + entry.getValue().color().name().charAt(0)
-                        + entry.getValue().type().symbol())
-                .collect(Collectors.joining("/"));
-
-        return pieces + "|" + turn.name() + "|" + (enPassantTarget == null ? "-" : enPassantTarget.notation());
-    }
-
-    private static List<Jump> createKnightJumps() {
-        List<HexDirection> directions = HexDirection.rookDirections();
-
-        return IntStream.range(0, directions.size())
-                .boxed()
-                .flatMap(index -> {
-                    HexDirection forward = directions.get(index);
-                    HexDirection left = directions.get((index + 1) % directions.size());
-                    HexDirection right = directions.get((index + directions.size() - 1) % directions.size());
-
-                    return Stream.of(
-                            new Jump(
-                                    2 * forward.qDelta() + left.qDelta(),
-                                    2 * forward.rDelta() + left.rDelta()),
-                            new Jump(
-                                    2 * forward.qDelta() + right.qDelta(),
-                                    2 * forward.rDelta() + right.rDelta()));
-                })
-                .distinct()
-                .toList();
-    }
-
-    private static List<HexCoordinate> coordinates(String... notations) {
-        return Stream.of(notations)
-                .map(HexCoordinate::of)
-                .toList();
-    }
-}
-
-record Jump(int qDelta, int rDelta) {
 }

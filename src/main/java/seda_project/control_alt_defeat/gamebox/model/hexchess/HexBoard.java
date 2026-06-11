@@ -16,12 +16,7 @@ public record HexBoard(Map<HexCoordinate, HexPiece> pieces) {
     }
 
     public static HexBoard standard() {
-        Map<HexCoordinate, HexPiece> pieces = new LinkedHashMap<>();
-
-        addWhitePieces(pieces);
-        addBlackPieces(pieces);
-
-        return new HexBoard(pieces);
+        return HexStartingPosition.build();
     }
 
     public Optional<HexPiece> pieceAt(HexCoordinate coordinate) {
@@ -76,30 +71,4 @@ public record HexBoard(Map<HexCoordinate, HexPiece> pieces) {
                 .withPiece(move.to(), placedPiece);
     }
 
-    private static void addWhitePieces(Map<HexCoordinate, HexPiece> pieces) {
-        put(pieces, HexPieceColor.WHITE, HexPieceType.KING, "g1");
-        put(pieces, HexPieceColor.WHITE, HexPieceType.QUEEN, "e1");
-        put(pieces, HexPieceColor.WHITE, HexPieceType.ROOK, "c1", "i1");
-        put(pieces, HexPieceColor.WHITE, HexPieceType.KNIGHT, "d1", "h1");
-        put(pieces, HexPieceColor.WHITE, HexPieceType.BISHOP, "f1", "f2", "f3");
-        put(pieces, HexPieceColor.WHITE, HexPieceType.PAWN, "b1", "c2", "d3", "e4", "f5", "g4", "h3", "i2", "k1");
-    }
-
-    private static void addBlackPieces(Map<HexCoordinate, HexPiece> pieces) {
-        put(pieces, HexPieceColor.BLACK, HexPieceType.KING, "g10");
-        put(pieces, HexPieceColor.BLACK, HexPieceType.QUEEN, "e10");
-        put(pieces, HexPieceColor.BLACK, HexPieceType.ROOK, "c8", "i8");
-        put(pieces, HexPieceColor.BLACK, HexPieceType.KNIGHT, "d9", "h9");
-        put(pieces, HexPieceColor.BLACK, HexPieceType.BISHOP, "f9", "f10", "f11");
-        put(pieces, HexPieceColor.BLACK, HexPieceType.PAWN, "b7", "c7", "d7", "e7", "f7", "g7", "h7", "i7", "k7");
-    }
-
-    private static void put(
-            Map<HexCoordinate, HexPiece> pieces,
-            HexPieceColor color,
-            HexPieceType type,
-            String... notations) {
-        Stream.of(notations)
-                .forEach(notation -> pieces.put(HexCoordinate.of(notation), new HexPiece(color, type)));
-    }
 }

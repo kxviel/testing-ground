@@ -10,8 +10,14 @@ public record HexPiece(HexPieceColor color, HexPieceType type) {
     }
 
     public String displayText() {
-        return color == HexPieceColor.WHITE
-                ? type.symbol()
-                : type.symbol().toLowerCase();
+        return switch (type) {
+            case KING -> "♚";
+            case QUEEN -> "♛";
+            case ROOK -> "♜";
+            case BISHOP -> "♝";
+            case KNIGHT -> "♞";
+            case PAWN -> "♟";
+            case CUSTOM -> "◆";
+        };
     }
 }

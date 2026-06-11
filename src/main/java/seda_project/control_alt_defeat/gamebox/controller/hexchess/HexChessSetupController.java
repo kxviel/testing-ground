@@ -3,14 +3,16 @@ package seda_project.control_alt_defeat.gamebox.controller.hexchess;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
-import javafx.scene.Group;
+import javafx.geometry.VPos;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Polygon;
-import javafx.scene.text.Text;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.TextAlignment;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexBoard;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexBoardGeometry;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexChessGameSetup;
@@ -34,9 +36,17 @@ public class HexChessSetupController implements RouteDataReceiver {
     private static final double HEX_SIZE = 24.0;
     private static final double BOARD_WIDTH = 720.0;
     private static final double BOARD_HEIGHT = 590.0;
+    private static final Color CELL_LIGHT = Color.web("#f7c895");
+    private static final Color CELL_MID = Color.web("#e5aa68");
+    private static final Color CELL_DARK = Color.web("#cf873d");
+    private static final Color STROKE_BASE = Color.web("#6b4a28");
+    private static final Color STROKE_SELECTED = Color.web("#0f62fe");
+    private static final Color NOTATION_COLOR = Color.rgb(23, 23, 23, 0.45);
+    private static final Color WHITE_PIECE = Color.WHITE;
+    private static final Color BLACK_PIECE = Color.web("#171717");
 
     @FXML
-    private Pane boardPane;
+    private Canvas boardCanvas;
     @FXML
     private TextField whiteNameField;
     @FXML
@@ -52,8 +62,7 @@ public class HexChessSetupController implements RouteDataReceiver {
     @FXML
     private Label validationLabel;
 
-    private final Map<HexCoordinate, Polygon> cellPolygons = new HashMap<>();
-    private final Map<HexCoordinate, Text> pieceTexts = new HashMap<>();
+    private final Map<HexCoordinate, Point2D> cellCenters = new HashMap<>();
 
     private HexChessGameSetup setup = HexChessGameSetup.local();
     private HexBoard board = HexBoard.standard();
@@ -135,23 +144,13 @@ public class HexChessSetupController implements RouteDataReceiver {
     }
 
     private void buildBoard() {
-        boardPane.getChildren().clear();
-        cellPolygons.clear();
-        pieceTexts.clear();
-        boardPane.setPrefSize(BOARD_WIDTH, BOARD_HEIGHT);
-
-        HexBoardGeometry.displayOrder().forEach(coordinate -> {
-            Point2D center = centerOf(coordinate);
-            Polygon cell = createHexagon(center);
-            Text notation = createNotationText(coordinate, center);
-            Text piece = createPieceText(center);
-            Group group = new Group(cell, notation, piece);
-
-            group.setOnMouseClicked(event -> onCellClicked(coordinate));
-            cellPolygons.put(coordinate, cell);
-            pieceTexts.put(coordinate, piece);
-            boardPane.getChildren().add(group);
-        });
+        boardCanvas.setWidth(BOARD_WIDTH);
+        boardCanvas.setHeight(BOARD_HEIGHT);
+        boardCanvas.setOnMouseClicked(event -> coordinateAt(event.getX(), event.getY())
+                .ifPresent(this::onCellClicked));
+        cellCenters.clear();
+        HexBoardGeometry.displayOrder()
+                .forEach(coordinate -> cellCenters.put(coordinate, centerOf(coordinate)));
     }
 
     private void onCellClicked(HexCoordinate coordinate) {
@@ -163,34 +162,18 @@ public class HexChessSetupController implements RouteDataReceiver {
     }
 
     private void render() {
-        renderCells();
-        renderPieces();
+        drawBoard();
         renderValidation();
     }
 
-    private void renderCells() {
-        cellPolygons.forEach((coordinate, polygon) -> {
-            polygon.getStyleClass().setAll("hex-cell", HexBoardGeometry.tone(coordinate).styleClass());
+    private void drawBoard() {
+        GraphicsContext graphics = boardCanvas.getGraphicsContext2D();
+        graphics.clearRect(0, 0, boardCanvas.getWidth(), boardCanvas.getHeight());
 
-            if (coordinate.equals(selectedCoordinate)) {
-                polygon.getStyleClass().add("hex-cell-selected");
-            }
-            if (HexBoardGeometry.isPromotionSquare(coordinate, HexPieceColor.WHITE)
-                    || HexBoardGeometry.isPromotionSquare(coordinate, HexPieceColor.BLACK)) {
-                polygon.getStyleClass().add("hex-cell-promotion");
-            }
-        });
-    }
-
-    private void renderPieces() {
-        pieceTexts.forEach((coordinate, text) -> {
-            Optional<HexPiece> piece = board.pieceAt(coordinate);
-            text.setText(piece.map(HexPiece::displayText).orElse(""));
-            text.getStyleClass().setAll("hex-piece");
-            piece.map(HexPiece::color)
-                    .map(color -> color == HexPieceColor.WHITE ? "hex-piece-white" : "hex-piece-black")
-                    .ifPresent(styleClass -> text.getStyleClass().add(styleClass));
-        });
+        HexBoardGeometry.displayOrder()
+                .forEach(coordinate -> drawCell(graphics, coordinate));
+        HexBoardGeometry.displayOrder()
+                .forEach(coordinate -> drawPiece(graphics, coordinate));
     }
 
     private void renderValidation() {
@@ -212,40 +195,139 @@ public class HexChessSetupController implements RouteDataReceiver {
         return new Point2D(x, y);
     }
 
-    private Polygon createHexagon(Point2D center) {
-        Polygon polygon = new Polygon();
-        IntStream.range(0, 6)
-                .mapToDouble(index -> Math.toRadians(30 + 60 * index))
-                .forEach(angle -> polygon.getPoints().addAll(
-                        center.getX() + HEX_SIZE * Math.cos(angle),
-                        center.getY() + HEX_SIZE * Math.sin(angle)));
-        polygon.getStyleClass().add("hex-cell");
-        return polygon;
+    private void drawCell(GraphicsContext graphics, HexCoordinate coordinate) {
+        Point2D center = cellCenters.get(coordinate);
+        double[] xPoints = xPoints(center);
+        double[] yPoints = yPoints(center);
+
+        graphics.setFill(cellFill(coordinate));
+        graphics.fillPolygon(xPoints, yPoints, 6);
+        graphics.setStroke(STROKE_BASE);
+        graphics.setLineWidth(1);
+        graphics.strokePolygon(xPoints, yPoints, 6);
+
+        if (coordinate.equals(selectedCoordinate)) {
+            strokePolygon(graphics, xPoints, yPoints, STROKE_SELECTED, 3);
+        }
+
+        drawNotation(graphics, coordinate, center);
     }
 
-    private Text createNotationText(HexCoordinate coordinate, Point2D center) {
-        Text text = new Text(promotionLabel(coordinate));
-        text.getStyleClass().add("hex-notation");
-        text.setX(center.getX() - 10);
-        text.setY(center.getY() + 16);
-        text.setMouseTransparent(true);
-        return text;
+    private void strokePolygon(
+            GraphicsContext graphics,
+            double[] xPoints,
+            double[] yPoints,
+            Color color,
+            double lineWidth) {
+        graphics.setStroke(color);
+        graphics.setLineWidth(lineWidth);
+        graphics.strokePolygon(xPoints, yPoints, 6);
     }
 
-    private Text createPieceText(Point2D center) {
-        Text text = new Text();
-        text.setFill(Color.BLACK);
-        text.getStyleClass().add("hex-piece");
-        text.setX(center.getX() - 9);
-        text.setY(center.getY() + 8);
-        text.setMouseTransparent(true);
-        return text;
+    private Color cellFill(HexCoordinate coordinate) {
+        return switch (HexBoardGeometry.tone(coordinate)) {
+            case LIGHT -> CELL_LIGHT;
+            case MID -> CELL_MID;
+            case DARK -> CELL_DARK;
+        };
+    }
+
+    private void drawNotation(GraphicsContext graphics, HexCoordinate coordinate, Point2D center) {
+        if (board.pieceAt(coordinate).isPresent()) {
+            return;
+        }
+
+        graphics.setFill(NOTATION_COLOR);
+        graphics.setFont(Font.font("Lato", FontWeight.BOLD, 9));
+        graphics.setTextAlign(TextAlignment.CENTER);
+        graphics.setTextBaseline(VPos.CENTER);
+        graphics.fillText(promotionLabel(coordinate), center.getX(), center.getY() + 13);
+        if (isPromotionSquare(coordinate)) {
+            drawPromotionArrow(graphics, center);
+        }
+    }
+
+    private void drawPromotionArrow(GraphicsContext graphics, Point2D center) {
+        double tipY = center.getY() + 2;
+        double baseY = center.getY() + 9;
+        double wingY = tipY + 4;
+        double wingOffset = 4;
+
+        graphics.setStroke(NOTATION_COLOR);
+        graphics.setLineWidth(1.2);
+        graphics.strokeLine(center.getX(), baseY, center.getX(), tipY);
+        graphics.strokeLine(center.getX(), tipY, center.getX() - wingOffset, wingY);
+        graphics.strokeLine(center.getX(), tipY, center.getX() + wingOffset, wingY);
+    }
+
+    private void drawPiece(GraphicsContext graphics, HexCoordinate coordinate) {
+        Point2D center = cellCenters.get(coordinate);
+        Optional<HexPiece> piece = board.pieceAt(coordinate);
+        if (piece.isEmpty()) {
+            return;
+        }
+
+        graphics.setFont(Font.font("Segoe UI Symbol", FontWeight.NORMAL, 28));
+        graphics.setTextAlign(TextAlignment.CENTER);
+        graphics.setTextBaseline(VPos.CENTER);
+        if (piece.get().color() == HexPieceColor.WHITE) {
+            graphics.setStroke(Color.web("#171717"));
+            graphics.setLineWidth(0.75);
+            graphics.strokeText(piece.get().displayText(), center.getX(), center.getY() - 1);
+        }
+        graphics.setFill(piece.get().color() == HexPieceColor.WHITE ? WHITE_PIECE : BLACK_PIECE);
+        graphics.fillText(piece.get().displayText(), center.getX(), center.getY() - 1);
+    }
+
+    private Optional<HexCoordinate> coordinateAt(double x, double y) {
+        return cellCenters.entrySet()
+                .stream()
+                .filter(entry -> containsPoint(entry.getValue(), x, y))
+                .map(Map.Entry::getKey)
+                .findFirst();
+    }
+
+    private boolean containsPoint(Point2D center, double x, double y) {
+        double[] xPoints = xPoints(center);
+        double[] yPoints = yPoints(center);
+        boolean inside = false;
+
+        for (int current = 0, previous = xPoints.length - 1; current < xPoints.length; previous = current++) {
+            boolean crosses = (yPoints[current] > y) != (yPoints[previous] > y);
+            double intersectX = (xPoints[previous] - xPoints[current])
+                    * (y - yPoints[current])
+                    / (yPoints[previous] - yPoints[current])
+                    + xPoints[current];
+            if (crosses && x < intersectX) {
+                inside = !inside;
+            }
+        }
+
+        return inside;
+    }
+
+    private double[] xPoints(Point2D center) {
+        return IntStream.range(0, 6)
+                .mapToDouble(index -> center.getX() + HEX_SIZE * Math.cos(hexAngle(index)))
+                .toArray();
+    }
+
+    private double[] yPoints(Point2D center) {
+        return IntStream.range(0, 6)
+                .mapToDouble(index -> center.getY() + HEX_SIZE * Math.sin(hexAngle(index)))
+                .toArray();
+    }
+
+    private double hexAngle(int index) {
+        return Math.toRadians(60 * index);
+    }
+
+    private boolean isPromotionSquare(HexCoordinate coordinate) {
+        return HexBoardGeometry.isPromotionSquare(coordinate, HexPieceColor.WHITE)
+                || HexBoardGeometry.isPromotionSquare(coordinate, HexPieceColor.BLACK);
     }
 
     private String promotionLabel(HexCoordinate coordinate) {
-        boolean promotionSquare = HexBoardGeometry.isPromotionSquare(coordinate, HexPieceColor.WHITE)
-                || HexBoardGeometry.isPromotionSquare(coordinate, HexPieceColor.BLACK);
-
-        return promotionSquare ? coordinate.notation() + "*" : coordinate.notation();
+        return coordinate.notation();
     }
 }
