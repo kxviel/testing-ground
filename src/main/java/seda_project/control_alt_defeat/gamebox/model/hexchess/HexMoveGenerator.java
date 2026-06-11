@@ -67,7 +67,7 @@ public final class HexMoveGenerator {
                 continue;
             }
 
-            if (attacksOnly || targetPiece.get().color() != color) {
+            if (attacksOnly || targetPiece.filter(piece -> piece.color() != color).isPresent()) {
                 moves.add(new HexMove(from, target));
             }
             break;

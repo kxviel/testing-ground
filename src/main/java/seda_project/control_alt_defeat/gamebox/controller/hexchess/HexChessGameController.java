@@ -5,16 +5,11 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.geometry.Point2D;
-import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.TextAlignment;
 import javafx.util.Duration;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexBoardGeometry;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexChessBot;
@@ -32,11 +27,8 @@ import seda_project.control_alt_defeat.gamebox.network.hexchess.HexChessStateSna
 import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
 import seda_project.control_alt_defeat.gamebox.util.Router;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.IntStream;
 
 public class HexChessGameController implements RouteDataReceiver {
 
@@ -53,8 +45,6 @@ public class HexChessGameController implements RouteDataReceiver {
     private static final Color STROKE_SELECTED = Color.web("#0f62fe");
     private static final Color STROKE_LAST = Color.web("#7c3aed");
     private static final Color NOTATION_COLOR = Color.rgb(23, 23, 23, 0.45);
-    private static final Color WHITE_PIECE = Color.WHITE;
-    private static final Color BLACK_PIECE = Color.web("#171717");
 
     @FXML
     private Canvas boardCanvas;
@@ -75,7 +65,12 @@ public class HexChessGameController implements RouteDataReceiver {
     @FXML
     private Button declineDrawButton;
 
-    private final Map<HexCoordinate, Point2D> cellCenters = new HashMap<>();
+    private final HexChessCanvasBoard canvasBoard = new HexChessCanvasBoard(
+            HEX_SIZE,
+            BOARD_WIDTH,
+            BOARD_HEIGHT,
+            14,
+            30);
 
     private HexChessGameSetup setup = HexChessGameSetup.local();
     private HexGameState gameState = HexGameState.standard();
@@ -192,13 +187,7 @@ public class HexChessGameController implements RouteDataReceiver {
             return;
         }
 
-        boardCanvas.setWidth(BOARD_WIDTH);
-        boardCanvas.setHeight(BOARD_HEIGHT);
-        boardCanvas.setOnMouseClicked(event -> coordinateAt(event.getX(), event.getY())
-                .ifPresent(this::onCellClicked));
-        cellCenters.clear();
-        HexBoardGeometry.displayOrder()
-                .forEach(coordinate -> cellCenters.put(coordinate, centerOf(coordinate)));
+        canvasBoard.attach(boardCanvas, this::onCellClicked);
     }
 
     private void onCellClicked(HexCoordinate coordinate) {
@@ -206,17 +195,22 @@ public class HexChessGameController implements RouteDataReceiver {
             return;
         }
 
-        Optional<HexMove> selectedMove = selectedMoves.stream()
+        HexMove selectedMove = selectedMoves.stream()
                 .filter(move -> move.to().equals(coordinate))
-                .findFirst();
+                .findFirst()
+                .orElse(null);
 
-        if (selectedMove.isPresent()) {
-            submitMove(selectedMove.get());
+        if (selectedMove != null) {
+            submitMove(selectedMove);
             return;
         }
 
-        Optional<HexPiece> piece = gameState.board().pieceAt(coordinate);
-        if (piece.isPresent() && piece.get().color() == gameState.turn()) {
+        boolean ownPieceSelected = gameState.board()
+                .pieceAt(coordinate)
+                .map(HexPiece::color)
+                .filter(gameState.turn()::equals)
+                .isPresent();
+        if (ownPieceSelected) {
             selectedCoordinate = coordinate;
             selectedMoves = gameState.legalMovesFrom(coordinate);
         } else {
@@ -365,13 +359,7 @@ public class HexChessGameController implements RouteDataReceiver {
     }
 
     private void drawBoard() {
-        GraphicsContext graphics = boardCanvas.getGraphicsContext2D();
-        graphics.clearRect(0, 0, boardCanvas.getWidth(), boardCanvas.getHeight());
-
-        HexBoardGeometry.displayOrder()
-                .forEach(coordinate -> drawCell(graphics, coordinate));
-        HexBoardGeometry.displayOrder()
-                .forEach(coordinate -> drawPiece(graphics, coordinate));
+        canvasBoard.redraw(boardCanvas, this::drawCell, this::drawPiece);
     }
 
     private void renderLabels() {
@@ -397,52 +385,24 @@ public class HexChessGameController implements RouteDataReceiver {
         declineDrawButton.setManaged(canAnswerDrawOffer);
     }
 
-    private Point2D centerOf(HexCoordinate coordinate) {
-        double q = HexBoardGeometry.axialQ(coordinate);
-        double r = HexBoardGeometry.axialR(coordinate);
-        double x = (HEX_SIZE * 1.5 * q) + (BOARD_WIDTH / 2.0);
-        double y = (-HEX_SIZE * Math.sqrt(3) * (r + q / 2.0)) + (BOARD_HEIGHT / 2.0);
-
-        return new Point2D(x, y);
-    }
-
     private void drawCell(GraphicsContext graphics, HexCoordinate coordinate) {
-        Point2D center = cellCenters.get(coordinate);
-        double[] xPoints = xPoints(center);
-        double[] yPoints = yPoints(center);
-
-        graphics.setFill(cellFill(coordinate));
-        graphics.fillPolygon(xPoints, yPoints, 6);
-        drawCellStroke(graphics, coordinate, xPoints, yPoints);
-        drawNotation(graphics, coordinate, center);
+        canvasBoard.fillCell(graphics, coordinate, cellFill(coordinate));
+        drawCellStroke(graphics, coordinate);
+        canvasBoard.drawNotation(
+                graphics,
+                coordinate,
+                gameState.board().pieceAt(coordinate).isPresent(),
+                NOTATION_COLOR);
     }
 
-    private void drawCellStroke(
-            GraphicsContext graphics,
-            HexCoordinate coordinate,
-            double[] xPoints,
-            double[] yPoints) {
-        graphics.setStroke(STROKE_BASE);
-        graphics.setLineWidth(1);
-        graphics.strokePolygon(xPoints, yPoints, 6);
-
+    private void drawCellStroke(GraphicsContext graphics, HexCoordinate coordinate) {
+        canvasBoard.strokeCell(graphics, coordinate, STROKE_BASE, 1);
         if (isLastMoveCell(coordinate)) {
-            strokePolygon(graphics, xPoints, yPoints, STROKE_LAST, 3);
+            canvasBoard.strokeCell(graphics, coordinate, STROKE_LAST, 3);
         }
         if (coordinate.equals(selectedCoordinate)) {
-            strokePolygon(graphics, xPoints, yPoints, STROKE_SELECTED, 3);
+            canvasBoard.strokeCell(graphics, coordinate, STROKE_SELECTED, 3);
         }
-    }
-
-    private void strokePolygon(
-            GraphicsContext graphics,
-            double[] xPoints,
-            double[] yPoints,
-            Color color,
-            double lineWidth) {
-        graphics.setStroke(color);
-        graphics.setLineWidth(lineWidth);
-        graphics.strokePolygon(xPoints, yPoints, 6);
     }
 
     private Color cellFill(HexCoordinate coordinate) {
@@ -460,99 +420,9 @@ public class HexChessGameController implements RouteDataReceiver {
         };
     }
 
-    private void drawNotation(GraphicsContext graphics, HexCoordinate coordinate, Point2D center) {
-        if (gameState.board().pieceAt(coordinate).isPresent()) {
-            return;
-        }
-
-        graphics.setFill(NOTATION_COLOR);
-        graphics.setFont(Font.font("Lato", FontWeight.BOLD, 9));
-        graphics.setTextAlign(TextAlignment.CENTER);
-        graphics.setTextBaseline(VPos.CENTER);
-        graphics.fillText(promotionLabel(coordinate), center.getX(), center.getY() + 14);
-        if (isPromotionSquare(coordinate)) {
-            drawPromotionArrow(graphics, center);
-        }
-    }
-
-    private void drawPromotionArrow(GraphicsContext graphics, Point2D center) {
-        double tipY = center.getY() + 2;
-        double baseY = center.getY() + 9;
-        double wingY = tipY + 4;
-        double wingOffset = 4;
-
-        graphics.setStroke(NOTATION_COLOR);
-        graphics.setLineWidth(1.2);
-        graphics.strokeLine(center.getX(), baseY, center.getX(), tipY);
-        graphics.strokeLine(center.getX(), tipY, center.getX() - wingOffset, wingY);
-        graphics.strokeLine(center.getX(), tipY, center.getX() + wingOffset, wingY);
-    }
-
     private void drawPiece(GraphicsContext graphics, HexCoordinate coordinate) {
-        Point2D center = cellCenters.get(coordinate);
-        Optional<HexPiece> piece = gameState.board().pieceAt(coordinate);
-        if (piece.isEmpty()) {
-            return;
-        }
-
-        graphics.setFont(Font.font("Segoe UI Symbol", FontWeight.NORMAL, 30));
-        graphics.setTextAlign(TextAlignment.CENTER);
-        graphics.setTextBaseline(VPos.CENTER);
-        if (piece.get().color() == HexPieceColor.WHITE) {
-            graphics.setStroke(Color.web("#171717"));
-            graphics.setLineWidth(0.75);
-            graphics.strokeText(piece.get().displayText(), center.getX(), center.getY() - 1);
-        }
-        graphics.setFill(piece.get().color() == HexPieceColor.WHITE ? WHITE_PIECE : BLACK_PIECE);
-        graphics.fillText(piece.get().displayText(), center.getX(), center.getY() - 1);
-    }
-
-    private Optional<HexCoordinate> coordinateAt(double x, double y) {
-        return cellCenters.entrySet()
-                .stream()
-                .filter(entry -> containsPoint(entry.getValue(), x, y))
-                .map(Map.Entry::getKey)
-                .findFirst();
-    }
-
-    private boolean containsPoint(Point2D center, double x, double y) {
-        double[] xPoints = xPoints(center);
-        double[] yPoints = yPoints(center);
-        boolean inside = false;
-
-        for (int current = 0, previous = xPoints.length - 1; current < xPoints.length; previous = current++) {
-            boolean crosses = (yPoints[current] > y) != (yPoints[previous] > y);
-            double intersectX = (xPoints[previous] - xPoints[current])
-                    * (y - yPoints[current])
-                    / (yPoints[previous] - yPoints[current])
-                    + xPoints[current];
-            if (crosses && x < intersectX) {
-                inside = !inside;
-            }
-        }
-
-        return inside;
-    }
-
-    private double[] xPoints(Point2D center) {
-        return IntStream.range(0, 6)
-                .mapToDouble(index -> center.getX() + HEX_SIZE * Math.cos(hexAngle(index)))
-                .toArray();
-    }
-
-    private double[] yPoints(Point2D center) {
-        return IntStream.range(0, 6)
-                .mapToDouble(index -> center.getY() + HEX_SIZE * Math.sin(hexAngle(index)))
-                .toArray();
-    }
-
-    private double hexAngle(int index) {
-        return Math.toRadians(60 * index);
-    }
-
-    private boolean isPromotionSquare(HexCoordinate coordinate) {
-        return HexBoardGeometry.isPromotionSquare(coordinate, HexPieceColor.WHITE)
-                || HexBoardGeometry.isPromotionSquare(coordinate, HexPieceColor.BLACK);
+        HexPiece piece = gameState.board().pieceAt(coordinate).orElse(null);
+        canvasBoard.drawPiece(graphics, coordinate, piece);
     }
 
     private boolean isLastMoveCell(HexCoordinate coordinate) {
@@ -630,10 +500,6 @@ public class HexChessGameController implements RouteDataReceiver {
             case NETWORK_CLIENT -> setup.whiteName() + " vs " + setup.blackName() + " - LAN joiner";
             default -> setup.whiteName() + " vs " + setup.blackName();
         };
-    }
-
-    private String promotionLabel(HexCoordinate coordinate) {
-        return coordinate.notation();
     }
 
     private String formatScore(double score) {

@@ -44,13 +44,6 @@
     -fx-text-fill: #8a6a3d;
 }
 
-.status-line {
-    -fx-font-size: 13px;
-    -fx-font-weight: 600;
-    -fx-text-fill: #364050;
-    -fx-line-spacing: 2px;
-}
-
 .stat-line {
     -fx-font-size: 13px;
     -fx-font-weight: 600;
@@ -112,7 +105,6 @@
     -fx-spacing: 18;
 }
 
-.menu-panel,
 .menu-card,
 .hex-side-panel,
 .hex-board-panel {
@@ -122,11 +114,6 @@
     -fx-border-radius: 8;
     -fx-border-width: 1;
     -fx-effect: dropshadow(gaussian, rgba(22, 25, 31, 0.07), 18, 0, 0, 5);
-}
-
-.menu-panel {
-    -fx-padding: 24 28;
-    -fx-spacing: 16;
 }
 
 .menu-card {
@@ -356,68 +343,4 @@
 .separator .line {
     -fx-border-color: #e2e5eb;
     -fx-border-width: 1 0 0 0;
-}
-
-.hex-cell {
-    -fx-stroke: #6b4a28;
-    -fx-stroke-width: 1;
-    -fx-cursor: hand;
-}
-
-.hex-cell-light {
-    -fx-fill: #f7c895;
-}
-
-.hex-cell-mid {
-    -fx-fill: #e5aa68;
-}
-
-.hex-cell-dark {
-    -fx-fill: #cf873d;
-}
-
-.hex-cell-selected {
-    -fx-stroke: #0f62fe;
-    -fx-stroke-width: 3;
-}
-
-.hex-cell-legal {
-    -fx-fill: #9fd3b5;
-}
-
-.hex-cell-last-from,
-.hex-cell-last-to {
-    -fx-stroke: #7c3aed;
-    -fx-stroke-width: 3;
-}
-
-.hex-cell-check {
-    -fx-fill: #f87171;
-}
-
-.hex-cell-promotion {
-    -fx-stroke: #171717;
-    -fx-stroke-width: 2;
-}
-
-.hex-piece {
-    -fx-font-size: 22px;
-    -fx-font-weight: 800;
-    -fx-text-alignment: center;
-}
-
-.hex-piece-white {
-    -fx-fill: white;
-    -fx-stroke: #171717;
-    -fx-stroke-width: 0.8;
-}
-
-.hex-piece-black {
-    -fx-fill: #171717;
-}
-
-.hex-notation {
-    -fx-font-size: 9px;
-    -fx-font-weight: 700;
-    -fx-fill: rgba(23, 23, 23, 0.45);
 }

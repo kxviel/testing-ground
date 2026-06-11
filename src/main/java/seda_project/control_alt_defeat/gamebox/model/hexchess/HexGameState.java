@@ -69,7 +69,7 @@ public record HexGameState(
     public List<HexMove> legalMovesFrom(HexCoordinate from) {
         Optional<HexPiece> piece = board.pieceAt(from);
 
-        if (piece.isEmpty() || piece.get().color() != turn || !isActive()) {
+        if (!isActive() || piece.map(HexPiece::color).filter(turn::equals).isEmpty()) {
             return List.of();
         }
 
@@ -86,11 +86,9 @@ public record HexGameState(
                 .filter(move -> HexMoveRules.sameMoveIntent(move, requestedMove))
                 .findFirst();
 
-        if (legalMove.isEmpty()) {
-            return withMessage("Illegal move: " + requestedMove.notation());
-        }
-
-        return applyLegalMove(legalMove.get());
+        return legalMove
+                .map(this::applyLegalMove)
+                .orElseGet(() -> withMessage("Illegal move: " + requestedMove.notation()));
     }
 
     public HexGameState offerDraw() {

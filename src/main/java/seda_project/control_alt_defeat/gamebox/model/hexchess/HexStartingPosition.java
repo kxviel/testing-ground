@@ -61,7 +61,6 @@ public final class HexStartingPosition {
             HexPieceColor color,
             HexPieceType type,
             List<String> notations) {
-        notations.stream()
-                .forEach(notation -> pieces.put(HexCoordinate.of(notation), new HexPiece(color, type)));
+        notations.forEach(notation -> pieces.put(HexCoordinate.of(notation), new HexPiece(color, type)));
     }
 }

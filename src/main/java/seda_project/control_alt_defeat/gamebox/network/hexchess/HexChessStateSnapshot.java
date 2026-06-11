@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public final class HexChessStateSnapshot {
@@ -46,29 +47,33 @@ public final class HexChessStateSnapshot {
             return HexGameState.standard();
         }
 
-        HexBoard board = deserializeBoard(parts[0]);
-        HexPieceColor turn = parseColor(parts[1], HexPieceColor.WHITE);
-        HexGameStatus status = parseStatus(parts[2]);
-        String statusMessage = decode(parts[3]);
-        HexMoveRecord lastMove = deserializeLastMove(parts[4]);
-        HexCoordinate enPassantTarget = parseCoordinate(parts[5]);
-        HexPieceColor drawOfferBy = "-".equals(parts[6]) ? null : parseColor(parts[6], null);
-        int halfMoveClock = parseInt(parts[7]);
-        double whiteScore = parseDouble(parts[8]);
-        double blackScore = parseDouble(parts[9]);
+        try {
+            HexBoard board = deserializeBoard(parts[0]);
+            HexPieceColor turn = parseColor(parts[1], HexPieceColor.WHITE);
+            HexGameStatus status = parseStatus(parts[2]);
+            String statusMessage = decode(parts[3]);
+            HexMoveRecord lastMove = deserializeLastMove(parts[4]);
+            HexCoordinate enPassantTarget = parseCoordinate(parts[5]);
+            HexPieceColor drawOfferBy = "-".equals(parts[6]) ? null : parseColor(parts[6], null);
+            int halfMoveClock = parseInt(parts[7]);
+            double whiteScore = parseDouble(parts[8]);
+            double blackScore = parseDouble(parts[9]);
 
-        return new HexGameState(
-                board,
-                turn,
-                status,
-                statusMessage,
-                lastMove,
-                enPassantTarget,
-                drawOfferBy,
-                halfMoveClock,
-                Map.of(),
-                whiteScore,
-                blackScore);
+            return new HexGameState(
+                    board,
+                    turn,
+                    status,
+                    statusMessage,
+                    lastMove,
+                    enPassantTarget,
+                    drawOfferBy,
+                    halfMoveClock,
+                    Map.of(),
+                    whiteScore,
+                    blackScore);
+        } catch (RuntimeException e) {
+            return HexGameState.standard();
+        }
     }
 
     private static String serializeBoard(HexBoard board) {
@@ -87,15 +92,33 @@ public final class HexChessStateSnapshot {
             return HexBoard.empty();
         }
 
-        Map<HexCoordinate, HexPiece> pieces = new LinkedHashMap<>();
-        Arrays.stream(value.split(";"))
-                .map(piece -> piece.split(",", 3))
-                .filter(parts -> parts.length == 3)
-                .forEach(parts -> pieces.put(
-                        HexCoordinate.of(parts[0]),
-                        new HexPiece(parseColor(parts[1], HexPieceColor.WHITE), HexPieceType.valueOf(parts[2]))));
+        Map<HexCoordinate, HexPiece> pieces = Arrays.stream(value.split(";"))
+                .map(HexChessStateSnapshot::deserializePiece)
+                .flatMap(Optional::stream)
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (existing, replacement) -> replacement,
+                        LinkedHashMap::new));
 
         return new HexBoard(pieces);
+    }
+
+    private static Optional<Map.Entry<HexCoordinate, HexPiece>> deserializePiece(String value) {
+        String[] parts = value.split(",", 3);
+        if (parts.length != 3) {
+            return Optional.empty();
+        }
+
+        try {
+            HexCoordinate coordinate = HexCoordinate.of(parts[0]);
+            HexPieceColor color = parseColor(parts[1], HexPieceColor.WHITE);
+            HexPieceType type = HexPieceType.valueOf(parts[2]);
+
+            return Optional.of(Map.entry(coordinate, new HexPiece(color, type)));
+        } catch (IllegalArgumentException e) {
+            return Optional.empty();
+        }
     }
 
     private static String serializeLastMove(HexMoveRecord record) {
@@ -126,23 +149,33 @@ public final class HexChessStateSnapshot {
             return null;
         }
 
-        HexPieceType promotion = "-".equals(parts[2]) ? null : HexPieceType.valueOf(parts[2]);
-        HexMove move = new HexMove(
-                HexCoordinate.of(parts[0]),
-                HexCoordinate.of(parts[1]),
-                promotion,
-                Boolean.parseBoolean(parts[3]));
-        HexPiece movedPiece = new HexPiece(parseColor(parts[4], HexPieceColor.WHITE), HexPieceType.valueOf(parts[5]));
-        HexPiece capturedPiece = "-".equals(parts[6])
-                ? null
-                : new HexPiece(parseColor(parts[6], HexPieceColor.BLACK), HexPieceType.valueOf(parts[7]));
-        HexCoordinate capturedAt = parseCoordinate(parts[8]);
+        try {
+            HexPieceType promotion = "-".equals(parts[2]) ? null : HexPieceType.valueOf(parts[2]);
+            HexMove move = new HexMove(
+                    HexCoordinate.of(parts[0]),
+                    HexCoordinate.of(parts[1]),
+                    promotion,
+                    Boolean.parseBoolean(parts[3]));
+            HexPiece movedPiece = new HexPiece(
+                    parseColor(parts[4], HexPieceColor.WHITE),
+                    HexPieceType.valueOf(parts[5]));
+            HexPiece capturedPiece = "-".equals(parts[6])
+                    ? null
+                    : new HexPiece(parseColor(parts[6], HexPieceColor.BLACK), HexPieceType.valueOf(parts[7]));
+            HexCoordinate capturedAt = parseCoordinate(parts[8]);
 
-        return new HexMoveRecord(move, movedPiece, capturedPiece, capturedAt);
+            return new HexMoveRecord(move, movedPiece, capturedPiece, capturedAt);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 
     private static HexCoordinate parseCoordinate(String value) {
-        return value == null || value.isBlank() || "-".equals(value) ? null : HexCoordinate.of(value);
+        try {
+            return value == null || value.isBlank() || "-".equals(value) ? null : HexCoordinate.of(value);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 
     private static HexPieceColor parseColor(String value, HexPieceColor fallback) {
@@ -155,13 +188,17 @@ public final class HexChessStateSnapshot {
 
     private static HexGameStatus parseStatus(String value) {
         try {
-            return HexGameStatus.valueOf(value);
+            return value == null || value.isBlank() ? HexGameStatus.RUNNING : HexGameStatus.valueOf(value);
         } catch (IllegalArgumentException e) {
             return HexGameStatus.RUNNING;
         }
     }
 
     private static int parseInt(String value) {
+        if (value == null || value.isBlank()) {
+            return 0;
+        }
+
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {
@@ -170,6 +207,10 @@ public final class HexChessStateSnapshot {
     }
 
     private static double parseDouble(String value) {
+        if (value == null || value.isBlank()) {
+            return 0;
+        }
+
         try {
             return Double.parseDouble(value);
         } catch (NumberFormatException e) {
@@ -184,6 +225,10 @@ public final class HexChessStateSnapshot {
     }
 
     private static String decode(String value) {
-        return new String(Base64.getUrlDecoder().decode(value), StandardCharsets.UTF_8);
+        try {
+            return new String(Base64.getUrlDecoder().decode(value), StandardCharsets.UTF_8);
+        } catch (IllegalArgumentException e) {
+            return "";
+        }
     }
 }

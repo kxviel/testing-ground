@@ -135,7 +135,8 @@ public class HexChessLanDiscoveryService implements Closeable {
     }
 
     private String buildMessage(String playerName, int tcpPort) {
-        String name = Base64.getEncoder().encodeToString(playerName.getBytes(StandardCharsets.UTF_8));
+        String safePlayerName = playerName == null || playerName.isBlank() ? "Host" : playerName.trim();
+        String name = Base64.getEncoder().encodeToString(safePlayerName.getBytes(StandardCharsets.UTF_8));
         return PREFIX + ":" + GAME_TYPE + ":" + sessionId + ":" + tcpPort + ":" + name + ":"
                 + System.currentTimeMillis();
     }

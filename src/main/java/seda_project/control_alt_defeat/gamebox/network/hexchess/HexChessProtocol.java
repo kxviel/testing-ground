@@ -1,6 +1,7 @@
 package seda_project.control_alt_defeat.gamebox.network.hexchess;
 
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexChessGameSetup;
+import seda_project.control_alt_defeat.gamebox.model.hexchess.HexCoordinate;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexMove;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexPieceType;
 
@@ -85,20 +86,28 @@ public final class HexChessProtocol {
     }
 
     public static HexMove parseMove(List<String> fields) {
-        if (fields.size() < 2) {
+        if (fields == null || fields.size() < 2) {
             return null;
         }
 
-        HexPieceType promotion = fields.size() >= 3 && !fields.get(2).isBlank()
+        try {
+            HexPieceType promotion = parsePromotion(fields);
+            boolean enPassant = fields.size() >= 4 && Boolean.parseBoolean(fields.get(3));
+
+            return new HexMove(
+                    HexCoordinate.of(fields.get(0)),
+                    HexCoordinate.of(fields.get(1)),
+                    promotion,
+                    enPassant);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    private static HexPieceType parsePromotion(List<String> fields) {
+        return fields.size() >= 3 && !fields.get(2).isBlank()
                 ? HexPieceType.valueOf(fields.get(2))
                 : null;
-        boolean enPassant = fields.size() >= 4 && Boolean.parseBoolean(fields.get(3));
-
-        return new HexMove(
-                seda_project.control_alt_defeat.gamebox.model.hexchess.HexCoordinate.of(fields.get(0)),
-                seda_project.control_alt_defeat.gamebox.model.hexchess.HexCoordinate.of(fields.get(1)),
-                promotion,
-                enPassant);
     }
 
     private static String make(String type, String... fields) {
