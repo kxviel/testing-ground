@@ -1,22 +1,28 @@
 .hex-menu-root,
 .hex-game-root {
-    -fx-background-color: #f4f5f8;
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #f8f4ec 0%, #eef1f5 62%, #f5f6f9 100%);
     -fx-font-family: "Lato", "Segoe UI", sans-serif;
 }
 
 .hex-menu-root {
-    -fx-padding: 24 32 22 32;
+    -fx-padding: 26 32 24 32;
 }
 
 .title {
-    -fx-font-size: 30px;
+    -fx-font-size: 34px;
     -fx-font-weight: 700;
     -fx-text-fill: #171717;
 }
 
+.eyebrow {
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #8a6a3d;
+}
+
 .subtitle {
     -fx-font-size: 14px;
-    -fx-text-fill: #5f6470;
+    -fx-text-fill: #5d6674;
 }
 
 .section-title {
@@ -25,17 +31,72 @@
     -fx-text-fill: #171717;
 }
 
+.section-copy {
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #697384;
+    -fx-line-spacing: 2px;
+}
+
+.panel-label {
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #8a6a3d;
+}
+
 .status-line {
     -fx-font-size: 13px;
     -fx-font-weight: 600;
-    -fx-text-fill: #333743;
+    -fx-text-fill: #364050;
     -fx-line-spacing: 2px;
+}
+
+.stat-line {
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #313948;
+    -fx-line-spacing: 2px;
+}
+
+.accent-line {
+    -fx-text-fill: #7d5831;
+}
+
+.turn-display {
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #171717;
+}
+
+.status-box {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #fbfbfc 0%, #f4f6f9 100%);
+    -fx-background-radius: 8;
+    -fx-border-color: #dde2ea;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-padding: 10 12;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #37404f;
+    -fx-line-spacing: 2px;
+}
+
+.status-box-good {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #f5faf3 0%, #edf5ea 100%);
+    -fx-border-color: #c8dcbf;
+    -fx-text-fill: #36573b;
+}
+
+.status-box-warn {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #fff6f1 0%, #fdeee5 100%);
+    -fx-border-color: #e5c6b7;
+    -fx-text-fill: #7c3d31;
 }
 
 .hex-header,
 .hex-game-header {
-    -fx-spacing: 4;
-    -fx-padding: 0 0 16 0;
+    -fx-spacing: 5;
+    -fx-padding: 0 0 18 0;
 }
 
 .hex-footer {
@@ -43,20 +104,24 @@
 }
 
 .hex-menu-layout {
-    -fx-spacing: 16;
-    -fx-max-width: 650;
+    -fx-spacing: 18;
+    -fx-max-width: 660;
+}
+
+.hex-stage {
+    -fx-spacing: 18;
 }
 
 .menu-panel,
 .menu-card,
 .hex-side-panel,
 .hex-board-panel {
-    -fx-background-color: white;
+    -fx-background-color: rgba(255, 255, 255, 0.92);
     -fx-background-radius: 8;
-    -fx-border-color: #dedee8;
+    -fx-border-color: #dddfe6;
     -fx-border-radius: 8;
     -fx-border-width: 1;
-    -fx-effect: dropshadow(gaussian, rgba(23, 23, 23, 0.04), 8, 0, 0, 2);
+    -fx-effect: dropshadow(gaussian, rgba(22, 25, 31, 0.07), 18, 0, 0, 5);
 }
 
 .menu-panel {
@@ -65,7 +130,7 @@
 }
 
 .menu-card {
-    -fx-padding: 20 22;
+    -fx-padding: 22 22 20 22;
     -fx-spacing: 14;
     -fx-min-width: 302;
     -fx-pref-width: 312;
@@ -77,12 +142,38 @@
 }
 
 .hex-side-panel {
-    -fx-padding: 18;
+    -fx-padding: 18 18 16 18;
     -fx-spacing: 12;
 }
 
 .hex-board-panel {
-    -fx-padding: 10;
+    -fx-padding: 12;
+}
+
+.board-surface {
+    -fx-spacing: 12;
+    -fx-padding: 14;
+}
+
+.board-header {
+    -fx-padding: 0 2 2 2;
+}
+
+.canvas-frame {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #fcf7ee 0%, #f6ebd9 100%);
+    -fx-background-radius: 10;
+    -fx-border-color: #e6d7bf;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-padding: 8;
+}
+
+.sidebar-section {
+    -fx-spacing: 10;
+}
+
+.hero-section {
+    -fx-spacing: 8;
 }
 
 .hex-form-grid {
@@ -101,42 +192,53 @@
 .button {
     -fx-alignment: center;
     -fx-background-insets: 0;
-    -fx-background-radius: 8;
-    -fx-border-radius: 8;
+    -fx-background-radius: 9;
+    -fx-border-radius: 9;
     -fx-border-width: 1;
     -fx-cursor: hand;
     -fx-font-size: 14px;
     -fx-font-weight: 600;
-    -fx-min-height: 36;
+    -fx-min-height: 38;
     -fx-min-width: 96;
     -fx-padding: 8 16;
 }
 
 .btn-primary {
-    -fx-background-color: #171717;
-    -fx-border-color: #171717;
+    -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, #232830 0%, #15181d 100%);
+    -fx-border-color: #12151a;
     -fx-text-fill: white;
 }
 
 .btn-primary:hover {
-    -fx-background-color: #2f2f2f;
-    -fx-border-color: #2f2f2f;
+    -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, #2b3038 0%, #191d22 100%);
+    -fx-border-color: #15191e;
 }
 
 .btn-outline {
-    -fx-background-color: white;
-    -fx-border-color: #cfd2dc;
+    -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, #ffffff 0%, #f6f7fa 100%);
+    -fx-border-color: #d0d5de;
     -fx-text-fill: #171717;
 }
 
 .btn-outline:hover {
-    -fx-background-color: #f2f3f7;
-    -fx-border-color: #bfc3cf;
+    -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, #ffffff 0%, #eef1f5 100%);
+    -fx-border-color: #bcc4d0;
+}
+
+.btn-danger {
+    -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, #8a4039 0%, #74312b 100%);
+    -fx-border-color: #692b25;
+    -fx-text-fill: white;
+}
+
+.btn-danger:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, #9a4840 0%, #7d3530 100%);
+    -fx-border-color: #732f29;
 }
 
 .btn-small {
-    -fx-background-color: white;
-    -fx-border-color: #cfd2dc;
+    -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, #ffffff 0%, #f6f7fa 100%);
+    -fx-border-color: #cfd4dd;
     -fx-text-fill: #171717;
     -fx-font-size: 12px;
     -fx-min-width: 74;
@@ -145,12 +247,12 @@
 }
 
 .btn-small:hover {
-    -fx-background-color: #f2f3f7;
-    -fx-border-color: #bfc3cf;
+    -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, #ffffff 0%, #eef1f5 100%);
+    -fx-border-color: #bcc4d0;
 }
 
 .button:disabled {
-    -fx-opacity: 0.46;
+    -fx-opacity: 0.52;
     -fx-cursor: default;
 }
 
@@ -166,11 +268,11 @@
 }
 
 .text-field {
-    -fx-background-color: white;
+    -fx-background-color: rgba(255, 255, 255, 0.96);
     -fx-background-insets: 0;
     -fx-background-radius: 8;
     -fx-border-radius: 8;
-    -fx-border-color: #cfd2dc;
+    -fx-border-color: #cfd4dd;
     -fx-border-width: 1;
     -fx-min-height: 36;
     -fx-padding: 8 12;
@@ -180,40 +282,69 @@
 }
 
 .text-field:focused {
-    -fx-border-color: #8fb9c8;
-    -fx-effect: dropshadow(gaussian, rgba(64, 142, 168, 0.25), 6, 0, 0, 0);
+    -fx-border-color: #96a8bd;
+    -fx-effect: dropshadow(gaussian, rgba(85, 110, 136, 0.18), 7, 0, 0, 0);
+}
+
+.combo-box {
+    -fx-background-color: rgba(255, 255, 255, 0.96);
+    -fx-background-radius: 8;
+    -fx-border-color: #cfd4dd;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-min-height: 36;
+    -fx-padding: 2 4 2 8;
+}
+
+.combo-box:focused {
+    -fx-border-color: #96a8bd;
+    -fx-effect: dropshadow(gaussian, rgba(85, 110, 136, 0.18), 7, 0, 0, 0);
+}
+
+.combo-box .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #20242d;
+    -fx-padding: 6 8;
+}
+
+.combo-box .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.combo-box .arrow {
+    -fx-background-color: #6d7684;
 }
 
 .list-view {
-    -fx-background-color: #fbfbfd;
+    -fx-background-color: rgba(255, 255, 255, 0.7);
     -fx-background-insets: 0;
     -fx-background-radius: 8;
-    -fx-border-color: #d8dbe4;
+    -fx-border-color: #d8dde6;
     -fx-border-radius: 8;
     -fx-border-width: 1;
     -fx-padding: 3;
 }
 
 .list-view:focused {
-    -fx-border-color: #8fb9c8;
+    -fx-border-color: #96a8bd;
 }
 
 .list-cell {
     -fx-background-color: transparent;
     -fx-background-radius: 6;
-    -fx-padding: 7 9;
+    -fx-padding: 8 10;
     -fx-font-size: 12px;
     -fx-text-fill: #20242d;
 }
 
 .list-cell:filled:selected,
 .list-cell:filled:selected:hover {
-    -fx-background-color: #d9ecf4;
+    -fx-background-color: #e2ebf2;
     -fx-text-fill: #171717;
 }
 
 .list-cell:filled:hover {
-    -fx-background-color: #eef2f6;
+    -fx-background-color: #f0f3f7;
 }
 
 .empty-list-label {
@@ -223,7 +354,7 @@
 }
 
 .separator .line {
-    -fx-border-color: #e2e4eb;
+    -fx-border-color: #e2e5eb;
     -fx-border-width: 1 0 0 0;
 }
 

@@ -1,6 +1,7 @@
 package seda_project.control_alt_defeat.gamebox.controller.hexchess;
 
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -48,6 +49,7 @@ public class HexChessMenuController {
         if (lanGamesList != null) {
             lanGamesList.setItems(discoveredGames);
         }
+        bindOptionalLabel(statusLabel);
         if (lanGamesList != null && joinSelectedLanButton != null) {
             joinSelectedLanButton.disableProperty()
                     .bind(lanGamesList.getSelectionModel().selectedItemProperty().isNull());
@@ -201,6 +203,17 @@ public class HexChessMenuController {
 
     private void closeDiscovery() {
         discoveryService.close();
+    }
+
+    private void bindOptionalLabel(Label label) {
+        if (label == null) {
+            return;
+        }
+
+        label.visibleProperty().bind(Bindings.createBooleanBinding(
+                () -> !label.getText().isBlank(),
+                label.textProperty()));
+        label.managedProperty().bind(label.visibleProperty());
     }
 
     private Stage stageFrom(ActionEvent event) {

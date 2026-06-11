@@ -17,47 +17,76 @@
 
     <top>
         <VBox alignment="CENTER" styleClass="hex-game-header">
+            <Label text="LIVE MATCH" styleClass="eyebrow"/>
             <Label text="Hexagon Chess" styleClass="title"/>
             <Label fx:id="modeLabel" text="" styleClass="subtitle"/>
         </VBox>
     </top>
 
     <center>
-        <HBox alignment="CENTER" spacing="18" BorderPane.alignment="CENTER">
-            <StackPane minWidth="820"
-                       minHeight="650"
-                       prefWidth="820"
-                       prefHeight="650"
-                       styleClass="hex-board-panel">
-                <Canvas fx:id="boardCanvas" width="820" height="650"/>
-            </StackPane>
-
-            <VBox alignment="TOP_LEFT" minWidth="260" prefWidth="280" maxWidth="300" styleClass="hex-side-panel">
-                <Label fx:id="turnLabel" text="" styleClass="section-title"/>
-                <Label fx:id="statusLabel" text="" wrapText="true" styleClass="status-line"/>
-                <Separator/>
-                <Label fx:id="scoreLabel" text="" styleClass="status-line"/>
-                <Label fx:id="lastMoveLabel" text="" wrapText="true" styleClass="status-line"/>
-                <Label fx:id="drawOfferLabel" text="" wrapText="true" styleClass="status-line"/>
-
-                <HBox styleClass="button-row">
-                    <Button text="Offer Draw" onAction="#onOfferDraw" styleClass="btn-outline"/>
-                    <Button text="Resign" onAction="#onResign" styleClass="btn-outline"/>
+        <HBox alignment="TOP_CENTER" spacing="18" styleClass="hex-stage" BorderPane.alignment="CENTER">
+            <VBox minWidth="852"
+                  prefWidth="852"
+                  maxWidth="852"
+                  styleClass="hex-board-panel board-surface">
+                <HBox alignment="CENTER_LEFT" styleClass="board-header">
+                    <VBox spacing="2">
+                        <Label text="Board" styleClass="section-title"/>
+                        <Label text="Promotion files are marked with arrows." styleClass="section-copy"/>
+                    </VBox>
                 </HBox>
+                <StackPane minWidth="820"
+                           minHeight="650"
+                           prefWidth="820"
+                           prefHeight="650"
+                           styleClass="canvas-frame">
+                    <Canvas fx:id="boardCanvas" width="820" height="650"/>
+                </StackPane>
+            </VBox>
 
-                <HBox styleClass="button-row">
-                    <Button fx:id="acceptDrawButton" text="Accept" onAction="#onAcceptDraw"
-                            visible="false" managed="false" styleClass="btn-primary"/>
-                    <Button fx:id="declineDrawButton" text="Decline" onAction="#onDeclineDraw"
-                            visible="false" managed="false" styleClass="btn-outline"/>
-                </HBox>
+            <VBox alignment="TOP_LEFT" minWidth="288" prefWidth="304" maxWidth="320" styleClass="hex-side-panel">
+                <VBox styleClass="sidebar-section hero-section">
+                    <Label text="Turn" styleClass="panel-label"/>
+                    <Label fx:id="turnLabel" text="" styleClass="turn-display"/>
+                    <Label fx:id="statusLabel" text="" wrapText="true" minHeight="52" styleClass="status-box"/>
+                </VBox>
 
                 <Separator/>
 
-                <HBox styleClass="button-row">
-                    <Button text="Restart" onAction="#onRestart" styleClass="btn-outline"/>
-                    <Button text="Menu" onAction="#onBackToMenu" styleClass="btn-primary"/>
-                </HBox>
+                <VBox styleClass="sidebar-section">
+                    <Label text="Position" styleClass="panel-label"/>
+                    <Label fx:id="scoreLabel" text="" styleClass="stat-line"/>
+                    <Label fx:id="lastMoveLabel" text="" wrapText="true" styleClass="stat-line"/>
+                    <Label fx:id="drawOfferLabel" text="" wrapText="true" styleClass="stat-line accent-line"/>
+                </VBox>
+
+                <Separator/>
+
+                <VBox styleClass="sidebar-section">
+                    <Label text="Actions" styleClass="panel-label"/>
+                    <HBox styleClass="button-row">
+                        <Button text="Offer Draw" onAction="#onOfferDraw" maxWidth="Infinity"
+                                styleClass="btn-outline" HBox.hgrow="ALWAYS"/>
+                        <Button text="Resign" onAction="#onResign" maxWidth="Infinity"
+                                styleClass="btn-danger" HBox.hgrow="ALWAYS"/>
+                    </HBox>
+
+                    <HBox styleClass="button-row">
+                        <Button fx:id="acceptDrawButton" text="Accept" onAction="#onAcceptDraw"
+                                visible="false" managed="false" maxWidth="Infinity"
+                                styleClass="btn-primary" HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="declineDrawButton" text="Decline" onAction="#onDeclineDraw"
+                                visible="false" managed="false" maxWidth="Infinity"
+                                styleClass="btn-outline" HBox.hgrow="ALWAYS"/>
+                    </HBox>
+
+                    <HBox styleClass="button-row">
+                        <Button text="Restart" onAction="#onRestart" maxWidth="Infinity"
+                                styleClass="btn-outline" HBox.hgrow="ALWAYS"/>
+                        <Button text="Menu" onAction="#onBackToMenu" maxWidth="Infinity"
+                                styleClass="btn-primary" HBox.hgrow="ALWAYS"/>
+                    </HBox>
+                </VBox>
             </VBox>
         </HBox>
     </center>

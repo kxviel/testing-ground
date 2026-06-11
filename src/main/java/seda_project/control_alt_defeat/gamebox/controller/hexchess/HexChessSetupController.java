@@ -184,6 +184,9 @@ public class HexChessSetupController implements RouteDataReceiver {
                 board,
                 turnChoiceBox.getSelectionModel().getSelectedItem());
         validationLabel.setText(validation.message());
+        validationLabel.getStyleClass().setAll(
+                "status-box",
+                validation.isValid() ? "status-box-good" : "status-box-warn");
     }
 
     private Point2D centerOf(HexCoordinate coordinate) {

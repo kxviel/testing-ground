@@ -17,56 +17,79 @@
 
     <top>
         <VBox alignment="CENTER" styleClass="hex-game-header">
+            <Label text="POSITION BUILDER" styleClass="eyebrow"/>
             <Label text="Custom Position" styleClass="title"/>
             <Label text="Build a valid Hexagon Chess starting position" styleClass="subtitle"/>
         </VBox>
     </top>
 
     <center>
-        <HBox alignment="CENTER" spacing="18" BorderPane.alignment="CENTER">
-            <StackPane minWidth="720"
-                       minHeight="590"
-                       prefWidth="720"
-                       prefHeight="590"
-                       styleClass="hex-board-panel">
-                <Canvas fx:id="boardCanvas" width="720" height="590"/>
-            </StackPane>
-
-            <VBox alignment="TOP_LEFT" minWidth="280" prefWidth="300" maxWidth="320" styleClass="hex-side-panel">
-                <Label text="Players" styleClass="section-title"/>
-                <GridPane styleClass="hex-form-grid">
-                    <columnConstraints>
-                        <ColumnConstraints halignment="RIGHT" minWidth="72" prefWidth="72"/>
-                        <ColumnConstraints hgrow="NEVER" minWidth="170" prefWidth="170"/>
-                    </columnConstraints>
-                    <Label text="White" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-                    <TextField fx:id="whiteNameField" text="White" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-                    <Label text="Black" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-                    <TextField fx:id="blackNameField" text="Black" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-                </GridPane>
-
-                <Separator/>
-                <Label text="Piece" styleClass="section-title"/>
-                <ComboBox fx:id="colorChoiceBox" maxWidth="Infinity"/>
-                <ComboBox fx:id="typeChoiceBox" maxWidth="Infinity"/>
-                <Label fx:id="selectedLabel" text="Selected: none" styleClass="status-line"/>
-                <Button text="Remove Piece" onAction="#onRemovePiece" styleClass="btn-outline"/>
-
-                <Separator/>
-                <Label text="Side To Move" styleClass="section-title"/>
-                <ComboBox fx:id="turnChoiceBox" maxWidth="Infinity"/>
-
-                <HBox styleClass="button-row">
-                    <Button text="Standard" onAction="#onLoadStandard" styleClass="btn-outline"/>
-                    <Button text="Clear" onAction="#onClearBoard" styleClass="btn-outline"/>
+        <HBox alignment="TOP_CENTER" spacing="18" styleClass="hex-stage" BorderPane.alignment="CENTER">
+            <VBox minWidth="752"
+                  prefWidth="752"
+                  maxWidth="752"
+                  styleClass="hex-board-panel board-surface">
+                <HBox alignment="CENTER_LEFT" styleClass="board-header">
+                    <VBox spacing="2">
+                        <Label text="Board Editor" styleClass="section-title"/>
+                        <Label text="Click a cell to place the selected piece." styleClass="section-copy"/>
+                    </VBox>
                 </HBox>
+                <StackPane minWidth="720"
+                           minHeight="590"
+                           prefWidth="720"
+                           prefHeight="590"
+                           styleClass="canvas-frame">
+                    <Canvas fx:id="boardCanvas" width="720" height="590"/>
+                </StackPane>
+            </VBox>
 
-                <Label fx:id="validationLabel" text="" wrapText="true" styleClass="status-line"/>
+            <VBox alignment="TOP_LEFT" minWidth="300" prefWidth="316" maxWidth="330" styleClass="hex-side-panel">
+                <VBox styleClass="sidebar-section">
+                    <Label text="Players" styleClass="panel-label"/>
+                    <GridPane styleClass="hex-form-grid">
+                        <columnConstraints>
+                            <ColumnConstraints halignment="RIGHT" minWidth="58" prefWidth="58"/>
+                            <ColumnConstraints hgrow="ALWAYS" minWidth="170" prefWidth="186"/>
+                        </columnConstraints>
+                        <Label text="White" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                        <TextField fx:id="whiteNameField" text="White" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                        <Label text="Black" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                        <TextField fx:id="blackNameField" text="Black" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                    </GridPane>
+                </VBox>
 
                 <Separator/>
+
+                <VBox styleClass="sidebar-section">
+                    <Label text="Placement" styleClass="panel-label"/>
+                    <ComboBox fx:id="colorChoiceBox" maxWidth="Infinity"/>
+                    <ComboBox fx:id="typeChoiceBox" maxWidth="Infinity"/>
+                    <Label fx:id="selectedLabel" text="Selected: none" wrapText="true" styleClass="stat-line"/>
+                    <Button text="Remove Piece" onAction="#onRemovePiece" maxWidth="Infinity" styleClass="btn-outline"/>
+                </VBox>
+
+                <Separator/>
+
+                <VBox styleClass="sidebar-section">
+                    <Label text="Position State" styleClass="panel-label"/>
+                    <ComboBox fx:id="turnChoiceBox" maxWidth="Infinity"/>
+                    <HBox styleClass="button-row">
+                        <Button text="Standard" onAction="#onLoadStandard" maxWidth="Infinity"
+                                styleClass="btn-outline" HBox.hgrow="ALWAYS"/>
+                        <Button text="Clear" onAction="#onClearBoard" maxWidth="Infinity"
+                                styleClass="btn-danger" HBox.hgrow="ALWAYS"/>
+                    </HBox>
+                    <Label fx:id="validationLabel" text="" wrapText="true" minHeight="56" styleClass="status-box"/>
+                </VBox>
+
+                <Separator/>
+
                 <HBox styleClass="button-row">
-                    <Button text="Back" onAction="#onBack" styleClass="btn-outline"/>
-                    <Button text="Start" onAction="#onStart" styleClass="btn-primary"/>
+                    <Button text="Back" onAction="#onBack" maxWidth="Infinity"
+                            styleClass="btn-outline" HBox.hgrow="ALWAYS"/>
+                    <Button text="Start" onAction="#onStart" maxWidth="Infinity"
+                            styleClass="btn-primary" HBox.hgrow="ALWAYS"/>
                 </HBox>
             </VBox>
         </HBox>

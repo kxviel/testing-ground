@@ -2,6 +2,7 @@ package seda_project.control_alt_defeat.gamebox.controller.hexchess;
 
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
@@ -86,6 +87,8 @@ public class HexChessGameController implements RouteDataReceiver {
 
     @FXML
     public void initialize() {
+        bindOptionalLabel(statusLabel);
+        bindOptionalLabel(drawOfferLabel);
         startGame(setup);
     }
 
@@ -607,6 +610,17 @@ public class HexChessGameController implements RouteDataReceiver {
             joinClient.close();
             joinClient = null;
         }
+    }
+
+    private void bindOptionalLabel(Label label) {
+        if (label == null) {
+            return;
+        }
+
+        label.visibleProperty().bind(Bindings.createBooleanBinding(
+                () -> !label.getText().isBlank(),
+                label.textProperty()));
+        label.managedProperty().bind(label.visibleProperty());
     }
 
     private String modeText() {

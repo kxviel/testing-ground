@@ -21,13 +21,16 @@
     </padding>
 
     <VBox alignment="CENTER" styleClass="hex-header">
+        <Label text="GLINSKI VARIANT" styleClass="eyebrow"/>
         <Label text="Hexagon Chess" styleClass="title"/>
-        <Label text="Glinski-style local board" styleClass="subtitle"/>
+        <Label text="Local board, bot, or LAN match" styleClass="subtitle"/>
     </VBox>
 
     <HBox alignment="TOP_CENTER" styleClass="hex-menu-layout">
         <VBox alignment="TOP_LEFT" styleClass="menu-card">
             <Label text="Players" styleClass="section-title"/>
+            <Label text="Set names once, then launch a local game, bot game, or custom board."
+                   wrapText="true" styleClass="section-copy"/>
 
             <GridPane styleClass="hex-form-grid">
                 <columnConstraints>
@@ -44,6 +47,7 @@
                            GridPane.columnIndex="1" GridPane.rowIndex="1"/>
             </GridPane>
 
+            <Label text="Quick Start" styleClass="panel-label"/>
             <VBox alignment="CENTER" styleClass="menu-action-stack">
                 <Button text="Start Local" onAction="#onStartLocal" maxWidth="Infinity" styleClass="btn-primary"/>
                 <Button text="Play Bot" onAction="#onStartBot" maxWidth="Infinity" styleClass="btn-outline"/>
@@ -53,7 +57,11 @@
 
         <VBox alignment="TOP_LEFT" styleClass="menu-card">
             <HBox alignment="CENTER_LEFT" styleClass="section-header">
-                <Label text="LAN" styleClass="section-title"/>
+                <VBox spacing="2">
+                    <Label text="LAN" styleClass="section-title"/>
+                    <Label text="Discover hosts automatically or connect directly by IP."
+                           wrapText="true" styleClass="section-copy"/>
+                </VBox>
                 <Pane HBox.hgrow="ALWAYS"/>
                 <Button text="Refresh" onAction="#onRefreshLan" styleClass="btn-small"/>
             </HBox>
@@ -71,6 +79,7 @@
             </ListView>
 
             <Separator/>
+            <Label text="Direct Join" styleClass="panel-label"/>
 
             <GridPane styleClass="hex-form-grid">
                 <columnConstraints>
@@ -84,7 +93,8 @@
 
             <Button text="Join LAN" onAction="#onJoinLan" maxWidth="Infinity" styleClass="btn-outline"/>
 
-            <Label fx:id="statusLabel" text="" wrapText="true" maxWidth="Infinity" styleClass="status-line"/>
+            <Label fx:id="statusLabel" text="" wrapText="true" maxWidth="Infinity" minHeight="44"
+                   styleClass="status-box"/>
         </VBox>
     </HBox>
 
