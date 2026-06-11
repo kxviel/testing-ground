@@ -19,6 +19,7 @@
         <javafx.maven.version>0.0.8</javafx.maven.version>
 
         <maven.compiler.version>3.13.0</maven.compiler.version>
+        <maven.surefire.version>3.5.4</maven.surefire.version>
         <exec.maven.version>3.6.1</exec.maven.version>
         <maven.antrun.version>3.1.0</maven.antrun.version>
         <maven.resources.version>3.3.1</maven.resources.version>
@@ -78,6 +79,14 @@
                 </configuration>
             </plugin>
 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven.surefire.version}</version>
+                <configuration>
+                    <argLine>--enable-native-access=javafx.graphics</argLine>
+                </configuration>
+            </plugin>
 
             <plugin>
                 <groupId>org.openjfx</groupId>

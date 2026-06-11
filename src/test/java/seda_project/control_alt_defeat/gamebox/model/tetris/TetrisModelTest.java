@@ -70,7 +70,7 @@ public class TetrisModelTest {
     @Test
     void lockClearsCompletedLineAndScoresOnePoint() {
         TetrisBoard board = new TetrisBoard();
-        for (int column = 2; column < TetrisBoard.COLUMNS; column++) {
+        for (int column = 2; column < TetrisBoard.DEFAULT_COLUMNS; column++) {
             board = board.withCell(new BoardPosition(19, column), TetrisCell.FILLED);
         }
 
@@ -180,7 +180,7 @@ public class TetrisModelTest {
     @DisplayName("FR-OUTPUT-19: clearing a line grows clearer's board and shrinks opponent's board")
     void frOutput19ClearingLineGrowsActorBoardAndShrinksOpponentBoard() {
         TetrisBoard bottomBoard = new TetrisBoard();
-        for (int column = 2; column < TetrisBoard.COLUMNS; column++) {
+        for (int column = 2; column < TetrisBoard.DEFAULT_COLUMNS; column++) {
             bottomBoard = bottomBoard.withCell(new BoardPosition(19, column), TetrisCell.FILLED);
         }
 
