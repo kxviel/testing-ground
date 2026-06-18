@@ -132,11 +132,7 @@ public final class HexMoveGenerator {
                 .flatMap(Optional::stream)
                 .filter(target -> isEnemyPiece(board, target, color)
                         || target.equals(enPassantTarget))
-                .map(target -> new HexMove(
-                        from,
-                        target,
-                        HexMoveRules.promotionAt(target, color).orElse(null),
-                        target.equals(enPassantTarget)));
+                .flatMap(target -> pawnMovesTo(from, target, color, target.equals(enPassantTarget)));
 
         return Stream.concat(forwardPawnMoves(board, from, color), captures).toList();
     }
@@ -147,7 +143,7 @@ public final class HexMoveGenerator {
                 .filter(board::isEmpty);
 
         Stream<HexMove> singleMove = oneStep.stream()
-                .map(target -> new HexMove(from, target, HexMoveRules.promotionAt(target, color).orElse(null), false));
+                .flatMap(target -> pawnMovesTo(from, target, color, false));
 
         Stream<HexMove> doubleMove = oneStep
                 .filter(ignored -> HexMoveRules.isPawnStart(from, color))
@@ -163,5 +159,19 @@ public final class HexMoveGenerator {
         return board.pieceAt(target)
                 .map(piece -> piece.color() != color)
                 .orElse(false);
+    }
+
+    private static Stream<HexMove> pawnMovesTo(
+            HexCoordinate from,
+            HexCoordinate target,
+            HexPieceColor color,
+            boolean enPassant) {
+        List<HexPieceType> promotionOptions = HexMoveRules.promotionOptionsAt(target, color);
+        if (promotionOptions.isEmpty()) {
+            return Stream.of(new HexMove(from, target, null, enPassant));
+        }
+
+        return promotionOptions.stream()
+                .map(promotion -> new HexMove(from, target, promotion, enPassant));
     }
 }

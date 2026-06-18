@@ -16,6 +16,11 @@ public final class HexMoveRules {
     private static final List<Jump> WHITE_PAWN_ATTACKS = List.of(new Jump(1, 0), new Jump(-1, 1));
     private static final List<Jump> BLACK_PAWN_ATTACKS = List.of(new Jump(-1, 0), new Jump(1, -1));
     private static final List<Jump> KNIGHT_JUMPS = createKnightJumps();
+    private static final List<HexPieceType> PROMOTION_OPTIONS = List.of(
+            HexPieceType.QUEEN,
+            HexPieceType.ROOK,
+            HexPieceType.BISHOP,
+            HexPieceType.KNIGHT);
 
     private HexMoveRules() {
     }
@@ -34,10 +39,10 @@ public final class HexMoveRules {
                 : BLACK_PAWN_STARTS.contains(coordinate);
     }
 
-    static Optional<HexPieceType> promotionAt(HexCoordinate target, HexPieceColor color) {
+    static List<HexPieceType> promotionOptionsAt(HexCoordinate target, HexPieceColor color) {
         return HexBoardGeometry.isPromotionSquare(target, color)
-                ? Optional.of(HexPieceType.QUEEN)
-                : Optional.empty();
+                ? PROMOTION_OPTIONS
+                : List.of();
     }
 
     static HexPieceType promotionFor(HexMove move, HexPiece piece) {
@@ -72,7 +77,7 @@ public final class HexMoveRules {
     static boolean sameMoveIntent(HexMove legalMove, HexMove requestedMove) {
         return legalMove.from().equals(requestedMove.from())
                 && legalMove.to().equals(requestedMove.to())
-                && (requestedMove.promotion() == null || requestedMove.promotion() == legalMove.promotion());
+                && legalMove.promotion() == requestedMove.promotion();
     }
 
     private static List<Jump> createKnightJumps() {

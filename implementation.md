@@ -10,7 +10,7 @@
   - No castling
   - Pawns move vertically forward
   - Pawns capture one orthogonal-forward cell at 60 degrees to vertical
-  - Promotion remains automatic queen for now
+  - Promotion offers queen, rook, bishop, or knight
 
 ## Architecture
 
@@ -37,12 +37,11 @@
 - Strengthened custom setup validation.
 - Added Hex Chess LAN discovery without modifying Tetris.
 - Replaced Hex Chess board node rendering with canvas rendering.
-- Kept promotion as automatic queen.
+- Added promotion choice for queen, rook, bishop, or knight.
 - Fixed draw-offer ownership so only the opponent can accept/decline, and opponent moves revoke the offer.
 - Moved bot calculation off the JavaFX thread so the board stays responsive while the bot searches.
 
 ## Remaining Later Work
 
-- Manual promotion choice if required later.
 - Custom piece behavior plug-in rules once the custom pieces are specified.
 - Dedicated Hex Chess tests if test coverage becomes required.

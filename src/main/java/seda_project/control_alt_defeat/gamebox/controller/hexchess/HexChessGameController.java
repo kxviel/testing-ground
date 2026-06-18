@@ -8,6 +8,7 @@ import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Label;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
@@ -20,6 +21,7 @@ import seda_project.control_alt_defeat.gamebox.model.hexchess.HexGameState;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexMove;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexPiece;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexPieceColor;
+import seda_project.control_alt_defeat.gamebox.model.hexchess.HexPieceType;
 import seda_project.control_alt_defeat.gamebox.network.GameClient;
 import seda_project.control_alt_defeat.gamebox.network.GameServer;
 import seda_project.control_alt_defeat.gamebox.network.hexchess.HexChessProtocol;
@@ -28,6 +30,7 @@ import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
 import seda_project.control_alt_defeat.gamebox.util.Router;
 
 import java.util.List;
+import java.util.Optional;
 
 public class HexChessGameController implements RouteDataReceiver {
 
@@ -194,13 +197,12 @@ public class HexChessGameController implements RouteDataReceiver {
             return;
         }
 
-        HexMove selectedMove = selectedMoves.stream()
+        List<HexMove> matchingMoves = selectedMoves.stream()
                 .filter(move -> move.to().equals(coordinate))
-                .findFirst()
-                .orElse(null);
+                .toList();
 
-        if (selectedMove != null) {
-            submitMove(selectedMove);
+        if (!matchingMoves.isEmpty()) {
+            choosePromotionMove(matchingMoves).ifPresent(this::submitMove);
             return;
         }
 
@@ -230,6 +232,35 @@ public class HexChessGameController implements RouteDataReceiver {
 
         applyAndBroadcast(gameState.play(move));
         maybePlayBotMove();
+    }
+
+    private Optional<HexMove> choosePromotionMove(List<HexMove> matchingMoves) {
+        if (matchingMoves.size() == 1) {
+            return Optional.of(matchingMoves.getFirst());
+        }
+
+        List<PromotionChoice> choices = matchingMoves.stream()
+                .map(HexMove::promotion)
+                .filter(type -> type != null)
+                .distinct()
+                .map(PromotionChoice::new)
+                .toList();
+        if (choices.isEmpty()) {
+            return Optional.of(matchingMoves.getFirst());
+        }
+
+        ChoiceDialog<PromotionChoice> dialog = new ChoiceDialog<>(choices.getFirst(), choices);
+        if (boardCanvas.getScene() != null) {
+            dialog.initOwner(boardCanvas.getScene().getWindow());
+        }
+        dialog.setTitle("Promotion");
+        dialog.setHeaderText("Choose promotion piece");
+        dialog.setContentText("Promote to:");
+
+        return dialog.showAndWait()
+                .flatMap(choice -> matchingMoves.stream()
+                        .filter(move -> move.promotion() == choice.type())
+                        .findFirst());
     }
 
     private void maybePlayBotMove() {
@@ -515,5 +546,19 @@ public class HexChessGameController implements RouteDataReceiver {
         return score == Math.rint(score)
                 ? String.valueOf((int) score)
                 : String.valueOf(score);
+    }
+
+    private record PromotionChoice(HexPieceType type) {
+
+        @Override
+        public String toString() {
+            return switch (type) {
+                case QUEEN -> "Queen";
+                case ROOK -> "Rook";
+                case BISHOP -> "Bishop";
+                case KNIGHT -> "Knight";
+                default -> type.name();
+            };
+        }
     }
 }
