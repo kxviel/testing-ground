@@ -118,7 +118,7 @@ public class HexChessGameController implements RouteDataReceiver {
             return;
         }
 
-        applyAndBroadcast(gameState.acceptDraw(controlledColor()));
+        applyAndBroadcast(gameState.acceptDraw(drawResponderColor()));
     }
 
     @FXML
@@ -128,7 +128,7 @@ public class HexChessGameController implements RouteDataReceiver {
             return;
         }
 
-        applyAndBroadcast(gameState.declineDraw(controlledColor()));
+        applyAndBroadcast(gameState.declineDraw(drawResponderColor()));
     }
 
     @FXML
@@ -376,7 +376,7 @@ public class HexChessGameController implements RouteDataReceiver {
                 : "Last move: " + gameState.lastMove().move().notation());
 
         boolean drawOfferVisible = gameState.drawOfferBy() != null;
-        boolean canAnswerDrawOffer = gameState.hasDrawOfferFor(controlledColor());
+        boolean canAnswerDrawOffer = gameState.hasDrawOfferFor(drawResponderColor());
         drawOfferLabel.setText(drawOfferVisible
                 ? gameState.drawOfferBy().displayName() + " offered a draw."
                 : "");
@@ -460,6 +460,14 @@ public class HexChessGameController implements RouteDataReceiver {
             return HexPieceColor.WHITE;
         }
         return gameState.turn();
+    }
+
+    private HexPieceColor drawResponderColor() {
+        if (setup.mode() == HexGameMode.LOCAL && gameState.drawOfferBy() != null) {
+            return gameState.drawOfferBy().opponent();
+        }
+
+        return controlledColor();
     }
 
     private boolean isNetworkHost() {
