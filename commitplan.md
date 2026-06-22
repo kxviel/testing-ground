@@ -4,7 +4,7 @@ These commands copy from `testing-ground` to `zero-runtime-warranty`. They do no
 
 Important: these are whole-file copy batches. A few files, especially `HexChessGameController.java`, contain changes that support more than one step, so those files intentionally appear in more than one step. If a repeated file produces no new diff in a later step, that is expected.
 
-## 1. Fix Hex Chess Rule State And Local UX
+## 1. Commit Title: Fix Hex Chess Rule State And Local UX
 
 PowerShell copy command for step 1:
 
@@ -59,10 +59,10 @@ Commit the engine and local gameplay fixes:
 - Improve custom setup editing by disabling Start for invalid positions, supporting right-click/Delete removal, and replacing an existing same-color king when placing a king.
 - Improve bot responsiveness by avoiding full game-state replay during mate checks.
 
-Suggested commit message:
-`Fix Hex Chess rules and local game UX`
+Commit title:
+`Fix Hex Chess rule state and local UX`
 
-## 2. Harden Hex Chess LAN And Network State Handling
+## 2. Commit Title: Harden Hex Chess LAN State Sync
 
 PowerShell copy command for step 2:
 
@@ -111,10 +111,10 @@ Commit the network reliability and LAN UX fixes:
 - Add direct LAN port entry, advertise the actual bound host port, fall back to an available port when the default is busy, and filter stale discovery entries.
 - Keep client-side "move sent" and "draw offer sent" messages inside game state so render cycles do not erase them.
 
-Suggested commit message:
+Commit title:
 `Harden Hex Chess LAN state sync`
 
-## 3. Add Focused Hex Chess Regression Coverage
+## 3. Commit Title: Add Hex Chess Regression And E2E Coverage
 
 PowerShell copy command for step 3:
 
@@ -155,8 +155,8 @@ Commit the new verification coverage:
 - Add JavaFX smoke tests for Hex Chess menu, setup, and game FXML loading.
 - Add controller-level E2E smoke coverage for local play, bot play, custom setup editing/validation, and two-instance LAN play over real localhost TCP.
 
-Suggested commit message:
-`Add Hex Chess regression tests`
+Commit title:
+`Add Hex Chess regression and E2E coverage`
 
 ## Final Verification
 
