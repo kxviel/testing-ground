@@ -36,7 +36,7 @@
                 <HBox alignment="CENTER_LEFT" styleClass="board-header">
                     <VBox spacing="2">
                         <Label text="Board" styleClass="section-title"/>
-                        <Label text="Promotion files are marked with arrows." styleClass="section-copy"/>
+                        <Label text="Promotion files are marked with stars." styleClass="section-copy"/>
                     </VBox>
                 </HBox>
                 <StackPane minWidth="820"
@@ -78,9 +78,9 @@
                 <VBox styleClass="sidebar-section">
                     <Label text="Actions" styleClass="panel-label"/>
                     <HBox styleClass="button-row">
-                        <Button text="Offer Draw" onAction="#onOfferDraw" maxWidth="Infinity"
+                        <Button fx:id="offerDrawButton" text="Offer Draw" onAction="#onOfferDraw" maxWidth="Infinity"
                                 styleClass="btn-outline" HBox.hgrow="ALWAYS"/>
-                        <Button text="Resign" onAction="#onResign" maxWidth="Infinity"
+                        <Button fx:id="resignButton" text="Resign" onAction="#onResign" maxWidth="Infinity"
                                 styleClass="btn-danger" HBox.hgrow="ALWAYS"/>
                     </HBox>
 
@@ -94,7 +94,7 @@
                     </HBox>
 
                     <HBox styleClass="button-row">
-                        <Button text="Restart" onAction="#onRestart" maxWidth="Infinity"
+                        <Button fx:id="restartButton" text="Restart" onAction="#onRestart" maxWidth="Infinity"
                                 styleClass="btn-outline" HBox.hgrow="ALWAYS"/>
                         <Button text="Menu" onAction="#onBackToMenu" maxWidth="Infinity"
                                 styleClass="btn-primary" HBox.hgrow="ALWAYS"/>

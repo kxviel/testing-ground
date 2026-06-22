@@ -86,13 +86,13 @@ public final class HexChessProtocol {
     }
 
     public static HexMove parseMove(List<String> fields) {
-        if (fields == null || fields.size() < 2) {
+        if (fields == null || fields.size() != 4) {
             return null;
         }
 
         try {
             HexPieceType promotion = parsePromotion(fields);
-            boolean enPassant = fields.size() >= 4 && Boolean.parseBoolean(fields.get(3));
+            boolean enPassant = parseBoolean(fields.get(3));
 
             return new HexMove(
                     HexCoordinate.of(fields.getFirst()),
@@ -105,9 +105,25 @@ public final class HexChessProtocol {
     }
 
     private static HexPieceType parsePromotion(List<String> fields) {
-        return fields.size() >= 3 && !fields.get(2).isBlank()
-                ? HexPieceType.valueOf(fields.get(2))
-                : null;
+        if (fields.get(2).isBlank()) {
+            return null;
+        }
+
+        HexPieceType promotion = HexPieceType.valueOf(fields.get(2));
+        return switch (promotion) {
+            case QUEEN, ROOK, BISHOP, KNIGHT -> promotion;
+            default -> throw new IllegalArgumentException("Invalid promotion piece: " + promotion);
+        };
+    }
+
+    private static boolean parseBoolean(String value) {
+        if ("true".equals(value)) {
+            return true;
+        }
+        if ("false".equals(value)) {
+            return false;
+        }
+        throw new IllegalArgumentException("Invalid boolean value: " + value);
     }
 
     private static String make(String type, String... fields) {

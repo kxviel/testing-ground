@@ -1,6 +1,7 @@
 package seda_project.control_alt_defeat.gamebox.model.hexchess;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public final class HexGameEndDetector {
@@ -14,8 +15,28 @@ public final class HexGameEndDetector {
             HexCoordinate enPassantTarget,
             int halfMoveClock,
             Map<String, Integer> repetitionCounts) {
+        return evaluate(
+                board,
+                turn,
+                enPassantTarget,
+                halfMoveClock,
+                repetitionCounts,
+                HexMoveRules.standardDoubleMoveEligibleSquares());
+    }
+
+    static HexGameResolution evaluate(
+            HexBoard board,
+            HexPieceColor turn,
+            HexCoordinate enPassantTarget,
+            int halfMoveClock,
+            Map<String, Integer> repetitionCounts,
+            Set<HexCoordinate> doubleMoveEligibleSquares) {
         boolean check = HexLegalMoveValidator.isInCheck(board, turn);
-        boolean noLegalMoves = HexLegalMoveValidator.legalMoves(board, turn, enPassantTarget).isEmpty();
+        boolean noLegalMoves = HexLegalMoveValidator.legalMoves(
+                board,
+                turn,
+                enPassantTarget,
+                doubleMoveEligibleSquares).isEmpty();
         HexPieceColor mover = turn.opponent();
 
         if (check && noLegalMoves) {

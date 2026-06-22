@@ -4,6 +4,7 @@ import javafx.geometry.Point2D;
 import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -53,9 +54,19 @@ final class HexChessCanvasBoard {
     }
 
     void attach(Canvas canvas, Consumer<HexCoordinate> onCellClicked) {
+        attach(canvas, (coordinate, button) -> {
+            if (button == MouseButton.PRIMARY) {
+                onCellClicked.accept(coordinate);
+            }
+        });
+    }
+
+    void attach(Canvas canvas, BiConsumer<HexCoordinate, MouseButton> onCellClicked) {
         canvas.setWidth(width);
         canvas.setHeight(height);
-        canvas.setOnMouseClicked(event -> coordinateAt(event.getX(), event.getY()).ifPresent(onCellClicked));
+        canvas.setFocusTraversable(true);
+        canvas.setOnMouseClicked(event -> coordinateAt(event.getX(), event.getY())
+                .ifPresent(coordinate -> onCellClicked.accept(coordinate, event.getButton())));
         cellCenters.clear();
         HexBoardGeometry.displayOrder()
                 .forEach(coordinate -> cellCenters.put(coordinate, centerOf(coordinate)));
@@ -103,7 +114,7 @@ final class HexChessCanvasBoard {
         graphics.setTextBaseline(VPos.CENTER);
         graphics.fillText(coordinate.notation(), center.getX(), center.getY() + notationYOffset);
         if (isPromotionSquare(coordinate)) {
-            drawPromotionArrow(graphics, center, notationColor);
+            drawPromotionStar(graphics, center, notationColor);
         }
     }
 
@@ -182,17 +193,12 @@ final class HexChessCanvasBoard {
         return Math.toRadians(CORNER_ANGLE_DEGREES * index);
     }
 
-    private void drawPromotionArrow(GraphicsContext graphics, Point2D center, Color notationColor) {
-        double tipY = center.getY() + 2;
-        double baseY = center.getY() + 9;
-        double wingY = tipY + 4;
-        double wingOffset = 4;
-
-        graphics.setStroke(notationColor);
-        graphics.setLineWidth(1.2);
-        graphics.strokeLine(center.getX(), baseY, center.getX(), tipY);
-        graphics.strokeLine(center.getX(), tipY, center.getX() - wingOffset, wingY);
-        graphics.strokeLine(center.getX(), tipY, center.getX() + wingOffset, wingY);
+    private void drawPromotionStar(GraphicsContext graphics, Point2D center, Color notationColor) {
+        graphics.setFill(notationColor);
+        graphics.setFont(Font.font(Font.getDefault().getFamily(), FontWeight.BOLD, 16));
+        graphics.setTextAlign(TextAlignment.CENTER);
+        graphics.setTextBaseline(VPos.CENTER);
+        graphics.fillText("*", center.getX(), center.getY() + 1);
     }
 
     private boolean isPromotionSquare(HexCoordinate coordinate) {

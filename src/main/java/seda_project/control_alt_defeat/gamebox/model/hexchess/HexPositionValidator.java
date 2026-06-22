@@ -25,7 +25,7 @@ public final class HexPositionValidator {
             return HexPositionValidation.invalid(structuralErrors);
         }
 
-        HexGameState state = HexGameState.create(safeBoard, safeTurn);
+        HexGameState state = HexGameState.create(safeBoard, safeTurn, false);
         if (state.isInCheck(safeTurn.opponent())) {
             return HexPositionValidation.invalid(
                     safeTurn.opponent().displayName() + " cannot already be in check when "

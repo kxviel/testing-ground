@@ -109,6 +109,10 @@ public class GameServer implements Closeable {
         return running && clientSocket != null && !clientSocket.isClosed();
     }
 
+    public int localPort() {
+        return serverSocket == null ? DEFAULT_PORT : serverSocket.getLocalPort();
+    }
+
     /**
      * Stops the read loop and closes all sockets owned by the server.
      */

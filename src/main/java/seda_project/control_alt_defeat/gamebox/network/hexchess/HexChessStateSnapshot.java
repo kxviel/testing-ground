@@ -15,10 +15,13 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public final class HexChessStateSnapshot {
+
+    private static final int SNAPSHOT_FIELD_COUNT = 12;
+    private static final int LAST_MOVE_FIELD_COUNT = 9;
 
     private HexChessStateSnapshot() {
     }
@@ -34,46 +37,47 @@ public final class HexChessStateSnapshot {
                 state.drawOfferBy() == null ? "-" : state.drawOfferBy().name(),
                 String.valueOf(state.halfMoveClock()),
                 String.valueOf(state.whiteScore()),
-                String.valueOf(state.blackScore()));
+                String.valueOf(state.blackScore()),
+                serializeCoordinateSet(state.doubleMoveEligibleSquares()),
+                serializeRepetitionCounts(state.repetitionCounts()));
     }
 
     public static HexGameState deserialize(String value) {
         if (value == null || value.isBlank()) {
-            return HexGameState.standard();
+            throw new IllegalArgumentException("Snapshot is empty.");
         }
 
         String[] parts = value.split("~", -1);
-        if (parts.length < 10) {
-            return HexGameState.standard();
+        if (parts.length != SNAPSHOT_FIELD_COUNT) {
+            throw new IllegalArgumentException("Snapshot has wrong field count.");
         }
 
-        try {
-            HexBoard board = deserializeBoard(parts[0]);
-            HexPieceColor turn = parseColor(parts[1], HexPieceColor.WHITE);
-            HexGameStatus status = parseStatus(parts[2]);
-            String statusMessage = decode(parts[3]);
-            HexMoveRecord lastMove = deserializeLastMove(parts[4]);
-            HexCoordinate enPassantTarget = parseCoordinate(parts[5]);
-            HexPieceColor drawOfferBy = "-".equals(parts[6]) ? null : parseColor(parts[6], null);
-            int halfMoveClock = parseInt(parts[7]);
-            double whiteScore = parseDouble(parts[8]);
-            double blackScore = parseDouble(parts[9]);
+        HexBoard board = deserializeBoard(parts[0]);
+        HexPieceColor turn = parseColor(parts[1]);
+        HexGameStatus status = parseStatus(parts[2]);
+        String statusMessage = decode(parts[3]);
+        HexMoveRecord lastMove = deserializeLastMove(parts[4]);
+        HexCoordinate enPassantTarget = parseCoordinate(parts[5]);
+        HexPieceColor drawOfferBy = "-".equals(parts[6]) ? null : parseColor(parts[6]);
+        int halfMoveClock = parseInt(parts[7]);
+        double whiteScore = parseDouble(parts[8]);
+        double blackScore = parseDouble(parts[9]);
+        Set<HexCoordinate> doubleMoveEligibleSquares = deserializeCoordinateSet(parts[10]);
+        Map<String, Integer> repetitionCounts = deserializeRepetitionCounts(parts[11]);
 
-            return new HexGameState(
-                    board,
-                    turn,
-                    status,
-                    statusMessage,
-                    lastMove,
-                    enPassantTarget,
-                    drawOfferBy,
-                    halfMoveClock,
-                    Map.of(),
-                    whiteScore,
-                    blackScore);
-        } catch (RuntimeException e) {
-            return HexGameState.standard();
-        }
+        return new HexGameState(
+                board,
+                turn,
+                status,
+                statusMessage,
+                lastMove,
+                enPassantTarget,
+                drawOfferBy,
+                halfMoveClock,
+                repetitionCounts,
+                doubleMoveEligibleSquares,
+                whiteScore,
+                blackScore);
     }
 
     private static String serializeBoard(HexBoard board) {
@@ -92,33 +96,28 @@ public final class HexChessStateSnapshot {
             return HexBoard.empty();
         }
 
-        Map<HexCoordinate, HexPiece> pieces = Arrays.stream(value.split(";"))
-                .map(HexChessStateSnapshot::deserializePiece)
-                .flatMap(Optional::stream)
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        Map.Entry::getValue,
-                        (existing, replacement) -> replacement,
-                        LinkedHashMap::new));
+        Map<HexCoordinate, HexPiece> pieces = new LinkedHashMap<>();
+        for (String part : value.split(";")) {
+            Map.Entry<HexCoordinate, HexPiece> entry = deserializePiece(part);
+            if (pieces.putIfAbsent(entry.getKey(), entry.getValue()) != null) {
+                throw new IllegalArgumentException("Duplicate coordinate in snapshot: " + entry.getKey());
+            }
+        }
 
         return new HexBoard(pieces);
     }
 
-    private static Optional<Map.Entry<HexCoordinate, HexPiece>> deserializePiece(String value) {
+    private static Map.Entry<HexCoordinate, HexPiece> deserializePiece(String value) {
         String[] parts = value.split(",", 3);
         if (parts.length != 3) {
-            return Optional.empty();
+            throw new IllegalArgumentException("Invalid piece entry: " + value);
         }
 
-        try {
-            HexCoordinate coordinate = HexCoordinate.of(parts[0]);
-            HexPieceColor color = parseColor(parts[1], HexPieceColor.WHITE);
-            HexPieceType type = HexPieceType.valueOf(parts[2]);
+        HexCoordinate coordinate = HexCoordinate.of(parts[0]);
+        HexPieceColor color = parseColor(parts[1]);
+        HexPieceType type = HexPieceType.valueOf(parts[2]);
 
-            return Optional.of(Map.entry(coordinate, new HexPiece(color, type)));
-        } catch (IllegalArgumentException e) {
-            return Optional.empty();
-        }
+        return Map.entry(coordinate, new HexPiece(color, type));
     }
 
     private static String serializeLastMove(HexMoveRecord record) {
@@ -145,77 +144,132 @@ public final class HexChessStateSnapshot {
         }
 
         String[] parts = value.split(",", -1);
-        if (parts.length < 9) {
-            return null;
+        if (parts.length != LAST_MOVE_FIELD_COUNT) {
+            throw new IllegalArgumentException("Invalid last move entry: " + value);
         }
 
-        try {
-            HexPieceType promotion = "-".equals(parts[2]) ? null : HexPieceType.valueOf(parts[2]);
-            HexMove move = new HexMove(
-                    HexCoordinate.of(parts[0]),
-                    HexCoordinate.of(parts[1]),
-                    promotion,
-                    Boolean.parseBoolean(parts[3]));
-            HexPiece movedPiece = new HexPiece(
-                    parseColor(parts[4], HexPieceColor.WHITE),
-                    HexPieceType.valueOf(parts[5]));
-            HexPiece capturedPiece = "-".equals(parts[6])
-                    ? null
-                    : new HexPiece(parseColor(parts[6], HexPieceColor.BLACK), HexPieceType.valueOf(parts[7]));
-            HexCoordinate capturedAt = parseCoordinate(parts[8]);
+        HexPieceType promotion = "-".equals(parts[2]) ? null : HexPieceType.valueOf(parts[2]);
+        HexMove move = new HexMove(
+                HexCoordinate.of(parts[0]),
+                HexCoordinate.of(parts[1]),
+                promotion,
+                parseBoolean(parts[3]));
+        HexPiece movedPiece = new HexPiece(
+                parseColor(parts[4]),
+                HexPieceType.valueOf(parts[5]));
+        HexPiece capturedPiece = "-".equals(parts[6])
+                ? null
+                : new HexPiece(parseColor(parts[6]), HexPieceType.valueOf(parts[7]));
+        HexCoordinate capturedAt = parseCoordinate(parts[8]);
 
-            return new HexMoveRecord(move, movedPiece, capturedPiece, capturedAt);
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
+        return new HexMoveRecord(move, movedPiece, capturedPiece, capturedAt);
     }
 
     private static HexCoordinate parseCoordinate(String value) {
-        try {
-            return value == null || value.isBlank() || "-".equals(value) ? null : HexCoordinate.of(value);
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
+        return value == null || value.isBlank() || "-".equals(value) ? null : HexCoordinate.of(value);
     }
 
-    private static HexPieceColor parseColor(String value, HexPieceColor fallback) {
-        try {
-            return value == null || value.isBlank() ? fallback : HexPieceColor.valueOf(value);
-        } catch (IllegalArgumentException e) {
-            return fallback;
+    private static HexPieceColor parseColor(String value) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException("Missing piece color.");
         }
+
+        return HexPieceColor.valueOf(value);
     }
 
     private static HexGameStatus parseStatus(String value) {
-        try {
-            return value == null || value.isBlank() ? HexGameStatus.RUNNING : HexGameStatus.valueOf(value);
-        } catch (IllegalArgumentException e) {
-            return HexGameStatus.RUNNING;
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException("Missing game status.");
         }
+
+        return HexGameStatus.valueOf(value);
     }
 
     private static int parseInt(String value) {
         if (value == null || value.isBlank()) {
-            return 0;
+            throw new IllegalArgumentException("Missing integer value.");
         }
 
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {
-            return 0;
+            throw new IllegalArgumentException("Invalid integer value: " + value, e);
         }
     }
 
     private static double parseDouble(String value) {
         if (value == null || value.isBlank()) {
-            return 0;
+            throw new IllegalArgumentException("Missing score value.");
         }
 
         try {
             return Double.parseDouble(value);
         } catch (NumberFormatException e) {
-            return 0;
+            throw new IllegalArgumentException("Invalid score value: " + value, e);
         }
+    }
+
+    private static boolean parseBoolean(String value) {
+        if ("true".equals(value)) {
+            return true;
+        }
+        if ("false".equals(value)) {
+            return false;
+        }
+        throw new IllegalArgumentException("Invalid boolean value: " + value);
+    }
+
+    private static String serializeCoordinateSet(Set<HexCoordinate> coordinates) {
+        if (coordinates == null || coordinates.isEmpty()) {
+            return "-";
+        }
+
+        return coordinates.stream()
+                .sorted()
+                .map(HexCoordinate::notation)
+                .collect(Collectors.joining(","));
+    }
+
+    private static Set<HexCoordinate> deserializeCoordinateSet(String value) {
+        if (value == null || value.isBlank() || "-".equals(value)) {
+            return Set.of();
+        }
+
+        return Arrays.stream(value.split(","))
+                .map(HexCoordinate::of)
+                .collect(Collectors.toUnmodifiableSet());
+    }
+
+    private static String serializeRepetitionCounts(Map<String, Integer> repetitionCounts) {
+        if (repetitionCounts == null || repetitionCounts.isEmpty()) {
+            return "-";
+        }
+
+        return repetitionCounts.entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByKey())
+                .map(entry -> encode(entry.getKey()) + "=" + entry.getValue())
+                .collect(Collectors.joining(";"));
+    }
+
+    private static Map<String, Integer> deserializeRepetitionCounts(String value) {
+        if (value == null || value.isBlank() || "-".equals(value)) {
+            return Map.of();
+        }
+
+        Map<String, Integer> counts = new LinkedHashMap<>();
+        for (String entry : value.split(";")) {
+            String[] parts = entry.split("=", 2);
+            if (parts.length != 2) {
+                throw new IllegalArgumentException("Invalid repetition entry: " + entry);
+            }
+            String key = decode(parts[0]);
+            int count = parseInt(parts[1]);
+            if (count < 1 || counts.putIfAbsent(key, count) != null) {
+                throw new IllegalArgumentException("Invalid repetition count for key: " + key);
+            }
+        }
+        return Map.copyOf(counts);
     }
 
     private static String encode(String value) {
@@ -225,10 +279,6 @@ public final class HexChessStateSnapshot {
     }
 
     private static String decode(String value) {
-        try {
-            return new String(Base64.getUrlDecoder().decode(value), StandardCharsets.UTF_8);
-        } catch (IllegalArgumentException e) {
-            return "";
-        }
+        return new String(Base64.getUrlDecoder().decode(value), StandardCharsets.UTF_8);
     }
 }

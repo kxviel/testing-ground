@@ -59,7 +59,7 @@ public record HexBoard(Map<HexCoordinate, HexPiece> pieces) {
     HexBoard applyMove(HexMove move, HexCoordinate capturedAt, HexPieceType promotion) {
         HexPiece movingPiece = pieces.get(move.from());
         if (movingPiece == null) {
-            return this;
+            throw new IllegalStateException("Cannot apply move without a moving piece: " + move.notation());
         }
 
         HexPiece placedPiece = promotion == null

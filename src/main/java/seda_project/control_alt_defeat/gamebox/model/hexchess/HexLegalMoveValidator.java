@@ -2,6 +2,7 @@ package seda_project.control_alt_defeat.gamebox.model.hexchess;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 public final class HexLegalMoveValidator {
 
@@ -12,8 +13,20 @@ public final class HexLegalMoveValidator {
             HexBoard board,
             HexPieceColor color,
             HexCoordinate enPassantTarget) {
+        return legalMoves(board, color, enPassantTarget, HexMoveRules.standardDoubleMoveEligibleSquares());
+    }
+
+    public static List<HexMove> legalMoves(
+            HexBoard board,
+            HexPieceColor color,
+            HexCoordinate enPassantTarget,
+            Set<HexCoordinate> doubleMoveEligibleSquares) {
         return board.piecesOf(color)
-                .flatMap(entry -> legalMovesFrom(board, entry.getKey(), enPassantTarget).stream())
+                .flatMap(entry -> legalMovesFrom(
+                        board,
+                        entry.getKey(),
+                        enPassantTarget,
+                        doubleMoveEligibleSquares).stream())
                 .toList();
     }
 
@@ -21,12 +34,25 @@ public final class HexLegalMoveValidator {
             HexBoard board,
             HexCoordinate from,
             HexCoordinate enPassantTarget) {
+        return legalMovesFrom(board, from, enPassantTarget, HexMoveRules.standardDoubleMoveEligibleSquares());
+    }
+
+    public static List<HexMove> legalMovesFrom(
+            HexBoard board,
+            HexCoordinate from,
+            HexCoordinate enPassantTarget,
+            Set<HexCoordinate> doubleMoveEligibleSquares) {
         HexPiece piece = board.pieceAt(from).orElse(null);
         if (piece == null) {
             return List.of();
         }
 
-        return HexMoveGenerator.pseudoLegalMovesFrom(board, from, enPassantTarget, false)
+        return HexMoveGenerator.pseudoLegalMovesFrom(
+                        board,
+                        from,
+                        enPassantTarget,
+                        false,
+                        doubleMoveEligibleSquares)
                 .stream()
                 .filter(move -> keepsOwnKingSafe(board, move, piece.color()))
                 .sorted(Comparator.comparing(move -> move.to().notation()))

@@ -2,6 +2,7 @@ package seda_project.control_alt_defeat.gamebox.model.hexchess;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -37,6 +38,11 @@ public final class HexMoveRules {
         return color == HexPieceColor.WHITE
                 ? WHITE_PAWN_STARTS.contains(coordinate)
                 : BLACK_PAWN_STARTS.contains(coordinate);
+    }
+
+    static Set<HexCoordinate> standardDoubleMoveEligibleSquares() {
+        return Stream.concat(WHITE_PAWN_STARTS.stream(), BLACK_PAWN_STARTS.stream())
+                .collect(java.util.stream.Collectors.toUnmodifiableSet());
     }
 
     static List<HexPieceType> promotionOptionsAt(HexCoordinate target, HexPieceColor color) {

@@ -25,6 +25,7 @@ public class HexChessLanDiscoveryService implements Closeable {
     private static final String PREFIX = "GAMEBOX_DISCOVERY";
     private static final String GAME_TYPE = "HEX_CHESS";
     private static final int TIMEOUT_MS = 1_000;
+    private static final long ADVERTISEMENT_TTL_MS = 5_000;
 
     private final String sessionId = UUID.randomUUID().toString();
     private final Object advertisingMonitor = new Object();
@@ -169,14 +170,17 @@ public class HexChessLanDiscoveryService implements Closeable {
         try {
             String name = new String(Base64.getDecoder().decode(parts[4]), StandardCharsets.UTF_8);
             int tcpPort = Integer.parseInt(parts[3]);
-            Long.parseLong(parts[5]);
+            long timestamp = Long.parseLong(parts[5]);
+            if (System.currentTimeMillis() - timestamp > ADVERTISEMENT_TTL_MS) {
+                return null;
+            }
             return new DiscoveredGame(
                     name,
                     GAME_TYPE,
                     packet.getAddress().getHostAddress(),
                     tcpPort,
                     parts[2],
-                    System.currentTimeMillis());
+                    timestamp);
         } catch (IllegalArgumentException e) {
             return null;
         }

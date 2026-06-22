@@ -2,6 +2,7 @@ package seda_project.control_alt_defeat.gamebox.model.hexchess;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -14,8 +15,21 @@ public final class HexMoveGenerator {
             HexBoard board,
             HexPieceColor color,
             HexCoordinate enPassantTarget) {
+        return pseudoLegalMoves(board, color, enPassantTarget, HexMoveRules.standardDoubleMoveEligibleSquares());
+    }
+
+    public static List<HexMove> pseudoLegalMoves(
+            HexBoard board,
+            HexPieceColor color,
+            HexCoordinate enPassantTarget,
+            Set<HexCoordinate> doubleMoveEligibleSquares) {
         return board.piecesOf(color)
-                .flatMap(entry -> pseudoLegalMovesFrom(board, entry.getKey(), enPassantTarget, false).stream())
+                .flatMap(entry -> pseudoLegalMovesFrom(
+                        board,
+                        entry.getKey(),
+                        enPassantTarget,
+                        false,
+                        doubleMoveEligibleSquares).stream())
                 .toList();
     }
 
@@ -24,6 +38,20 @@ public final class HexMoveGenerator {
             HexCoordinate from,
             HexCoordinate enPassantTarget,
             boolean attacksOnly) {
+        return pseudoLegalMovesFrom(
+                board,
+                from,
+                enPassantTarget,
+                attacksOnly,
+                HexMoveRules.standardDoubleMoveEligibleSquares());
+    }
+
+    public static List<HexMove> pseudoLegalMovesFrom(
+            HexBoard board,
+            HexCoordinate from,
+            HexCoordinate enPassantTarget,
+            boolean attacksOnly,
+            Set<HexCoordinate> doubleMoveEligibleSquares) {
         HexPiece piece = board.pieceAt(from).orElse(null);
         if (piece == null) {
             return List.of();
@@ -35,7 +63,13 @@ public final class HexMoveGenerator {
             case ROOK -> slidingMoves(board, from, HexDirection.rookDirections(), piece.color(), attacksOnly);
             case BISHOP -> slidingMoves(board, from, HexDirection.bishopDirections(), piece.color(), attacksOnly);
             case KNIGHT -> jumpMoves(board, from, HexMoveRules.knightJumps(), piece.color(), attacksOnly);
-            case PAWN -> pawnMoves(board, from, piece.color(), enPassantTarget, attacksOnly);
+            case PAWN -> pawnMoves(
+                    board,
+                    from,
+                    piece.color(),
+                    enPassantTarget,
+                    attacksOnly,
+                    doubleMoveEligibleSquares == null ? Set.of() : doubleMoveEligibleSquares);
             case CUSTOM -> List.of();
         };
     }
@@ -116,7 +150,8 @@ public final class HexMoveGenerator {
             HexCoordinate from,
             HexPieceColor color,
             HexCoordinate enPassantTarget,
-            boolean attacksOnly) {
+            boolean attacksOnly,
+            Set<HexCoordinate> doubleMoveEligibleSquares) {
         List<HexMoveRules.Jump> attacks = HexMoveRules.pawnAttacks(color);
 
         if (attacksOnly) {
@@ -134,10 +169,14 @@ public final class HexMoveGenerator {
                         || target.equals(enPassantTarget))
                 .flatMap(target -> pawnMovesTo(from, target, color, target.equals(enPassantTarget)));
 
-        return Stream.concat(forwardPawnMoves(board, from, color), captures).toList();
+        return Stream.concat(forwardPawnMoves(board, from, color, doubleMoveEligibleSquares), captures).toList();
     }
 
-    private static Stream<HexMove> forwardPawnMoves(HexBoard board, HexCoordinate from, HexPieceColor color) {
+    private static Stream<HexMove> forwardPawnMoves(
+            HexBoard board,
+            HexCoordinate from,
+            HexPieceColor color,
+            Set<HexCoordinate> doubleMoveEligibleSquares) {
         HexDirection forward = color == HexPieceColor.WHITE ? HexDirection.NORTH : HexDirection.SOUTH;
         Optional<HexCoordinate> oneStep = HexBoardGeometry.neighbor(from, forward)
                 .filter(board::isEmpty);
@@ -147,10 +186,11 @@ public final class HexMoveGenerator {
 
         Stream<HexMove> doubleMove = oneStep
                 .filter(ignored -> HexMoveRules.isPawnStart(from, color))
+                .filter(ignored -> doubleMoveEligibleSquares.contains(from))
                 .flatMap(target -> HexBoardGeometry.neighbor(target, forward))
                 .filter(board::isEmpty)
-                .map(target -> new HexMove(from, target))
-                .stream();
+                .stream()
+                .flatMap(target -> pawnMovesTo(from, target, color, false));
 
         return Stream.concat(singleMove, doubleMove);
     }

@@ -5,7 +5,8 @@ public record HexChessGameSetup(
         String blackName,
         HexGameMode mode,
         HexBoard initialBoard,
-        HexPieceColor startingTurn) {
+        HexPieceColor startingTurn,
+        boolean customPosition) {
 
     public HexChessGameSetup {
         whiteName = whiteName == null || whiteName.isBlank() ? "White" : whiteName.trim();
@@ -16,7 +17,16 @@ public record HexChessGameSetup(
     }
 
     public HexChessGameSetup(String whiteName, String blackName, HexGameMode mode) {
-        this(whiteName, blackName, mode, HexBoard.standard(), HexPieceColor.WHITE);
+        this(whiteName, blackName, mode, HexBoard.standard(), HexPieceColor.WHITE, false);
+    }
+
+    public HexChessGameSetup(
+            String whiteName,
+            String blackName,
+            HexGameMode mode,
+            HexBoard initialBoard,
+            HexPieceColor startingTurn) {
+        this(whiteName, blackName, mode, initialBoard, startingTurn, false);
     }
 
     public static HexChessGameSetup local() {
@@ -28,6 +38,6 @@ public record HexChessGameSetup(
     }
 
     public HexChessGameSetup withMode(HexGameMode nextMode) {
-        return new HexChessGameSetup(whiteName, blackName, nextMode, initialBoard, startingTurn);
+        return new HexChessGameSetup(whiteName, blackName, nextMode, initialBoard, startingTurn, customPosition);
     }
 }

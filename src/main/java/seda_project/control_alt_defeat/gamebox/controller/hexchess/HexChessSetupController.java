@@ -4,9 +4,12 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexBoard;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexBoardGeometry;
@@ -20,6 +23,8 @@ import seda_project.control_alt_defeat.gamebox.model.hexchess.HexPositionValidat
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexPositionValidator;
 import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
 import seda_project.control_alt_defeat.gamebox.util.Router;
+
+import java.util.Map;
 
 public class HexChessSetupController implements RouteDataReceiver {
 
@@ -49,6 +54,8 @@ public class HexChessSetupController implements RouteDataReceiver {
     private Label selectedLabel;
     @FXML
     private Label validationLabel;
+    @FXML
+    private Button startButton;
 
     private final HexChessCanvasBoard canvasBoard = new HexChessCanvasBoard(
             HEX_SIZE,
@@ -70,6 +77,7 @@ public class HexChessSetupController implements RouteDataReceiver {
         typeChoiceBox.getSelectionModel().select(HexPieceType.KING);
         turnChoiceBox.getItems().setAll(HexPieceColor.values());
         turnChoiceBox.getSelectionModel().select(HexPieceColor.WHITE);
+        turnChoiceBox.valueProperty().addListener((ignored, previous, next) -> renderValidation());
 
         buildBoard();
         render();
@@ -89,13 +97,7 @@ public class HexChessSetupController implements RouteDataReceiver {
 
     @FXML
     private void onRemovePiece() {
-        if (selectedCoordinate == null) {
-            validationLabel.setText("Select a cell first.");
-            return;
-        }
-
-        board = board.withoutPiece(selectedCoordinate);
-        render();
+        removeSelectedPiece();
     }
 
     @FXML
@@ -128,7 +130,8 @@ public class HexChessSetupController implements RouteDataReceiver {
                 blackNameField.getText(),
                 HexGameMode.LOCAL,
                 board,
-                startingTurn));
+                startingTurn,
+                true));
     }
 
     @FXML
@@ -138,14 +141,57 @@ public class HexChessSetupController implements RouteDataReceiver {
 
     private void buildBoard() {
         canvasBoard.attach(boardCanvas, this::onCellClicked);
+        boardCanvas.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.DELETE || event.getCode() == KeyCode.BACK_SPACE) {
+                removeSelectedPiece();
+            }
+        });
     }
 
-    private void onCellClicked(HexCoordinate coordinate) {
+    private void onCellClicked(HexCoordinate coordinate, MouseButton button) {
         selectedCoordinate = coordinate;
-        board = board.withPiece(coordinate, new HexPiece(
+
+        if (button == MouseButton.SECONDARY) {
+            board = board.withoutPiece(coordinate);
+            boardCanvas.requestFocus();
+            render();
+            return;
+        }
+
+        if (button != MouseButton.PRIMARY) {
+            render();
+            return;
+        }
+
+        HexPiece piece = new HexPiece(
                 colorChoiceBox.getSelectionModel().getSelectedItem(),
-                typeChoiceBox.getSelectionModel().getSelectedItem()));
+                typeChoiceBox.getSelectionModel().getSelectedItem());
+        board = withoutExistingKing(piece).withPiece(coordinate, piece);
+        boardCanvas.requestFocus();
         render();
+    }
+
+    private void removeSelectedPiece() {
+        if (selectedCoordinate == null) {
+            validationLabel.setText("Select a cell first.");
+            return;
+        }
+
+        board = board.withoutPiece(selectedCoordinate);
+        render();
+    }
+
+    private HexBoard withoutExistingKing(HexPiece piece) {
+        if (piece.type() != HexPieceType.KING) {
+            return board;
+        }
+
+        return board.piecesOf(piece.color())
+                .filter(entry -> entry.getValue().type() == HexPieceType.KING)
+                .map(Map.Entry::getKey)
+                .findFirst()
+                .map(board::withoutPiece)
+                .orElse(board);
     }
 
     private void render() {
@@ -168,6 +214,9 @@ public class HexChessSetupController implements RouteDataReceiver {
         validationLabel.getStyleClass().setAll(
                 "status-box",
                 validation.isValid() ? "status-box-good" : "status-box-warn");
+        if (startButton != null) {
+            startButton.setDisable(!validation.isValid());
+        }
     }
 
     private void drawCell(GraphicsContext graphics, HexCoordinate coordinate) {

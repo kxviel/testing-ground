@@ -92,7 +92,7 @@
                 <HBox styleClass="button-row">
                     <Button text="Back" onAction="#onBack" maxWidth="Infinity"
                             styleClass="btn-outline" HBox.hgrow="ALWAYS"/>
-                    <Button text="Start" onAction="#onStart" maxWidth="Infinity"
+                    <Button fx:id="startButton" text="Start" onAction="#onStart" maxWidth="Infinity"
                             styleClass="btn-primary" HBox.hgrow="ALWAYS"/>
                 </HBox>
             </VBox>

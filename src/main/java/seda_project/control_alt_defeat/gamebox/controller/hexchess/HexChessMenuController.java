@@ -25,12 +25,16 @@ import java.util.Map;
 
 public class HexChessMenuController {
 
+    private static final long DISCOVERED_GAME_TTL_MS = 5_000;
+
     @FXML
     private TextField whiteNameField;
     @FXML
     private TextField blackNameField;
     @FXML
     private TextField lanHostField;
+    @FXML
+    private TextField lanPortField;
     @FXML
     private Label statusLabel;
     @FXML
@@ -90,11 +94,12 @@ public class HexChessMenuController {
         }
 
         pendingHostServer = server;
+        int tcpPort = server.localPort();
         discoveryService.startAdvertising(
                 hostPlayerName(),
-                GameServer.DEFAULT_PORT,
+                tcpPort,
                 message -> Platform.runLater(() -> statusLabel.setText(message)));
-        statusLabel.setText("Hosting on " + GameServer.getLocalAddress() + ":" + GameServer.DEFAULT_PORT
+        statusLabel.setText("Hosting on " + GameServer.getLocalAddress() + ":" + tcpPort
                 + ". Waiting for joiner...");
 
         Thread waitThread = new Thread(() -> {
@@ -123,7 +128,10 @@ public class HexChessMenuController {
             return;
         }
 
-        joinHost(stageFrom(event), host, GameServer.DEFAULT_PORT);
+        Integer port = parseLanPort();
+        if (port != null) {
+            joinHost(stageFrom(event), host, port);
+        }
     }
 
     @FXML
@@ -148,7 +156,7 @@ public class HexChessMenuController {
     }
 
     private void joinHost(Stage stage, String host, int port) {
-        statusLabel.setText("Connecting to " + host + "...");
+        statusLabel.setText("Connecting to " + host + ":" + port + "...");
 
         Thread connectThread = new Thread(() -> {
             GameClient client = new GameClient();
@@ -194,7 +202,17 @@ public class HexChessMenuController {
             return server;
         } catch (IOException e) {
             server.close();
-            throw e;
+            GameServer fallbackServer = new GameServer();
+            try {
+                fallbackServer.listen(0, message -> {
+                }, () -> {
+                });
+                return fallbackServer;
+            } catch (IOException fallbackException) {
+                fallbackServer.close();
+                fallbackException.addSuppressed(e);
+                throw fallbackException;
+            }
         }
     }
 
@@ -209,10 +227,34 @@ public class HexChessMenuController {
     }
 
     private void rememberDiscoveredGame(HexChessLanDiscoveryService.DiscoveredGame game) {
+        removeStaleDiscoveredGames();
         discoveredGamesBySession.put(game.sessionId(), game);
         discoveredGames.setAll(discoveredGamesBySession.values()
                 .stream()
                 .toList());
+    }
+
+    private void removeStaleDiscoveredGames() {
+        long cutoff = System.currentTimeMillis() - DISCOVERED_GAME_TTL_MS;
+        discoveredGamesBySession.entrySet().removeIf(entry -> entry.getValue().timestamp() < cutoff);
+    }
+
+    private Integer parseLanPort() {
+        String rawPort = lanPortField == null ? "" : lanPortField.getText().trim();
+        if (rawPort.isBlank()) {
+            return GameServer.DEFAULT_PORT;
+        }
+
+        try {
+            int port = Integer.parseInt(rawPort);
+            if (port >= 1 && port <= 65_535) {
+                return port;
+            }
+        } catch (NumberFormatException ignored) {
+        }
+
+        statusLabel.setText("Enter a valid TCP port from 1 to 65535.");
+        return null;
     }
 
     private void closeDiscovery() {

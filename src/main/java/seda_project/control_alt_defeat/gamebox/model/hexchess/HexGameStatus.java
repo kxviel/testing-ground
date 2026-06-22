@@ -6,5 +6,7 @@ public enum HexGameStatus {
     CHECKMATE,
     STALEMATE,
     DRAW,
-    RESIGNED
+    RESIGNED,
+    DISCONNECTED,
+    ERROR
 }
