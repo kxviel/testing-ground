@@ -22,6 +22,7 @@ import seda_project.control_alt_defeat.gamebox.util.Router;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 public class HexChessMenuController {
 
@@ -227,16 +228,49 @@ public class HexChessMenuController {
     }
 
     private void rememberDiscoveredGame(HexChessLanDiscoveryService.DiscoveredGame game) {
+        String selectedSessionId = selectedLanSessionId();
+
         removeStaleDiscoveredGames();
         discoveredGamesBySession.put(game.sessionId(), game);
-        discoveredGames.setAll(discoveredGamesBySession.values()
-                .stream()
-                .toList());
+
+        int existingIndex = IntStream.range(0, discoveredGames.size())
+                .filter(index -> discoveredGames.get(index).sessionId().equals(game.sessionId()))
+                .findFirst()
+                .orElse(-1);
+        if (existingIndex >= 0) {
+            discoveredGames.set(existingIndex, game);
+            restoreLanSelection(selectedSessionId);
+            return;
+        }
+
+        discoveredGames.add(game);
+        restoreLanSelection(selectedSessionId);
     }
 
     private void removeStaleDiscoveredGames() {
         long cutoff = System.currentTimeMillis() - DISCOVERED_GAME_TTL_MS;
         discoveredGamesBySession.entrySet().removeIf(entry -> entry.getValue().timestamp() < cutoff);
+        discoveredGames.removeIf(game -> game.timestamp() < cutoff);
+    }
+
+    private String selectedLanSessionId() {
+        if (lanGamesList == null) {
+            return null;
+        }
+
+        HexChessLanDiscoveryService.DiscoveredGame selected = lanGamesList.getSelectionModel().getSelectedItem();
+        return selected == null ? null : selected.sessionId();
+    }
+
+    private void restoreLanSelection(String sessionId) {
+        if (lanGamesList == null || sessionId == null) {
+            return;
+        }
+
+        IntStream.range(0, discoveredGames.size())
+                .filter(index -> discoveredGames.get(index).sessionId().equals(sessionId))
+                .findFirst()
+                .ifPresent(index -> lanGamesList.getSelectionModel().select(index));
     }
 
     private Integer parseLanPort() {

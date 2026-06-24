@@ -16,16 +16,8 @@
         <URL value="@HexChess.css"/>
     </stylesheets>
 
-    <top>
-        <VBox alignment="CENTER" styleClass="hex-game-header">
-            <Label text="LIVE MATCH" styleClass="eyebrow"/>
-            <Label text="Chexsagon" styleClass="title"/>
-            <Label fx:id="modeLabel" styleClass="subtitle"/>
-        </VBox>
-    </top>
-
     <center>
-        <HBox alignment="TOP_CENTER" spacing="18" styleClass="hex-stage" BorderPane.alignment="CENTER">
+        <HBox alignment="TOP_CENTER" fillHeight="false" spacing="18" styleClass="hex-stage" BorderPane.alignment="CENTER">
             <VBox minWidth="852"
                   prefWidth="852"
                   maxWidth="852">
@@ -49,6 +41,15 @@
             </VBox>
 
             <VBox minWidth="288" prefWidth="304" maxWidth="320" styleClass="hex-side-panel">
+
+                <VBox>
+                    <VBox alignment="CENTER" styleClass="hex-game-header">
+                        <Label text="LIVE MATCH" styleClass="eyebrow"/>
+                        <Label text="Chexsagon" styleClass="title"/>
+                        <Label fx:id="modeLabel" styleClass="subtitle"/>
+                    </VBox>
+                </VBox>
+
                 <VBox>
                     <styleClass>
                         <String fx:value="sidebar-section"/>

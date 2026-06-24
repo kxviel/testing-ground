@@ -5,6 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListView;
 import javafx.scene.input.MouseButton;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,7 @@ import seda_project.control_alt_defeat.gamebox.model.hexchess.HexPieceColor;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexPieceType;
 import seda_project.control_alt_defeat.gamebox.network.GameClient;
 import seda_project.control_alt_defeat.gamebox.network.GameServer;
+import seda_project.control_alt_defeat.gamebox.network.hexchess.HexChessLanDiscoveryService;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -94,6 +96,50 @@ class HexChessEndToEndSmokeTest {
 
         clickSetupCell(setup.controller(), "b1", MouseButton.SECONDARY);
         assertTrue(startButton(setup.controller()).isDisabled());
+    }
+
+    @Test
+    void lanDiscoveryRefreshKeepsSelectedHost() throws Exception {
+        LoadedFxml<HexChessMenuController> menu = loadFxml("/hexchess/HexChessMenu.fxml");
+
+        try {
+            runOnFx(() -> {
+                HexChessLanDiscoveryService.DiscoveredGame first = new HexChessLanDiscoveryService.DiscoveredGame(
+                        "Host",
+                        "HEX_CHESS",
+                        "127.0.0.1",
+                        54321,
+                        "session-1",
+                        System.currentTimeMillis());
+                invoke(menu.controller(), "rememberDiscoveredGame", first);
+
+                @SuppressWarnings("unchecked")
+                ListView<HexChessLanDiscoveryService.DiscoveredGame> lanGamesList =
+                        (ListView<HexChessLanDiscoveryService.DiscoveredGame>) field(
+                                menu.controller(),
+                                "lanGamesList",
+                                ListView.class);
+                Button joinButton = field(menu.controller(), "joinSelectedLanButton", Button.class);
+                lanGamesList.getSelectionModel().selectFirst();
+
+                assertFalse(joinButton.isDisabled());
+
+                HexChessLanDiscoveryService.DiscoveredGame refresh = new HexChessLanDiscoveryService.DiscoveredGame(
+                        "Host",
+                        "HEX_CHESS",
+                        "127.0.0.1",
+                        54321,
+                        "session-1",
+                        System.currentTimeMillis() + 1_000);
+                invoke(menu.controller(), "rememberDiscoveredGame", refresh);
+
+                assertNotNull(lanGamesList.getSelectionModel().getSelectedItem());
+                assertEquals("session-1", lanGamesList.getSelectionModel().getSelectedItem().sessionId());
+                assertFalse(joinButton.isDisabled());
+            });
+        } finally {
+            runOnFx(() -> invoke(menu.controller(), "closeDiscovery"));
+        }
     }
 
     @Test
