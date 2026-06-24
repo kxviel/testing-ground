@@ -20,8 +20,6 @@ import seda_project.control_alt_defeat.gamebox.network.hexchess.HexChessLanDisco
 import seda_project.control_alt_defeat.gamebox.util.Router;
 
 import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.stream.IntStream;
 
 public class HexChessMenuController {
@@ -46,8 +44,6 @@ public class HexChessMenuController {
     private final HexChessLanDiscoveryService discoveryService = new HexChessLanDiscoveryService();
     private final ObservableList<HexChessLanDiscoveryService.DiscoveredGame> discoveredGames =
             FXCollections.observableArrayList();
-    private final Map<String, HexChessLanDiscoveryService.DiscoveredGame> discoveredGamesBySession =
-            new LinkedHashMap<>();
     private GameServer pendingHostServer;
 
     @FXML
@@ -150,7 +146,6 @@ public class HexChessMenuController {
 
     @FXML
     private void onRefreshLan() {
-        discoveredGamesBySession.clear();
         discoveredGames.clear();
         startListeningForLanGames();
         statusLabel.setText("Looking for Hex Chess LAN games...");
@@ -231,7 +226,6 @@ public class HexChessMenuController {
         String selectedSessionId = selectedLanSessionId();
 
         removeStaleDiscoveredGames();
-        discoveredGamesBySession.put(game.sessionId(), game);
 
         int existingIndex = IntStream.range(0, discoveredGames.size())
                 .filter(index -> discoveredGames.get(index).sessionId().equals(game.sessionId()))
@@ -249,7 +243,6 @@ public class HexChessMenuController {
 
     private void removeStaleDiscoveredGames() {
         long cutoff = System.currentTimeMillis() - DISCOVERED_GAME_TTL_MS;
-        discoveredGamesBySession.entrySet().removeIf(entry -> entry.getValue().timestamp() < cutoff);
         discoveredGames.removeIf(game -> game.timestamp() < cutoff);
     }
 
