@@ -14,6 +14,7 @@ public final class HexMoveRules {
 
     private static final List<HexCoordinate> WHITE_PAWN_STARTS = HexStartingPosition.whitePawnStarts();
     private static final List<HexCoordinate> BLACK_PAWN_STARTS = HexStartingPosition.blackPawnStarts();
+    // Glinski pawns capture the two forward edge-adjacent hexes, not bishop diagonals.
     private static final List<Jump> WHITE_PAWN_ATTACKS = List.of(new Jump(1, 0), new Jump(-1, 1));
     private static final List<Jump> BLACK_PAWN_ATTACKS = List.of(new Jump(-1, 0), new Jump(1, -1));
     private static final List<Jump> KNIGHT_JUMPS = createKnightJumps();
@@ -43,6 +44,22 @@ public final class HexMoveRules {
     static Set<HexCoordinate> standardDoubleMoveEligibleSquares() {
         return Stream.concat(WHITE_PAWN_STARTS.stream(), BLACK_PAWN_STARTS.stream())
                 .collect(java.util.stream.Collectors.toUnmodifiableSet());
+    }
+
+    static boolean usesStandardDoubleMoveRules(Set<HexCoordinate> doubleMoveEligibleSquares) {
+        return standardDoubleMoveEligibleSquares().equals(doubleMoveEligibleSquares);
+    }
+
+    static boolean allowsPawnDoubleMoveFrom(
+            HexCoordinate coordinate,
+            HexPieceColor color,
+            Set<HexCoordinate> doubleMoveEligibleSquares) {
+        if (!isPawnStart(coordinate, color)) {
+            return false;
+        }
+
+        return usesStandardDoubleMoveRules(doubleMoveEligibleSquares)
+                || doubleMoveEligibleSquares != null && doubleMoveEligibleSquares.contains(coordinate);
     }
 
     static List<HexPieceType> promotionOptionsAt(HexCoordinate target, HexPieceColor color) {
@@ -76,8 +93,28 @@ public final class HexMoveRules {
     }
 
     static Optional<HexCoordinate> enPassantCapturedAt(HexMove move, HexPieceColor color) {
+        return enPassantCapturedAt(move.to(), color);
+    }
+
+    static Optional<HexCoordinate> enPassantCapturedAt(HexCoordinate target, HexPieceColor color) {
         int behind = color == HexPieceColor.WHITE ? -1 : 1;
-        return HexBoardGeometry.shift(move.to(), 0, behind);
+        return HexBoardGeometry.shift(target, 0, behind);
+    }
+
+    static boolean canCaptureEnPassant(
+            HexBoard board,
+            HexCoordinate target,
+            HexCoordinate enPassantTarget,
+            HexPieceColor color) {
+        if (enPassantTarget == null || !target.equals(enPassantTarget) || !board.isEmpty(target)) {
+            return false;
+        }
+
+        return enPassantCapturedAt(target, color)
+                .flatMap(board::pieceAt)
+                .filter(piece -> piece.type() == HexPieceType.PAWN)
+                .filter(piece -> piece.color() == color.opponent())
+                .isPresent();
     }
 
     static boolean sameMoveIntent(HexMove legalMove, HexMove requestedMove) {

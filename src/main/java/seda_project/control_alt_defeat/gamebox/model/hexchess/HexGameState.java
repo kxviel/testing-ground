@@ -41,7 +41,7 @@ public record HexGameState(
     public static HexGameState create(HexBoard board, HexPieceColor startingTurn, boolean allowStandardDoubleMoves) {
         HexBoard safeBoard = board == null ? HexBoard.standard() : board;
         HexPieceColor safeTurn = startingTurn == null ? HexPieceColor.WHITE : startingTurn;
-        Set<HexCoordinate> doubleMoveEligible = initialDoubleMoveEligibleSquares(safeBoard, allowStandardDoubleMoves);
+        Set<HexCoordinate> doubleMoveEligible = initialDoubleMoveEligibleSquares(allowStandardDoubleMoves);
         Map<String, Integer> repetitions = Map.of(HexPositionKey.from(safeBoard, safeTurn, null), 1);
         HexGameResolution resolution = HexGameEndDetector.evaluate(
                 safeBoard,
@@ -393,6 +393,10 @@ public record HexGameState(
     }
 
     private Set<HexCoordinate> updateDoubleMoveEligibility(HexMove move, HexCoordinate capturedAt) {
+        if (HexMoveRules.usesStandardDoubleMoveRules(doubleMoveEligibleSquares)) {
+            return doubleMoveEligibleSquares;
+        }
+
         Set<HexCoordinate> next = new LinkedHashSet<>(doubleMoveEligibleSquares);
         next.remove(move.from());
         next.remove(move.to());
@@ -402,19 +406,11 @@ public record HexGameState(
         return Set.copyOf(next);
     }
 
-    private static Set<HexCoordinate> initialDoubleMoveEligibleSquares(
-            HexBoard board,
-            boolean allowStandardDoubleMoves) {
+    private static Set<HexCoordinate> initialDoubleMoveEligibleSquares(boolean allowStandardDoubleMoves) {
         if (!allowStandardDoubleMoves) {
             return Set.of();
         }
 
-        return HexMoveRules.standardDoubleMoveEligibleSquares()
-                .stream()
-                .filter(coordinate -> board.pieceAt(coordinate)
-                        .filter(piece -> piece.type() == HexPieceType.PAWN)
-                        .filter(piece -> HexMoveRules.isPawnStart(coordinate, piece.color()))
-                        .isPresent())
-                .collect(java.util.stream.Collectors.toUnmodifiableSet());
+        return HexMoveRules.standardDoubleMoveEligibleSquares();
     }
 }

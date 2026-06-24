@@ -3,6 +3,8 @@ package seda_project.control_alt_defeat.gamebox.model.hexchess;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -52,6 +54,129 @@ class HexChessRulesTest {
     }
 
     @Test
+    void standardOpeningHasSeventeenPawnMovesPerSide() {
+        HexGameState whiteState = HexGameState.standard();
+        long whitePawnMoves = HexStartingPosition.whitePawnStarts()
+                .stream()
+                .flatMap(start -> whiteState.legalMovesFrom(start).stream())
+                .count();
+
+        HexGameState blackState = HexGameState.create(HexBoard.standard(), HexPieceColor.BLACK, true);
+        long blackPawnMoves = HexStartingPosition.blackPawnStarts()
+                .stream()
+                .flatMap(start -> blackState.legalMovesFrom(start).stream())
+                .count();
+
+        assertEquals(17, whitePawnMoves);
+        assertEquals(17, blackPawnMoves);
+        assertTrue(hasMoveTo(whiteState, "f5", "f6"));
+        assertFalse(hasMoveTo(whiteState, "f5", "f7"));
+        assertTrue(hasMoveTo(blackState, "f7", "f6"));
+        assertFalse(hasMoveTo(blackState, "f7", "f5"));
+    }
+
+    @Test
+    void standardPawnCanDoubleMoveAfterCapturingOntoOwnStartSquare() {
+        HexBoard board = HexBoard.empty()
+                .withPiece(coordinate("a1"), piece(HexPieceColor.WHITE, HexPieceType.KING))
+                .withPiece(coordinate("l6"), piece(HexPieceColor.BLACK, HexPieceType.KING))
+                .withPiece(coordinate("e4"), piece(HexPieceColor.WHITE, HexPieceType.PAWN))
+                .withPiece(coordinate("f5"), piece(HexPieceColor.BLACK, HexPieceType.PAWN));
+
+        HexGameState state = HexGameState.create(board, HexPieceColor.WHITE, true);
+        state = state.play(moveTo(state, "e4", "f5"));
+        state = state.play(moveTo(state, "l6", "i7"));
+
+        assertTrue(hasMoveTo(state, "f5", "f6"));
+        assertTrue(hasMoveTo(state, "f5", "f7"));
+    }
+
+    @Test
+    void pawnCaptureVectorsUseForwardAdjacentHexes() {
+        HexBoard whiteBoard = HexBoard.empty()
+                .withPiece(coordinate("a1"), piece(HexPieceColor.WHITE, HexPieceType.KING))
+                .withPiece(coordinate("l6"), piece(HexPieceColor.BLACK, HexPieceType.KING))
+                .withPiece(coordinate("f6"), piece(HexPieceColor.WHITE, HexPieceType.PAWN))
+                .withPiece(coordinate("e6"), piece(HexPieceColor.BLACK, HexPieceType.PAWN))
+                .withPiece(coordinate("g6"), piece(HexPieceColor.BLACK, HexPieceType.PAWN))
+                .withPiece(coordinate("e7"), piece(HexPieceColor.BLACK, HexPieceType.PAWN))
+                .withPiece(coordinate("g7"), piece(HexPieceColor.BLACK, HexPieceType.PAWN));
+        HexGameState whiteState = HexGameState.create(whiteBoard, HexPieceColor.WHITE, false);
+
+        assertTrue(hasMoveTo(whiteState, "f6", "e6"));
+        assertTrue(hasMoveTo(whiteState, "f6", "g6"));
+        assertFalse(hasMoveTo(whiteState, "f6", "e7"));
+        assertFalse(hasMoveTo(whiteState, "f6", "g7"));
+
+        HexBoard blackBoard = HexBoard.empty()
+                .withPiece(coordinate("a1"), piece(HexPieceColor.WHITE, HexPieceType.KING))
+                .withPiece(coordinate("l6"), piece(HexPieceColor.BLACK, HexPieceType.KING))
+                .withPiece(coordinate("f6"), piece(HexPieceColor.BLACK, HexPieceType.PAWN))
+                .withPiece(coordinate("e5"), piece(HexPieceColor.WHITE, HexPieceType.PAWN))
+                .withPiece(coordinate("g5"), piece(HexPieceColor.WHITE, HexPieceType.PAWN))
+                .withPiece(coordinate("e6"), piece(HexPieceColor.WHITE, HexPieceType.PAWN))
+                .withPiece(coordinate("g6"), piece(HexPieceColor.WHITE, HexPieceType.PAWN));
+        HexGameState blackState = HexGameState.create(blackBoard, HexPieceColor.BLACK, false);
+
+        assertTrue(hasMoveTo(blackState, "f6", "e5"));
+        assertTrue(hasMoveTo(blackState, "f6", "g5"));
+        assertFalse(hasMoveTo(blackState, "f6", "e6"));
+        assertFalse(hasMoveTo(blackState, "f6", "g6"));
+    }
+
+    @Test
+    void forgedEnPassantTargetWithoutCapturedPawnDoesNotCreateCapture() {
+        HexBoard board = HexBoard.empty()
+                .withPiece(coordinate("a1"), piece(HexPieceColor.WHITE, HexPieceType.KING))
+                .withPiece(coordinate("l6"), piece(HexPieceColor.BLACK, HexPieceType.KING))
+                .withPiece(coordinate("b5"), piece(HexPieceColor.WHITE, HexPieceType.PAWN));
+
+        HexGameState state = new HexGameState(
+                board,
+                HexPieceColor.WHITE,
+                HexGameStatus.RUNNING,
+                "",
+                null,
+                coordinate("c6"),
+                null,
+                0,
+                Map.of(),
+                Set.of(),
+                0,
+                0);
+
+        assertFalse(hasMoveTo(state, "b5", "c6"));
+        assertFalse(state.legalMovesFrom(coordinate("b5")).stream().anyMatch(HexMove::enPassant));
+    }
+
+    @Test
+    void validEnPassantRequiresAdjacentMovedPawnAndExpiresAfterOneReply() {
+        HexBoard board = HexBoard.empty()
+                .withPiece(coordinate("a1"), piece(HexPieceColor.WHITE, HexPieceType.KING))
+                .withPiece(coordinate("l6"), piece(HexPieceColor.BLACK, HexPieceType.KING))
+                .withPiece(coordinate("b5"), piece(HexPieceColor.WHITE, HexPieceType.PAWN))
+                .withPiece(coordinate("c7"), piece(HexPieceColor.BLACK, HexPieceType.PAWN));
+
+        HexGameState state = HexGameState.create(board, HexPieceColor.BLACK, true);
+        state = state.play(moveTo(state, "c7", "c5"));
+
+        assertTrue(hasEnPassantTo(state, "b5", "c6"));
+
+        HexGameState captured = state.play(moveTo(state, "b5", "c6"));
+        assertTrue(captured.board().pieceAt(coordinate("c5")).isEmpty());
+        assertTrue(captured.board().pieceAt(coordinate("c6"))
+                .filter(piece -> piece.color() == HexPieceColor.WHITE)
+                .filter(piece -> piece.type() == HexPieceType.PAWN)
+                .isPresent());
+
+        HexGameState expired = state.play(moveTo(state, "a1", "a2"));
+        expired = expired.play(moveTo(expired, "l6", "i7"));
+
+        assertFalse(hasMoveTo(expired, "b5", "c6"));
+        assertFalse(hasEnPassantTo(expired, "b5", "c6"));
+    }
+
+    @Test
     void promotionMoveOffersAllOfficialPromotionPieces() {
         HexBoard board = HexBoard.empty()
                 .withPiece(HexCoordinate.of("g1"), new HexPiece(HexPieceColor.WHITE, HexPieceType.KING))
@@ -73,6 +198,32 @@ class HexChessRulesTest {
     }
 
     @Test
+    void pawnCapturePromotionOffersAllOfficialPromotionPieces() {
+        HexBoard whiteBoard = HexBoard.empty()
+                .withPiece(coordinate("a1"), piece(HexPieceColor.WHITE, HexPieceType.KING))
+                .withPiece(coordinate("l6"), piece(HexPieceColor.BLACK, HexPieceType.KING))
+                .withPiece(coordinate("f10"), piece(HexPieceColor.WHITE, HexPieceType.PAWN))
+                .withPiece(coordinate("e10"), piece(HexPieceColor.BLACK, HexPieceType.PAWN));
+        HexGameState whiteState = HexGameState.create(whiteBoard, HexPieceColor.WHITE, false);
+
+        HexBoard blackBoard = HexBoard.empty()
+                .withPiece(coordinate("a1"), piece(HexPieceColor.WHITE, HexPieceType.KING))
+                .withPiece(coordinate("l6"), piece(HexPieceColor.BLACK, HexPieceType.KING))
+                .withPiece(coordinate("f2"), piece(HexPieceColor.BLACK, HexPieceType.PAWN))
+                .withPiece(coordinate("e1"), piece(HexPieceColor.WHITE, HexPieceType.PAWN));
+        HexGameState blackState = HexGameState.create(blackBoard, HexPieceColor.BLACK, false);
+
+        List<HexPieceType> expectedPromotions = List.of(
+                HexPieceType.QUEEN,
+                HexPieceType.ROOK,
+                HexPieceType.BISHOP,
+                HexPieceType.KNIGHT);
+
+        assertEquals(expectedPromotions, promotionsForMove(whiteState, "f10", "e10"));
+        assertEquals(expectedPromotions, promotionsForMove(blackState, "f2", "e1"));
+    }
+
+    @Test
     void drawOfferCannotBeOverwrittenAndIsRevokedByMove() {
         HexGameState offered = HexGameState.standard().offerDraw(HexPieceColor.WHITE);
         HexGameState secondOffer = offered.offerDraw(HexPieceColor.BLACK);
@@ -90,5 +241,45 @@ class HexChessRulesTest {
         return board.piecesOf(color)
                 .filter(entry -> entry.getValue().type() == type)
                 .count();
+    }
+
+    private boolean hasMoveTo(HexGameState state, String from, String to) {
+        HexCoordinate target = coordinate(to);
+        return state.legalMovesFrom(coordinate(from))
+                .stream()
+                .anyMatch(move -> move.to().equals(target));
+    }
+
+    private boolean hasEnPassantTo(HexGameState state, String from, String to) {
+        HexCoordinate target = coordinate(to);
+        return state.legalMovesFrom(coordinate(from))
+                .stream()
+                .anyMatch(move -> move.to().equals(target) && move.enPassant());
+    }
+
+    private HexMove moveTo(HexGameState state, String from, String to) {
+        HexCoordinate target = coordinate(to);
+        return state.legalMovesFrom(coordinate(from))
+                .stream()
+                .filter(move -> move.to().equals(target))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("Expected legal move " + from + "-" + to));
+    }
+
+    private List<HexPieceType> promotionsForMove(HexGameState state, String from, String to) {
+        HexCoordinate target = coordinate(to);
+        return state.legalMovesFrom(coordinate(from))
+                .stream()
+                .filter(move -> move.to().equals(target))
+                .map(HexMove::promotion)
+                .toList();
+    }
+
+    private HexCoordinate coordinate(String notation) {
+        return HexCoordinate.of(notation);
+    }
+
+    private HexPiece piece(HexPieceColor color, HexPieceType type) {
+        return new HexPiece(color, type);
     }
 }

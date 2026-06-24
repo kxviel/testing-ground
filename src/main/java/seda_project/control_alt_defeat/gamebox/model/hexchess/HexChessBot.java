@@ -112,6 +112,10 @@ public final class HexChessBot {
         }
 
         private Set<HexCoordinate> updateDoubleMoveEligibility(HexMove move, HexCoordinate capturedAt) {
+            if (HexMoveRules.usesStandardDoubleMoveRules(doubleMoveEligibleSquares)) {
+                return doubleMoveEligibleSquares;
+            }
+
             Set<HexCoordinate> next = new LinkedHashSet<>(doubleMoveEligibleSquares);
             next.remove(move.from());
             next.remove(move.to());

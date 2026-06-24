@@ -165,9 +165,14 @@ public final class HexMoveGenerator {
         Stream<HexMove> captures = attacks.stream()
                 .map(jump -> HexBoardGeometry.shift(from, jump.qDelta(), jump.rDelta()))
                 .flatMap(Optional::stream)
-                .filter(target -> isEnemyPiece(board, target, color)
-                        || target.equals(enPassantTarget))
-                .flatMap(target -> pawnMovesTo(from, target, color, target.equals(enPassantTarget)));
+                .flatMap(target -> {
+                    boolean enPassant = HexMoveRules.canCaptureEnPassant(board, target, enPassantTarget, color);
+                    if (!isEnemyPiece(board, target, color) && !enPassant) {
+                        return Stream.empty();
+                    }
+
+                    return pawnMovesTo(from, target, color, enPassant);
+                });
 
         return Stream.concat(forwardPawnMoves(board, from, color, doubleMoveEligibleSquares), captures).toList();
     }
@@ -185,8 +190,7 @@ public final class HexMoveGenerator {
                 .flatMap(target -> pawnMovesTo(from, target, color, false));
 
         Stream<HexMove> doubleMove = oneStep
-                .filter(ignored -> HexMoveRules.isPawnStart(from, color))
-                .filter(ignored -> doubleMoveEligibleSquares.contains(from))
+                .filter(ignored -> HexMoveRules.allowsPawnDoubleMoveFrom(from, color, doubleMoveEligibleSquares))
                 .flatMap(target -> HexBoardGeometry.neighbor(target, forward))
                 .filter(board::isEmpty)
                 .stream()
