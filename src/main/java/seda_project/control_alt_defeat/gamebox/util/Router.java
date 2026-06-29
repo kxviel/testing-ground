@@ -2,7 +2,6 @@ package seda_project.control_alt_defeat.gamebox.util;
 
 import java.io.IOException;
 
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -21,7 +20,7 @@ public final class Router {
             Scene currentScene = source.getScene();
             Stage stage = (Stage) currentScene.getWindow();
 
-            goTo(stage, currentScene.getWidth(), currentScene.getHeight(), route, data);
+            loadRoute(stage, route, data);
 
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -30,25 +29,22 @@ public final class Router {
 
     public static void goTo(Stage stage, String route, Object data) {
         try {
-            Scene currentScene = stage.getScene();
-            goTo(stage, currentScene.getWidth(), currentScene.getHeight(), route, data);
+            loadRoute(stage, route, data);
 
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static void goTo(Stage stage, double width, double height, String route, Object data) throws IOException {
+    private static void loadRoute(Stage stage, String route, Object data) throws IOException {
         FXMLLoader loader = new FXMLLoader(Router.class.getResource(route));
         Parent root = loader.load();
-        Scene scene = new Scene(root, width, height);
         Object controller = loader.getController();
 
         if (data != null && controller instanceof RouteDataReceiver receiver) {
             receiver.setRouteData(data);
         }
 
-        stage.setScene(scene);
-        Platform.runLater(() -> stage.setMaximized(true));
+        WindowManager.setScene(stage, root);
     }
 }
