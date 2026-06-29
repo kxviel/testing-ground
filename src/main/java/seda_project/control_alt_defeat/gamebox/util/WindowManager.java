@@ -1,10 +1,13 @@
 package seda_project.control_alt_defeat.gamebox.util;
 
 import javafx.application.Platform;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import seda_project.control_alt_defeat.gamebox.settings.WindowResolution;
+import seda_project.control_alt_defeat.gamebox.settings.WindowMode;
 import seda_project.control_alt_defeat.gamebox.settings.WindowSettings;
 import seda_project.control_alt_defeat.gamebox.settings.WindowSettingsStore;
 
@@ -14,7 +17,16 @@ public final class WindowManager {
     }
 
     public static Scene createScene(Parent root) {
-        WindowResolution resolution = WindowSettingsStore.get().windowedResolution();
+        WindowSettings settings = WindowSettingsStore.get();
+        if (settings.mode() == WindowMode.WINDOWED) {
+            return createWindowedScene(root, settings.windowedResolution());
+        }
+
+        Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
+        return new Scene(root, bounds.getWidth(), bounds.getHeight());
+    }
+
+    private static Scene createWindowedScene(Parent root, WindowResolution resolution) {
         return new Scene(root, resolution.width(), resolution.height());
     }
 
