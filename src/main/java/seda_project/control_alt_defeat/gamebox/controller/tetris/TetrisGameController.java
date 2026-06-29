@@ -6,7 +6,9 @@ import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -27,6 +29,7 @@ import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameSetup;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameState;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisItemBag;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisPlayerState;
+import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisGameStatus;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisItemType;
 import seda_project.control_alt_defeat.gamebox.network.GameClient;
 import seda_project.control_alt_defeat.gamebox.network.GameServer;
@@ -133,9 +136,20 @@ public class TetrisGameController implements RouteDataReceiver {
 
     @FXML
     private void onBackToMenu(ActionEvent event) {
+        if (gameState.status() == TetrisGameStatus.RUNNING && !confirmQuit()) {
+            Platform.runLater(gameRoot::requestFocus);
+            return;
+        }
         stopGameLoop();
         closeNetwork(true);
         Router.goTo(event, "/tetris/TetrisMenu.fxml", null);
+    }
+
+    private boolean confirmQuit() {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
+                "Quit this match and return to the Zetris menu?", ButtonType.YES, ButtonType.NO);
+        confirm.setTitle("Quit Match");
+        return confirm.showAndWait().filter(ButtonType.YES::equals).isPresent();
     }
 
     @FXML

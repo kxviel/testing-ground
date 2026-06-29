@@ -7,7 +7,9 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Label;
 import javafx.scene.paint.Color;
@@ -166,8 +168,17 @@ public class HexChessGameController implements RouteDataReceiver {
 
     @FXML
     private void onBackToMenu(ActionEvent event) {
+        if (gameState.isActive() && !confirm("Leave Match", "Leave this match and return to the Chexsagon menu?")) {
+            return;
+        }
         closeNetwork();
         Router.goTo(event, "/hexchess/HexChessMenu.fxml", null);
+    }
+
+    private boolean confirm(String title, String message) {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, message, ButtonType.YES, ButtonType.NO);
+        confirm.setTitle(title);
+        return confirm.showAndWait().filter(ButtonType.YES::equals).isPresent();
     }
 
     private void startGame(HexChessGameSetup nextSetup) {

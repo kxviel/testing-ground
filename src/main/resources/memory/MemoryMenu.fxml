@@ -65,4 +65,6 @@
         <Button text="Connect" onAction="#onConnect" id="btnConnect" styleClass="btn-primary"/>
     </HBox>
     <Label fx:id="statusLabel" text="" wrapText="true" styleClass="status-line"/>
+
+    <Button text="Back" onAction="#onBack" minWidth="120" styleClass="btn-outline"/>
 </VBox>

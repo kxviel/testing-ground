@@ -45,6 +45,7 @@ public class HexChessMenuController {
     private final ObservableList<HexChessLanDiscoveryService.DiscoveredGame> discoveredGames =
             FXCollections.observableArrayList();
     private GameServer pendingHostServer;
+    private GameClient pendingJoinClient;
 
     @FXML
     private void initialize() {
@@ -61,25 +62,26 @@ public class HexChessMenuController {
 
     @FXML
     private void onStartLocal(ActionEvent event) {
-        closeDiscovery();
+        closeMenuNetwork();
         Router.goTo(event, "/hexchess/HexChessGame.fxml", setup(HexGameMode.LOCAL));
     }
 
     @FXML
     private void onStartBot(ActionEvent event) {
-        closeDiscovery();
+        closeMenuNetwork();
         Router.goTo(event, "/hexchess/HexChessGame.fxml", setup(HexGameMode.BOT));
     }
 
     @FXML
     private void onCustomSetup(ActionEvent event) {
-        closeDiscovery();
+        closeMenuNetwork();
         Router.goTo(event, "/hexchess/HexChessSetup.fxml", setup(HexGameMode.LOCAL));
     }
 
     @FXML
     private void onHostLan(ActionEvent event) {
         Stage stage = stageFrom(event);
+        closePendingJoinClient();
         closePendingHostServer();
 
         GameServer server;
@@ -102,15 +104,25 @@ public class HexChessMenuController {
         Thread waitThread = new Thread(() -> {
             try {
                 server.waitForClient();
-                clearPendingHostServer(server);
-                closeDiscovery();
-                Platform.runLater(() -> Router.goTo(
-                        stage,
-                        "/hexchess/HexChessGame.fxml",
-                        HexChessGameRouteData.host(setup(HexGameMode.NETWORK_HOST), server)));
+                Platform.runLater(() -> {
+                    if (pendingHostServer != server) {
+                        server.close();
+                        return;
+                    }
+                    clearPendingHostServer(server);
+                    closeDiscovery();
+                    Router.goTo(
+                            stage,
+                            "/hexchess/HexChessGame.fxml",
+                            HexChessGameRouteData.host(setup(HexGameMode.NETWORK_HOST), server));
+                });
             } catch (IOException e) {
-                Platform.runLater(() -> statusLabel.setText("LAN host failed: " + e.getMessage()));
-                closeDiscovery();
+                Platform.runLater(() -> {
+                    if (pendingHostServer == server) {
+                        statusLabel.setText("LAN host failed: " + e.getMessage());
+                        closeDiscovery();
+                    }
+                });
             }
         }, "hexchess-host-wait");
         waitThread.setDaemon(true);
@@ -152,22 +164,36 @@ public class HexChessMenuController {
     }
 
     private void joinHost(Stage stage, String host, int port) {
+        closePendingJoinClient();
         statusLabel.setText("Connecting to " + host + ":" + port + "...");
+        GameClient client = new GameClient();
+        pendingJoinClient = client;
 
         Thread connectThread = new Thread(() -> {
-            GameClient client = new GameClient();
             try {
                 client.connect(host, port, message -> {
                 }, () -> {
                 });
-                closeDiscovery();
-                Platform.runLater(() -> Router.goTo(
-                        stage,
-                        "/hexchess/HexChessGame.fxml",
-                        HexChessGameRouteData.join(setup(HexGameMode.NETWORK_CLIENT), client)));
+                Platform.runLater(() -> {
+                    if (pendingJoinClient != client) {
+                        client.close();
+                        return;
+                    }
+                    pendingJoinClient = null;
+                    closeDiscovery();
+                    Router.goTo(
+                            stage,
+                            "/hexchess/HexChessGame.fxml",
+                            HexChessGameRouteData.join(setup(HexGameMode.NETWORK_CLIENT), client));
+                });
             } catch (IOException e) {
                 client.close();
-                Platform.runLater(() -> statusLabel.setText("Could not join LAN game: " + e.getMessage()));
+                Platform.runLater(() -> {
+                    if (pendingJoinClient == client) {
+                        pendingJoinClient = null;
+                        statusLabel.setText("Could not join LAN game: " + e.getMessage());
+                    }
+                });
             }
         }, "hexchess-client-connect");
         connectThread.setDaemon(true);
@@ -176,7 +202,7 @@ public class HexChessMenuController {
 
     @FXML
     private void onBack(ActionEvent event) {
-        closeDiscovery();
+        closeMenuNetwork();
         Router.goTo(event, "/GameChoice.fxml", null);
     }
 
@@ -289,10 +315,22 @@ public class HexChessMenuController {
         closePendingHostServer();
     }
 
+    private void closeMenuNetwork() {
+        closeDiscovery();
+        closePendingJoinClient();
+    }
+
     private void closePendingHostServer() {
         if (pendingHostServer != null) {
             pendingHostServer.close();
             pendingHostServer = null;
+        }
+    }
+
+    private void closePendingJoinClient() {
+        if (pendingJoinClient != null) {
+            pendingJoinClient.close();
+            pendingJoinClient = null;
         }
     }
 

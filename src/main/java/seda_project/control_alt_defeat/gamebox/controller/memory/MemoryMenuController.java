@@ -59,6 +59,7 @@ public class MemoryMenuController implements RouteDataReceiver {
     private Button btnApplyK;
 
     private GameServer pendingServer;
+    private GameClient pendingClient;
 
     private final ToggleGroup variantGroup = new ToggleGroup();
     private List<BoardVariant> currentVariants = List.of();
@@ -181,6 +182,10 @@ public class MemoryMenuController implements RouteDataReceiver {
                         "Waiting for Player 2... Your IP: " + ip + "  Port: " + GameServer.DEFAULT_PORT));
                 server.waitForClient();
                 Platform.runLater(() -> {
+                    if (pendingServer != server) {
+                        server.close();
+                        return;
+                    }
                     pendingServer = null;
                     setVisibleManaged(btnCancelHost, false);
                     Router.goTo(stage, GAME_BOARD_ROUTE, MemoryGameRouteData.host(v, server));
@@ -232,24 +237,40 @@ public class MemoryMenuController implements RouteDataReceiver {
         statusLabel.setText("Connecting to " + ip + "...");
 
         GameClient client = new GameClient();
+        pendingClient = client;
         Queue<String> pendingMessages = new ConcurrentLinkedQueue<>();
 
         startDaemon(() -> {
             try {
                 client.connect(ip, GameServer.DEFAULT_PORT, pendingMessages::add, () -> {
                 });
-                Platform.runLater(
-                        () -> Router.goTo(stage, GAME_BOARD_ROUTE,
-                                MemoryGameRouteData.join(client, pendingMessages)));
+                Platform.runLater(() -> {
+                    if (pendingClient != client) {
+                        client.close();
+                        return;
+                    }
+                    pendingClient = null;
+                    Router.goTo(stage, GAME_BOARD_ROUTE, MemoryGameRouteData.join(client, pendingMessages));
+                });
             } catch (Exception e) {
                 log.error("Join failed: {}", e.getMessage());
                 Platform.runLater(() -> {
+                    if (pendingClient != client) {
+                        return;
+                    }
+                    pendingClient = null;
                     statusLabel.setText("Connection failed: " + e.getMessage());
                     setMenuButtonsDisabled(false);
                 });
                 client.close();
             }
         }, "memory-client-connect");
+    }
+
+    @FXML
+    private void onBack(ActionEvent event) {
+        closePendingNetwork();
+        Router.goTo(event, "/GameChoice.fxml", null);
     }
 
     private static Stage stageFrom(ActionEvent event) {
@@ -259,6 +280,17 @@ public class MemoryMenuController implements RouteDataReceiver {
     private void setHostingPending(boolean pending) {
         setMenuButtonsDisabled(pending);
         setVisibleManaged(btnCancelHost, pending);
+    }
+
+    private void closePendingNetwork() {
+        if (pendingServer != null) {
+            pendingServer.close();
+            pendingServer = null;
+        }
+        if (pendingClient != null) {
+            pendingClient.close();
+            pendingClient = null;
+        }
     }
 
     private List<RadioButton> variantRadios() {
