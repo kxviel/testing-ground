@@ -1,7 +1,5 @@
 # AI Usage
 
-AI tools were used as a development aid throughout the project. They helped with architecture planning, debugging, edge-case discovery, test generation, and documentation, while the team remained responsible for integrating the results into the JavaFX/Maven codebase.
-
 ## General Development Support
 
 - Discussed JavaFX structure, MVC boundaries, controller event flow, FXML routing, and UI state handling.
