@@ -5,6 +5,7 @@ import java.io.IOException;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,13 +20,10 @@ public class GameBox extends Application {
 
         final var fxmlUrl = GameBox.class.getResource("/GameChoice.fxml");
         final var loader = new FXMLLoader(fxmlUrl);
-        final var scene = WindowManager.createScene(loader.load());
+        Parent root = loader.load();
 
-        stage.setScene(scene);
+        WindowManager.setScene(stage, root);
         stage.setOnCloseRequest(e -> cleanExit());
-
-        WindowManager.applyCurrentSettings(stage);
-
         stage.show();
         logger.debug("Startup completed");
     }
