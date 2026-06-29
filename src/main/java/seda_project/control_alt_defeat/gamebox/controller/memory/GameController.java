@@ -3,10 +3,9 @@ package seda_project.control_alt_defeat.gamebox.controller.memory;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.util.Duration;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -16,16 +15,25 @@ import seda_project.control_alt_defeat.gamebox.model.memory.Card;
 import seda_project.control_alt_defeat.gamebox.model.memory.GameModel;
 import seda_project.control_alt_defeat.gamebox.network.GameClient;
 import seda_project.control_alt_defeat.gamebox.network.GameServer;
-import seda_project.control_alt_defeat.gamebox.network.MessageRouter;
 import seda_project.control_alt_defeat.gamebox.network.Protocol;
+import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
+import seda_project.control_alt_defeat.gamebox.util.Router;
 
-import java.io.IOException;
 import java.util.List;
+import java.util.Queue;
+import java.util.stream.IntStream;
 
-// Controller for the active game-board screen.
-public class GameController {
+public class GameController implements RouteDataReceiver {
 
     private static final Logger log = LoggerFactory.getLogger(GameController.class);
+    private static final String MENU_ROUTE = "/memory/MemoryMenu.fxml";
+    private static final String PLAYER_ONE = "Player 1";
+    private static final String PLAYER_TWO = "Player 2";
+    private static final String CARD_BACK = "🂠";
+    private static final String BASE_SCORE_STYLE = "-fx-font-size:16px;-fx-font-weight:bold;";
+    private static final String ACTIVE_SCORE_STYLE = BASE_SCORE_STYLE + "-fx-text-fill:#0D47A1;";
+    private static final Duration MISMATCH_DELAY = Duration.millis(800);
+    private static final int STATUS_SECONDS = 10;
 
     public enum Mode {
         LOCAL, NETWORK_HOST, NETWORK_CLIENT
@@ -42,7 +50,7 @@ public class GameController {
     @FXML
     private GridPane cardGrid;
     @FXML
-    private javafx.scene.layout.HBox postGameBar;
+    private HBox postGameBar;
     @FXML
     private Label resultLabel;
     @FXML
@@ -58,42 +66,32 @@ public class GameController {
     private Button[] cardButtons;
     private boolean inputLocked = false;
     private boolean gameEnded = false;
-    private Stage primaryStage;
     private PauseTransition mismatchPause;
 
-    public void setPrimaryStage(Stage stage) {
-        this.primaryStage = stage;
+    @Override
+    public void setRouteData(Object data) {
+        if (data instanceof MemoryGameRouteData routeData) {
+            init(routeData.variant(), routeData.mode(), routeData.server(), routeData.client());
+            replayPendingMessages(routeData.pendingMessages());
+        }
     }
 
-    /**
-     * Initializes the game screen for local play, hosting, or joining.
-     *
-     * @param variant      selected board variant for local/host modes
-     * @param mode         controller mode
-     * @param server       connected server for host mode
-     * @param client       connected client for client mode
-     * @param hostRouter   host-side message router
-     * @param clientRouter client-side message router
-     */
-    public void init(BoardVariant variant, Mode mode,
-            GameServer server, GameClient client,
-            MessageRouter hostRouter, MessageRouter clientRouter) {
+    private void init(BoardVariant variant, Mode mode,
+            GameServer server, GameClient client) {
         this.mode = mode;
         this.server = server;
         this.client = client;
 
-        if (mode == Mode.NETWORK_CLIENT) {
-            clientRouter.setDelegate(msg -> Platform.runLater(() -> processMessage(msg)));
-            clientRouter.setDisconnectDelegate(() -> Platform.runLater(this::handleDisconnect));
+        if (isNetworkClient()) {
+            configureClient();
             statusLabel.setText("Connected! Waiting for host to start the game...");
             return;
         }
 
         this.model = new GameModel(variant);
 
-        if (mode == Mode.NETWORK_HOST) {
-            hostRouter.setDelegate(msg -> Platform.runLater(() -> processClientMessage(msg)));
-            hostRouter.setDisconnectDelegate(() -> Platform.runLater(this::handleDisconnect));
+        if (isNetworkHost()) {
+            configureHost();
             sendInitToClient();
         }
 
@@ -101,73 +99,71 @@ public class GameController {
         refreshUI();
     }
 
-    /**
-     * Sends the complete board setup to the connected client.
-     */
+    private void configureHost() {
+        server.setMessageListener(msg -> Platform.runLater(() -> processClientMessage(msg)));
+        server.setDisconnectListener(() -> Platform.runLater(this::handleDisconnect));
+    }
+
+    private void configureClient() {
+        client.setMessageListener(msg -> Platform.runLater(() -> processMessage(msg)));
+        client.setDisconnectListener(() -> Platform.runLater(this::handleDisconnect));
+    }
+
+    private void replayPendingMessages(Queue<String> pendingMessages) {
+        if (pendingMessages == null) {
+            return;
+        }
+        String message;
+        while ((message = pendingMessages.poll()) != null) {
+            processMessage(message);
+        }
+    }
+
     private void sendInitToClient() {
-        List<String> syms = model.getSymbolOrder();
-        String symStr = String.join(",", syms);
         server.send(Protocol.make(Protocol.INIT,
                 String.valueOf(model.getK()),
                 String.valueOf(model.getN()),
                 String.valueOf(model.getRows()),
                 String.valueOf(model.getCols()),
-                symStr));
+                String.join(",", model.getSymbolOrder())));
     }
 
-    /**
-     * Handles messages received by the host from the joining client.
-     *
-     * @param msg raw protocol line
-     */
     private void processClientMessage(String msg) {
         if (msg == null || msg.isBlank())
             return;
+
         String[] parts = msg.split(":", -1);
         switch (parts[0]) {
             case Protocol.FLIP -> {
-                if (model.getCurrentPlayer() == 1) {
-                    try {
-                        int idx = Integer.parseInt(parts[1]);
-                        executeCardSelect(idx);
-                    } catch (Exception e) {
-                        log.warn("Ignoring malformed FLIP from client: {}", parts.length > 1 ? parts[1] : "(empty)");
-                    }
+                Integer idx = parseCardIndex(parts, "FLIP from client");
+                if (idx != null && model.getCurrentPlayer() == 1) {
+                    executeCardSelect(idx);
                 }
             }
             case Protocol.RESTART -> {
-                String initiator = (parts.length > 1 && !parts[1].isBlank()) ? parts[1] : "Player 2";
+                String initiator = fieldOrDefault(parts, 1, PLAYER_TWO);
                 restartGame(initiator);
-                showTimedStatus(initiator + " restarted the game!", 10);
+                showTimedStatus(initiator + " restarted the game!", STATUS_SECONDS);
             }
             case Protocol.QUIT -> handleRemoteQuit();
         }
     }
 
-    /**
-     * Handles messages received by the network client from the host.
-     *
-     * @param msg raw protocol line
-     */
     private void processMessage(String msg) {
         if (msg == null || msg.isBlank())
             return;
+
         String[] parts = msg.split(":", -1);
         switch (parts[0]) {
             case Protocol.INIT -> handleInit(parts);
             case Protocol.FLIP -> handleRemoteFlip(parts);
             case Protocol.CLOSE -> handleRemoteClose();
-            case Protocol.GAMEOVER -> handleGameOverMsg(parts);
+            case Protocol.GAMEOVER -> handleGameOverMsg();
             case Protocol.RESTART -> handleRestart(parts);
             case Protocol.QUIT -> handleRemoteQuit();
         }
     }
 
-    /**
-     * Builds or rebuilds the client-side model from a host INIT message.
-     *
-     * @param parts colon-split INIT message
-     */
     private void handleInit(String[] parts) {
         boolean isRestart = (model != null);
 
@@ -185,36 +181,16 @@ public class GameController {
         buildBoard();
         refreshUI();
         if (!isRestart) {
-            showTimedStatus("Game started! Player 1 (Host) goes first.", 10);
+            showTimedStatus("Game started! " + PLAYER_ONE + " (Host) goes first.", STATUS_SECONDS);
         }
     }
 
-    /**
-     * Applies a card flip that originated from the remote player.
-     *
-     * @param parts colon-split FLIP message
-     */
     private void handleRemoteFlip(String[] parts) {
-        try {
-            int idx = Integer.parseInt(parts[1]);
-            GameModel.SelectResult result = model.selectCard(idx);
-            if (result == GameModel.SelectResult.IGNORED)
-                return;
-            if (result == GameModel.SelectResult.RESOLVED_MATCH) {
-                refreshAll();
-                if (model.isGameOver())
-                    showGameOver();
-            } else {
-                updateCardButton(idx);
-                refreshUI();
-                if (result == GameModel.SelectResult.RESOLVED_MISMATCH) {
-                    inputLocked = true;
-                    statusLabel.setText("Mismatch! Closing cards...");
-                }
-            }
-        } catch (Exception e) {
-            log.warn("Ignoring malformed FLIP message: {}", parts.length > 1 ? parts[1] : "(empty)");
-        }
+        Integer idx = parseCardIndex(parts, "FLIP message");
+        if (idx == null)
+            return;
+
+        handleSelectionResult(idx, model.selectCard(idx), "Mismatch! Closing cards...");
     }
 
     private void handleRemoteClose() {
@@ -224,12 +200,7 @@ public class GameController {
         statusLabel.setText("");
     }
 
-    /**
-     * Shows the game-over state after a remote GAMEOVER message.
-     *
-     * @param parts colon-split GAMEOVER message
-     */
-    private void handleGameOverMsg(String[] parts) {
+    private void handleGameOverMsg() {
         if (gameEnded)
             return;
         gameEnded = true;
@@ -237,17 +208,10 @@ public class GameController {
         showGameOver();
     }
 
-    /**
-     * Handles the notification that the remote side restarted the game.
-     *
-     * @param parts colon-split RESTART message
-     */
     private void handleRestart(String[] parts) {
-        if (mode == Mode.NETWORK_CLIENT) {
-            String initiator = (parts != null && parts.length > 1 && !parts[1].isBlank())
-                    ? parts[1]
-                    : "Player 1";
-            showTimedStatus(initiator + " restarted the game!", 10);
+        if (isNetworkClient()) {
+            String initiator = fieldOrDefault(parts, 1, PLAYER_ONE);
+            showTimedStatus(initiator + " restarted the game!", STATUS_SECONDS);
             return;
         }
 
@@ -255,19 +219,12 @@ public class GameController {
         gameEnded = false;
     }
 
-    /**
-     * Returns to the menu when the other player intentionally leaves.
-     */
     private void handleRemoteQuit() {
-        String leavingPlayer = (mode == Mode.NETWORK_HOST) ? "Player 2" : "Player 1";
         inputLocked = true;
         hidePostGameBar();
-        returnToMainMenu(leavingPlayer + " left the game.");
+        returnToMainMenu(opponentName() + " left the game.");
     }
 
-    /**
-     * Reports an unexpected network disconnect and returns to the menu.
-     */
     private void handleDisconnect() {
         if (gameEnded)
             return;
@@ -280,9 +237,6 @@ public class GameController {
         returnToMainMenu(null);
     }
 
-    /**
-     * Creates all card buttons for the current model.
-     */
     private void buildBoard() {
         cardGrid.getChildren().clear();
         int total = model.getRows() * model.getCols();
@@ -291,34 +245,31 @@ public class GameController {
         int fontSize = total > 30 ? 20 : (total > 16 ? 24 : 28);
         double btnSize = total > 30 ? 52 : (total > 16 ? 60 : 68);
 
-        for (int i = 0; i < total; i++) {
-            final int idx = i;
-            Button btn = new Button("🂠");
-            btn.setId("card_" + i);
-            btn.setPrefWidth(btnSize);
-            btn.setPrefHeight(btnSize);
-            btn.setStyle(faceDownStyle(fontSize));
-            btn.setOnAction(e -> onCardClick(idx));
-            cardGrid.add(btn, i % model.getCols(), i / model.getCols());
-            cardButtons[i] = btn;
-        }
+        IntStream.range(0, total)
+                .forEach(i -> addCardButton(i, fontSize, btnSize));
     }
 
-    /**
-     * Handles one local click on a card button.
-     *
-     * @param idx selected card index
-     */
+    private void addCardButton(int idx, int fontSize, double btnSize) {
+        Button btn = new Button(CARD_BACK);
+        btn.setId("card_" + idx);
+        btn.setPrefWidth(btnSize);
+        btn.setPrefHeight(btnSize);
+        btn.setStyle(faceDownStyle(fontSize));
+        btn.setOnAction(e -> onCardClick(idx));
+        cardGrid.add(btn, idx % model.getCols(), idx / model.getCols());
+        cardButtons[idx] = btn;
+    }
+
     private void onCardClick(int idx) {
         if (inputLocked || gameEnded)
             return;
 
-        if (mode == Mode.NETWORK_HOST && model.getCurrentPlayer() != 0) {
-            statusLabel.setText("It's Player 2's turn. Please wait.");
+        if (isNetworkHost() && model.getCurrentPlayer() != 0) {
+            statusLabel.setText("It's " + PLAYER_TWO + "'s turn. Please wait.");
             return;
         }
-        if (mode == Mode.NETWORK_CLIENT && model.getCurrentPlayer() != 1) {
-            statusLabel.setText("It's Player 1's turn. Please wait.");
+        if (isNetworkClient() && model.getCurrentPlayer() != 1) {
+            statusLabel.setText("It's " + PLAYER_ONE + "'s turn. Please wait.");
             return;
         }
 
@@ -326,32 +277,14 @@ public class GameController {
         if (!card.isSelectable())
             return;
 
-        if (mode == Mode.NETWORK_CLIENT) {
+        if (isNetworkClient()) {
             client.send(Protocol.make(Protocol.FLIP, String.valueOf(idx)));
-
-            GameModel.SelectResult r = model.selectCard(idx);
-            if (r == GameModel.SelectResult.IGNORED)
-                return;
-            updateCardButton(idx);
-            refreshUI();
-            if (r == GameModel.SelectResult.RESOLVED_MISMATCH) {
-                inputLocked = true;
-                statusLabel.setText("Mismatch! Waiting for host...");
-            } else if (r == GameModel.SelectResult.RESOLVED_MATCH) {
-                refreshAll();
-                if (model.isGameOver())
-                    showGameOver();
-            }
+            handleSelectionResult(idx, model.selectCard(idx), "Mismatch! Waiting for host...");
         } else {
             executeCardSelect(idx);
         }
     }
 
-    /**
-     * Applies a valid card selection to the authoritative model.
-     *
-     * @param idx selected card index
-     */
     private void executeCardSelect(int idx) {
         Card card = model.getCard(idx);
         if (!card.isSelectable())
@@ -363,73 +296,84 @@ public class GameController {
 
         updateCardButton(idx);
 
-        if (mode == Mode.NETWORK_HOST) {
+        if (isNetworkHost()) {
             server.send(Protocol.make(Protocol.FLIP, String.valueOf(idx)));
         }
         refreshUI();
 
-        if (result == GameModel.SelectResult.RESOLVED_MATCH) {
-            refreshAll();
-            if (model.isGameOver()) {
-                if (mode == Mode.NETWORK_HOST) {
-                    server.send(Protocol.make(Protocol.GAMEOVER,
-                            String.valueOf(model.getWinner()),
-                            String.valueOf(model.getScore(0)),
-                            String.valueOf(model.getScore(1))));
-                }
-                showGameOver();
+        switch (result) {
+            case RESOLVED_MATCH -> handleResolvedMatch();
+            case RESOLVED_MISMATCH -> showMismatchThenClose();
+            case IGNORED, OPENED -> {
             }
-        } else if (result == GameModel.SelectResult.RESOLVED_MISMATCH) {
-            inputLocked = true;
-            statusLabel.setText("Mismatch! Closing cards...");
-            if (mismatchPause != null)
-                mismatchPause.stop();
-            // Keep mismatched cards visible briefly before hiding them again.
-            mismatchPause = new PauseTransition(Duration.millis(800));
-            mismatchPause.setOnFinished(e -> {
-                model.closeOpenCards();
-                refreshAll();
-                inputLocked = false;
-                statusLabel.setText("");
-                if (mode == Mode.NETWORK_HOST && server != null)
-                    server.send(Protocol.CLOSE);
-            });
-            mismatchPause.play();
         }
     }
 
-    /**
-     * Refreshes score labels and turn indicator.
-     */
-    private void refreshUI() {
-        int cur = model.getCurrentPlayer();
-        p1Label.setText("Player 1: " + model.getScore(0));
-        p2Label.setText("Player 2: " + model.getScore(1));
-        p1Label.setStyle(cur == 0
-                ? "-fx-font-size:16px;-fx-font-weight:bold;-fx-text-fill:#0D47A1;"
-                : "-fx-font-size:16px;-fx-font-weight:bold;");
-        p2Label.setStyle(cur == 1
-                ? "-fx-font-size:16px;-fx-font-weight:bold;-fx-text-fill:#0D47A1;"
-                : "-fx-font-size:16px;-fx-font-weight:bold;");
-        turnLabel.setText("▶ " + (cur == 0 ? "Player 1" : "Player 2") + "'s Turn");
+    private void handleSelectionResult(int idx, GameModel.SelectResult result, String mismatchMessage) {
+        switch (result) {
+            case IGNORED -> {
+            }
+            case OPENED -> {
+                updateCardButton(idx);
+                refreshUI();
+            }
+            case RESOLVED_MATCH -> handleResolvedMatch();
+            case RESOLVED_MISMATCH -> {
+                updateCardButton(idx);
+                refreshUI();
+                inputLocked = true;
+                statusLabel.setText(mismatchMessage);
+            }
+        }
     }
 
-    /**
-     * Refreshes every card button and the score/turn labels.
-     */
+    private void handleResolvedMatch() {
+        refreshAll();
+        if (!model.isGameOver())
+            return;
+
+        if (isNetworkHost()) {
+            server.send(Protocol.make(Protocol.GAMEOVER,
+                    String.valueOf(model.getWinner()),
+                    String.valueOf(model.getScore(0)),
+                    String.valueOf(model.getScore(1))));
+        }
+        showGameOver();
+    }
+
+    private void showMismatchThenClose() {
+        inputLocked = true;
+        statusLabel.setText("Mismatch! Closing cards...");
+        stopMismatchPause();
+
+        mismatchPause = new PauseTransition(MISMATCH_DELAY);
+        mismatchPause.setOnFinished(e -> {
+            model.closeOpenCards();
+            refreshAll();
+            inputLocked = false;
+            statusLabel.setText("");
+            if (isNetworkHost() && server != null)
+                server.send(Protocol.CLOSE);
+        });
+        mismatchPause.play();
+    }
+
+    private void refreshUI() {
+        int cur = model.getCurrentPlayer();
+        p1Label.setText(PLAYER_ONE + ": " + model.getScore(0));
+        p2Label.setText(PLAYER_TWO + ": " + model.getScore(1));
+        p1Label.setStyle(cur == 0 ? ACTIVE_SCORE_STYLE : BASE_SCORE_STYLE);
+        p2Label.setStyle(cur == 1 ? ACTIVE_SCORE_STYLE : BASE_SCORE_STYLE);
+        turnLabel.setText("▶ " + (cur == 0 ? PLAYER_ONE : PLAYER_TWO) + "'s Turn");
+    }
+
     private void refreshAll() {
         if (cardButtons == null)
             return;
-        for (int i = 0; i < cardButtons.length; i++)
-            updateCardButton(i);
+        IntStream.range(0, cardButtons.length).forEach(this::updateCardButton);
         refreshUI();
     }
 
-    /**
-     * Updates one card button to match the model state.
-     *
-     * @param idx card index to redraw
-     */
     private void updateCardButton(int idx) {
         if (cardButtons == null || idx >= cardButtons.length)
             return;
@@ -444,66 +388,39 @@ public class GameController {
             btn.setText(card.getSymbol());
             btn.setStyle(faceUpStyle(fontSize));
         } else {
-            btn.setText("🂠");
+            btn.setText(CARD_BACK);
             btn.setStyle(faceDownStyle(fontSize));
             btn.setDisable(false);
         }
     }
 
-    /**
-     * @param fs font size in pixels
-     * @return JavaFX CSS for a hidden card
-     */
     private String faceDownStyle(int fs) {
         return "-fx-font-size:" + fs + "px; -fx-background-color:#1976D2; -fx-text-fill:white; "
                 + "-fx-background-radius:6; -fx-cursor:hand;";
     }
 
-    /**
-     * @param fs font size in pixels
-     * @return JavaFX CSS for a revealed card
-     */
     private String faceUpStyle(int fs) {
         return "-fx-font-size:" + fs + "px; -fx-background-color:#FFF9C4; -fx-text-fill:black; "
                 + "-fx-background-radius:6; -fx-border-color:#F9A825; -fx-border-width:2; -fx-border-radius:6;"
                 + "-fx-padding:0;";
     }
 
-    /**
-     * @param fs font size in pixels
-     * @return JavaFX CSS for a permanently matched card
-     */
     private String matchedStyle(int fs) {
         return "-fx-font-size:" + fs + "px; -fx-background-color:#C8E6C9; -fx-text-fill:black; "
                 + "-fx-background-radius:6; -fx-opacity:0.85; -fx-padding:0;";
     }
 
-    /**
-     * Displays final scores and offers the next action.
-     */
     private void showGameOver() {
         gameEnded = true;
         inputLocked = true;
         int winner = model.getWinner();
         String resultText = winner < 0 ? "It's a Draw! 🤝"
                 : "Player " + (winner + 1) + " Wins! 🎉";
-        String scores = "Player 1: " + model.getScore(0)
-                + "  |  Player 2: " + model.getScore(1);
+        String scores = PLAYER_ONE + ": " + model.getScore(0)
+                + "  |  " + PLAYER_TWO + ": " + model.getScore(1);
 
         if (mode == Mode.LOCAL) {
-            Alert alert = new Alert(Alert.AlertType.NONE);
-            alert.setTitle("Game Over");
-            alert.setHeaderText(resultText);
-            alert.setContentText(scores);
-            ButtonType restartBtn = new ButtonType("Play Again", ButtonBar.ButtonData.YES);
-            ButtonType menuBtn = new ButtonType("Main Menu", ButtonBar.ButtonData.NO);
-            alert.getButtonTypes().setAll(restartBtn, menuBtn);
-            alert.showAndWait().ifPresent(btn -> {
-                if (btn == restartBtn)
-                    restartGame();
-                else
-                    returnToMainMenu(null);
-            });
+            showLocalGameOver(resultText, scores);
         } else {
             resultLabel.setText(resultText + "   " + scores);
             postGameBar.setVisible(true);
@@ -511,48 +428,45 @@ public class GameController {
         }
     }
 
-    /**
-     * Restarts the game from the post-game action bar.
-     */
-    @FXML
-    private void onPostPlayAgain() {
-        String myName = (mode == Mode.NETWORK_HOST) ? "Player 1" : "Player 2";
-        hidePostGameBar();
-        restartGame(myName);
-        showTimedStatus(myName + " restarted the game!", 10);
+    private void showLocalGameOver(String resultText, String scores) {
+        Alert alert = new Alert(Alert.AlertType.NONE);
+        ButtonType restartBtn = new ButtonType("Play Again", ButtonBar.ButtonData.YES);
+        ButtonType menuBtn = new ButtonType("Main Menu", ButtonBar.ButtonData.NO);
+        alert.setTitle("Game Over");
+        alert.setHeaderText(resultText);
+        alert.setContentText(scores);
+        alert.getButtonTypes().setAll(restartBtn, menuBtn);
+        alert.showAndWait().ifPresent(btn -> {
+            if (btn == restartBtn)
+                restartGame();
+            else
+                returnToMainMenu(null);
+        });
     }
 
-    /**
-     * Returns to the menu from the post-game action bar and notifies the peer.
-     */
+    @FXML
+    private void onPostPlayAgain() {
+        String myName = playerName();
+        hidePostGameBar();
+        restartGame(myName);
+        showTimedStatus(myName + " restarted the game!", STATUS_SECONDS);
+    }
+
     @FXML
     private void onPostMainMenu() {
-        String myName = (mode == Mode.NETWORK_HOST) ? "Player 1" : "Player 2";
+        String myName = playerName();
         hidePostGameBar();
-
-        if (mode == Mode.NETWORK_HOST && server != null)
-            server.send(Protocol.QUIT);
-        if (mode == Mode.NETWORK_CLIENT && client != null)
-            client.send(Protocol.QUIT);
+        sendQuit();
         returnToMainMenu(myName + " left the game.");
     }
 
-    /**
-     * Shows a status message for a limited time.
-     *
-     * @param message status text
-     * @param seconds number of seconds before the text is cleared
-     */
     private void showTimedStatus(String message, int seconds) {
         statusLabel.setText(message);
-        PauseTransition timer = new PauseTransition(javafx.util.Duration.seconds(seconds));
+        PauseTransition timer = new PauseTransition(Duration.seconds(seconds));
         timer.setOnFinished(e -> statusLabel.setText(""));
         timer.play();
     }
 
-    /**
-     * Hides the network post-game action bar.
-     */
     private void hidePostGameBar() {
         if (postGameBar != null) {
             postGameBar.setVisible(false);
@@ -560,50 +474,36 @@ public class GameController {
         }
     }
 
-    /**
-     * Builds a fresh board and notifies the remote peer when needed.
-     *
-     * @param initiator display name of the player who requested the restart
-     */
     private void restartGame(String initiator) {
         hidePostGameBar();
-        if (mismatchPause != null) {
-            mismatchPause.stop();
-            mismatchPause = null;
-        }
+        stopMismatchPause();
         model = new GameModel(model.getK(), model.getN(), model.getRows(), model.getCols());
         buildBoard();
         refreshUI();
         inputLocked = false;
         gameEnded = false;
         statusLabel.setText("");
-        if (mode == Mode.NETWORK_HOST) {
+        if (isNetworkHost()) {
             if (server == null) {
                 returnToMainMenu(null);
                 return;
             }
             sendInitToClient();
-            server.send(Protocol.make(Protocol.RESTART, initiator != null ? initiator : "Player 1"));
+            server.send(Protocol.make(Protocol.RESTART, initiator != null ? initiator : PLAYER_ONE));
         }
-        if (mode == Mode.NETWORK_CLIENT) {
+        if (isNetworkClient()) {
             if (client == null) {
                 returnToMainMenu(null);
                 return;
             }
-            client.send(Protocol.make(Protocol.RESTART, initiator != null ? initiator : "Player 2"));
+            client.send(Protocol.make(Protocol.RESTART, initiator != null ? initiator : PLAYER_TWO));
         }
     }
 
-    /**
-     * Restarts a local game without a named initiator.
-     */
     private void restartGame() {
         restartGame(null);
     }
 
-    /**
-     * Confirms quitting, notifies the remote peer, and returns to the menu.
-     */
     @FXML
     private void onQuit() {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
@@ -611,31 +511,32 @@ public class GameController {
         confirm.setTitle("Quit Game");
         confirm.showAndWait().ifPresent(btn -> {
             if (btn == ButtonType.YES) {
-                if (mismatchPause != null) {
-                    mismatchPause.stop();
-                    mismatchPause = null;
-                }
-                if (server != null) {
-                    server.send(Protocol.QUIT);
-                    server.close();
-                    server = null;
-                }
-                if (client != null) {
-                    client.send(Protocol.QUIT);
-                    client.close();
-                    client = null;
-                }
+                stopMismatchPause();
+                sendQuit();
                 returnToMainMenu(null);
             }
         });
     }
 
-    /**
-     * Closes network resources and loads the main-menu screen.
-     *
-     * @param statusMessage optional message to show on the menu
-     */
     private void returnToMainMenu(String statusMessage) {
+        closeNetwork();
+        Stage stage = currentStage();
+        if (stage == null) {
+            log.error("Cannot return to main menu: stage reference is null");
+            return;
+        }
+        Router.goTo(stage, MENU_ROUTE, statusMessage);
+        stage.setTitle("Multi Match Memory Game");
+    }
+
+    private void sendQuit() {
+        if (isNetworkHost() && server != null)
+            server.send(Protocol.QUIT);
+        if (isNetworkClient() && client != null)
+            client.send(Protocol.QUIT);
+    }
+
+    private void closeNetwork() {
         if (server != null) {
             server.close();
             server = null;
@@ -644,25 +545,54 @@ public class GameController {
             client.close();
             client = null;
         }
-        Stage stage = primaryStage;
-        if (stage == null && cardGrid.getScene() != null)
-            stage = (Stage) cardGrid.getScene().getWindow();
-        if (stage == null) {
-            log.error("Cannot return to main menu: stage reference is null");
-            return;
+    }
+
+    private void stopMismatchPause() {
+        if (mismatchPause != null) {
+            mismatchPause.stop();
+            mismatchPause = null;
+        }
+    }
+
+    private String playerName() {
+        return isNetworkHost() ? PLAYER_ONE : PLAYER_TWO;
+    }
+
+    private String opponentName() {
+        return isNetworkHost() ? PLAYER_TWO : PLAYER_ONE;
+    }
+
+    private boolean isNetworkHost() {
+        return mode == Mode.NETWORK_HOST;
+    }
+
+    private boolean isNetworkClient() {
+        return mode == Mode.NETWORK_CLIENT;
+    }
+
+    private Stage currentStage() {
+        if (cardGrid.getScene() == null) {
+            return null;
+        }
+        return (Stage) cardGrid.getScene().getWindow();
+    }
+
+    private Integer parseCardIndex(String[] parts, String source) {
+        if (parts.length <= 1) {
+            log.warn("Ignoring malformed {}: missing card index", source);
+            return null;
         }
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/memory/MemoryMenu.fxml"));
-            Scene scene = new Scene(loader.load(), 700, 600);
-            stage.setScene(scene);
-            stage.setTitle("Multi Match Memory Game");
-
-            if (statusMessage != null) {
-                MemoryMenuController ctrl = loader.getController();
-                ctrl.showTimedStatus(statusMessage, 10);
-            }
-        } catch (IOException e) {
-            log.error("Failed to return to main menu", e);
+            return Integer.parseInt(parts[1]);
+        } catch (NumberFormatException e) {
+            log.warn("Ignoring malformed {}: {}", source, parts[1]);
+            return null;
         }
+    }
+
+    private static String fieldOrDefault(String[] parts, int index, String fallback) {
+        return parts != null && parts.length > index && !parts[index].isBlank()
+                ? parts[index]
+                : fallback;
     }
 }

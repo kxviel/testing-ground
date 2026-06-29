@@ -2,10 +2,11 @@ package seda_project.control_alt_defeat.gamebox.controller.memory;
 
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
+import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.slf4j.Logger;
@@ -13,15 +14,20 @@ import org.slf4j.LoggerFactory;
 import seda_project.control_alt_defeat.gamebox.model.memory.BoardVariant;
 import seda_project.control_alt_defeat.gamebox.network.GameClient;
 import seda_project.control_alt_defeat.gamebox.network.GameServer;
-import seda_project.control_alt_defeat.gamebox.network.MessageRouter;
+import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
+import seda_project.control_alt_defeat.gamebox.util.Router;
 
-import java.io.IOException;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
-// Controller for the main menu screen.
-public class MemoryMenuController {
+public class MemoryMenuController implements RouteDataReceiver {
 
     private static final Logger log = LoggerFactory.getLogger(MemoryMenuController.class);
+    private static final String GAME_BOARD_ROUTE = "/memory/GameBoard.fxml";
+    private static final int STATUS_SECONDS = 10;
 
     @FXML
     private TextField kField;
@@ -40,7 +46,7 @@ public class MemoryMenuController {
     @FXML
     private TextField ipField;
     @FXML
-    private javafx.scene.layout.HBox joinBox;
+    private HBox joinBox;
     @FXML
     private Button btnLocalGame;
     @FXML
@@ -57,93 +63,81 @@ public class MemoryMenuController {
     private final ToggleGroup variantGroup = new ToggleGroup();
     private List<BoardVariant> currentVariants = List.of();
 
+    @Override
+    public void setRouteData(Object data) {
+        if (data instanceof String message && !message.isBlank()) {
+            showTimedStatus(message, STATUS_SECONDS);
+        }
+    }
+
     @FXML
     public void initialize() {
-        variant1Radio.setToggleGroup(variantGroup);
-        variant2Radio.setToggleGroup(variantGroup);
-        variant3Radio.setToggleGroup(variantGroup);
+        variantRadios().forEach(radio -> radio.setToggleGroup(variantGroup));
         onApplyK();
     }
 
-    /**
-     * Parses the k input field and rebuilds the board-size options.
-     */
     @FXML
     private void onApplyK() {
         kErrorLabel.setText("");
-        String text = kField.getText().trim();
-        int k;
-        try {
-            k = Integer.parseInt(text);
-        } catch (NumberFormatException e) {
-            kErrorLabel.setText("Please enter a whole number between 1 and 45.");
+
+        Integer k = parseK();
+        if (k == null) {
             disableVariants();
             return;
         }
-        if (k < 1 || k > 45) {
-            kErrorLabel.setText("k must be between 1 and 45. Please enter a valid value.");
-            disableVariants();
-            return;
-        }
+
         currentVariants = BoardVariant.computeVariants(k);
         updateVariantRadios();
     }
 
-    private void disableVariants() {
-        currentVariants = List.of();
-        setRadioVisible(variant1Radio, false);
-        setRadioVisible(variant2Radio, false);
-        setRadioVisible(variant3Radio, false);
+    private Integer parseK() {
+        try {
+            int k = Integer.parseInt(kField.getText().trim());
+            if (k >= 1 && k <= BoardVariant.MAX_CARDS) {
+                return k;
+            }
+            kErrorLabel.setText("k must be between 1 and 45. Please enter a valid value.");
+        } catch (NumberFormatException e) {
+            kErrorLabel.setText("Please enter a whole number between 1 and 45.");
+        }
+        return null;
     }
 
-    /**
-     * Updates a radio button's visibility and layout participation together.
-     *
-     * @param rb radio button to update
-     * @param v  true when the option should be shown
-     */
-    private void setRadioVisible(RadioButton rb, boolean v) {
-        rb.setVisible(v);
-        rb.setManaged(v);
+    private void disableVariants() {
+        currentVariants = List.of();
+        variantRadios().forEach(radio -> setVisibleManaged(radio, false));
     }
 
     private void updateVariantRadios() {
-        RadioButton[] radios = { variant1Radio, variant2Radio, variant3Radio };
-        for (int i = 0; i < 3; i++) {
-            if (i < currentVariants.size()) {
-                BoardVariant v = currentVariants.get(i);
-                radios[i].setText(v.toString());
-                setRadioVisible(radios[i], true);
-            } else {
-                setRadioVisible(radios[i], false);
-            }
-        }
+        List<RadioButton> radios = variantRadios();
+        IntStream.range(0, radios.size())
+                .forEach(i -> updateVariantRadio(radios.get(i), i));
 
         if (!currentVariants.isEmpty() && variantGroup.getSelectedToggle() == null) {
             variant1Radio.setSelected(true);
         }
     }
 
-    /**
-     * @return selected board variant, or the first variant as a fallback
-     */
+    private void updateVariantRadio(RadioButton radio, int index) {
+        boolean visible = index < currentVariants.size();
+        setVisibleManaged(radio, visible);
+        if (visible) {
+            radio.setText(currentVariants.get(index).toString());
+        }
+    }
+
     private BoardVariant getSelectedVariant() {
         if (currentVariants.isEmpty())
             return null;
-        RadioButton[] radios = { variant1Radio, variant2Radio, variant3Radio };
-        for (int i = 0; i < radios.length; i++) {
-            if (radios[i].isSelected() && i < currentVariants.size()) {
-                return currentVariants.get(i);
-            }
-        }
-        return currentVariants.isEmpty() ? null : currentVariants.get(0);
+
+        List<RadioButton> radios = variantRadios();
+        return IntStream.range(0, currentVariants.size())
+                .filter(i -> radios.get(i).isSelected())
+                .mapToObj(currentVariants::get)
+                .findFirst()
+                .orElse(currentVariants.get(0));
     }
 
-    /**
-     * Revalidates the menu inputs before starting a game.
-     *
-     * @return selected variant, or null if the current input is invalid
-     */
     private BoardVariant validateAndGetVariant() {
         onApplyK();
 
@@ -156,48 +150,40 @@ public class MemoryMenuController {
         return getSelectedVariant();
     }
 
-    /**
-     * Starts a local two-player game on the same machine.
-     */
     @FXML
-    private void onLocalGame() {
+    private void onLocalGame(ActionEvent event) {
         BoardVariant v = validateAndGetVariant();
         if (v == null)
             return;
-        openGameBoard(v, GameController.Mode.LOCAL, null, null, null, null);
+        Router.goTo(event, GAME_BOARD_ROUTE, MemoryGameRouteData.local(v));
     }
 
-    /**
-     * Starts a host socket and waits for one joining client.
-     */
     @FXML
-    private void onHostGame() {
+    private void onHostGame(ActionEvent event) {
         BoardVariant v = validateAndGetVariant();
         if (v == null)
             return;
 
-        setMenuButtonsDisabled(true);
-        btnCancelHost.setVisible(true);
-        btnCancelHost.setManaged(true);
+        Stage stage = stageFrom(event);
+        setHostingPending(true);
 
-        MessageRouter router = new MessageRouter();
         GameServer server = new GameServer();
         pendingServer = server;
         statusLabel.setText("Starting server...");
 
-        Thread t = new Thread(() -> {
+        startDaemon(() -> {
             try {
-                server.listen(GameServer.DEFAULT_PORT, router.asConsumer(), router.asDisconnectRunnable());
+                server.listen(GameServer.DEFAULT_PORT, msg -> {
+                }, () -> {
+                });
                 String ip = GameServer.getLocalAddress();
                 Platform.runLater(() -> statusLabel.setText(
                         "Waiting for Player 2... Your IP: " + ip + "  Port: " + GameServer.DEFAULT_PORT));
                 server.waitForClient();
                 Platform.runLater(() -> {
-                    // The server is now owned by GameController, so it is no longer cancellable here.
                     pendingServer = null;
-                    btnCancelHost.setVisible(false);
-                    btnCancelHost.setManaged(false);
-                    openGameBoard(v, GameController.Mode.NETWORK_HOST, server, null, router, null);
+                    setVisibleManaged(btnCancelHost, false);
+                    Router.goTo(stage, GAME_BOARD_ROUTE, MemoryGameRouteData.host(v, server));
                 });
             } catch (Exception e) {
                 if (server.isConnected() || pendingServer == null)
@@ -205,20 +191,13 @@ public class MemoryMenuController {
                 log.error("Host setup failed: {}", e.getMessage());
                 Platform.runLater(() -> {
                     statusLabel.setText("Error: " + e.getMessage());
-                    setMenuButtonsDisabled(false);
-                    btnCancelHost.setVisible(false);
-                    btnCancelHost.setManaged(false);
+                    setHostingPending(false);
                 });
                 server.close();
             }
-        }, "host-setup");
-        t.setDaemon(true);
-        t.start();
+        }, "memory-host-setup");
     }
 
-    /**
-     * Cancels a host setup that is still waiting for a client.
-     */
     @FXML
     private void onCancelHost() {
         if (pendingServer != null) {
@@ -226,59 +205,42 @@ public class MemoryMenuController {
             pendingServer = null;
         }
         statusLabel.setText("Hosting cancelled.");
-        setMenuButtonsDisabled(false);
-        btnCancelHost.setVisible(false);
-        btnCancelHost.setManaged(false);
+        setHostingPending(false);
     }
 
-    /**
-     * Enables or disables controls that would conflict with an active
-     * connection attempt.
-     *
-     * @param disabled true to block menu interaction
-     */
     private void setMenuButtonsDisabled(boolean disabled) {
-        btnLocalGame.setDisable(disabled);
-        btnHostGame.setDisable(disabled);
-        btnJoinGame.setDisable(disabled);
-        kField.setDisable(disabled);
-        btnApplyK.setDisable(disabled);
-        variant1Radio.setDisable(disabled);
-        variant2Radio.setDisable(disabled);
-        variant3Radio.setDisable(disabled);
+        Stream.of(btnLocalGame, btnHostGame, btnJoinGame, kField, btnApplyK,
+                variant1Radio, variant2Radio, variant3Radio)
+                .forEach(control -> control.setDisable(disabled));
     }
 
-    /**
-     * Reveals the host-IP input used to join a network game.
-     */
     @FXML
     private void onJoinGame() {
-        joinBox.setVisible(true);
-        joinBox.setManaged(true);
+        setVisibleManaged(joinBox, true);
     }
 
-    /**
-     * Connects to a host and opens the game board after the socket is ready.
-     */
     @FXML
-    private void onConnect() {
+    private void onConnect(ActionEvent event) {
         String ip = ipField.getText().trim();
         if (ip.isEmpty()) {
             statusLabel.setText("Please enter a host IP address.");
             return;
         }
 
+        Stage stage = stageFrom(event);
         setMenuButtonsDisabled(true);
         statusLabel.setText("Connecting to " + ip + "...");
 
-        MessageRouter router = new MessageRouter();
         GameClient client = new GameClient();
+        Queue<String> pendingMessages = new ConcurrentLinkedQueue<>();
 
-        Thread t = new Thread(() -> {
+        startDaemon(() -> {
             try {
-                client.connect(ip, GameServer.DEFAULT_PORT, router.asConsumer(), router.asDisconnectRunnable());
+                client.connect(ip, GameServer.DEFAULT_PORT, pendingMessages::add, () -> {
+                });
                 Platform.runLater(
-                        () -> openGameBoard(null, GameController.Mode.NETWORK_CLIENT, null, client, null, router));
+                        () -> Router.goTo(stage, GAME_BOARD_ROUTE,
+                                MemoryGameRouteData.join(client, pendingMessages)));
             } catch (Exception e) {
                 log.error("Join failed: {}", e.getMessage());
                 Platform.runLater(() -> {
@@ -287,46 +249,33 @@ public class MemoryMenuController {
                 });
                 client.close();
             }
-        }, "client-connect");
-        t.setDaemon(true);
-        t.start();
+        }, "memory-client-connect");
     }
 
-    /**
-     * Loads the game-board screen and injects the selected mode and network
-     * objects into its controller.
-     *
-     * @param variant      board variant for local/host modes, null for clients
-     * @param mode         selected game mode
-     * @param server       connected server for host mode
-     * @param client       connected client for client mode
-     * @param hostRouter   host-side message router
-     * @param clientRouter client-side message router
-     */
-    private void openGameBoard(BoardVariant variant, GameController.Mode mode,
-            GameServer server, GameClient client,
-            MessageRouter hostRouter, MessageRouter clientRouter) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/memory/GameBoard.fxml"));
-            Scene scene = new Scene(loader.load());
-            GameController ctrl = loader.getController();
-            ctrl.init(variant, mode, server, client, hostRouter, clientRouter);
-            Stage stage = (Stage) kField.getScene().getWindow();
-            stage.setScene(scene);
-            stage.setTitle("Multi Match Memory Game");
-            ctrl.setPrimaryStage(stage);
-        } catch (IOException e) {
-            log.error("Failed to open game board", e);
-            statusLabel.setText("Error loading game board.");
-        }
+    private static Stage stageFrom(ActionEvent event) {
+        return (Stage) ((Node) event.getSource()).getScene().getWindow();
     }
 
-    /**
-     * Shows a temporary status message in the main menu.
-     *
-     * @param message status text
-     * @param seconds number of seconds before the text is cleared
-     */
+    private void setHostingPending(boolean pending) {
+        setMenuButtonsDisabled(pending);
+        setVisibleManaged(btnCancelHost, pending);
+    }
+
+    private List<RadioButton> variantRadios() {
+        return List.of(variant1Radio, variant2Radio, variant3Radio);
+    }
+
+    private static void setVisibleManaged(Node node, boolean visible) {
+        node.setVisible(visible);
+        node.setManaged(visible);
+    }
+
+    private static void startDaemon(Runnable task, String name) {
+        Thread thread = new Thread(task, name);
+        thread.setDaemon(true);
+        thread.start();
+    }
+
     public void showTimedStatus(String message, int seconds) {
         statusLabel.setText(message);
         PauseTransition timer = new PauseTransition(Duration.seconds(seconds));
