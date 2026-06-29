@@ -30,8 +30,10 @@ public class GameController implements RouteDataReceiver {
     private static final String PLAYER_ONE = "Player 1";
     private static final String PLAYER_TWO = "Player 2";
     private static final String CARD_BACK = "🂠";
-    private static final String BASE_SCORE_STYLE = "-fx-font-size:16px;-fx-font-weight:bold;";
-    private static final String ACTIVE_SCORE_STYLE = BASE_SCORE_STYLE + "-fx-text-fill:#0D47A1;";
+    private static final String BASE_SCORE_STYLE =
+            "-fx-font-family:\"Inter Variable\"; -fx-font-size:16px; -fx-font-weight:800; -fx-text-fill:#102A4C;";
+    private static final String ACTIVE_SCORE_STYLE =
+            "-fx-font-family:\"Inter Variable\"; -fx-font-size:16px; -fx-font-weight:800; -fx-text-fill:#2F7DF6;";
     private static final Duration MISMATCH_DELAY = Duration.millis(800);
     private static final int STATUS_SECONDS = 10;
 
@@ -395,19 +397,22 @@ public class GameController implements RouteDataReceiver {
     }
 
     private String faceDownStyle(int fs) {
-        return "-fx-font-size:" + fs + "px; -fx-background-color:#1976D2; -fx-text-fill:white; "
-                + "-fx-background-radius:6; -fx-cursor:hand;";
+        return "-fx-font-family:\"Inter Variable\"; -fx-font-size:" + fs
+                + "px; -fx-background-color:#2F7DF6; -fx-text-fill:#FFFFFF; "
+                + "-fx-background-radius:8; -fx-cursor:hand;";
     }
 
     private String faceUpStyle(int fs) {
-        return "-fx-font-size:" + fs + "px; -fx-background-color:#FFF9C4; -fx-text-fill:black; "
-                + "-fx-background-radius:6; -fx-border-color:#F9A825; -fx-border-width:2; -fx-border-radius:6;"
+        return "-fx-font-family:\"Inter Variable\"; -fx-font-size:" + fs
+                + "px; -fx-background-color:#FFFFFF; -fx-text-fill:#102A4C; "
+                + "-fx-background-radius:8; -fx-border-color:#2F7DF6; -fx-border-width:2; -fx-border-radius:8;"
                 + "-fx-padding:0;";
     }
 
     private String matchedStyle(int fs) {
-        return "-fx-font-size:" + fs + "px; -fx-background-color:#C8E6C9; -fx-text-fill:black; "
-                + "-fx-background-radius:6; -fx-opacity:0.85; -fx-padding:0;";
+        return "-fx-font-family:\"Inter Variable\"; -fx-font-size:" + fs
+                + "px; -fx-background-color:#EAF2FD; -fx-text-fill:#102A4C; "
+                + "-fx-background-radius:8; -fx-opacity:0.85; -fx-padding:0;";
     }
 
     private void showGameOver() {

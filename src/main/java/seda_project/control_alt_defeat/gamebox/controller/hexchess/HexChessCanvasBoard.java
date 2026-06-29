@@ -26,9 +26,9 @@ final class HexChessCanvasBoard {
     private static final int CORNER_COUNT = 6;
     private static final double CORNER_ANGLE_DEGREES = 60.0;
     private static final Color WHITE_PIECE = Color.WHITE;
-    private static final Color BLACK_PIECE = Color.web("#171717");
-    private static final Color WHITE_PIECE_STROKE = Color.web("#171717");
-    private static final Font NOTATION_FONT = Font.font(Font.getDefault().getFamily(), FontWeight.BOLD, 9);
+    private static final Color BLACK_PIECE = Color.web("#102A4C");
+    private static final Color WHITE_PIECE_STROKE = Color.web("#102A4C");
+    private static final Font NOTATION_FONT = Font.font("Inter Variable", FontWeight.BOLD, 9);
 
     @SuppressWarnings("SpellCheckingInspection")
     private static final String PIECE_FONT_FAMILY = "Segoe UI Symbol";
@@ -195,7 +195,7 @@ final class HexChessCanvasBoard {
 
     private void drawPromotionStar(GraphicsContext graphics, Point2D center, Color notationColor) {
         graphics.setFill(notationColor);
-        graphics.setFont(Font.font(Font.getDefault().getFamily(), FontWeight.BOLD, 16));
+        graphics.setFont(Font.font("Inter Variable", FontWeight.BOLD, 16));
         graphics.setTextAlign(TextAlignment.CENTER);
         graphics.setTextBaseline(VPos.CENTER);
         graphics.fillText("*", center.getX(), center.getY() + 1);

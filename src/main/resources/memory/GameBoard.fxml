@@ -1,26 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="seda_project.control_alt_defeat.gamebox.controller.memory.GameController"
-            style="-fx-background-color: #f5f5f5;">
+            styleClass="memory-game-root">
+    <stylesheets>
+        <URL value="@Memory.css"/>
+    </stylesheets>
 
     <top>
-        <HBox alignment="CENTER" spacing="30" style="-fx-background-color: #e0e0e0; -fx-padding: 10;">
-            <Label fx:id="p1Label" text="Player 1: 0" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
-            <Label fx:id="turnLabel" text="▶ Player 1's Turn" style="-fx-font-size: 14px; -fx-text-fill: #333;"/>
-            <Label fx:id="p2Label" text="Player 2: 0" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+        <HBox alignment="CENTER" spacing="30" styleClass="score-bar">
+            <Label fx:id="p1Label" text="Player 1: 0" styleClass="score-label"/>
+            <Label fx:id="turnLabel" text="▶ Player 1's Turn" styleClass="turn-label"/>
+            <Label fx:id="p2Label" text="Player 2: 0" styleClass="score-label"/>
             <Region HBox.hgrow="ALWAYS"/>
             <Button text="Quit" onAction="#onQuit" id="btnQuit"
-                    style="-fx-background-color: #e53935; -fx-text-fill: white;"/>
+                    styleClass="btn-danger"/>
         </HBox>
     </top>
 
     <center>
-        <ScrollPane fitToWidth="true" fitToHeight="true" style="-fx-background-color: transparent; -fx-background: transparent;">
+        <ScrollPane fitToWidth="true" fitToHeight="true" styleClass="memory-scroll">
             <GridPane fx:id="cardGrid" hgap="8" vgap="8" alignment="CENTER">
                 <padding>
                     <Insets top="20" right="20" bottom="20" left="20"/>
@@ -32,16 +36,16 @@
     <bottom>
         <VBox>
             <HBox fx:id="postGameBar" alignment="CENTER" spacing="20"
-                  style="-fx-padding: 10; -fx-background-color: #fff9c4; -fx-border-color: #f9a825; -fx-border-width: 0 0 1 0;"
+                  styleClass="post-game-bar"
                   visible="false" managed="false">
-                <Label fx:id="resultLabel" style="-fx-font-size: 15px; -fx-font-weight: bold;"/>
+                <Label fx:id="resultLabel" styleClass="post-result"/>
                 <Button fx:id="btnPostPlayAgain" text="▶ Play Again" onAction="#onPostPlayAgain"
-                        style="-fx-background-color: #388e3c; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                        styleClass="btn-primary"/>
                 <Button fx:id="btnPostMainMenu" text="⇦ Main Menu" onAction="#onPostMainMenu"
-                        style="-fx-background-color: #1565c0; -fx-text-fill: white; font-weight: bold;"/>
+                        styleClass="btn-outline"/>
             </HBox>
-            <HBox alignment="CENTER" spacing="10" style="-fx-padding: 8; -fx-background-color: #e0e0e0;">
-                <Label fx:id="statusLabel" text="" style="-fx-font-size: 13px; -fx-text-fill: #444;"/>
+            <HBox alignment="CENTER" spacing="10" styleClass="status-bar">
+                <Label fx:id="statusLabel" text="" styleClass="status-line"/>
             </HBox>
         </VBox>
     </bottom>

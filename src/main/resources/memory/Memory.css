@@ -1,0 +1,124 @@
+.memory-menu-root,
+.memory-game-root {
+    -fx-background-color: #F8FBFF;
+    -fx-font-family: "Inter Variable", "Inter", "Segoe UI", "Arial", sans-serif;
+}
+
+.memory-title {
+    -fx-font-size: 32px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #102A4C;
+}
+
+.menu-icon-frame {
+    -fx-alignment: center;
+    -fx-background-color: linear-gradient(to bottom right, #FFFFFF, #EAF2FD);
+    -fx-background-radius: 18;
+    -fx-border-color: rgba(63, 114, 175, 0.18);
+    -fx-border-radius: 18;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(16, 42, 76, 0.08), 12, 0.16, 0, 3);
+    -fx-min-height: 86;
+    -fx-min-width: 86;
+    -fx-pref-height: 86;
+    -fx-pref-width: 86;
+}
+
+.section-title,
+.score-label,
+.post-result {
+    -fx-font-weight: 800;
+    -fx-text-fill: #102A4C;
+}
+
+.section-title {
+    -fx-font-size: 14px;
+}
+
+.status-line,
+.turn-label {
+    -fx-text-fill: rgba(16, 42, 76, 0.66);
+}
+
+.error-label {
+    -fx-text-fill: #2F7DF6;
+}
+
+.button {
+    -fx-background-insets: 0;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-cursor: hand;
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-min-height: 36;
+    -fx-padding: 8 16;
+}
+
+.btn-primary {
+    -fx-background-color: #102A4C;
+    -fx-border-color: #102A4C;
+    -fx-text-fill: #FFFFFF;
+}
+
+.btn-primary:hover {
+    -fx-background-color: #2F7DF6;
+    -fx-border-color: #2F7DF6;
+}
+
+.btn-outline {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: rgba(63, 114, 175, 0.24);
+    -fx-text-fill: #102A4C;
+}
+
+.btn-outline:hover {
+    -fx-background-color: #F7FAFF;
+    -fx-border-color: rgba(47, 125, 246, 0.40);
+}
+
+.btn-danger {
+    -fx-background-color: #102A4C;
+    -fx-border-color: #102A4C;
+    -fx-text-fill: #FFFFFF;
+}
+
+.btn-danger:hover {
+    -fx-background-color: #2F7DF6;
+    -fx-border-color: #2F7DF6;
+}
+
+.text-field {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 8;
+    -fx-border-color: rgba(63, 114, 175, 0.24);
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-min-height: 36;
+    -fx-padding: 8 12;
+    -fx-prompt-text-fill: rgba(16, 42, 76, 0.46);
+    -fx-text-fill: #102A4C;
+}
+
+.radio-button {
+    -fx-text-fill: #102A4C;
+}
+
+.score-bar,
+.status-bar {
+    -fx-background-color: #EAF2FD;
+    -fx-padding: 10;
+}
+
+.memory-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.post-game-bar {
+    -fx-background-color: #EAF2FD;
+    -fx-border-color: rgba(63, 114, 175, 0.22);
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 10;
+}

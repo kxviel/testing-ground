@@ -4,53 +4,67 @@
 
 .tetris-menu-root,
 .tetris-game-root {
-    -fx-background-color: #f7f7fb;
-    -fx-font-family: "Lato", "Segoe UI", sans-serif;
+    -fx-background-color: #F8FBFF;
+    -fx-font-family: "Inter Variable", "Inter", "Segoe UI", "Arial", sans-serif;
 }
 
 .title {
     -fx-font-size: 30px;
     -fx-font-weight: 700;
-    -fx-text-fill: #171717;
+    -fx-text-fill: #102A4C;
     -fx-padding: 0;
 }
 
 .subtitle {
     -fx-font-size: 14px;
-    -fx-text-fill: #5f6470;
+    -fx-text-fill: rgba(16, 42, 76, 0.66);
     -fx-padding: 0;
+}
+
+.menu-icon-frame {
+    -fx-alignment: center;
+    -fx-background-color: linear-gradient(to bottom right, #FFFFFF, #EAF2FD);
+    -fx-background-radius: 14;
+    -fx-border-color: rgba(63, 114, 175, 0.18);
+    -fx-border-radius: 14;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(16, 42, 76, 0.08), 10, 0.16, 0, 3);
+    -fx-min-height: 68;
+    -fx-min-width: 68;
+    -fx-pref-height: 68;
+    -fx-pref-width: 68;
 }
 
 .section-title {
     -fx-font-size: 18px;
     -fx-font-weight: 700;
-    -fx-text-fill: #171717;
+    -fx-text-fill: #102A4C;
     -fx-padding: 0 0 2 0;
 }
 
 .field-title {
     -fx-font-size: 12px;
     -fx-font-weight: 700;
-    -fx-text-fill: #333743;
+    -fx-text-fill: #102A4C;
     -fx-padding: 0 0 2 0;
 }
 
 .status-line {
     -fx-font-size: 13px;
     -fx-font-weight: 600;
-    -fx-text-fill: #171717;
+    -fx-text-fill: rgba(16, 42, 76, 0.70);
     -fx-line-spacing: 2px;
 }
 
 /* Panels (menu + game) */
 .menu-panel,
 .game-panel {
-    -fx-background-color: white;
+    -fx-background-color: #FFFFFF;
     -fx-background-radius: 10;
-    -fx-border-color: #dedee8;
+    -fx-border-color: rgba(63, 114, 175, 0.18);
     -fx-border-radius: 10;
     -fx-border-width: 1;
-    -fx-effect: dropshadow(gaussian, rgba(23, 23, 23, 0.04), 8, 0, 0, 2);
+    -fx-effect: dropshadow(gaussian, rgba(16, 42, 76, 0.06), 10, 0, 0, 2);
 }
 
 .menu-panel {
@@ -66,8 +80,8 @@
 }
 
 .game-separator .line {
-    -fx-border-color: #e8eaf0;
-    -fx-background-color: #e8eaf0;
+    -fx-border-color: rgba(63, 114, 175, 0.16);
+    -fx-background-color: rgba(63, 114, 175, 0.16);
 }
 
 /* Buttons */
@@ -86,41 +100,41 @@
 }
 
 .btn-primary {
-    -fx-background-color: #171717;
-    -fx-border-color: #171717;
-    -fx-text-fill: white;
+    -fx-background-color: #102A4C;
+    -fx-border-color: #102A4C;
+    -fx-text-fill: #FFFFFF;
 }
 
 .btn-primary:hover {
-    -fx-background-color: #2f2f2f;
-    -fx-border-color: #2f2f2f;
+    -fx-background-color: #2F7DF6;
+    -fx-border-color: #2F7DF6;
 }
 
 .btn-primary:pressed {
-    -fx-background-color: #0a0a0a;
-    -fx-border-color: #0a0a0a;
+    -fx-background-color: #0D203A;
+    -fx-border-color: #0D203A;
 }
 
 .btn-outline {
-    -fx-background-color: white;
-    -fx-border-color: #cfd2dc;
-    -fx-text-fill: #171717;
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: rgba(63, 114, 175, 0.24);
+    -fx-text-fill: #102A4C;
 }
 
 .btn-outline:hover {
-    -fx-background-color: #f2f3f7;
-    -fx-border-color: #bfc3cf;
+    -fx-background-color: #F7FAFF;
+    -fx-border-color: rgba(47, 125, 246, 0.40);
 }
 
 .btn-outline:pressed {
-    -fx-background-color: #e6e8ef;
-    -fx-border-color: #aeb3c1;
+    -fx-background-color: #EAF2FD;
+    -fx-border-color: #2F7DF6;
 }
 
 .btn-selected {
-    -fx-background-color: #e9f3ff;
-    -fx-border-color: #2f7edb;
-    -fx-text-fill: #13579f;
+    -fx-background-color: #EAF2FD;
+    -fx-border-color: #2F7DF6;
+    -fx-text-fill: #102A4C;
 }
 
 .button:disabled {
@@ -137,7 +151,7 @@
 .text-field {
     -fx-background-radius: 8;
     -fx-border-radius: 8;
-    -fx-border-color: #cfd2dc;
+    -fx-border-color: rgba(63, 114, 175, 0.24);
     -fx-border-width: 1;
     -fx-min-height: 36;
     -fx-padding: 8 12;
@@ -146,21 +160,21 @@
 .combo-box {
     -fx-background-radius: 8;
     -fx-border-radius: 8;
-    -fx-border-color: #cfd2dc;
+    -fx-border-color: rgba(63, 114, 175, 0.24);
     -fx-min-height: 36;
 }
 
 .check-box {
     -fx-font-size: 13px;
     -fx-font-weight: 600;
-    -fx-text-fill: #333743;
+    -fx-text-fill: #102A4C;
     -fx-padding: 2 0;
 }
 
 .list-view {
     -fx-background-radius: 8;
     -fx-border-radius: 8;
-    -fx-border-color: #cfd2dc;
+    -fx-border-color: rgba(63, 114, 175, 0.24);
     -fx-border-width: 1;
     -fx-padding: 4;
 }
@@ -215,13 +229,13 @@
 }
 
 .menu-config-column {
-    -fx-background-color: white;
+    -fx-background-color: #EAF2FD;
     -fx-background-radius: 10;
-    -fx-border-color: #dedee8;
+    -fx-border-color: rgba(63, 114, 175, 0.18);
     -fx-border-radius: 10;
     -fx-border-width: 1;
     -fx-padding: 14 12 12 12;
-    -fx-effect: dropshadow(gaussian, rgba(23, 23, 23, 0.04), 8, 0, 0, 2);
+    -fx-effect: dropshadow(gaussian, rgba(16, 42, 76, 0.06), 10, 0, 0, 2);
 }
 
 .menu-config-content {
@@ -307,9 +321,9 @@
 
 .object-symbol {
     -fx-alignment: center;
-    -fx-background-color: #d93636;
+    -fx-background-color: #2F7DF6;
     -fx-background-radius: 5;
-    -fx-border-color: #8f1f1f;
+    -fx-border-color: #102A4C;
     -fx-border-radius: 5;
     -fx-border-width: 1;
     -fx-font-size: 11px;
@@ -318,14 +332,14 @@
     -fx-min-width: 22;
     -fx-pref-height: 22;
     -fx-pref-width: 22;
-    -fx-text-fill: white;
+    -fx-text-fill: #FFFFFF;
     -fx-padding: 0;
 }
 
 .object-description {
     -fx-font-size: 12px;
     -fx-font-weight: 600;
-    -fx-text-fill: #4f5665;
+    -fx-text-fill: rgba(16, 42, 76, 0.66);
     -fx-line-spacing: 1px;
     -fx-padding: 0 0 0 2;
 }
@@ -337,8 +351,8 @@
 }
 
 .tetris-board {
-    -fx-background-color: #171717;
-    -fx-border-color: #171717;
+    -fx-background-color: #102A4C;
+    -fx-border-color: #102A4C;
     -fx-border-width: 2;
     -fx-background-radius: 4;
     -fx-border-radius: 4;
@@ -348,8 +362,8 @@
 }
 
 .board-cell {
-    -fx-background-color: #f7f7fb;
-    -fx-border-color: #e1e4ec;
+    -fx-background-color: #F8FBFF;
+    -fx-border-color: #EAF2FD;
     -fx-border-width: 0.5;
 }
 
@@ -395,7 +409,7 @@
 .game-side-title {
     -fx-font-size: 28px;
     -fx-font-weight: 800;
-    -fx-text-fill: #171717;
+    -fx-text-fill: #102A4C;
     -fx-padding: 0 0 2 0;
 }
 
@@ -416,14 +430,14 @@
 .player-name {
     -fx-font-size: 16px;
     -fx-font-weight: 700;
-    -fx-text-fill: #171717;
+    -fx-text-fill: #102A4C;
     -fx-padding: 0;
 }
 
 .score-label {
     -fx-font-size: 14px;
     -fx-font-weight: 600;
-    -fx-text-fill: #4f5665;
+    -fx-text-fill: rgba(16, 42, 76, 0.66);
     -fx-padding: 0;
 }
 
@@ -434,7 +448,7 @@
 .keymap-label {
     -fx-font-size: 12px;
     -fx-font-weight: 600;
-    -fx-text-fill: #4f5665;
+    -fx-text-fill: rgba(16, 42, 76, 0.66);
     -fx-line-spacing: 3px;
     -fx-padding: 0;
 }
@@ -445,31 +459,31 @@
 }
 
 .board-cell-filled {
-    -fx-background-color: #20a162;
-    -fx-border-color: #147246;
+    -fx-background-color: #3F72AF;
+    -fx-border-color: #102A4C;
 }
 
 .board-cell-active {
-    -fx-background-color: #2f7edb;
-    -fx-border-color: #13579f;
+    -fx-background-color: #2F7DF6;
+    -fx-border-color: #102A4C;
 }
 
 .board-cell-object {
-    -fx-background-color: #d93636;
-    -fx-border-color: #8f1f1f;
+    -fx-background-color: #2F7DF6;
+    -fx-border-color: #102A4C;
     -fx-alignment: center;
     -fx-font-size: 10px;
     -fx-font-weight: 800;
-    -fx-text-fill: white;
+    -fx-text-fill: #FFFFFF;
     -fx-padding: 0;
 }
 
 .board-game-over {
     -fx-alignment: center;
-    -fx-background-color: rgba(247, 247, 251, 0.88);
+    -fx-background-color: rgba(248, 251, 255, 0.88);
     -fx-font-size: 22px;
     -fx-font-weight: 800;
-    -fx-text-fill: #171717;
+    -fx-text-fill: #102A4C;
     -fx-padding: 16;
 }
 
@@ -508,8 +522,8 @@
 }
 
 .custom-cell {
-    -fx-background-color: white;
-    -fx-border-color: #cfd2dc;
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: rgba(63, 114, 175, 0.24);
     -fx-background-radius: 4;
     -fx-border-radius: 4;
     -fx-min-width: 24;
@@ -522,13 +536,13 @@
 }
 
 .custom-cell-selected {
-    -fx-background-color: #2f7edb;
-    -fx-border-color: #13579f;
+    -fx-background-color: #2F7DF6;
+    -fx-border-color: #102A4C;
 }
 
 /* Legacy alias */
 .game-title {
     -fx-font-size: 56px;
     -fx-font-weight: 800;
-    -fx-text-fill: #171717;
+    -fx-text-fill: #102A4C;
 }

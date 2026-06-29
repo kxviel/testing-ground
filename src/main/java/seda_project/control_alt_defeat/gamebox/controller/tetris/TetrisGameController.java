@@ -48,13 +48,13 @@ public class TetrisGameController implements RouteDataReceiver {
     private static final int MENU_RETURN_SECONDS = 2;
     private static final String OPPONENT_LEFT_MESSAGE = "Your opponent has left the game.";
     private static final String[] BLOCK_COLORS = {
-            "#2f7edb:#13579f",
-            "#20a162:#147246",
-            "#d98b1f:#9d6212",
-            "#8b5cf6:#5b35b7",
-            "#df4e7a:#a82f55",
-            "#10a7b5:#0b737d",
-            "#7a8f24:#536318"
+            "#2F7DF6:#102A4C",
+            "#3F72AF:#102A4C",
+            "#102A4C:#3F72AF",
+            "#EAF2FD:#3F72AF",
+            "#F7FAFF:#3F72AF",
+            "#DBE2EF:#3F72AF",
+            "#F8FBFF:#3F72AF"
     };
 
     @FXML

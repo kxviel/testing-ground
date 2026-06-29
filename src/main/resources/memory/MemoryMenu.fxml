@@ -1,29 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
 <VBox alignment="CENTER" spacing="20" xmlns:fx="http://javafx.com/fxml"
       fx:controller="seda_project.control_alt_defeat.gamebox.controller.memory.MemoryMenuController"
-      style="-fx-background-color: #f5f5f5;"
+      styleClass="memory-menu-root"
       prefWidth="680" prefHeight="580">
+    <stylesheets>
+        <URL value="@Memory.css"/>
+    </stylesheets>
+
     <padding>
         <Insets top="40" right="40" bottom="40" left="40"/>
     </padding>
 
-    <Label text="🃏 Multi Match Memory Game" style="-fx-font-size: 32px; -fx-font-weight: bold;"/>
+    <HBox alignment="CENTER" spacing="18">
+        <StackPane styleClass="menu-icon-frame">
+            <ImageView fitHeight="64.0" fitWidth="64.0" preserveRatio="true">
+                <image>
+                    <Image url="@../icons/icons8-memory-game-64.png"/>
+                </image>
+            </ImageView>
+        </StackPane>
+        <Label text="Multi Match Memory Game" styleClass="memory-title"/>
+    </HBox>
 
     <HBox alignment="CENTER" spacing="10">
         <Label text="Enter tuple size k (1–45):"/>
         <TextField fx:id="kField" promptText="Enter k" maxWidth="80" text="2"/>
-        <Button fx:id="btnApplyK" text="Apply" onAction="#onApplyK"/>
+        <Button fx:id="btnApplyK" text="Apply" onAction="#onApplyK" styleClass="btn-outline"/>
     </HBox>
-    <Label fx:id="kErrorLabel" style="-fx-text-fill: red;" text="" wrapText="true"/>
+    <Label fx:id="kErrorLabel" styleClass="error-label" text="" wrapText="true"/>
 
     <HBox alignment="CENTER">
         <VBox fx:id="variantBox" alignment="CENTER_LEFT" spacing="8">
-            <Label text="Select board variant:" style="-fx-font-weight: bold;"/>
+            <Label text="Select board variant:" styleClass="section-title"/>
             <RadioButton fx:id="variant1Radio" id="rbVariant1"/>
             <RadioButton fx:id="variant2Radio" id="rbVariant2"/>
             <RadioButton fx:id="variant3Radio" id="rbVariant3"/>
@@ -32,22 +47,22 @@
 
     <Separator/>
 
-    <Label text="Game Mode:" style="-fx-font-weight: bold;"/>
+    <Label text="Game Mode:" styleClass="section-title"/>
     <HBox alignment="CENTER" spacing="20">
-        <Button fx:id="btnLocalGame" text="🖥 Local 2-Player" onAction="#onLocalGame" id="btnLocalGame" minWidth="160"/>
-        <Button fx:id="btnHostGame" text="🌐 Host Network Game" onAction="#onHostGame" id="btnHostGame" minWidth="160"/>
-        <Button fx:id="btnJoinGame" text="🔗 Join Network Game" onAction="#onJoinGame" id="btnJoinGame" minWidth="160"/>
+        <Button fx:id="btnLocalGame" text="🖥 Local 2-Player" onAction="#onLocalGame" id="btnLocalGame" minWidth="160" styleClass="btn-outline"/>
+        <Button fx:id="btnHostGame" text="🌐 Host Network Game" onAction="#onHostGame" id="btnHostGame" minWidth="160" styleClass="btn-outline"/>
+        <Button fx:id="btnJoinGame" text="🔗 Join Network Game" onAction="#onJoinGame" id="btnJoinGame" minWidth="160" styleClass="btn-outline"/>
     </HBox>
 
     <Button fx:id="btnCancelHost" text="✖ Cancel Hosting" onAction="#onCancelHost"
             visible="false" managed="false"
-            style="-fx-background-color: #c62828; -fx-text-fill: white; -fx-font-weight: bold;"
+            styleClass="btn-danger"
             minWidth="160"/>
 
     <HBox fx:id="joinBox" alignment="CENTER" spacing="10" visible="false" managed="false">
         <Label text="Host IP:"/>
         <TextField fx:id="ipField" promptText="192.168.x.x" maxWidth="160"/>
-        <Button text="Connect" onAction="#onConnect" id="btnConnect"/>
+        <Button text="Connect" onAction="#onConnect" id="btnConnect" styleClass="btn-primary"/>
     </HBox>
-    <Label fx:id="statusLabel" text="" wrapText="true" style="-fx-text-fill: #555;"/>
+    <Label fx:id="statusLabel" text="" wrapText="true" styleClass="status-line"/>
 </VBox>
