@@ -20,8 +20,8 @@
     </stylesheets>
 
     <GridPane alignment="TOP_CENTER"
-              hgap="34"
               maxHeight="Infinity"
+              maxWidth="Infinity"
               styleClass="game-choice-main">
         <columnConstraints>
             <ColumnConstraints hgrow="ALWAYS" percentWidth="65"/>
