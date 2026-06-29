@@ -25,6 +25,7 @@ public class GameBox extends Application {
         WindowManager.setScene(stage, root);
         stage.setOnCloseRequest(e -> cleanExit());
         stage.show();
+        WindowManager.applyCurrentSettings(stage);
         logger.debug("Startup completed");
     }
 

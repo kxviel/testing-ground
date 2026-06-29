@@ -1,32 +1,212 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
 <?import java.net.URL?>
-<VBox alignment="CENTER"
-      spacing="28"
-      prefHeight="400.0"
-      prefWidth="600.0"
-      styleClass="game-choice-root"
-      xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="seda_project.control_alt_defeat.gamebox.controller.GameChoice">
+
+<StackPane fx:id="root"
+           prefHeight="720.0"
+           prefWidth="1080.0"
+           focusTraversable="true"
+           styleClass="game-choice-root"
+           xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="seda_project.control_alt_defeat.gamebox.controller.GameChoice">
 
     <stylesheets>
         <URL value="@GameChoice.css"/>
     </stylesheets>
 
-    <padding>
-        <Insets top="48" right="64" bottom="48" left="64"/>
-    </padding>
+    <HBox alignment="TOP_CENTER"
+          maxHeight="Infinity"
+          spacing="34"
+          styleClass="game-choice-main">
 
-    <Label text="Pick Your Poison:" styleClass="game-choice-title"/>
+        <VBox HBox.hgrow="ALWAYS"
+              maxWidth="Infinity"
+              spacing="26"
+              styleClass="game-choices">
 
-    <VBox alignment="CENTER" spacing="14" styleClass="game-choice-buttons">
-        <Button onAction="#playMemory" text="EarlyAlzheimers - Advanced Memory Game" maxWidth="-Infinity" styleClass="btn-primary"/>
-        <Button onAction="#playTetris" text="Zetris - Advanced Tetris" maxWidth="-Infinity" styleClass="btn-primary"/>
-        <Button onAction="#playHexChess" text="Chexsagon - Glinski Variant" maxWidth="-Infinity" styleClass="btn-primary"/>
-    </VBox>
-</VBox>
+            <VBox spacing="8" styleClass="hero-copy">
+                <Label text="Zero Runtime Warranty" styleClass="game-choice-title"/>
+                <Label text="Choose your game. Zero runtime issues. Full focus on gameplay."
+                       styleClass="game-choice-subtitle"/>
+            </VBox>
+
+            <HBox alignment="CENTER" spacing="8" styleClass="title-divider">
+                <Region minWidth="84" prefWidth="84" styleClass="divider-line-active"/>
+                <Region styleClass="divider-seal"/>
+                <Region HBox.hgrow="ALWAYS" styleClass="divider-line"/>
+            </HBox>
+
+            <VBox spacing="12" styleClass="game-list">
+
+                <Button maxWidth="Infinity" onAction="#playMemory" styleClass="game-row">
+                    <graphic>
+                        <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="18" styleClass="row-content">
+                            <StackPane styleClass="icon-chip">
+                                <ImageView fitHeight="40.0" fitWidth="40.0" preserveRatio="true" styleClass="game-icon">
+                                    <image>
+                                        <Image url="@icons/icons8-memory-game-64.png"/>
+                                    </image>
+                                </ImageView>
+                            </StackPane>
+
+                            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                <Label text="EarlyAlzheimers" styleClass="row-title"/>
+                                <Label text="Advanced Memory Game" styleClass="row-subtitle"/>
+                            </VBox>
+
+                            <StackPane styleClass="row-arrow-chip">
+                                <Label text="›" styleClass="row-arrow"/>
+                            </StackPane>
+                        </HBox>
+                    </graphic>
+                </Button>
+
+                <Button maxWidth="Infinity" onAction="#playTetris" styleClass="game-row">
+                    <graphic>
+                        <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="18" styleClass="row-content">
+                            <StackPane styleClass="icon-chip">
+                                <ImageView fitHeight="40.0" fitWidth="40.0" preserveRatio="true" styleClass="game-icon">
+                                    <image>
+                                        <Image url="@icons/icons8-tetris-64.png"/>
+                                    </image>
+                                </ImageView>
+                            </StackPane>
+
+                            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                <Label text="Zetris" styleClass="row-title"/>
+                                <Label text="Advanced Tetris" styleClass="row-subtitle"/>
+                            </VBox>
+
+                            <StackPane styleClass="row-arrow-chip">
+                                <Label text="›" styleClass="row-arrow"/>
+                            </StackPane>
+                        </HBox>
+                    </graphic>
+                </Button>
+
+                <Button maxWidth="Infinity" onAction="#playHexChess" styleClass="game-row">
+                    <graphic>
+                        <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="18" styleClass="row-content">
+                            <StackPane styleClass="icon-chip">
+                                <ImageView fitHeight="42.0" fitWidth="42.0" preserveRatio="true" styleClass="game-icon">
+                                    <image>
+                                        <Image url="@icons/icons8-chess-100.png"/>
+                                    </image>
+                                </ImageView>
+                            </StackPane>
+
+                            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                <Label text="Chessagon" styleClass="row-title"/>
+                                <Label text="Official Patent Hexagon Chess" styleClass="row-subtitle"/>
+                            </VBox>
+
+                            <StackPane styleClass="row-arrow-chip">
+                                <Label text="›" styleClass="row-arrow"/>
+                            </StackPane>
+                        </HBox>
+                    </graphic>
+                </Button>
+
+                <Region minHeight="1" styleClass="menu-divider"/>
+
+                <Button id="exit-row" maxWidth="Infinity" onAction="#exit" styleClass="game-row">
+                    <graphic>
+                        <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="18" styleClass="row-content">
+                            <StackPane styleClass="icon-chip">
+                                <Label text="X" styleClass="icon-letter"/>
+                            </StackPane>
+
+                            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                <Label text="Exit" styleClass="row-title"/>
+                                <Label text="Exit app" styleClass="row-subtitle"/>
+                            </VBox>
+
+                            <StackPane styleClass="row-arrow-chip">
+                                <Label text="›" styleClass="row-arrow"/>
+                            </StackPane>
+                        </HBox>
+                    </graphic>
+                </Button>
+            </VBox>
+        </VBox>
+
+        <VBox HBox.hgrow="NEVER"
+              maxWidth="310.0"
+              minWidth="280.0"
+              prefWidth="300.0"
+              spacing="24"
+              styleClass="settings-panel">
+
+            <VBox spacing="8">
+                <Label text="Settings" styleClass="settings-title"/>
+                <Label text="Customize your experience" styleClass="settings-subtitle"/>
+            </VBox>
+
+            <VBox spacing="10" styleClass="settings-section">
+                <Label text="Window Mode" styleClass="section-label"/>
+
+                <RadioButton fx:id="maximizedRadio"
+                             onAction="#onWindowModeChanged"
+                             text="Maximized (Default)"
+                             styleClass="settings-radio"/>
+
+                <RadioButton fx:id="windowedRadio"
+                             onAction="#onWindowModeChanged"
+                             text="Windowed"
+                             styleClass="settings-radio"/>
+
+                <RadioButton fx:id="fullscreenRadio"
+                             onAction="#onWindowModeChanged"
+                             text="Fullscreen"
+                             styleClass="settings-radio"/>
+            </VBox>
+
+            <VBox fx:id="resolutionBox" spacing="10" styleClass="settings-section">
+                <Label text="Screen Resolution" styleClass="section-label"/>
+
+                <RadioButton fx:id="resolution1920Radio"
+                             onAction="#onResolutionChanged"
+                             text="1920 × 1080"
+                             styleClass="settings-radio"/>
+
+                <RadioButton fx:id="resolution1366Radio"
+                             onAction="#onResolutionChanged"
+                             text="1366 × 768"
+                             styleClass="settings-radio"/>
+
+                <RadioButton fx:id="resolution1280Radio"
+                             onAction="#onResolutionChanged"
+                             text="1280 × 720"
+                             styleClass="settings-radio"/>
+
+                <RadioButton fx:id="resolution1024Radio"
+                             onAction="#onResolutionChanged"
+                             text="1024 × 768"
+                             styleClass="settings-radio"/>
+
+                <RadioButton fx:id="resolution800Radio"
+                             onAction="#onResolutionChanged"
+                             text="800 × 600"
+                             styleClass="settings-radio"/>
+            </VBox>
+
+            <Label fx:id="resolutionHint"
+                   text="Only available in windowed mode."
+                   styleClass="resolution-hint"/>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <VBox spacing="8" styleClass="settings-footer">
+                <Label text="Build: 0.1.0  •  Stable" styleClass="footer-line"/>
+                <Label text="Zero runtime. Full warranty. Your gameplay, guaranteed."
+                       wrapText="true"
+                       styleClass="footer-line"/>
+            </VBox>
+        </VBox>
+    </HBox>
+</StackPane>
