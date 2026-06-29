@@ -32,12 +32,11 @@ public class GameBox extends Application {
         logger.debug("Startup completed");
     }
 
-    private void loadFonts() throws IOException {
+    private void loadFonts() {
         var fontUrl = GameBox.class.getResource(INTER_FONT);
-        if (fontUrl == null) {
-            throw new IOException("Missing font resource: " + INTER_FONT);
+        if (fontUrl == null || Font.loadFont(fontUrl.toExternalForm(), 12) == null) {
+            System.err.println("Inter font missing; using system fallback.");
         }
-        Font.loadFont(fontUrl.toExternalForm(), 12);
     }
 
     public static void cleanExit() {
