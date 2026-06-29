@@ -1,6 +1,6 @@
 # GameBox – SEDA Project
 
-This repository contains GameBox, a JavaFX desktop app by team **Zero Runtime Warranty**. It includes the Memory game and a fully-featured two-player Zetris implementation.
+This repository contains GameBox, a JavaFX desktop app by team **Zero Runtime Warranty**. It includes the Memory game, a fully-featured two-player Zetris implementation, and Chexsagon, a Glinski hexagonal chess implementation.
 
 ## Features
 
@@ -67,6 +67,34 @@ Special objects are drawn from a shuffled bag per player so that each type is se
 - The **joiner** sends keyboard input commands over TCP; the host applies them and broadcasts the full state snapshot back.
 - LAN uses UDP (port `54322`) for host discovery and TCP (port `54321`) for gameplay.
 - If a LAN host does not appear in the join list, allow Java through the firewall for both ports, then use **Refresh Games**.
+
+### Chexsagon / Hex Chess
+
+#### Variant and Rules
+- **Glinski Variant**: Played on a 91-cell hexagonal board with files `a` through `l`, skipping `j`.
+- **Standard Material**: Each side starts with 18 pieces: one king, one queen, two rooks, three bishops, two knights, and nine pawns.
+- **Legal Move Engine**: The game validates piece movement, check, checkmate, stalemate, en passant, pawn double moves, and illegal self-check.
+- **Promotion**: Pawns promote on starred promotion files, with a choice of queen, rook, bishop, or knight.
+- **No Castling**: Castling is not part of the implemented Glinski ruleset.
+- **Draw Handling**: Supports accepted draw offers, the 50-move rule, threefold repetition, insufficient material, stalemate scoring, and resignation.
+
+#### Play Modes
+- **Local Hot-Seat Mode**: Two players share one device and alternate turns on the same board.
+- **Bot Mode**: The human plays White and the bot plays Black. Bot calculations run off the JavaFX UI thread.
+- **LAN Multiplayer**: Host controls White, joiner controls Black, and the host broadcasts authoritative state snapshots.
+- **Custom Position Builder**: Build a legal starting position by placing standard pieces, choosing the side to move, and passing validation before starting.
+
+#### Board UI and Actions
+- **Canvas Board**: The hex board is rendered on a JavaFX canvas with coordinate labels and starred promotion cells.
+- **Move Feedback**: Selecting a piece highlights legal destinations, the last move is marked, and checked kings are highlighted.
+- **Match Actions**: Players can offer, accept, or decline draws, resign, restart local games, or return to the Chexsagon menu.
+
+#### LAN Architecture
+- The **host** owns the authoritative Hex Chess state.
+- The **joiner** sends moves and draw/resign commands over TCP; the host applies them and broadcasts snapshots.
+- LAN discovery uses UDP port `54324`.
+- Gameplay uses TCP port `54321` by default; if that port is occupied, hosting falls back to another available TCP port and displays it in the host status.
+- Direct join supports manually entering both host IP and TCP port.
 
 ## Prerequisites
 
@@ -185,3 +213,45 @@ mvn javafx:run
 
 Zetris LAN uses UDP only for discovery. The gameplay connection uses TCP, with the host owning the authoritative game state and the joiner sending input commands.
 If a LAN host does not appear, allow Java through the firewall for UDP port `54322` and TCP port `54321`, then use **Refresh Games** from the join screen.
+
+### Chexsagon Local Game
+1. From the game choice screen, choose **Chexsagon - Glinski Variant**.
+2. Enter both player names.
+3. Click **Start Local**.
+4. Click one of the current player's pieces to highlight legal destinations.
+5. Click a highlighted destination to move. If a pawn reaches promotion, choose queen, rook, bishop, or knight in the promotion dialog.
+6. Use **Offer Draw**, **Accept**, **Decline**, **Resign**, **Restart**, or **Menu** from the side panel as needed.
+
+### Chexsagon Bot Game
+1. Choose **Chexsagon - Glinski Variant**.
+2. Enter the White player name.
+3. Click **Play Bot**.
+4. Play White by selecting pieces and destinations; the bot replies automatically as Black.
+
+### Chexsagon Custom Setup
+1. Choose **Chexsagon - Glinski Variant**.
+2. Click **Custom Setup**.
+3. Choose a piece color and type, then left-click board cells to place pieces.
+4. Remove pieces by right-clicking a cell, pressing **Remove Piece**, or using `Delete` / `Backspace` after selecting a cell.
+5. Choose which color moves first.
+6. Use **Standard** to reload the Glinski starting position or **Clear** to empty the board.
+7. Click **Start** once the validator reports a legal position.
+
+The custom setup validator requires exactly one king per side, legal king placement, no pawns on promotion squares, no more than nine pawns or 18 pieces per side, a valid side-to-move state, and at least one legal move for the side to move.
+
+### Chexsagon LAN Game
+**For the Host:**
+1. Choose **Chexsagon - Glinski Variant**.
+2. Enter the White player name.
+3. Click **Host LAN**.
+4. Wait for the joiner. The game opens automatically once a client connects.
+5. If discovery does not work, share the displayed host IP and TCP port with the joiner.
+
+**For the Joiner:**
+1. Choose **Chexsagon - Glinski Variant**.
+2. Enter the Black player name.
+3. Select a discovered host and click **Join Selected**, or enter the host IP and TCP port under **Direct Join**.
+4. Click **Join LAN** when using direct join.
+
+Chexsagon LAN uses UDP only for discovery on port `54324`. Gameplay uses TCP, with the host controlling White and the joiner controlling Black.
+If a LAN host does not appear, allow Java through the firewall for UDP port `54324` and the displayed TCP gameplay port, then use **Refresh** from the Chexsagon menu.
