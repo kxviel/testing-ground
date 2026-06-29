@@ -1,20 +1,15 @@
 .game-choice-root {
     -fx-background-color: #F8FBFF;
     -fx-font-family: "Segoe UI", "Inter", "Arial", sans-serif;
+    -fx-padding: 38 44 30 44;
 }
 
-/* Main canvas */
 .game-choice-main {
     -fx-background-color: linear-gradient(to bottom right, #FFFFFF, #F7FAFF);
-    -fx-padding: 38 44 30 44;
 }
 
 .game-choices {
     -fx-padding: 18 0 0 0;
-}
-
-.hero-copy {
-    -fx-padding: 0 0 0 0;
 }
 
 .game-choice-title {
@@ -30,7 +25,6 @@
     -fx-text-fill: rgba(16, 42, 76, 0.70);
 }
 
-/* Divider kept, but cleaner */
 .title-divider {
     -fx-padding: 8 0 4 0;
 }
@@ -54,7 +48,6 @@
     -fx-pref-width: 8;
 }
 
-/* Game cards */
 .game-list {
     -fx-padding: 4 0 0 0;
 }
@@ -69,8 +62,8 @@
     -fx-border-width: 1;
     -fx-content-display: graphic-only;
     -fx-cursor: hand;
-    -fx-min-height: 86;
-    -fx-padding: 14 16 14 20;
+    -fx-min-height: 102;
+    -fx-padding: 22 18 22 22;
     -fx-effect: dropshadow(gaussian, rgba(16, 42, 76, 0.08), 16, 0.14, 0, 5);
 }
 
@@ -87,11 +80,7 @@
 }
 
 #exit-row {
-    -fx-min-height: 80;
-}
-
-.row-content {
-    -fx-fill-height: true;
+    -fx-min-height: 96;
 }
 
 .icon-chip {
@@ -159,18 +148,14 @@
     -fx-background-color: rgba(63, 114, 175, 0.12);
     -fx-pref-height: 1;
     -fx-background-radius: 99;
-    -fx-padding: 0 0 0 0;
 }
 
-/* Settings panel */
 .settings-panel {
-    -fx-background-color: linear-gradient(to bottom right, rgba(235, 243, 255, 0.94), rgba(218, 230, 249, 0.94));
-    -fx-background-radius: 18;
-    -fx-border-color: rgba(255, 255, 255, 0.72);
-    -fx-border-radius: 18;
-    -fx-border-width: 1;
-    -fx-padding: 36 28 28 28;
-    -fx-effect: dropshadow(gaussian, rgba(16, 42, 76, 0.10), 26, 0.14, 0, 8);
+    -fx-background-color: #EAF2FD;
+    -fx-background-radius: 0;
+    -fx-border-color: transparent transparent transparent rgba(63, 114, 175, 0.22);
+    -fx-border-width: 0 0 0 1;
+    -fx-padding: 36 34 28 34;
 }
 
 .settings-title {

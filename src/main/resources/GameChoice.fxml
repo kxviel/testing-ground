@@ -19,12 +19,19 @@
         <URL value="@GameChoice.css"/>
     </stylesheets>
 
-    <HBox alignment="TOP_CENTER"
-          maxHeight="Infinity"
-          spacing="34"
-          styleClass="game-choice-main">
+    <GridPane alignment="TOP_CENTER"
+              hgap="34"
+              maxHeight="Infinity"
+              styleClass="game-choice-main">
+        <columnConstraints>
+            <ColumnConstraints hgrow="ALWAYS" percentWidth="65"/>
+            <ColumnConstraints hgrow="ALWAYS" percentWidth="35"/>
+        </columnConstraints>
 
-        <VBox HBox.hgrow="ALWAYS"
+        <VBox GridPane.columnIndex="0"
+              GridPane.hgrow="ALWAYS"
+              GridPane.vgrow="ALWAYS"
+              maxHeight="Infinity"
               maxWidth="Infinity"
               spacing="26"
               styleClass="game-choices">
@@ -135,10 +142,11 @@
             </VBox>
         </VBox>
 
-        <VBox HBox.hgrow="NEVER"
-              maxWidth="310.0"
-              minWidth="280.0"
-              prefWidth="300.0"
+        <VBox GridPane.columnIndex="1"
+              GridPane.hgrow="ALWAYS"
+              GridPane.vgrow="ALWAYS"
+              maxHeight="Infinity"
+              maxWidth="Infinity"
               spacing="24"
               styleClass="settings-panel">
 
@@ -208,5 +216,5 @@
                        styleClass="footer-line"/>
             </VBox>
         </VBox>
-    </HBox>
+    </GridPane>
 </StackPane>
