@@ -30,22 +30,33 @@
 
 .memory-menu-root,
 .memory-game-root {
-    -game-accent: #625B71;
-    -game-accent-hover: #4A4458;
-    -game-accent-pressed: #332D41;
-    -game-accent-hover-soft: #746A83;
-    -game-accent-container: #E8DEF8;
-    -game-on-accent-container: #1D192B;
-}
-
-.tetris-menu-root,
-.tetris-game-root,
-.hex-menu-root,
-.hex-game-root {
     -game-accent: #7D5260;
     -game-accent-hover: #633B48;
     -game-accent-pressed: #5D3A46;
+    -game-accent-hover-soft: #986977;
     -game-accent-container: #FFD8E4;
     -game-on-accent-container: #31111D;
     -game-soft-surface: #FFF8FA;
+}
+
+.tetris-menu-root,
+.tetris-game-root {
+    -game-accent: #0061A4;
+    -game-accent-hover: #00497D;
+    -game-accent-pressed: #003258;
+    -game-accent-hover-soft: #3F7FBD;
+    -game-accent-container: #D1E4FF;
+    -game-on-accent-container: #001D36;
+    -game-soft-surface: #F4FAFF;
+}
+
+.hex-menu-root,
+.hex-game-root {
+    -game-accent: #A7F3D0;
+    -game-accent-hover: #6EE7B7;
+    -game-accent-pressed: #34D399;
+    -game-accent-hover-soft: #D1FAE5;
+    -game-accent-container: #D1FAE5;
+    -game-on-accent-container: #064E3B;
+    -game-soft-surface: #ECFDF5;
 }

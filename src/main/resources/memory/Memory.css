@@ -6,7 +6,7 @@
 .memory-game-header {
     -fx-background-color: -app-surface-container-low;
     -fx-background-radius: 28;
-    -fx-border-color: rgba(98, 91, 113, 0.16);
+    -fx-border-color: rgba(125, 82, 96, 0.16);
     -fx-border-radius: 28;
     -fx-border-width: 1;
     -fx-effect: dropshadow(gaussian, rgba(29, 27, 32, 0.08), 18, 0.10, 0, 4);
@@ -19,7 +19,7 @@
 .player-chip {
     -fx-background-color: -app-surface;
     -fx-background-radius: 24;
-    -fx-border-color: rgba(98, 91, 113, 0.16);
+    -fx-border-color: rgba(125, 82, 96, 0.16);
     -fx-border-radius: 24;
     -fx-border-width: 1;
     -fx-padding: 10 22 10 10;
@@ -29,7 +29,7 @@
 .player-chip.active-player {
     -fx-background-color: -game-accent-container;
     -fx-border-color: -game-accent;
-    -fx-effect: dropshadow(gaussian, rgba(98, 91, 113, 0.16), 16, 0.12, 0, 4);
+    -fx-effect: dropshadow(gaussian, rgba(125, 82, 96, 0.16), 16, 0.12, 0, 4);
 }
 
 .player-icon {
@@ -57,7 +57,7 @@
 }
 
 .score-divider {
-    -fx-background-color: rgba(98, 91, 113, 0.26);
+    -fx-background-color: rgba(125, 82, 96, 0.26);
     -fx-pref-height: 30;
     -fx-pref-width: 1;
 }
@@ -184,7 +184,7 @@
     -fx-background-color: -app-surface-container-low;
     -fx-background-insets: 0;
     -fx-background-radius: 28;
-    -fx-border-color: rgba(98, 91, 113, 0.16);
+    -fx-border-color: rgba(125, 82, 96, 0.16);
     -fx-border-radius: 28;
     -fx-border-width: 1;
     -fx-content-display: graphic-only;
@@ -196,11 +196,11 @@
 
 .memory-action-row:hover {
     -fx-background-color: -game-accent-container;
-    -fx-border-color: rgba(98, 91, 113, 0.42);
+    -fx-border-color: rgba(125, 82, 96, 0.42);
 }
 
 .memory-action-row:pressed {
-    -fx-background-color: rgba(98, 91, 113, 0.18);
+    -fx-background-color: rgba(125, 82, 96, 0.18);
     -fx-effect: none;
 }
 
@@ -212,7 +212,7 @@
     -fx-alignment: center;
     -fx-background-color: -app-surface;
     -fx-background-radius: 20;
-    -fx-border-color: rgba(98, 91, 113, 0.18);
+    -fx-border-color: rgba(125, 82, 96, 0.18);
     -fx-border-radius: 20;
     -fx-border-width: 1;
     -fx-min-height: 64;
@@ -257,7 +257,7 @@
 }
 
 .memory-action-row:hover .row-arrow-chip {
-    -fx-background-color: rgba(98, 91, 113, 0.12);
+    -fx-background-color: rgba(125, 82, 96, 0.12);
 }
 
 .memory-action-row:hover .row-arrow {
@@ -267,7 +267,7 @@
 .memory-network-panel {
     -fx-background-color: -game-accent-container;
     -fx-background-radius: 0;
-    -fx-border-color: transparent transparent transparent rgba(98, 91, 113, 0.22);
+    -fx-border-color: transparent transparent transparent rgba(125, 82, 96, 0.22);
     -fx-border-width: 0 0 0 1;
     -fx-padding: 74 40 58 40;
 }
@@ -296,7 +296,7 @@
 }
 
 .network-footer {
-    -fx-border-color: rgba(98, 91, 113, 0.18) transparent transparent transparent;
+    -fx-border-color: rgba(125, 82, 96, 0.18) transparent transparent transparent;
     -fx-border-width: 1 0 0 0;
     -fx-padding: 16 0 0 0;
 }
@@ -310,7 +310,7 @@
 .menu-section {
     -fx-background-color: -app-surface-container-low;
     -fx-background-radius: 28;
-    -fx-border-color: rgba(98, 91, 113, 0.16);
+    -fx-border-color: rgba(125, 82, 96, 0.16);
     -fx-border-radius: 28;
     -fx-border-width: 1;
     -fx-padding: 24 24 24 24;
@@ -321,7 +321,7 @@
     -fx-alignment: center;
     -fx-background-color: -app-surface-container-lowest;
     -fx-background-radius: 18;
-    -fx-border-color: rgba(98, 91, 113, 0.16);
+    -fx-border-color: rgba(125, 82, 96, 0.16);
     -fx-border-radius: 18;
     -fx-border-width: 1;
     -fx-effect: dropshadow(gaussian, rgba(29, 27, 32, 0.08), 8, 0.14, 0, 2);
@@ -385,13 +385,13 @@
 }
 
 .divider-line {
-    -fx-background-color: rgba(98, 91, 113, 0.16);
+    -fx-background-color: rgba(125, 82, 96, 0.16);
     -fx-background-radius: 99;
     -fx-pref-height: 1;
 }
 
 .divider-dot {
-    -fx-background-color: rgba(98, 91, 113, 0.18);
+    -fx-background-color: rgba(125, 82, 96, 0.18);
     -fx-background-radius: 99;
     -fx-pref-height: 8;
     -fx-pref-width: 8;
@@ -437,7 +437,7 @@
 #btnHostGame,
 #btnJoinGame {
     -fx-background-color: -app-surface-container-low;
-    -fx-border-color: rgba(98, 91, 113, 0.30);
+    -fx-border-color: rgba(125, 82, 96, 0.30);
 }
 
 #btnHostGame .mode-icon,
@@ -447,7 +447,7 @@
 
 .mode-button:hover {
     -fx-background-color: -game-accent-container;
-    -fx-border-color: rgba(98, 91, 113, 0.52);
+    -fx-border-color: rgba(125, 82, 96, 0.52);
 }
 
 .join-box,
@@ -458,7 +458,7 @@
 .join-box {
     -fx-background-color: rgba(255, 251, 254, 0.68);
     -fx-background-radius: 22;
-    -fx-border-color: rgba(98, 91, 113, 0.18);
+    -fx-border-color: rgba(125, 82, 96, 0.18);
     -fx-border-radius: 22;
     -fx-border-width: 1;
     -fx-padding: 12;
@@ -477,13 +477,13 @@
 
 .btn-outline {
     -fx-background-color: -app-surface;
-    -fx-border-color: rgba(98, 91, 113, 0.24);
+    -fx-border-color: rgba(125, 82, 96, 0.24);
     -fx-text-fill: -game-on-accent-container;
 }
 
 .btn-outline:hover {
     -fx-background-color: -app-surface-container-low;
-    -fx-border-color: rgba(98, 91, 113, 0.40);
+    -fx-border-color: rgba(125, 82, 96, 0.40);
 }
 
 .btn-danger {
@@ -500,7 +500,7 @@
 .text-field {
     -fx-background-color: -app-surface;
     -fx-background-radius: 16;
-    -fx-border-color: rgba(98, 91, 113, 0.24);
+    -fx-border-color: rgba(125, 82, 96, 0.24);
     -fx-border-radius: 16;
     -fx-border-width: 1;
     -fx-min-height: 36;
@@ -560,7 +560,7 @@
     -fx-background-color: -app-surface;
     -fx-border-color: -game-accent;
     -fx-text-fill: -game-on-accent-container;
-    -fx-effect: dropshadow(gaussian, rgba(98, 91, 113, 0.20), 12, 0.16, 0, 3);
+    -fx-effect: dropshadow(gaussian, rgba(125, 82, 96, 0.20), 12, 0.16, 0, 3);
 }
 
 .memory-card-matched {
@@ -577,7 +577,7 @@
 .post-game-bar {
     -fx-background-color: -game-accent-container;
     -fx-background-radius: 28;
-    -fx-border-color: rgba(98, 91, 113, 0.18);
+    -fx-border-color: rgba(125, 82, 96, 0.18);
     -fx-border-radius: 28;
     -fx-border-width: 1;
     -fx-padding: 12 16 12 16;

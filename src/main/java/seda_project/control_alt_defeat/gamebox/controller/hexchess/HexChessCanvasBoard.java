@@ -28,7 +28,6 @@ final class HexChessCanvasBoard {
     private static final Color WHITE_PIECE = Color.WHITE;
     private static final Color BLACK_PIECE = Color.web("#31111D");
     private static final Color WHITE_PIECE_STROKE = Color.web("#31111D");
-    private static final Font NOTATION_FONT = Font.font("Inter Variable", FontWeight.BOLD, 9);
 
     @SuppressWarnings("SpellCheckingInspection")
     private static final String PIECE_FONT_FAMILY = "Segoe UI Symbol";
@@ -37,7 +36,9 @@ final class HexChessCanvasBoard {
     private final double width;
     private final double height;
     private final double notationYOffset;
+    private final Font notationFont;
     private final Font pieceFont;
+    private final Font promotionFont;
     private final Map<HexCoordinate, Point2D> cellCenters = new HashMap<>();
 
     HexChessCanvasBoard(
@@ -50,7 +51,9 @@ final class HexChessCanvasBoard {
         this.width = width;
         this.height = height;
         this.notationYOffset = notationYOffset;
+        this.notationFont = Font.font("Inter Variable", FontWeight.BOLD, Math.max(9, hexSize * 0.41));
         this.pieceFont = Font.font(PIECE_FONT_FAMILY, FontWeight.NORMAL, pieceFontSize);
+        this.promotionFont = Font.font("Inter Variable", FontWeight.BOLD, Math.max(16, hexSize * 0.73));
     }
 
     void attach(Canvas canvas, Consumer<HexCoordinate> onCellClicked) {
@@ -109,7 +112,7 @@ final class HexChessCanvasBoard {
         }
 
         graphics.setFill(notationColor);
-        graphics.setFont(NOTATION_FONT);
+        graphics.setFont(notationFont);
         graphics.setTextAlign(TextAlignment.CENTER);
         graphics.setTextBaseline(VPos.CENTER);
         graphics.fillText(coordinate.notation(), center.getX(), center.getY() + notationYOffset);
@@ -195,7 +198,7 @@ final class HexChessCanvasBoard {
 
     private void drawPromotionStar(GraphicsContext graphics, Point2D center, Color notationColor) {
         graphics.setFill(notationColor);
-        graphics.setFont(Font.font("Inter Variable", FontWeight.BOLD, 16));
+        graphics.setFont(promotionFont);
         graphics.setTextAlign(TextAlignment.CENTER);
         graphics.setTextBaseline(VPos.CENTER);
         graphics.fillText("*", center.getX(), center.getY() + 1);

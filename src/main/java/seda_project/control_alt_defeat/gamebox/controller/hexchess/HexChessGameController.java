@@ -12,6 +12,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Label;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexBoardGeometry;
@@ -36,9 +37,10 @@ import java.util.Optional;
 
 public class HexChessGameController implements RouteDataReceiver {
 
-    private static final double HEX_SIZE = 22.0;
-    private static final double BOARD_WIDTH = 660.0;
-    private static final double BOARD_HEIGHT = 560.0;
+    private static final double HEX_SIZE = 37.4;
+    private static final double BOARD_WIDTH = 1122.0;
+    private static final double BOARD_HEIGHT = 952.0;
+    private static final double BOARD_FIT_MARGIN = 24.0;
     private static final Duration BOT_DELAY = Duration.millis(350);
     private static final Duration BOT_DRAW_DECLINE_DELAY = Duration.millis(800);
     private static final String NETWORK_RESTART_MESSAGE =
@@ -53,6 +55,8 @@ public class HexChessGameController implements RouteDataReceiver {
     private static final Color STROKE_LAST = Color.web("#7c3aed");
     private static final Color NOTATION_COLOR = Color.rgb(23, 23, 23, 0.45);
 
+    @FXML
+    private StackPane boardZone;
     @FXML
     private Canvas boardCanvas;
     @FXML
@@ -82,8 +86,8 @@ public class HexChessGameController implements RouteDataReceiver {
             HEX_SIZE,
             BOARD_WIDTH,
             BOARD_HEIGHT,
-            11,
-            25);
+            19,
+            43);
 
     private HexChessGameSetup setup = HexChessGameSetup.local();
     private HexGameState gameState = HexGameState.standard();
@@ -97,7 +101,31 @@ public class HexChessGameController implements RouteDataReceiver {
     public void initialize() {
         bindOptionalLabel(statusLabel);
         bindOptionalLabel(drawOfferLabel);
+        bindBoardScale();
         startGame(setup);
+    }
+
+    private void bindBoardScale() {
+        if (boardCanvas == null || boardZone == null) {
+            return;
+        }
+
+        boardCanvas.scaleXProperty().bind(Bindings.createDoubleBinding(
+                this::boardScale,
+                boardZone.widthProperty(),
+                boardZone.heightProperty()));
+        boardCanvas.scaleYProperty().bind(boardCanvas.scaleXProperty());
+    }
+
+    private double boardScale() {
+        double availableWidth = boardZone.getWidth() - BOARD_FIT_MARGIN;
+        double availableHeight = boardZone.getHeight() - BOARD_FIT_MARGIN;
+        if (availableWidth <= 0 || availableHeight <= 0) {
+            return 1.0;
+        }
+
+        double fit = Math.min(availableWidth / BOARD_WIDTH, availableHeight / BOARD_HEIGHT);
+        return Math.min(1.0, Math.max(0.35, fit));
     }
 
     @Override
