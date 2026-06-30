@@ -16,7 +16,8 @@
     </stylesheets>
 
     <VBox alignment="CENTER"
-          maxWidth="760.0"
+          prefWidth="1140.0"
+          maxWidth="1140.0"
           spacing="22"
           styleClass="memory-menu-card">
 
@@ -58,9 +59,9 @@
             </HBox>
 
             <VBox fx:id="variantBox" spacing="8" styleClass="variant-list">
-                <RadioButton fx:id="variant1Radio" id="rbVariant1" maxWidth="Infinity" styleClass="variant-row"/>
-                <RadioButton fx:id="variant2Radio" id="rbVariant2" maxWidth="Infinity" styleClass="variant-row"/>
-                <RadioButton fx:id="variant3Radio" id="rbVariant3" maxWidth="Infinity" styleClass="variant-row"/>
+                <RadioButton fx:id="variant1Radio" id="rbVariant1" maxWidth="Infinity"/>
+                <RadioButton fx:id="variant2Radio" id="rbVariant2" maxWidth="Infinity"/>
+                <RadioButton fx:id="variant3Radio" id="rbVariant3" maxWidth="Infinity"/>
             </VBox>
         </VBox>
 

@@ -50,7 +50,7 @@
 
     <center>
         <StackPane styleClass="memory-game-stage">
-            <VBox alignment="CENTER" spacing="18" maxWidth="860.0" styleClass="memory-board-card">
+            <VBox alignment="CENTER" spacing="18" maxWidth="Infinity" styleClass="memory-board-card">
                 <ImageView fitHeight="52.0" fitWidth="52.0" preserveRatio="true">
                     <image>
                         <Image url="@../icons/icons8-memory-game-64.png"/>
