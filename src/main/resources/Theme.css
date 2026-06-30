@@ -39,7 +39,9 @@
 }
 
 .tetris-menu-root,
-.tetris-game-root {
+.tetris-game-root,
+.hex-menu-root,
+.hex-game-root {
     -game-accent: #7D5260;
     -game-accent-hover: #633B48;
     -game-accent-pressed: #5D3A46;

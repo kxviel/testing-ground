@@ -26,8 +26,8 @@ final class HexChessCanvasBoard {
     private static final int CORNER_COUNT = 6;
     private static final double CORNER_ANGLE_DEGREES = 60.0;
     private static final Color WHITE_PIECE = Color.WHITE;
-    private static final Color BLACK_PIECE = Color.web("#102A4C");
-    private static final Color WHITE_PIECE_STROKE = Color.web("#102A4C");
+    private static final Color BLACK_PIECE = Color.web("#31111D");
+    private static final Color WHITE_PIECE_STROKE = Color.web("#31111D");
     private static final Font NOTATION_FONT = Font.font("Inter Variable", FontWeight.BOLD, 9);
 
     @SuppressWarnings("SpellCheckingInspection")

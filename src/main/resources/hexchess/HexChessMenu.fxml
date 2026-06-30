@@ -1,116 +1,239 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import java.net.URL?>
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox alignment="TOP_CENTER"
-      styleClass="hex-menu-root"
-      xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="seda_project.control_alt_defeat.gamebox.controller.hexchess.HexChessMenuController">
+<StackPane prefWidth="1080.0"
+           prefHeight="720.0"
+           maxHeight="Infinity"
+           maxWidth="Infinity"
+           styleClass="hex-menu-root"
+           xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="seda_project.control_alt_defeat.gamebox.controller.hexchess.HexChessMenuController">
 
     <stylesheets>
         <URL value="@HexChess.css"/>
     </stylesheets>
 
-    <padding>
-        <Insets top="28" right="36" bottom="28" left="36"/>
-    </padding>
+    <GridPane alignment="TOP_CENTER"
+              maxHeight="Infinity"
+              maxWidth="Infinity"
+              styleClass="hex-menu-main">
+        <columnConstraints>
+            <ColumnConstraints hgrow="ALWAYS" percentWidth="65"/>
+            <ColumnConstraints hgrow="ALWAYS" percentWidth="35"/>
+        </columnConstraints>
 
-    <HBox alignment="CENTER" spacing="14" styleClass="hex-header">
-        <StackPane styleClass="menu-icon-frame">
-            <ImageView fitHeight="58.0" fitWidth="58.0" preserveRatio="true">
-                <image>
-                    <Image url="@../icons/icons8-chess-100.png"/>
-                </image>
-            </ImageView>
-        </StackPane>
-        <VBox alignment="CENTER_LEFT" spacing="4">
-            <Label text="GLINSKI VARIANT" styleClass="eyebrow"/>
-            <Label text="Chexsagon" styleClass="title"/>
-            <Label text="Local board, bot, or LAN match" styleClass="subtitle"/>
-        </VBox>
-    </HBox>
+        <VBox GridPane.columnIndex="0"
+              GridPane.hgrow="ALWAYS"
+              GridPane.vgrow="ALWAYS"
+              maxHeight="Infinity"
+              maxWidth="Infinity"
+              spacing="26"
+              styleClass="hex-setup">
 
-    <HBox alignment="TOP_CENTER" styleClass="hex-menu-layout">
-        <VBox styleClass="menu-card">
-            <Label text="Players" styleClass="section-title"/>
-            <Label text="Set names once, then launch a local game, bot game, or custom board."
-                   wrapText="true" styleClass="section-copy"/>
+            <VBox spacing="8" styleClass="hero-copy">
+                <HBox alignment="CENTER_LEFT" spacing="18">
+                    <StackPane styleClass="menu-icon-frame">
+                        <ImageView fitHeight="42.0" fitWidth="42.0" preserveRatio="true">
+                            <image>
+                                <Image url="@../icons/icons8-chess-100.png"/>
+                            </image>
+                        </ImageView>
+                    </StackPane>
 
-            <GridPane styleClass="hex-form-grid">
-                <columnConstraints>
-                    <ColumnConstraints halignment="RIGHT" minWidth="58" prefWidth="58"/>
-                    <ColumnConstraints hgrow="ALWAYS" minWidth="190" prefWidth="210"/>
-                </columnConstraints>
-
-                <Label text="White" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-                <TextField fx:id="whiteNameField" text="White" promptText="White player"
-                           GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-
-                <Label text="Black" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-                <TextField fx:id="blackNameField" text="Black" promptText="Black player"
-                           GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-            </GridPane>
-
-            <Label text="Quick Start" styleClass="panel-label"/>
-            <VBox alignment="CENTER" styleClass="menu-action-stack">
-                <Button text="Start Local" onAction="#onStartLocal" maxWidth="Infinity" styleClass="btn-primary"/>
-                <Button text="Play Bot" onAction="#onStartBot" maxWidth="Infinity" styleClass="btn-outline"/>
-                <Button text="Custom Setup" onAction="#onCustomSetup" maxWidth="Infinity" styleClass="btn-outline"/>
+                    <VBox spacing="6">
+                        <Label text="Chexsagon" styleClass="title"/>
+                        <Label text="Choose players, setup, and start a match."
+                               styleClass="subtitle"/>
+                    </VBox>
+                </HBox>
             </VBox>
+
+            <HBox alignment="CENTER" spacing="8" styleClass="title-divider">
+                <Region minWidth="84" prefWidth="84" styleClass="divider-line-active"/>
+                <Region styleClass="divider-seal"/>
+                <Region HBox.hgrow="ALWAYS" styleClass="divider-line"/>
+            </HBox>
+
+            <VBox spacing="12" styleClass="hex-setup-list">
+                <Button maxWidth="Infinity"
+                        onAction="#onStartLocal"
+                        styleClass="hex-action-row">
+                    <graphic>
+                        <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="18" styleClass="row-content">
+                            <StackPane styleClass="row-icon-chip">
+                                <Label text="L" styleClass="row-icon-letter"/>
+                            </StackPane>
+
+                            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                <Label text="Start Local" styleClass="row-title"/>
+                                <Label text="Start a two-player local match" styleClass="row-subtitle"/>
+                            </VBox>
+
+                            <StackPane styleClass="row-arrow-chip">
+                                <Label text="›" styleClass="row-arrow"/>
+                            </StackPane>
+                        </HBox>
+                    </graphic>
+                </Button>
+
+                <Button maxWidth="Infinity"
+                        onAction="#onStartBot"
+                        styleClass="hex-action-row">
+                    <graphic>
+                        <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="18" styleClass="row-content">
+                            <StackPane styleClass="row-icon-chip">
+                                <Label text="B" styleClass="row-icon-letter"/>
+                            </StackPane>
+
+                            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                <Label text="Play Bot" styleClass="row-title"/>
+                                <Label text="Play White against the computer" styleClass="row-subtitle"/>
+                            </VBox>
+
+                            <StackPane styleClass="row-arrow-chip">
+                                <Label text="›" styleClass="row-arrow"/>
+                            </StackPane>
+                        </HBox>
+                    </graphic>
+                </Button>
+
+                <Button maxWidth="Infinity"
+                        onAction="#onCustomSetup"
+                        styleClass="hex-action-row">
+                    <graphic>
+                        <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="18" styleClass="row-content">
+                            <StackPane styleClass="row-icon-chip">
+                                <Label text="C" styleClass="row-icon-letter"/>
+                            </StackPane>
+
+                            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                <Label text="Custom Setup" styleClass="row-title"/>
+                                <Label text="Build a custom starting position" styleClass="row-subtitle"/>
+                            </VBox>
+
+                            <StackPane styleClass="row-arrow-chip">
+                                <Label text="›" styleClass="row-arrow"/>
+                            </StackPane>
+                        </HBox>
+                    </graphic>
+                </Button>
+
+                <Region minHeight="1" styleClass="menu-divider"/>
+
+                <Button maxWidth="Infinity"
+                        onAction="#onBack"
+                        styleClass="hex-action-row">
+                    <graphic>
+                        <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="18" styleClass="row-content">
+                            <StackPane styleClass="row-icon-chip">
+                                <Label text="X" styleClass="row-icon-letter"/>
+                            </StackPane>
+
+                            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                <Label text="Exit Game" styleClass="row-title"/>
+                                <Label text="Return to GameBox" styleClass="row-subtitle"/>
+                            </VBox>
+
+                            <StackPane styleClass="row-arrow-chip">
+                                <Label text="›" styleClass="row-arrow"/>
+                            </StackPane>
+                        </HBox>
+                    </graphic>
+                </Button>
+            </VBox>
+
+            <Region VBox.vgrow="ALWAYS"/>
         </VBox>
 
-        <VBox styleClass="menu-card">
-            <HBox alignment="CENTER_LEFT" styleClass="section-header">
-                <VBox spacing="2">
-                    <Label text="LAN" styleClass="section-title"/>
-                    <Label text="Discover hosts automatically or connect directly by IP."
-                           wrapText="true" styleClass="section-copy"/>
-                </VBox>
-                <Pane HBox.hgrow="ALWAYS"/>
-                <Button text="Refresh" onAction="#onRefreshLan" styleClass="btn-small"/>
-            </HBox>
+        <VBox GridPane.columnIndex="1"
+              GridPane.hgrow="ALWAYS"
+              GridPane.vgrow="ALWAYS"
+              maxHeight="Infinity"
+              maxWidth="Infinity"
+              spacing="14"
+              styleClass="hex-network-panel">
 
-            <HBox alignment="CENTER_LEFT" styleClass="button-row">
-                <Button text="Host LAN" onAction="#onHostLan" styleClass="btn-outline"/>
-                <Button fx:id="joinSelectedLanButton" text="Join Selected"
-                        onAction="#onJoinSelectedLan" styleClass="btn-outline"/>
-            </HBox>
+            <VBox spacing="8">
+                <Label text="Network" styleClass="network-title"/>
+                <Label text="Set players, host, or join LAN matches" styleClass="network-subtitle"/>
+            </VBox>
 
-            <ListView fx:id="lanGamesList" prefHeight="92" maxHeight="104" maxWidth="Infinity">
-                <placeholder>
-                    <Label text="No LAN games found" styleClass="empty-list-label"/>
-                </placeholder>
-            </ListView>
+            <VBox spacing="12" styleClass="side-section">
+                <Label text="Players" styleClass="field-title"/>
+
+                <GridPane styleClass="hex-form-grid">
+                    <columnConstraints>
+                        <ColumnConstraints halignment="RIGHT" minWidth="62" prefWidth="62"/>
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="170" prefWidth="230"/>
+                    </columnConstraints>
+
+                    <Label text="White" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                    <TextField fx:id="whiteNameField" text="White" promptText="White player"
+                               GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                    <Label text="Black" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                    <TextField fx:id="blackNameField" text="Black" promptText="Black player"
+                               GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                </GridPane>
+            </VBox>
+
+            <VBox spacing="12" styleClass="network-section">
+                <Button maxWidth="Infinity" onAction="#onHostLan" styleClass="mode-button">
+                    <graphic>
+                        <HBox alignment="CENTER_LEFT" spacing="12">
+                            <Label text="H" styleClass="mode-icon"/>
+                            <Label text="Host LAN" styleClass="mode-text"/>
+                        </HBox>
+                    </graphic>
+                </Button>
+
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Button text="Refresh" onAction="#onRefreshLan" maxWidth="Infinity"
+                            styleClass="btn-outline" HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="joinSelectedLanButton" text="Join Selected"
+                            onAction="#onJoinSelectedLan" maxWidth="Infinity"
+                            styleClass="btn-outline" HBox.hgrow="ALWAYS"/>
+                </HBox>
+            </VBox>
+
+            <VBox spacing="8">
+                <Label text="Available Games" styleClass="field-title"/>
+                <ListView fx:id="lanGamesList" prefHeight="84" maxHeight="112" maxWidth="Infinity">
+                    <placeholder>
+                        <Label text="No LAN games found" styleClass="empty-list-label"/>
+                    </placeholder>
+                </ListView>
+            </VBox>
 
             <Separator/>
-            <Label text="Direct Join" styleClass="panel-label"/>
 
-            <GridPane styleClass="hex-form-grid">
-                <columnConstraints>
-                    <ColumnConstraints halignment="RIGHT" minWidth="58" prefWidth="58"/>
-                    <ColumnConstraints hgrow="ALWAYS" minWidth="190" prefWidth="210"/>
-                </columnConstraints>
-                <Label text="Host IP" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-                <TextField fx:id="lanHostField" promptText="192.168.1.20"
-                           GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-                <Label text="Port" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-                <TextField fx:id="lanPortField" promptText="54321" text="54321"
-                           GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-            </GridPane>
+            <VBox spacing="12">
+                <Label text="Direct Join" styleClass="field-title"/>
 
-            <Button text="Join LAN" onAction="#onJoinLan" maxWidth="Infinity" styleClass="btn-outline"/>
+                <HBox alignment="CENTER_LEFT" spacing="10" maxWidth="Infinity" styleClass="direct-join-row">
+                    <TextField fx:id="lanHostField" promptText="Host IP"
+                               maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                    <TextField fx:id="lanPortField" promptText="Port" text="54321"
+                               maxWidth="82" prefWidth="82"/>
+                    <Button text="Join" onAction="#onJoinLan" styleClass="btn-primary"/>
+                </HBox>
+            </VBox>
 
-            <Label fx:id="statusLabel" wrapText="true" maxWidth="Infinity" minHeight="44"
-                   styleClass="status-box"/>
+            <Label fx:id="statusLabel" text="" wrapText="true" maxWidth="Infinity" styleClass="status-line"/>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <VBox spacing="8" styleClass="network-footer">
+                <Label text="Chexsagon: Local, Bot, or LAN" styleClass="footer-line"/>
+                <Label text="Glinski-style hex chess with synchronized network play."
+                       wrapText="true"
+                       styleClass="footer-line"/>
+            </VBox>
         </VBox>
-    </HBox>
-
-    <HBox alignment="CENTER" styleClass="hex-footer">
-        <Button text="Back" onAction="#onBack" styleClass="btn-outline"/>
-    </HBox>
-</VBox>
+    </GridPane>
+</StackPane>

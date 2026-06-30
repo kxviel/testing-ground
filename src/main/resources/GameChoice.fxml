@@ -210,8 +210,8 @@
             <Region VBox.vgrow="ALWAYS"/>
 
             <VBox spacing="8" styleClass="settings-footer">
-                <Label text="Build: 0.1.0  •  Stable" styleClass="footer-line"/>
-                <Label text="Zero runtime. Full warranty. Your gameplay, guaranteed."
+                <Label text="Build: 3.5.0  •  Stable" styleClass="footer-line"/>
+                <Label text="Made by Kevin • Shashank • Sagar"
                        wrapText="true"
                        styleClass="footer-line"/>
             </VBox>
