@@ -1,11 +1,11 @@
 .game-choice-root {
-    -fx-background-color: #F8FBFF;
+    -fx-background-color: #FFFBFE;
     -fx-font-family: "Inter Variable", "Inter", "Segoe UI", "Arial", sans-serif;
     -fx-padding: 0;
 }
 
 .game-choice-main {
-    -fx-background-color: linear-gradient(to bottom right, #FFFFFF, #F7FAFF);
+    -fx-background-color: linear-gradient(to bottom right, #FFFBFE, #F7F2FA);
 }
 
 .game-choices {
@@ -15,14 +15,14 @@
 .game-choice-title {
     -fx-font-size: 43px;
     -fx-font-weight: 900;
-    -fx-text-fill: #102A4C;
-    -fx-effect: dropshadow(gaussian, rgba(16, 42, 76, 0.08), 8, 0.15, 0, 2);
+    -fx-text-fill: #21005D;
+    -fx-effect: dropshadow(gaussian, rgba(29, 27, 32, 0.08), 8, 0.15, 0, 2);
 }
 
 .game-choice-subtitle {
     -fx-font-size: 17px;
     -fx-font-weight: 400;
-    -fx-text-fill: rgba(16, 42, 76, 0.70);
+    -fx-text-fill: rgba(29, 27, 32, 0.70);
 }
 
 .title-divider {
@@ -30,19 +30,19 @@
 }
 
 .divider-line {
-    -fx-background-color: rgba(63, 114, 175, 0.16);
+    -fx-background-color: rgba(103, 80, 164, 0.16);
     -fx-pref-height: 3;
     -fx-background-radius: 99;
 }
 
 .divider-line-active {
-    -fx-background-color: #2F7DF6;
+    -fx-background-color: #6750A4;
     -fx-pref-height: 3;
     -fx-background-radius: 99;
 }
 
 .divider-seal {
-    -fx-background-color: #2F7DF6;
+    -fx-background-color: #6750A4;
     -fx-background-radius: 99;
     -fx-pref-height: 8;
     -fx-pref-width: 8;
@@ -54,29 +54,29 @@
 
 .game-row {
     -fx-alignment: center-left;
-    -fx-background-color: rgba(255, 255, 255, 0.92);
+    -fx-background-color: rgba(255, 251, 254, 0.94);
     -fx-background-insets: 0;
     -fx-background-radius: 16;
-    -fx-border-color: rgba(63, 114, 175, 0.16);
+    -fx-border-color: rgba(103, 80, 164, 0.18);
     -fx-border-radius: 16;
     -fx-border-width: 1;
     -fx-content-display: graphic-only;
     -fx-cursor: hand;
     -fx-min-height: 102;
     -fx-padding: 22 18 22 22;
-    -fx-effect: dropshadow(gaussian, rgba(16, 42, 76, 0.08), 16, 0.14, 0, 5);
+    -fx-effect: dropshadow(gaussian, rgba(29, 27, 32, 0.08), 16, 0.14, 0, 5);
 }
 
 .game-row:hover {
     -fx-background-color: #FFFFFF;
-    -fx-border-color: rgba(47, 125, 246, 0.45);
-    -fx-effect: dropshadow(gaussian, rgba(47, 125, 246, 0.18), 20, 0.18, 0, 6);
+    -fx-border-color: rgba(103, 80, 164, 0.45);
+    -fx-effect: dropshadow(gaussian, rgba(103, 80, 164, 0.18), 20, 0.18, 0, 6);
     -fx-translate-y: -1;
 }
 
 .game-row:pressed {
     -fx-translate-y: 0;
-    -fx-effect: dropshadow(gaussian, rgba(16, 42, 76, 0.08), 10, 0.12, 0, 3);
+    -fx-effect: dropshadow(gaussian, rgba(29, 27, 32, 0.08), 10, 0.12, 0, 3);
 }
 
 #exit-row {
@@ -85,16 +85,16 @@
 
 .icon-chip {
     -fx-alignment: center;
-    -fx-background-color: linear-gradient(to bottom right, #FFFFFF, #F0F6FF);
+    -fx-background-color: linear-gradient(to bottom right, #FFFFFF, #EADDFF);
     -fx-background-radius: 14;
-    -fx-border-color: rgba(63, 114, 175, 0.18);
+    -fx-border-color: rgba(103, 80, 164, 0.22);
     -fx-border-radius: 14;
     -fx-border-width: 1;
     -fx-min-height: 56;
     -fx-min-width: 56;
     -fx-pref-height: 56;
     -fx-pref-width: 56;
-    -fx-effect: dropshadow(gaussian, rgba(16, 42, 76, 0.08), 10, 0.16, 0, 3);
+    -fx-effect: dropshadow(gaussian, rgba(29, 27, 32, 0.08), 10, 0.16, 0, 3);
 }
 
 .game-icon {
@@ -104,24 +104,24 @@
 .icon-letter {
     -fx-font-size: 28px;
     -fx-font-weight: 800;
-    -fx-text-fill: #2F7DF6;
+    -fx-text-fill: #6750A4;
 }
 
 .row-title {
     -fx-font-size: 18px;
     -fx-font-weight: 900;
-    -fx-text-fill: #102A4C;
+    -fx-text-fill: #21005D;
 }
 
 .row-subtitle {
     -fx-font-size: 14px;
     -fx-font-weight: 400;
-    -fx-text-fill: rgba(16, 42, 76, 0.66);
+    -fx-text-fill: rgba(29, 27, 32, 0.66);
 }
 
 .row-arrow-chip {
     -fx-alignment: center;
-    -fx-background-color: rgba(16, 42, 76, 0.045);
+    -fx-background-color: rgba(103, 80, 164, 0.10);
     -fx-background-radius: 99;
     -fx-min-height: 38;
     -fx-min-width: 38;
@@ -132,28 +132,28 @@
 .row-arrow {
     -fx-font-size: 34px;
     -fx-font-weight: 300;
-    -fx-text-fill: rgba(16, 42, 76, 0.68);
+    -fx-text-fill: rgba(33, 0, 93, 0.68);
     -fx-translate-y: -2;
 }
 
 .game-row:hover .row-arrow-chip {
-    -fx-background-color: rgba(47, 125, 246, 0.12);
+    -fx-background-color: rgba(103, 80, 164, 0.16);
 }
 
 .game-row:hover .row-arrow {
-    -fx-text-fill: #2F7DF6;
+    -fx-text-fill: #6750A4;
 }
 
 .menu-divider {
-    -fx-background-color: rgba(63, 114, 175, 0.12);
+    -fx-background-color: rgba(103, 80, 164, 0.14);
     -fx-pref-height: 1;
     -fx-background-radius: 99;
 }
 
 .settings-panel {
-    -fx-background-color: #EAF2FD;
+    -fx-background-color: #EADDFF;
     -fx-background-radius: 0;
-    -fx-border-color: transparent transparent transparent rgba(63, 114, 175, 0.22);
+    -fx-border-color: transparent transparent transparent rgba(103, 80, 164, 0.24);
     -fx-border-width: 0 0 0 1;
     -fx-padding: 74 34 58 34;
 }
@@ -161,13 +161,13 @@
 .settings-title {
     -fx-font-size: 24px;
     -fx-font-weight: 900;
-    -fx-text-fill: #102A4C;
+    -fx-text-fill: #21005D;
 }
 
 .settings-subtitle {
     -fx-font-size: 14px;
     -fx-font-weight: 400;
-    -fx-text-fill: rgba(16, 42, 76, 0.64);
+    -fx-text-fill: rgba(29, 27, 32, 0.64);
 }
 
 .settings-section {
@@ -177,45 +177,45 @@
 .section-label {
     -fx-font-size: 14px;
     -fx-font-weight: 800;
-    -fx-text-fill: #102A4C;
+    -fx-text-fill: #21005D;
     -fx-padding: 0 0 4 0;
 }
 
 .settings-radio {
-    -fx-background-color: rgba(255, 255, 255, 0.48);
+    -fx-background-color: rgba(255, 251, 254, 0.54);
     -fx-background-radius: 10;
-    -fx-border-color: rgba(63, 114, 175, 0.18);
+    -fx-border-color: rgba(103, 80, 164, 0.22);
     -fx-border-radius: 10;
     -fx-border-width: 1;
     -fx-cursor: hand;
     -fx-font-size: 14px;
     -fx-font-weight: 600;
     -fx-padding: 10 12 10 12;
-    -fx-text-fill: #102A4C;
+    -fx-text-fill: #21005D;
 }
 
 .settings-radio:hover {
-    -fx-background-color: rgba(255, 255, 255, 0.72);
-    -fx-border-color: rgba(47, 125, 246, 0.34);
+    -fx-background-color: rgba(255, 251, 254, 0.78);
+    -fx-border-color: rgba(103, 80, 164, 0.42);
 }
 
 .settings-radio:selected {
-    -fx-background-color: rgba(47, 125, 246, 0.12);
-    -fx-border-color: rgba(47, 125, 246, 0.42);
+    -fx-background-color: rgba(208, 188, 255, 0.58);
+    -fx-border-color: rgba(103, 80, 164, 0.48);
 }
 
 .settings-radio .radio {
     -fx-background-color: #FFFFFF;
     -fx-background-radius: 99;
-    -fx-border-color: rgba(63, 114, 175, 0.30);
+    -fx-border-color: rgba(103, 80, 164, 0.34);
     -fx-border-radius: 99;
     -fx-border-width: 1;
     -fx-padding: 4;
 }
 
 .settings-radio:selected .radio {
-    -fx-background-color: #2F7DF6;
-    -fx-border-color: #2F7DF6;
+    -fx-background-color: #6750A4;
+    -fx-border-color: #6750A4;
 }
 
 .settings-radio .dot {
@@ -234,12 +234,12 @@
 .resolution-hint {
     -fx-font-size: 12px;
     -fx-font-weight: 500;
-    -fx-text-fill: rgba(16, 42, 76, 0.62);
+    -fx-text-fill: rgba(29, 27, 32, 0.62);
     -fx-padding: -10 0 0 0;
 }
 
 .settings-footer {
-    -fx-border-color: rgba(63, 114, 175, 0.18) transparent transparent transparent;
+    -fx-border-color: rgba(103, 80, 164, 0.20) transparent transparent transparent;
     -fx-border-width: 1 0 0 0;
     -fx-padding: 16 0 0 0;
 }
@@ -247,5 +247,5 @@
 .footer-line {
     -fx-font-size: 12px;
     -fx-font-weight: 500;
-    -fx-text-fill: rgba(16, 42, 76, 0.64);
+    -fx-text-fill: rgba(29, 27, 32, 0.64);
 }
