@@ -50,7 +50,7 @@
 
     <center>
         <StackPane styleClass="memory-game-stage">
-            <VBox alignment="CENTER" spacing="18" maxWidth="Infinity" styleClass="memory-board-card">
+            <VBox alignment="CENTER" spacing="14" maxWidth="Infinity" maxHeight="Infinity" styleClass="memory-board-card">
                 <ImageView fitHeight="52.0" fitWidth="52.0" preserveRatio="true">
                     <image>
                         <Image url="@../icons/icons8-memory-game-64.png"/>
@@ -62,10 +62,14 @@
                     <Label text="Find all the matching pairs!" styleClass="board-subtitle"/>
                 </VBox>
 
-                <ScrollPane fitToWidth="true"
+                <ScrollPane fx:id="memoryScroll"
+                            fitToWidth="true"
                             fitToHeight="true"
                             hbarPolicy="NEVER"
                             vbarPolicy="NEVER"
+                            maxWidth="Infinity"
+                            maxHeight="Infinity"
+                            VBox.vgrow="ALWAYS"
                             styleClass="memory-scroll">
                     <GridPane fx:id="cardGrid" alignment="CENTER"/>
                 </ScrollPane>

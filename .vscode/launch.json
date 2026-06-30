@@ -1,0 +1,18 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "java",
+			"name": "Launch GameBox",
+			"request": "launch",
+			"mainClass": "seda.project.control.alt.defeat.gamebox/seda_project.control_alt_defeat.gamebox.Launcher",
+			"projectName": "GameBox"
+		},
+		{
+			"type": "java",
+			"name": "Current File",
+			"request": "launch",
+			"mainClass": "${file}"
+		}
+	]
+}

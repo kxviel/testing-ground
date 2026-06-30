@@ -57,9 +57,11 @@ public class MemoryMenuController implements RouteDataReceiver {
     private Button btnCancelHost;
     @FXML
     private Button btnApplyK;
+    @FXML
+    private Button btnConnect;
 
-    private GameServer pendingServer;
-    private GameClient pendingClient;
+    private volatile GameServer pendingServer;
+    private volatile GameClient pendingClient;
 
     private final ToggleGroup variantGroup = new ToggleGroup();
     private List<BoardVariant> currentVariants = List.of();
@@ -166,7 +168,7 @@ public class MemoryMenuController implements RouteDataReceiver {
             return;
 
         Stage stage = stageFrom(event);
-        setHostingPending(true);
+        setNetworkPending(true, "Cancel Hosting");
 
         GameServer server = new GameServer();
         pendingServer = server;
@@ -196,7 +198,7 @@ public class MemoryMenuController implements RouteDataReceiver {
                 log.error("Host setup failed: {}", e.getMessage());
                 Platform.runLater(() -> {
                     statusLabel.setText("Error: " + e.getMessage());
-                    setHostingPending(false);
+                    setNetworkPending(false, "");
                 });
                 server.close();
             }
@@ -205,17 +207,15 @@ public class MemoryMenuController implements RouteDataReceiver {
 
     @FXML
     private void onCancelHost() {
-        if (pendingServer != null) {
-            pendingServer.close();
-            pendingServer = null;
-        }
-        statusLabel.setText("Hosting cancelled.");
-        setHostingPending(false);
+        boolean hosting = pendingServer != null;
+        closePendingNetwork();
+        statusLabel.setText(hosting ? "Hosting cancelled." : "Connection cancelled.");
+        setNetworkPending(false, "");
     }
 
     private void setMenuButtonsDisabled(boolean disabled) {
         Stream.of(btnLocalGame, btnHostGame, btnJoinGame, kField, btnApplyK,
-                variant1Radio, variant2Radio, variant3Radio)
+                variant1Radio, variant2Radio, variant3Radio, ipField, btnConnect)
                 .forEach(control -> control.setDisable(disabled));
     }
 
@@ -233,7 +233,7 @@ public class MemoryMenuController implements RouteDataReceiver {
         }
 
         Stage stage = stageFrom(event);
-        setMenuButtonsDisabled(true);
+        setNetworkPending(true, "Cancel Connecting");
         statusLabel.setText("Connecting to " + ip + "...");
 
         GameClient client = new GameClient();
@@ -260,7 +260,7 @@ public class MemoryMenuController implements RouteDataReceiver {
                     }
                     pendingClient = null;
                     statusLabel.setText("Connection failed: " + e.getMessage());
-                    setMenuButtonsDisabled(false);
+                    setNetworkPending(false, "");
                 });
                 client.close();
             }
@@ -277,8 +277,9 @@ public class MemoryMenuController implements RouteDataReceiver {
         return (Stage) ((Node) event.getSource()).getScene().getWindow();
     }
 
-    private void setHostingPending(boolean pending) {
+    private void setNetworkPending(boolean pending, String cancelText) {
         setMenuButtonsDisabled(pending);
+        btnCancelHost.setText(cancelText);
         setVisibleManaged(btnCancelHost, pending);
     }
 

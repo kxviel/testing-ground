@@ -28,8 +28,9 @@
 }
 
 .player-chip.active-player {
-    -fx-border-color: rgba(47, 125, 246, 0.38);
-    -fx-background-color: #F7FAFF;
+    -fx-border-color: rgba(47, 125, 246, 0.58);
+    -fx-background-color: #FFFFFF;
+    -fx-effect: dropshadow(gaussian, rgba(47, 125, 246, 0.14), 14, 0.18, 0, 4);
 }
 
 .player-icon {
@@ -107,7 +108,7 @@
     -fx-border-color: rgba(63, 114, 175, 0.14);
     -fx-border-radius: 18;
     -fx-border-width: 1;
-    -fx-padding: 22 30 24 30;
+    -fx-padding: 18 24 20 24;
 }
 
 .board-title {
@@ -417,7 +418,17 @@
     -fx-cursor: hand;
     -fx-font-weight: 900;
     -fx-padding: 0;
-    -fx-effect: dropshadow(gaussian, rgba(16, 42, 76, 0.16), 9, 0.20, 0, 3);
+    -fx-effect: dropshadow(gaussian, rgba(16, 42, 76, 0.14), 10, 0.18, 0, 3);
+}
+
+.memory-card:pressed {
+    -fx-translate-y: 1;
+}
+
+.memory-card-symbol {
+    -fx-font-family: "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "Segoe UI", sans-serif;
+    -fx-font-weight: 400;
+    -fx-text-fill: #102A4C;
 }
 
 .memory-card-hidden {
@@ -433,11 +444,12 @@
     -fx-background-color: #FFFFFF;
     -fx-border-color: #2F7DF6;
     -fx-text-fill: #102A4C;
+    -fx-effect: dropshadow(gaussian, rgba(47, 125, 246, 0.20), 12, 0.16, 0, 3);
 }
 
 .memory-card-matched {
-    -fx-background-color: #EAF2FD;
-    -fx-border-color: rgba(63, 114, 175, 0.24);
+    -fx-background-color: #EDF8F1;
+    -fx-border-color: rgba(39, 149, 87, 0.34);
     -fx-text-fill: #102A4C;
     -fx-effect: none;
 }

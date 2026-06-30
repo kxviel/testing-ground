@@ -31,9 +31,8 @@
             </StackPane>
 
             <VBox alignment="CENTER_LEFT" spacing="10">
-                <Label text="Multi Match&#10;Memory Game" styleClass="memory-title"/>
+                <Label text="Multi Match Memory Game" styleClass="memory-title"/>
                 <Region styleClass="hero-accent"/>
-                <Label text="Match tuples, test your memory, and have fun!" styleClass="memory-subtitle"/>
             </VBox>
         </HBox>
 
@@ -120,7 +119,7 @@
         <HBox fx:id="joinBox" alignment="CENTER" spacing="10" visible="false" managed="false" styleClass="join-box">
             <Label text="Host IP:" styleClass="section-heading"/>
             <TextField fx:id="ipField" promptText="192.168.x.x" maxWidth="190.0"/>
-            <Button text="Connect" onAction="#onConnect" id="btnConnect" styleClass="btn-primary"/>
+            <Button fx:id="btnConnect" text="Connect" onAction="#onConnect" id="btnConnect" styleClass="btn-primary"/>
         </HBox>
 
         <HBox alignment="CENTER_LEFT" spacing="12" styleClass="menu-footer">
