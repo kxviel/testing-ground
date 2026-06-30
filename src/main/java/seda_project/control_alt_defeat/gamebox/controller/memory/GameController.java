@@ -4,6 +4,8 @@ import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.util.Duration;
@@ -29,11 +31,15 @@ public class GameController implements RouteDataReceiver {
     private static final String MENU_ROUTE = "/memory/MemoryMenu.fxml";
     private static final String PLAYER_ONE = "Player 1";
     private static final String PLAYER_TWO = "Player 2";
-    private static final String CARD_BACK = "🂠";
-    private static final String BASE_SCORE_STYLE =
-            "-fx-font-family:\"Inter Variable\"; -fx-font-size:16px; -fx-font-weight:800; -fx-text-fill:#102A4C;";
-    private static final String ACTIVE_SCORE_STYLE =
-            "-fx-font-family:\"Inter Variable\"; -fx-font-size:16px; -fx-font-weight:800; -fx-text-fill:#2F7DF6;";
+    private static final String CARD_BACK_ICON = "/icons/icons8-question-100.png";
+    private static final String ACTIVE_PLAYER_CLASS = "active-player";
+    private static final String CARD_HIDDEN_CLASS = "memory-card-hidden";
+    private static final String CARD_FACE_UP_CLASS = "memory-card-face-up";
+    private static final String CARD_MATCHED_CLASS = "memory-card-matched";
+    private static final double MAX_GRID_WIDTH = 600;
+    private static final double MAX_GRID_HEIGHT = 270;
+    private static final double MIN_CARD_SIZE = 36;
+    private static final double MAX_CARD_SIZE = 76;
     private static final Duration MISMATCH_DELAY = Duration.millis(800);
     private static final int STATUS_SECONDS = 10;
 
@@ -46,11 +52,19 @@ public class GameController implements RouteDataReceiver {
     @FXML
     private Label p2Label;
     @FXML
+    private Label p1ScoreLabel;
+    @FXML
+    private Label p2ScoreLabel;
+    @FXML
     private Label turnLabel;
     @FXML
     private Label statusLabel;
     @FXML
     private GridPane cardGrid;
+    @FXML
+    private HBox p1Chip;
+    @FXML
+    private HBox p2Chip;
     @FXML
     private HBox postGameBar;
     @FXML
@@ -66,6 +80,7 @@ public class GameController implements RouteDataReceiver {
     private GameClient client;
 
     private Button[] cardButtons;
+    private Image cardBackImage;
     private boolean inputLocked = false;
     private boolean gameEnded = false;
     private PauseTransition mismatchPause;
@@ -243,20 +258,27 @@ public class GameController implements RouteDataReceiver {
         cardGrid.getChildren().clear();
         int total = model.getRows() * model.getCols();
         cardButtons = new Button[total];
+        CardLayout cardLayout = cardLayout(model.getRows(), model.getCols());
 
-        int fontSize = total > 30 ? 20 : (total > 16 ? 24 : 28);
-        double btnSize = total > 30 ? 52 : (total > 16 ? 60 : 68);
+        cardGrid.setHgap(cardLayout.gap());
+        cardGrid.setVgap(cardLayout.gap());
 
         IntStream.range(0, total)
-                .forEach(i -> addCardButton(i, fontSize, btnSize));
+                .forEach(i -> addCardButton(i, cardLayout.fontSize(), cardLayout.size()));
     }
 
     private void addCardButton(int idx, int fontSize, double btnSize) {
-        Button btn = new Button(CARD_BACK);
+        Button btn = new Button();
         btn.setId("card_" + idx);
+        btn.getStyleClass().add("memory-card");
+        btn.setMinWidth(btnSize);
+        btn.setMinHeight(btnSize);
         btn.setPrefWidth(btnSize);
         btn.setPrefHeight(btnSize);
-        btn.setStyle(faceDownStyle(fontSize));
+        btn.setMaxWidth(btnSize);
+        btn.setMaxHeight(btnSize);
+        btn.setFocusTraversable(false);
+        showCardBack(btn, fontSize);
         btn.setOnAction(e -> onCardClick(idx));
         cardGrid.add(btn, idx % model.getCols(), idx / model.getCols());
         cardButtons[idx] = btn;
@@ -362,11 +384,13 @@ public class GameController implements RouteDataReceiver {
 
     private void refreshUI() {
         int cur = model.getCurrentPlayer();
-        p1Label.setText(PLAYER_ONE + ": " + model.getScore(0));
-        p2Label.setText(PLAYER_TWO + ": " + model.getScore(1));
-        p1Label.setStyle(cur == 0 ? ACTIVE_SCORE_STYLE : BASE_SCORE_STYLE);
-        p2Label.setStyle(cur == 1 ? ACTIVE_SCORE_STYLE : BASE_SCORE_STYLE);
-        turnLabel.setText("▶ " + (cur == 0 ? PLAYER_ONE : PLAYER_TWO) + "'s Turn");
+        p1Label.setText(PLAYER_ONE);
+        p2Label.setText(PLAYER_TWO);
+        p1ScoreLabel.setText(String.valueOf(model.getScore(0)));
+        p2ScoreLabel.setText(String.valueOf(model.getScore(1)));
+        setActivePlayer(p1Chip, cur == 0);
+        setActivePlayer(p2Chip, cur == 1);
+        turnLabel.setText((cur == 0 ? PLAYER_ONE : PLAYER_TWO) + "'s Turn");
     }
 
     private void refreshAll() {
@@ -381,38 +405,78 @@ public class GameController implements RouteDataReceiver {
             return;
         Card card = model.getCard(idx);
         Button btn = cardButtons[idx];
-        int fontSize = cardButtons.length > 30 ? 20 : (cardButtons.length > 16 ? 24 : 28);
+        int fontSize = cardLayout(model.getRows(), model.getCols()).fontSize();
         if (card.isMatched()) {
-            btn.setText(card.getSymbol());
-            btn.setStyle(matchedStyle(fontSize));
+            showCardFace(btn, card.getSymbol(), CARD_MATCHED_CLASS, fontSize);
             btn.setDisable(true);
         } else if (card.isFaceUp()) {
-            btn.setText(card.getSymbol());
-            btn.setStyle(faceUpStyle(fontSize));
+            showCardFace(btn, card.getSymbol(), CARD_FACE_UP_CLASS, fontSize);
+            btn.setDisable(false);
         } else {
-            btn.setText(CARD_BACK);
-            btn.setStyle(faceDownStyle(fontSize));
+            showCardBack(btn, fontSize);
             btn.setDisable(false);
         }
     }
 
-    private String faceDownStyle(int fs) {
-        return "-fx-font-family:\"Inter Variable\"; -fx-font-size:" + fs
-                + "px; -fx-background-color:#2F7DF6; -fx-text-fill:#FFFFFF; "
-                + "-fx-background-radius:8; -fx-cursor:hand;";
+    private void showCardBack(Button button, int fontSize) {
+        button.setText("");
+        button.setGraphic(cardBackGraphic(button));
+        button.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+        setCardState(button, CARD_HIDDEN_CLASS, fontSize);
     }
 
-    private String faceUpStyle(int fs) {
-        return "-fx-font-family:\"Inter Variable\"; -fx-font-size:" + fs
-                + "px; -fx-background-color:#FFFFFF; -fx-text-fill:#102A4C; "
-                + "-fx-background-radius:8; -fx-border-color:#2F7DF6; -fx-border-width:2; -fx-border-radius:8;"
-                + "-fx-padding:0;";
+    private void showCardFace(Button button, String text, String stateClass, int fontSize) {
+        button.setGraphic(null);
+        button.setText(text);
+        button.setContentDisplay(ContentDisplay.TEXT_ONLY);
+        setCardState(button, stateClass, fontSize);
     }
 
-    private String matchedStyle(int fs) {
-        return "-fx-font-family:\"Inter Variable\"; -fx-font-size:" + fs
-                + "px; -fx-background-color:#EAF2FD; -fx-text-fill:#102A4C; "
-                + "-fx-background-radius:8; -fx-opacity:0.85; -fx-padding:0;";
+    private ImageView cardBackGraphic(Button button) {
+        ImageView imageView = new ImageView(cardBackImage());
+        double imageSize = Math.max(22, Math.min(button.getPrefWidth(), button.getPrefHeight()) * 0.58);
+        imageView.setFitWidth(imageSize);
+        imageView.setFitHeight(imageSize);
+        imageView.setPreserveRatio(true);
+        imageView.setSmooth(true);
+        return imageView;
+    }
+
+    private Image cardBackImage() {
+        if (cardBackImage == null) {
+            var iconUrl = GameController.class.getResource(CARD_BACK_ICON);
+            if (iconUrl == null) {
+                throw new IllegalStateException("Missing card back icon: " + CARD_BACK_ICON);
+            }
+            cardBackImage = new Image(iconUrl.toExternalForm());
+        }
+        return cardBackImage;
+    }
+
+    private static CardLayout cardLayout(int rows, int cols) {
+        double gap = rows * cols > 30 ? 8 : (rows * cols > 16 ? 10 : 12);
+        double widthFit = (MAX_GRID_WIDTH - gap * Math.max(0, cols - 1)) / cols;
+        double heightFit = (MAX_GRID_HEIGHT - gap * Math.max(0, rows - 1)) / rows;
+        double size = Math.max(MIN_CARD_SIZE, Math.min(MAX_CARD_SIZE, Math.min(widthFit, heightFit)));
+        int fontSize = (int) Math.max(18, Math.min(32, Math.round(size * 0.48)));
+        return new CardLayout(size, gap, fontSize);
+    }
+
+    private record CardLayout(double size, double gap, int fontSize) {
+    }
+
+    private void setCardState(Button button, String stateClass, int fontSize) {
+        button.getStyleClass().removeAll(CARD_HIDDEN_CLASS, CARD_FACE_UP_CLASS, CARD_MATCHED_CLASS);
+        button.getStyleClass().add(stateClass);
+        button.setStyle("-fx-font-size:" + fontSize + "px;");
+    }
+
+    private void setActivePlayer(HBox chip, boolean active) {
+        if (active && !chip.getStyleClass().contains(ACTIVE_PLAYER_CLASS)) {
+            chip.getStyleClass().add(ACTIVE_PLAYER_CLASS);
+        } else if (!active) {
+            chip.getStyleClass().remove(ACTIVE_PLAYER_CLASS);
+        }
     }
 
     private void showGameOver() {

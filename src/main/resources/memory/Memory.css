@@ -1,27 +1,212 @@
-.memory-menu-root,
 .memory-game-root {
-    -fx-background-color: #F8FBFF;
+    -fx-background-color: linear-gradient(to bottom right, #F8FBFF, #EAF2FD);
     -fx-font-family: "Inter Variable", "Inter", "Segoe UI", "Arial", sans-serif;
+    -fx-padding: 28 28 24 28;
 }
 
-.memory-title {
-    -fx-font-size: 32px;
+.memory-game-header {
+    -fx-background-color: rgba(255, 255, 255, 0.84);
+    -fx-background-radius: 16;
+    -fx-border-color: rgba(63, 114, 175, 0.18);
+    -fx-border-radius: 16;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(16, 42, 76, 0.10), 18, 0.16, 0, 6);
+    -fx-padding: 16 22 16 22;
+    -fx-min-height: 76;
+    -fx-pref-height: 76;
+    -fx-max-height: 76;
+}
+
+.player-chip {
+    -fx-background-color: rgba(255, 255, 255, 0.68);
+    -fx-background-radius: 13;
+    -fx-border-color: rgba(63, 114, 175, 0.18);
+    -fx-border-radius: 13;
+    -fx-border-width: 1;
+    -fx-padding: 8 20 8 10;
+    -fx-min-width: 210;
+}
+
+.player-chip.active-player {
+    -fx-border-color: rgba(47, 125, 246, 0.38);
+    -fx-background-color: #F7FAFF;
+}
+
+.player-icon {
+    -fx-alignment: center;
+    -fx-background-color: #EAF2FD;
+    -fx-background-radius: 99;
+    -fx-min-height: 42;
+    -fx-min-width: 42;
+    -fx-pref-height: 42;
+    -fx-pref-width: 42;
+}
+
+.player-chip.active-player .player-icon {
+    -fx-background-color: rgba(47, 125, 246, 0.16);
+}
+
+.player-icon-text {
+    -fx-font-size: 19px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #2F7DF6;
+}
+
+.score-divider {
+    -fx-background-color: rgba(63, 114, 175, 0.26);
+    -fx-pref-height: 30;
+    -fx-pref-width: 1;
+}
+
+.score-value {
+    -fx-font-size: 24px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #2F7DF6;
+}
+
+.turn-pill {
+    -fx-background-color: #EAF2FD;
+    -fx-background-radius: 99;
+    -fx-padding: 10 18 10 18;
+}
+
+.turn-ring {
+    -fx-background-color: transparent;
+    -fx-border-color: #2F7DF6;
+    -fx-border-radius: 99;
+    -fx-border-width: 2;
+    -fx-min-height: 14;
+    -fx-min-width: 14;
+    -fx-pref-height: 14;
+    -fx-pref-width: 14;
+}
+
+.quit-button {
+    -fx-background-color: #102A4C;
+    -fx-border-color: #102A4C;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(16, 42, 76, 0.18), 12, 0.18, 0, 4);
+    -fx-min-height: 52;
+    -fx-min-width: 92;
+    -fx-text-fill: #FFFFFF;
+}
+
+.quit-button:hover {
+    -fx-background-color: #2F7DF6;
+    -fx-border-color: #2F7DF6;
+}
+
+.memory-game-stage {
+    -fx-padding: 28 34 20 34;
+}
+
+.memory-board-card {
+    -fx-background-color: rgba(255, 255, 255, 0.78);
+    -fx-background-radius: 18;
+    -fx-border-color: rgba(63, 114, 175, 0.14);
+    -fx-border-radius: 18;
+    -fx-border-width: 1;
+    -fx-padding: 22 30 24 30;
+}
+
+.board-title {
+    -fx-font-size: 30px;
     -fx-font-weight: 900;
     -fx-text-fill: #102A4C;
 }
 
-.menu-icon-frame {
-    -fx-alignment: center;
-    -fx-background-color: linear-gradient(to bottom right, #FFFFFF, #EAF2FD);
+.board-subtitle {
+    -fx-font-size: 14px;
+    -fx-font-weight: 500;
+    -fx-text-fill: rgba(16, 42, 76, 0.62);
+}
+
+.memory-game-footer {
+    -fx-padding: 0 32 22 32;
+}
+
+.memory-menu-root {
+    -fx-background-color: linear-gradient(to bottom right, #F8FBFF, #EAF2FD);
+    -fx-font-family: "Inter Variable", "Inter", "Segoe UI", "Arial", sans-serif;
+    -fx-padding: 30;
+}
+
+.memory-menu-card {
+    -fx-background-color: rgba(255, 255, 255, 0.92);
     -fx-background-radius: 18;
     -fx-border-color: rgba(63, 114, 175, 0.18);
     -fx-border-radius: 18;
     -fx-border-width: 1;
-    -fx-effect: dropshadow(gaussian, rgba(16, 42, 76, 0.08), 12, 0.16, 0, 3);
-    -fx-min-height: 86;
-    -fx-min-width: 86;
-    -fx-pref-height: 86;
-    -fx-pref-width: 86;
+    -fx-effect: dropshadow(gaussian, rgba(16, 42, 76, 0.12), 22, 0.18, 0, 8);
+    -fx-padding: 42 42 32 42;
+}
+
+.memory-hero {
+    -fx-padding: 0 0 8 0;
+}
+
+.memory-title {
+    -fx-font-size: 48px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #102A4C;
+    -fx-line-spacing: -2;
+}
+
+.memory-subtitle {
+    -fx-font-size: 16px;
+    -fx-font-weight: 500;
+    -fx-text-fill: rgba(16, 42, 76, 0.62);
+}
+
+.hero-accent {
+    -fx-background-color: #2F7DF6;
+    -fx-background-radius: 99;
+    -fx-pref-height: 4;
+    -fx-pref-width: 74;
+}
+
+.memory-hero-icon {
+    -fx-alignment: center;
+    -fx-background-color: linear-gradient(to bottom right, #FFFFFF, #EAF2FD);
+    -fx-background-radius: 22;
+    -fx-border-color: rgba(63, 114, 175, 0.18);
+    -fx-border-radius: 22;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(16, 42, 76, 0.10), 16, 0.16, 0, 5);
+    -fx-min-height: 112;
+    -fx-min-width: 112;
+    -fx-pref-height: 112;
+    -fx-pref-width: 112;
+}
+
+.menu-section {
+    -fx-background-color: rgba(255, 255, 255, 0.62);
+    -fx-background-radius: 14;
+    -fx-border-color: rgba(63, 114, 175, 0.18);
+    -fx-border-radius: 14;
+    -fx-border-width: 1;
+    -fx-padding: 18 20 18 20;
+}
+
+.section-icon {
+    -fx-alignment: center;
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 99;
+    -fx-border-color: rgba(63, 114, 175, 0.16);
+    -fx-border-radius: 99;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(16, 42, 76, 0.08), 8, 0.14, 0, 2);
+    -fx-min-height: 46;
+    -fx-min-width: 46;
+    -fx-pref-height: 46;
+    -fx-pref-width: 46;
+}
+
+.section-icon-text {
+    -fx-font-size: 20px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #2F7DF6;
 }
 
 .section-title,
@@ -35,13 +220,101 @@
     -fx-font-size: 14px;
 }
 
+.score-label {
+    -fx-font-size: 16px;
+    -fx-font-weight: 900;
+}
+
+.section-heading {
+    -fx-font-size: 16px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #102A4C;
+}
+
 .status-line,
 .turn-label {
     -fx-text-fill: rgba(16, 42, 76, 0.66);
 }
 
+.turn-label {
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #2F7DF6;
+}
+
 .error-label {
     -fx-text-fill: #2F7DF6;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+}
+
+.variant-list {
+    -fx-padding: 0;
+}
+
+.variant-row {
+    -fx-background-color: rgba(255, 255, 255, 0.82);
+    -fx-background-radius: 10;
+    -fx-border-color: rgba(63, 114, 175, 0.14);
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+    -fx-padding: 10 14 10 14;
+    -fx-text-fill: #102A4C;
+}
+
+.variant-row:hover {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: rgba(47, 125, 246, 0.36);
+}
+
+.variant-row:selected {
+    -fx-border-color: rgba(47, 125, 246, 0.42);
+}
+
+.variant-row .radio {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 99;
+    -fx-border-color: rgba(63, 114, 175, 0.32);
+    -fx-border-radius: 99;
+    -fx-border-width: 1;
+    -fx-padding: 4;
+}
+
+.variant-row:selected .radio {
+    -fx-background-color: #2F7DF6;
+    -fx-border-color: #2F7DF6;
+}
+
+.variant-row .dot {
+    -fx-background-radius: 99;
+    -fx-padding: 4;
+}
+
+.variant-row:selected .dot {
+    -fx-background-color: #FFFFFF;
+}
+
+.menu-divider {
+    -fx-padding: 0;
+}
+
+.divider-line {
+    -fx-background-color: rgba(63, 114, 175, 0.16);
+    -fx-background-radius: 99;
+    -fx-pref-height: 1;
+}
+
+.divider-dot {
+    -fx-background-color: rgba(47, 125, 246, 0.18);
+    -fx-background-radius: 99;
+    -fx-pref-height: 8;
+    -fx-pref-width: 8;
+}
+
+.mode-section {
+    -fx-padding: 0 20 0 20;
 }
 
 .button {
@@ -56,15 +329,73 @@
     -fx-padding: 8 16;
 }
 
+.apply-button {
+    -fx-min-width: 118;
+}
+
+.mode-button {
+    -fx-content-display: graphic-only;
+    -fx-min-height: 58;
+    -fx-padding: 12 18;
+}
+
+.mode-text {
+    -fx-font-size: 13px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #102A4C;
+}
+
+.mode-icon {
+    -fx-font-size: 18px;
+    -fx-font-weight: 900;
+}
+
+#btnLocalGame {
+    -fx-background-color: #F7FAFF;
+    -fx-border-color: rgba(47, 125, 246, 0.34);
+}
+
+#btnLocalGame .mode-icon {
+    -fx-text-fill: #2F7DF6;
+}
+
+#btnHostGame {
+    -fx-background-color: rgba(219, 226, 239, 0.36);
+    -fx-border-color: rgba(63, 114, 175, 0.30);
+}
+
+#btnHostGame .mode-icon {
+    -fx-text-fill: #3F72AF;
+}
+
+#btnJoinGame {
+    -fx-background-color: rgba(234, 242, 253, 0.74);
+    -fx-border-color: rgba(63, 114, 175, 0.30);
+}
+
+#btnJoinGame .mode-icon {
+    -fx-text-fill: #102A4C;
+}
+
+.mode-button:hover {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: rgba(47, 125, 246, 0.52);
+}
+
+.join-box,
+.menu-footer {
+    -fx-padding: 0 20 0 20;
+}
+
 .btn-primary {
-    -fx-background-color: #102A4C;
-    -fx-border-color: #102A4C;
+    -fx-background-color: #2F7DF6;
+    -fx-border-color: #2F7DF6;
     -fx-text-fill: #FFFFFF;
 }
 
 .btn-primary:hover {
-    -fx-background-color: #2F7DF6;
-    -fx-border-color: #2F7DF6;
+    -fx-background-color: #102A4C;
+    -fx-border-color: #102A4C;
 }
 
 .btn-outline {
@@ -105,7 +436,6 @@
     -fx-text-fill: #102A4C;
 }
 
-.score-bar,
 .status-bar {
     -fx-background-color: #EAF2FD;
     -fx-padding: 10;
@@ -114,11 +444,57 @@
 .memory-scroll {
     -fx-background-color: transparent;
     -fx-background: transparent;
+    -fx-padding: 4 0 0 0;
+}
+
+.memory-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.memory-card {
+    -fx-alignment: center;
+    -fx-background-insets: 0;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-content-display: graphic-only;
+    -fx-cursor: hand;
+    -fx-font-weight: 900;
+    -fx-padding: 0;
+    -fx-effect: dropshadow(gaussian, rgba(16, 42, 76, 0.16), 9, 0.20, 0, 3);
+}
+
+.memory-card-hidden {
+    -fx-background-color: linear-gradient(to bottom right, #2F7DF6, #0F6EEA);
+    -fx-border-color: rgba(255, 255, 255, 0.28);
+}
+
+.memory-card-hidden:hover {
+    -fx-background-color: linear-gradient(to bottom right, #3C88FF, #2F7DF6);
+}
+
+.memory-card-face-up {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #2F7DF6;
+    -fx-text-fill: #102A4C;
+}
+
+.memory-card-matched {
+    -fx-background-color: #EAF2FD;
+    -fx-border-color: rgba(63, 114, 175, 0.24);
+    -fx-text-fill: #102A4C;
+    -fx-effect: none;
+}
+
+.memory-card:disabled {
+    -fx-opacity: 1;
 }
 
 .post-game-bar {
-    -fx-background-color: #EAF2FD;
-    -fx-border-color: rgba(63, 114, 175, 0.22);
-    -fx-border-width: 0 0 1 0;
-    -fx-padding: 10;
+    -fx-background-color: rgba(255, 255, 255, 0.74);
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(63, 114, 175, 0.18);
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-padding: 12 16 12 16;
 }

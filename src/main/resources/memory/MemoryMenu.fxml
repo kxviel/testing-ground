@@ -1,70 +1,130 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import java.net.URL?>
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox alignment="CENTER" spacing="20" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="seda_project.control_alt_defeat.gamebox.controller.memory.MemoryMenuController"
-      styleClass="memory-menu-root"
-      prefWidth="680" prefHeight="580">
+<StackPane prefWidth="1080.0"
+           prefHeight="720.0"
+           styleClass="memory-menu-root"
+           xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="seda_project.control_alt_defeat.gamebox.controller.memory.MemoryMenuController">
     <stylesheets>
         <URL value="@Memory.css"/>
     </stylesheets>
 
-    <padding>
-        <Insets top="40" right="40" bottom="40" left="40"/>
-    </padding>
+    <VBox alignment="CENTER"
+          maxWidth="760.0"
+          spacing="22"
+          styleClass="memory-menu-card">
 
-    <HBox alignment="CENTER" spacing="18">
-        <StackPane styleClass="menu-icon-frame">
-            <ImageView fitHeight="64.0" fitWidth="64.0" preserveRatio="true">
-                <image>
-                    <Image url="@../icons/icons8-memory-game-64.png"/>
-                </image>
-            </ImageView>
-        </StackPane>
-        <Label text="Multi Match Memory Game" styleClass="memory-title"/>
-    </HBox>
+        <HBox alignment="CENTER" spacing="28" styleClass="memory-hero">
+            <StackPane styleClass="memory-hero-icon">
+                <ImageView fitHeight="82.0" fitWidth="82.0" preserveRatio="true">
+                    <image>
+                        <Image url="@../icons/icons8-memory-game-64.png"/>
+                    </image>
+                </ImageView>
+            </StackPane>
 
-    <HBox alignment="CENTER" spacing="10">
-        <Label text="Enter tuple size k (1–45):"/>
-        <TextField fx:id="kField" promptText="Enter k" maxWidth="80" text="2"/>
-        <Button fx:id="btnApplyK" text="Apply" onAction="#onApplyK" styleClass="btn-outline"/>
-    </HBox>
-    <Label fx:id="kErrorLabel" styleClass="error-label" text="" wrapText="true"/>
+            <VBox alignment="CENTER_LEFT" spacing="10">
+                <Label text="Multi Match&#10;Memory Game" styleClass="memory-title"/>
+                <Region styleClass="hero-accent"/>
+                <Label text="Match tuples, test your memory, and have fun!" styleClass="memory-subtitle"/>
+            </VBox>
+        </HBox>
 
-    <HBox alignment="CENTER">
-        <VBox fx:id="variantBox" alignment="CENTER_LEFT" spacing="8">
-            <Label text="Select board variant:" styleClass="section-title"/>
-            <RadioButton fx:id="variant1Radio" id="rbVariant1"/>
-            <RadioButton fx:id="variant2Radio" id="rbVariant2"/>
-            <RadioButton fx:id="variant3Radio" id="rbVariant3"/>
+        <VBox spacing="8" styleClass="menu-section">
+            <HBox alignment="CENTER_LEFT" spacing="18">
+                <StackPane styleClass="section-icon">
+                    <Label text="k" styleClass="section-icon-text"/>
+                </StackPane>
+                <Label text="Enter tuple size k (1-45):" styleClass="section-heading"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <TextField fx:id="kField" promptText="Enter k" text="2" maxWidth="150.0" styleClass="k-input"/>
+                <Button fx:id="btnApplyK" text="Apply" onAction="#onApplyK" styleClass="btn-primary apply-button"/>
+            </HBox>
+            <Label fx:id="kErrorLabel" text="" wrapText="true" styleClass="error-label"/>
         </VBox>
-    </HBox>
 
-    <Separator/>
+        <VBox spacing="14" styleClass="menu-section">
+            <HBox alignment="CENTER_LEFT" spacing="18">
+                <StackPane styleClass="section-icon">
+                    <Label text="#" styleClass="section-icon-text"/>
+                </StackPane>
+                <Label text="Select board variant:" styleClass="section-heading"/>
+            </HBox>
 
-    <Label text="Game Mode:" styleClass="section-title"/>
-    <HBox alignment="CENTER" spacing="20">
-        <Button fx:id="btnLocalGame" text="🖥 Local 2-Player" onAction="#onLocalGame" id="btnLocalGame" minWidth="160" styleClass="btn-outline"/>
-        <Button fx:id="btnHostGame" text="🌐 Host Network Game" onAction="#onHostGame" id="btnHostGame" minWidth="160" styleClass="btn-outline"/>
-        <Button fx:id="btnJoinGame" text="🔗 Join Network Game" onAction="#onJoinGame" id="btnJoinGame" minWidth="160" styleClass="btn-outline"/>
-    </HBox>
+            <VBox fx:id="variantBox" spacing="8" styleClass="variant-list">
+                <RadioButton fx:id="variant1Radio" id="rbVariant1" maxWidth="Infinity" styleClass="variant-row"/>
+                <RadioButton fx:id="variant2Radio" id="rbVariant2" maxWidth="Infinity" styleClass="variant-row"/>
+                <RadioButton fx:id="variant3Radio" id="rbVariant3" maxWidth="Infinity" styleClass="variant-row"/>
+            </VBox>
+        </VBox>
 
-    <Button fx:id="btnCancelHost" text="✖ Cancel Hosting" onAction="#onCancelHost"
-            visible="false" managed="false"
-            styleClass="btn-danger"
-            minWidth="160"/>
+        <HBox alignment="CENTER" spacing="8" styleClass="menu-divider">
+            <Region HBox.hgrow="ALWAYS" styleClass="divider-line"/>
+            <Region styleClass="divider-dot"/>
+            <Region HBox.hgrow="ALWAYS" styleClass="divider-line"/>
+        </HBox>
 
-    <HBox fx:id="joinBox" alignment="CENTER" spacing="10" visible="false" managed="false">
-        <Label text="Host IP:"/>
-        <TextField fx:id="ipField" promptText="192.168.x.x" maxWidth="160"/>
-        <Button text="Connect" onAction="#onConnect" id="btnConnect" styleClass="btn-primary"/>
-    </HBox>
-    <Label fx:id="statusLabel" text="" wrapText="true" styleClass="status-line"/>
+        <VBox spacing="18" styleClass="mode-section">
+            <HBox alignment="CENTER_LEFT" spacing="18">
+                <StackPane styleClass="section-icon">
+                    <Label text="M" styleClass="section-icon-text"/>
+                </StackPane>
+                <Label text="Game Mode:" styleClass="section-heading"/>
+            </HBox>
 
-    <Button text="Back" onAction="#onBack" minWidth="120" styleClass="btn-outline"/>
-</VBox>
+            <HBox alignment="CENTER" spacing="26">
+                <Button fx:id="btnLocalGame" onAction="#onLocalGame" id="btnLocalGame"
+                        maxWidth="Infinity" HBox.hgrow="ALWAYS" styleClass="mode-button">
+                    <graphic>
+                        <HBox alignment="CENTER" spacing="12">
+                            <Label text="P" styleClass="mode-icon"/>
+                            <Label text="Local 2-Player" styleClass="mode-text"/>
+                        </HBox>
+                    </graphic>
+                </Button>
+
+                <Button fx:id="btnHostGame" onAction="#onHostGame" id="btnHostGame"
+                        maxWidth="Infinity" HBox.hgrow="ALWAYS" styleClass="mode-button">
+                    <graphic>
+                        <HBox alignment="CENTER" spacing="12">
+                            <Label text="H" styleClass="mode-icon"/>
+                            <Label text="Host Network Game" styleClass="mode-text"/>
+                        </HBox>
+                    </graphic>
+                </Button>
+
+                <Button fx:id="btnJoinGame" onAction="#onJoinGame" id="btnJoinGame"
+                        maxWidth="Infinity" HBox.hgrow="ALWAYS" styleClass="mode-button">
+                    <graphic>
+                        <HBox alignment="CENTER" spacing="12">
+                            <Label text="J" styleClass="mode-icon"/>
+                            <Label text="Join Network Game" styleClass="mode-text"/>
+                        </HBox>
+                    </graphic>
+                </Button>
+            </HBox>
+        </VBox>
+
+        <Button fx:id="btnCancelHost" text="Cancel Hosting" onAction="#onCancelHost"
+                visible="false" managed="false"
+                styleClass="btn-danger"
+                minWidth="180.0"/>
+
+        <HBox fx:id="joinBox" alignment="CENTER" spacing="10" visible="false" managed="false" styleClass="join-box">
+            <Label text="Host IP:" styleClass="section-heading"/>
+            <TextField fx:id="ipField" promptText="192.168.x.x" maxWidth="190.0"/>
+            <Button text="Connect" onAction="#onConnect" id="btnConnect" styleClass="btn-primary"/>
+        </HBox>
+
+        <HBox alignment="CENTER_LEFT" spacing="12" styleClass="menu-footer">
+            <Button text="Back" onAction="#onBack" minWidth="120.0" styleClass="btn-outline"/>
+            <Label fx:id="statusLabel" text="" wrapText="true" styleClass="status-line" HBox.hgrow="ALWAYS"/>
+        </HBox>
+    </VBox>
+</StackPane>
