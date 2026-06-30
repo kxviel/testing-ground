@@ -264,35 +264,6 @@
     -fx-text-fill: -game-accent;
 }
 
-#btnLocalGame {
-    -fx-background-color: -game-accent;
-    -fx-border-color: -game-accent;
-}
-
-#btnLocalGame:hover {
-    -fx-background-color: -game-accent-hover;
-    -fx-border-color: -game-accent-hover;
-}
-
-#btnLocalGame:pressed {
-    -fx-background-color: -game-accent-pressed;
-    -fx-border-color: -game-accent-pressed;
-}
-
-#btnLocalGame .row-title,
-#btnLocalGame .row-subtitle,
-#btnLocalGame .row-arrow {
-    -fx-text-fill: -game-on-accent;
-}
-
-#btnLocalGame .row-arrow-chip {
-    -fx-background-color: rgba(255, 255, 255, 0.18);
-}
-
-#btnLocalGame .icon-letter {
-    -fx-text-fill: -game-accent;
-}
-
 .memory-network-panel {
     -fx-background-color: -game-accent-container;
     -fx-background-radius: 0;
@@ -497,24 +468,13 @@
     -fx-font-weight: 900;
 }
 
-#btnHostGame {
-    -fx-background-color: -game-accent;
-    -fx-border-color: -game-accent;
-}
-
-#btnHostGame .mode-icon {
-    -fx-text-fill: -game-on-accent;
-}
-
-#btnHostGame .mode-text {
-    -fx-text-fill: -game-on-accent;
-}
-
+#btnHostGame,
 #btnJoinGame {
     -fx-background-color: -app-surface-container-low;
     -fx-border-color: rgba(98, 91, 113, 0.30);
 }
 
+#btnHostGame .mode-icon,
 #btnJoinGame .mode-icon {
     -fx-text-fill: -game-on-accent-container;
 }
@@ -522,11 +482,6 @@
 .mode-button:hover {
     -fx-background-color: -game-accent-container;
     -fx-border-color: rgba(98, 91, 113, 0.52);
-}
-
-#btnHostGame:hover {
-    -fx-background-color: -game-accent-hover;
-    -fx-border-color: -game-accent-hover;
 }
 
 .join-box,
