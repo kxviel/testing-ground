@@ -4,14 +4,13 @@
 
 .tetris-menu-root,
 .tetris-game-root {
-    -fx-background-color: #FFFBFE;
-    -fx-font-family: "Inter Variable", "Inter", "Segoe UI", "Arial", sans-serif;
+    -fx-background-color: -app-surface;
 }
 
 .title {
     -fx-font-size: 30px;
     -fx-font-weight: 700;
-    -fx-text-fill: #31111D;
+    -fx-text-fill: -game-on-accent-container;
     -fx-padding: 0;
 }
 
@@ -23,7 +22,7 @@
 
 .menu-icon-frame {
     -fx-alignment: center;
-    -fx-background-color: linear-gradient(to bottom right, #FFFFFF, #FFD8E4);
+    -fx-background-color: linear-gradient(to bottom right, -app-surface-container-lowest, -game-accent-container);
     -fx-background-radius: 14;
     -fx-border-color: rgba(125, 82, 96, 0.18);
     -fx-border-radius: 14;
@@ -38,14 +37,14 @@
 .section-title {
     -fx-font-size: 18px;
     -fx-font-weight: 700;
-    -fx-text-fill: #31111D;
+    -fx-text-fill: -game-on-accent-container;
     -fx-padding: 0 0 2 0;
 }
 
 .field-title {
     -fx-font-size: 12px;
     -fx-font-weight: 700;
-    -fx-text-fill: #31111D;
+    -fx-text-fill: -game-on-accent-container;
     -fx-padding: 0 0 2 0;
 }
 
@@ -59,7 +58,7 @@
 /* Panels (menu + game) */
 .menu-panel,
 .game-panel {
-    -fx-background-color: #FFFFFF;
+    -fx-background-color: -app-surface-container-lowest;
     -fx-background-radius: 10;
     -fx-border-color: rgba(125, 82, 96, 0.18);
     -fx-border-radius: 10;
@@ -100,41 +99,41 @@
 }
 
 .btn-primary {
-    -fx-background-color: #7D5260;
-    -fx-border-color: #7D5260;
-    -fx-text-fill: #FFFFFF;
+    -fx-background-color: -game-accent;
+    -fx-border-color: -game-accent;
+    -fx-text-fill: -game-on-accent;
 }
 
 .btn-primary:hover {
-    -fx-background-color: #633B48;
-    -fx-border-color: #633B48;
+    -fx-background-color: -game-accent-hover;
+    -fx-border-color: -game-accent-hover;
 }
 
 .btn-primary:pressed {
-    -fx-background-color: #5D3A46;
-    -fx-border-color: #5D3A46;
+    -fx-background-color: -game-accent-pressed;
+    -fx-border-color: -game-accent-pressed;
 }
 
 .btn-outline {
-    -fx-background-color: #FFFFFF;
+    -fx-background-color: -app-surface-container-lowest;
     -fx-border-color: rgba(125, 82, 96, 0.24);
-    -fx-text-fill: #31111D;
+    -fx-text-fill: -game-on-accent-container;
 }
 
 .btn-outline:hover {
-    -fx-background-color: #FFF8FA;
+    -fx-background-color: -game-soft-surface;
     -fx-border-color: rgba(125, 82, 96, 0.40);
 }
 
 .btn-outline:pressed {
-    -fx-background-color: #FFD8E4;
-    -fx-border-color: #7D5260;
+    -fx-background-color: -game-accent-container;
+    -fx-border-color: -game-accent;
 }
 
 .btn-selected {
-    -fx-background-color: #FFD8E4;
-    -fx-border-color: #7D5260;
-    -fx-text-fill: #31111D;
+    -fx-background-color: -game-accent-container;
+    -fx-border-color: -game-accent;
+    -fx-text-fill: -game-on-accent-container;
 }
 
 .button:disabled {
@@ -167,7 +166,7 @@
 .check-box {
     -fx-font-size: 13px;
     -fx-font-weight: 600;
-    -fx-text-fill: #31111D;
+    -fx-text-fill: -game-on-accent-container;
     -fx-padding: 2 0;
 }
 
@@ -229,7 +228,7 @@
 }
 
 .menu-config-column {
-    -fx-background-color: #FFD8E4;
+    -fx-background-color: -game-accent-container;
     -fx-background-radius: 10;
     -fx-border-color: rgba(125, 82, 96, 0.18);
     -fx-border-radius: 10;
@@ -321,9 +320,9 @@
 
 .object-symbol {
     -fx-alignment: center;
-    -fx-background-color: #7D5260;
+    -fx-background-color: -game-accent;
     -fx-background-radius: 5;
-    -fx-border-color: #31111D;
+    -fx-border-color: -game-on-accent-container;
     -fx-border-radius: 5;
     -fx-border-width: 1;
     -fx-font-size: 11px;
@@ -332,7 +331,7 @@
     -fx-min-width: 22;
     -fx-pref-height: 22;
     -fx-pref-width: 22;
-    -fx-text-fill: #FFFFFF;
+    -fx-text-fill: -game-on-accent;
     -fx-padding: 0;
 }
 
@@ -351,8 +350,8 @@
 }
 
 .tetris-board {
-    -fx-background-color: #31111D;
-    -fx-border-color: #31111D;
+    -fx-background-color: -game-on-accent-container;
+    -fx-border-color: -game-on-accent-container;
     -fx-border-width: 2;
     -fx-background-radius: 4;
     -fx-border-radius: 4;
@@ -362,8 +361,8 @@
 }
 
 .board-cell {
-    -fx-background-color: #FFFBFE;
-    -fx-border-color: #FFD8E4;
+    -fx-background-color: -app-surface;
+    -fx-border-color: -game-accent-container;
     -fx-border-width: 0.5;
 }
 
@@ -409,7 +408,7 @@
 .game-side-title {
     -fx-font-size: 28px;
     -fx-font-weight: 800;
-    -fx-text-fill: #31111D;
+    -fx-text-fill: -game-on-accent-container;
     -fx-padding: 0 0 2 0;
 }
 
@@ -430,7 +429,7 @@
 .player-name {
     -fx-font-size: 16px;
     -fx-font-weight: 700;
-    -fx-text-fill: #31111D;
+    -fx-text-fill: -game-on-accent-container;
     -fx-padding: 0;
 }
 
@@ -459,22 +458,22 @@
 }
 
 .board-cell-filled {
-    -fx-background-color: #7D5260;
-    -fx-border-color: #31111D;
+    -fx-background-color: -game-accent;
+    -fx-border-color: -game-on-accent-container;
 }
 
 .board-cell-active {
-    -fx-background-color: #7D5260;
-    -fx-border-color: #31111D;
+    -fx-background-color: -game-accent;
+    -fx-border-color: -game-on-accent-container;
 }
 
 .board-cell-object {
-    -fx-background-color: #7D5260;
-    -fx-border-color: #31111D;
+    -fx-background-color: -game-accent;
+    -fx-border-color: -game-on-accent-container;
     -fx-alignment: center;
     -fx-font-size: 10px;
     -fx-font-weight: 800;
-    -fx-text-fill: #FFFFFF;
+    -fx-text-fill: -game-on-accent;
     -fx-padding: 0;
 }
 
@@ -483,7 +482,7 @@
     -fx-background-color: rgba(255, 251, 254, 0.88);
     -fx-font-size: 22px;
     -fx-font-weight: 800;
-    -fx-text-fill: #31111D;
+    -fx-text-fill: -game-on-accent-container;
     -fx-padding: 16;
 }
 
@@ -522,7 +521,7 @@
 }
 
 .custom-cell {
-    -fx-background-color: #FFFFFF;
+    -fx-background-color: -app-surface-container-lowest;
     -fx-border-color: rgba(125, 82, 96, 0.24);
     -fx-background-radius: 4;
     -fx-border-radius: 4;
@@ -536,13 +535,13 @@
 }
 
 .custom-cell-selected {
-    -fx-background-color: #7D5260;
-    -fx-border-color: #31111D;
+    -fx-background-color: -game-accent;
+    -fx-border-color: -game-on-accent-container;
 }
 
 /* Legacy alias */
 .game-title {
     -fx-font-size: 56px;
     -fx-font-weight: 800;
-    -fx-text-fill: #31111D;
+    -fx-text-fill: -game-on-accent-container;
 }

@@ -1,0 +1,48 @@
+.root {
+    -app-surface: #FFFBFE;
+    -app-surface-container-lowest: #FFFFFF;
+    -app-surface-container-low: #F7F2FA;
+    -app-on-surface: #1D1B20;
+    -app-on-surface-variant: #49454F;
+    -app-outline: #79747E;
+    -app-outline-variant: #CAC4D0;
+    -app-success-container: #DDEFE4;
+    -app-success-outline: #2D6A4C;
+
+    -game-accent: #6750A4;
+    -game-accent-hover: #5E4898;
+    -game-accent-pressed: #4F378B;
+    -game-accent-hover-soft: #7C67B8;
+    -game-accent-container: #EADDFF;
+    -game-on-accent: #FFFFFF;
+    -game-on-accent-container: #21005D;
+    -game-soft-surface: #F7F2FA;
+
+    -fx-font-family: "Inter Variable", "Inter", "Segoe UI", "Arial", sans-serif;
+}
+
+.game-choice-root {
+    -game-accent: #6750A4;
+    -game-accent-container: #EADDFF;
+    -game-on-accent-container: #21005D;
+}
+
+.memory-menu-root,
+.memory-game-root {
+    -game-accent: #625B71;
+    -game-accent-hover: #4A4458;
+    -game-accent-pressed: #332D41;
+    -game-accent-hover-soft: #746A83;
+    -game-accent-container: #E8DEF8;
+    -game-on-accent-container: #1D192B;
+}
+
+.tetris-menu-root,
+.tetris-game-root {
+    -game-accent: #7D5260;
+    -game-accent-hover: #633B48;
+    -game-accent-pressed: #5D3A46;
+    -game-accent-container: #FFD8E4;
+    -game-on-accent-container: #31111D;
+    -game-soft-surface: #FFF8FA;
+}

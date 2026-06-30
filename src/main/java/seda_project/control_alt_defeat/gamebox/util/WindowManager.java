@@ -6,12 +6,13 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import seda_project.control_alt_defeat.gamebox.settings.WindowResolution;
 import seda_project.control_alt_defeat.gamebox.settings.WindowMode;
+import seda_project.control_alt_defeat.gamebox.settings.WindowResolution;
 import seda_project.control_alt_defeat.gamebox.settings.WindowSettings;
 import seda_project.control_alt_defeat.gamebox.settings.WindowSettingsStore;
 
 public final class WindowManager {
+    private static final String THEME = "/Theme.css";
 
     private WindowManager() {
     }
@@ -19,15 +20,26 @@ public final class WindowManager {
     public static Scene createScene(Parent root) {
         WindowSettings settings = WindowSettingsStore.get();
         if (settings.mode() == WindowMode.WINDOWED) {
-            return createWindowedScene(root, settings.windowedResolution());
+            WindowResolution resolution = settings.windowedResolution();
+            return createScene(root, resolution.width(), resolution.height());
         }
 
         Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
-        return new Scene(root, bounds.getWidth(), bounds.getHeight());
+        return createScene(root, bounds.getWidth(), bounds.getHeight());
     }
 
-    private static Scene createWindowedScene(Parent root, WindowResolution resolution) {
-        return new Scene(root, resolution.width(), resolution.height());
+    private static Scene createScene(Parent root, double width, double height) {
+        Scene scene = new Scene(root, width, height);
+        scene.getStylesheets().add(themeUrl());
+        return scene;
+    }
+
+    private static String themeUrl() {
+        var theme = WindowManager.class.getResource(THEME);
+        if (theme == null) {
+            throw new IllegalStateException("Missing theme resource: " + THEME);
+        }
+        return theme.toExternalForm();
     }
 
     public static void setScene(Stage stage, Parent root) {

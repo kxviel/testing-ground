@@ -75,6 +75,7 @@
                 <Region minHeight="1" styleClass="menu-divider"/>
 
                 <Button fx:id="btnLocalGame"
+                        id="btnLocalGame"
                         maxWidth="Infinity"
                         onAction="#onLocalGame"
                         styleClass="memory-action-row">

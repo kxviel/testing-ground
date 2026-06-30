@@ -1,41 +1,40 @@
 .memory-game-root {
-    -fx-background-color: linear-gradient(to bottom right, #FFFBFE, #E8DEF8);
-    -fx-font-family: "Inter Variable", "Inter", "Segoe UI", "Arial", sans-serif;
-    -fx-padding: 28 28 24 28;
+    -fx-background-color: linear-gradient(to bottom right, -app-surface, -app-surface-container-low 54%, -game-accent-container);
+    -fx-padding: 24 28 20 28;
 }
 
 .memory-game-header {
-    -fx-background-color: rgba(255, 255, 255, 0.84);
-    -fx-background-radius: 16;
-    -fx-border-color: rgba(98, 91, 113, 0.18);
-    -fx-border-radius: 16;
+    -fx-background-color: -app-surface-container-low;
+    -fx-background-radius: 28;
+    -fx-border-color: rgba(98, 91, 113, 0.16);
+    -fx-border-radius: 28;
     -fx-border-width: 1;
-    -fx-effect: dropshadow(gaussian, rgba(29, 27, 32, 0.10), 18, 0.16, 0, 6);
-    -fx-padding: 16 22 16 22;
-    -fx-min-height: 76;
-    -fx-pref-height: 76;
-    -fx-max-height: 76;
+    -fx-effect: dropshadow(gaussian, rgba(29, 27, 32, 0.08), 18, 0.10, 0, 4);
+    -fx-padding: 14 18 14 18;
+    -fx-min-height: 84;
+    -fx-pref-height: 84;
+    -fx-max-height: 84;
 }
 
 .player-chip {
-    -fx-background-color: rgba(255, 255, 255, 0.68);
-    -fx-background-radius: 13;
-    -fx-border-color: rgba(98, 91, 113, 0.18);
-    -fx-border-radius: 13;
+    -fx-background-color: -app-surface;
+    -fx-background-radius: 24;
+    -fx-border-color: rgba(98, 91, 113, 0.16);
+    -fx-border-radius: 24;
     -fx-border-width: 1;
-    -fx-padding: 8 20 8 10;
-    -fx-min-width: 210;
+    -fx-padding: 10 22 10 10;
+    -fx-min-width: 226;
 }
 
 .player-chip.active-player {
-    -fx-border-color: rgba(98, 91, 113, 0.58);
-    -fx-background-color: #FFFFFF;
-    -fx-effect: dropshadow(gaussian, rgba(98, 91, 113, 0.14), 14, 0.18, 0, 4);
+    -fx-background-color: -game-accent-container;
+    -fx-border-color: -game-accent;
+    -fx-effect: dropshadow(gaussian, rgba(98, 91, 113, 0.16), 16, 0.12, 0, 4);
 }
 
 .player-icon {
     -fx-alignment: center;
-    -fx-background-color: #E8DEF8;
+    -fx-background-color: -game-accent-container;
     -fx-background-radius: 99;
     -fx-min-height: 42;
     -fx-min-width: 42;
@@ -44,13 +43,17 @@
 }
 
 .player-chip.active-player .player-icon {
-    -fx-background-color: rgba(98, 91, 113, 0.16);
+    -fx-background-color: -game-accent;
+}
+
+.player-chip.active-player .player-icon-text {
+    -fx-text-fill: -game-on-accent;
 }
 
 .player-icon-text {
     -fx-font-size: 19px;
     -fx-font-weight: 900;
-    -fx-text-fill: #625B71;
+    -fx-text-fill: -game-accent;
 }
 
 .score-divider {
@@ -60,20 +63,20 @@
 }
 
 .score-value {
-    -fx-font-size: 24px;
+    -fx-font-size: 28px;
     -fx-font-weight: 900;
-    -fx-text-fill: #625B71;
+    -fx-text-fill: -game-accent;
 }
 
 .turn-pill {
-    -fx-background-color: #E8DEF8;
+    -fx-background-color: -game-accent;
     -fx-background-radius: 99;
-    -fx-padding: 10 18 10 18;
+    -fx-padding: 12 22 12 22;
 }
 
 .turn-ring {
     -fx-background-color: transparent;
-    -fx-border-color: #625B71;
+    -fx-border-color: -game-on-accent;
     -fx-border-radius: 99;
     -fx-border-width: 2;
     -fx-min-height: 14;
@@ -83,38 +86,36 @@
 }
 
 .quit-button {
-    -fx-background-color: #1D192B;
-    -fx-border-color: #1D192B;
-    -fx-background-radius: 10;
-    -fx-border-radius: 10;
+    -fx-background-color: -game-on-accent-container;
+    -fx-border-color: -game-on-accent-container;
+    -fx-background-radius: 18;
+    -fx-border-radius: 18;
     -fx-effect: dropshadow(gaussian, rgba(29, 27, 32, 0.18), 12, 0.18, 0, 4);
     -fx-min-height: 52;
     -fx-min-width: 92;
-    -fx-text-fill: #FFFFFF;
+    -fx-text-fill: -game-on-accent;
 }
 
 .quit-button:hover {
-    -fx-background-color: #625B71;
-    -fx-border-color: #625B71;
+    -fx-background-color: -game-accent;
+    -fx-border-color: -game-accent;
 }
 
 .memory-game-stage {
-    -fx-padding: 28 34 20 34;
+    -fx-padding: 24 0 14 0;
 }
 
 .memory-board-card {
-    -fx-background-color: rgba(255, 255, 255, 0.78);
-    -fx-background-radius: 18;
-    -fx-border-color: rgba(98, 91, 113, 0.14);
-    -fx-border-radius: 18;
-    -fx-border-width: 1;
-    -fx-padding: 18 24 20 24;
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+    -fx-border-width: 0;
+    -fx-padding: 4 0 8 0;
 }
 
 .board-title {
-    -fx-font-size: 30px;
+    -fx-font-size: 38px;
     -fx-font-weight: 900;
-    -fx-text-fill: #1D192B;
+    -fx-text-fill: -game-on-accent-container;
 }
 
 .board-subtitle {
@@ -128,13 +129,12 @@
 }
 
 .memory-menu-root {
-    -fx-background-color: #FFFBFE;
-    -fx-font-family: "Inter Variable", "Inter", "Segoe UI", "Arial", sans-serif;
+    -fx-background-color: -app-surface;
     -fx-padding: 0;
 }
 
 .memory-menu-main {
-    -fx-background-color: linear-gradient(to bottom right, #FFFFFF, #F7F2FA);
+    -fx-background-color: linear-gradient(to bottom right, -app-surface, -app-surface-container-low 56%, -game-accent-container);
 }
 
 .memory-setup {
@@ -146,9 +146,9 @@
 }
 
 .memory-menu-title {
-    -fx-font-size: 43px;
+    -fx-font-size: 50px;
     -fx-font-weight: 900;
-    -fx-text-fill: #1D192B;
+    -fx-text-fill: -game-on-accent-container;
     -fx-effect: dropshadow(gaussian, rgba(29, 27, 32, 0.08), 8, 0.15, 0, 2);
 }
 
@@ -163,16 +163,16 @@
 }
 
 .divider-line-active {
-    -fx-background-color: #625B71;
-    -fx-pref-height: 3;
+    -fx-background-color: -game-accent;
+    -fx-pref-height: 6;
     -fx-background-radius: 99;
 }
 
 .divider-seal {
-    -fx-background-color: #625B71;
+    -fx-background-color: -game-accent;
     -fx-background-radius: 99;
-    -fx-pref-height: 8;
-    -fx-pref-width: 8;
+    -fx-pref-height: 10;
+    -fx-pref-width: 10;
 }
 
 .memory-setup-list {
@@ -181,29 +181,27 @@
 
 .memory-action-row {
     -fx-alignment: center-left;
-    -fx-background-color: rgba(255, 255, 255, 0.92);
+    -fx-background-color: -app-surface-container-low;
     -fx-background-insets: 0;
-    -fx-background-radius: 16;
+    -fx-background-radius: 28;
     -fx-border-color: rgba(98, 91, 113, 0.16);
-    -fx-border-radius: 16;
+    -fx-border-radius: 28;
     -fx-border-width: 1;
     -fx-content-display: graphic-only;
     -fx-cursor: hand;
-    -fx-min-height: 94;
-    -fx-padding: 18 18 18 22;
-    -fx-effect: dropshadow(gaussian, rgba(29, 27, 32, 0.08), 16, 0.14, 0, 5);
+    -fx-min-height: 108;
+    -fx-padding: 20 20 20 22;
+    -fx-effect: dropshadow(gaussian, rgba(29, 27, 32, 0.06), 14, 0.10, 0, 3);
 }
 
 .memory-action-row:hover {
-    -fx-background-color: #FFFFFF;
-    -fx-border-color: rgba(98, 91, 113, 0.45);
-    -fx-effect: dropshadow(gaussian, rgba(98, 91, 113, 0.18), 20, 0.18, 0, 6);
-    -fx-translate-y: -1;
+    -fx-background-color: -game-accent-container;
+    -fx-border-color: rgba(98, 91, 113, 0.42);
 }
 
 .memory-action-row:pressed {
-    -fx-translate-y: 0;
-    -fx-effect: dropshadow(gaussian, rgba(29, 27, 32, 0.08), 10, 0.12, 0, 3);
+    -fx-background-color: rgba(98, 91, 113, 0.18);
+    -fx-effect: none;
 }
 
 .row-content {
@@ -212,28 +210,28 @@
 
 .icon-chip {
     -fx-alignment: center;
-    -fx-background-color: linear-gradient(to bottom right, #FFFFFF, #E8DEF8);
-    -fx-background-radius: 14;
+    -fx-background-color: -app-surface;
+    -fx-background-radius: 20;
     -fx-border-color: rgba(98, 91, 113, 0.18);
-    -fx-border-radius: 14;
+    -fx-border-radius: 20;
     -fx-border-width: 1;
-    -fx-min-height: 56;
-    -fx-min-width: 56;
-    -fx-pref-height: 56;
-    -fx-pref-width: 56;
+    -fx-min-height: 64;
+    -fx-min-width: 64;
+    -fx-pref-height: 64;
+    -fx-pref-width: 64;
     -fx-effect: dropshadow(gaussian, rgba(29, 27, 32, 0.08), 10, 0.16, 0, 3);
 }
 
 .icon-letter {
     -fx-font-size: 28px;
     -fx-font-weight: 800;
-    -fx-text-fill: #625B71;
+    -fx-text-fill: -game-accent;
 }
 
 .row-title {
-    -fx-font-size: 18px;
+    -fx-font-size: 20px;
     -fx-font-weight: 900;
-    -fx-text-fill: #1D192B;
+    -fx-text-fill: -game-on-accent-container;
 }
 
 .row-subtitle {
@@ -256,7 +254,6 @@
     -fx-font-size: 34px;
     -fx-font-weight: 300;
     -fx-text-fill: rgba(29, 27, 32, 0.68);
-    -fx-translate-y: -2;
 }
 
 .memory-action-row:hover .row-arrow-chip {
@@ -264,21 +261,50 @@
 }
 
 .memory-action-row:hover .row-arrow {
-    -fx-text-fill: #625B71;
+    -fx-text-fill: -game-accent;
+}
+
+#btnLocalGame {
+    -fx-background-color: -game-accent;
+    -fx-border-color: -game-accent;
+}
+
+#btnLocalGame:hover {
+    -fx-background-color: -game-accent-hover;
+    -fx-border-color: -game-accent-hover;
+}
+
+#btnLocalGame:pressed {
+    -fx-background-color: -game-accent-pressed;
+    -fx-border-color: -game-accent-pressed;
+}
+
+#btnLocalGame .row-title,
+#btnLocalGame .row-subtitle,
+#btnLocalGame .row-arrow {
+    -fx-text-fill: -game-on-accent;
+}
+
+#btnLocalGame .row-arrow-chip {
+    -fx-background-color: rgba(255, 255, 255, 0.18);
+}
+
+#btnLocalGame .icon-letter {
+    -fx-text-fill: -game-accent;
 }
 
 .memory-network-panel {
-    -fx-background-color: #E8DEF8;
+    -fx-background-color: -game-accent-container;
     -fx-background-radius: 0;
     -fx-border-color: transparent transparent transparent rgba(98, 91, 113, 0.22);
     -fx-border-width: 0 0 0 1;
-    -fx-padding: 74 34 58 34;
+    -fx-padding: 74 40 58 40;
 }
 
 .network-title {
     -fx-font-size: 24px;
     -fx-font-weight: 900;
-    -fx-text-fill: #1D192B;
+    -fx-text-fill: -game-on-accent-container;
 }
 
 .network-subtitle {
@@ -294,7 +320,7 @@
 .section-label {
     -fx-font-size: 14px;
     -fx-font-weight: 800;
-    -fx-text-fill: #1D192B;
+    -fx-text-fill: -game-on-accent-container;
     -fx-padding: 0 0 4 0;
 }
 
@@ -313,7 +339,7 @@
 .memory-title {
     -fx-font-size: 48px;
     -fx-font-weight: 900;
-    -fx-text-fill: #1D192B;
+    -fx-text-fill: -game-on-accent-container;
     -fx-line-spacing: -2;
 }
 
@@ -324,7 +350,7 @@
 }
 
 .hero-accent {
-    -fx-background-color: #625B71;
+    -fx-background-color: -game-accent;
     -fx-background-radius: 99;
     -fx-pref-height: 4;
     -fx-pref-width: 74;
@@ -332,7 +358,7 @@
 
 .memory-hero-icon {
     -fx-alignment: center;
-    -fx-background-color: linear-gradient(to bottom right, #FFFFFF, #E8DEF8);
+    -fx-background-color: linear-gradient(to bottom right, -app-surface-container-lowest, -game-accent-container);
     -fx-background-radius: 22;
     -fx-border-color: rgba(98, 91, 113, 0.18);
     -fx-border-radius: 22;
@@ -345,21 +371,21 @@
 }
 
 .menu-section {
-    -fx-background-color: rgba(255, 255, 255, 0.92);
-    -fx-background-radius: 16;
+    -fx-background-color: -app-surface-container-low;
+    -fx-background-radius: 28;
     -fx-border-color: rgba(98, 91, 113, 0.16);
-    -fx-border-radius: 16;
+    -fx-border-radius: 28;
     -fx-border-width: 1;
-    -fx-padding: 22 22 22 22;
-    -fx-effect: dropshadow(gaussian, rgba(29, 27, 32, 0.08), 16, 0.14, 0, 5);
+    -fx-padding: 24 24 24 24;
+    -fx-effect: dropshadow(gaussian, rgba(29, 27, 32, 0.05), 14, 0.08, 0, 3);
 }
 
 .section-icon {
     -fx-alignment: center;
-    -fx-background-color: #FFFFFF;
-    -fx-background-radius: 99;
+    -fx-background-color: -app-surface-container-lowest;
+    -fx-background-radius: 18;
     -fx-border-color: rgba(98, 91, 113, 0.16);
-    -fx-border-radius: 99;
+    -fx-border-radius: 18;
     -fx-border-width: 1;
     -fx-effect: dropshadow(gaussian, rgba(29, 27, 32, 0.08), 8, 0.14, 0, 2);
     -fx-min-height: 46;
@@ -371,14 +397,14 @@
 .section-icon-text {
     -fx-font-size: 20px;
     -fx-font-weight: 900;
-    -fx-text-fill: #625B71;
+    -fx-text-fill: -game-accent;
 }
 
 .section-title,
 .score-label,
 .post-result {
     -fx-font-weight: 800;
-    -fx-text-fill: #1D192B;
+    -fx-text-fill: -game-on-accent-container;
 }
 
 .section-title {
@@ -393,7 +419,7 @@
 .section-heading {
     -fx-font-size: 16px;
     -fx-font-weight: 900;
-    -fx-text-fill: #1D192B;
+    -fx-text-fill: -game-on-accent-container;
 }
 
 .status-line,
@@ -403,12 +429,12 @@
 
 .turn-label {
     -fx-font-size: 15px;
-    -fx-font-weight: 700;
-    -fx-text-fill: #625B71;
+    -fx-font-weight: 800;
+    -fx-text-fill: -game-on-accent;
 }
 
 .error-label {
-    -fx-text-fill: #625B71;
+    -fx-text-fill: -game-accent;
     -fx-font-size: 12px;
     -fx-font-weight: 600;
 }
@@ -440,14 +466,14 @@
 
 .button {
     -fx-background-insets: 0;
-    -fx-background-radius: 8;
-    -fx-border-radius: 8;
+    -fx-background-radius: 18;
+    -fx-border-radius: 18;
     -fx-border-width: 1;
     -fx-cursor: hand;
     -fx-font-size: 14px;
     -fx-font-weight: 700;
-    -fx-min-height: 36;
-    -fx-padding: 8 16;
+    -fx-min-height: 44;
+    -fx-padding: 10 18;
 }
 
 .apply-button {
@@ -456,14 +482,14 @@
 
 .mode-button {
     -fx-content-display: graphic-only;
-    -fx-min-height: 58;
-    -fx-padding: 12 14;
+    -fx-min-height: 68;
+    -fx-padding: 14 18;
 }
 
 .mode-text {
     -fx-font-size: 13px;
     -fx-font-weight: 900;
-    -fx-text-fill: #1D192B;
+    -fx-text-fill: -game-on-accent-container;
 }
 
 .mode-icon {
@@ -472,26 +498,35 @@
 }
 
 #btnHostGame {
-    -fx-background-color: rgba(232, 222, 248, 0.36);
-    -fx-border-color: rgba(98, 91, 113, 0.30);
+    -fx-background-color: -game-accent;
+    -fx-border-color: -game-accent;
 }
 
 #btnHostGame .mode-icon {
-    -fx-text-fill: #625B71;
+    -fx-text-fill: -game-on-accent;
+}
+
+#btnHostGame .mode-text {
+    -fx-text-fill: -game-on-accent;
 }
 
 #btnJoinGame {
-    -fx-background-color: rgba(232, 222, 248, 0.74);
+    -fx-background-color: -app-surface-container-low;
     -fx-border-color: rgba(98, 91, 113, 0.30);
 }
 
 #btnJoinGame .mode-icon {
-    -fx-text-fill: #1D192B;
+    -fx-text-fill: -game-on-accent-container;
 }
 
 .mode-button:hover {
-    -fx-background-color: #FFFFFF;
+    -fx-background-color: -game-accent-container;
     -fx-border-color: rgba(98, 91, 113, 0.52);
+}
+
+#btnHostGame:hover {
+    -fx-background-color: -game-accent-hover;
+    -fx-border-color: -game-accent-hover;
 }
 
 .join-box,
@@ -500,65 +535,65 @@
 }
 
 .join-box {
-    -fx-background-color: rgba(255, 255, 255, 0.48);
-    -fx-background-radius: 10;
+    -fx-background-color: rgba(255, 251, 254, 0.68);
+    -fx-background-radius: 22;
     -fx-border-color: rgba(98, 91, 113, 0.18);
-    -fx-border-radius: 10;
+    -fx-border-radius: 22;
     -fx-border-width: 1;
     -fx-padding: 12;
 }
 
 .btn-primary {
-    -fx-background-color: #625B71;
-    -fx-border-color: #625B71;
-    -fx-text-fill: #FFFFFF;
+    -fx-background-color: -game-accent;
+    -fx-border-color: -game-accent;
+    -fx-text-fill: -game-on-accent;
 }
 
 .btn-primary:hover {
-    -fx-background-color: #1D192B;
-    -fx-border-color: #1D192B;
+    -fx-background-color: -game-on-accent-container;
+    -fx-border-color: -game-on-accent-container;
 }
 
 .btn-outline {
-    -fx-background-color: #FFFFFF;
+    -fx-background-color: -app-surface;
     -fx-border-color: rgba(98, 91, 113, 0.24);
-    -fx-text-fill: #1D192B;
+    -fx-text-fill: -game-on-accent-container;
 }
 
 .btn-outline:hover {
-    -fx-background-color: #F7F2FA;
+    -fx-background-color: -app-surface-container-low;
     -fx-border-color: rgba(98, 91, 113, 0.40);
 }
 
 .btn-danger {
-    -fx-background-color: #1D192B;
-    -fx-border-color: #1D192B;
-    -fx-text-fill: #FFFFFF;
+    -fx-background-color: -game-on-accent-container;
+    -fx-border-color: -game-on-accent-container;
+    -fx-text-fill: -game-on-accent;
 }
 
 .btn-danger:hover {
-    -fx-background-color: #625B71;
-    -fx-border-color: #625B71;
+    -fx-background-color: -game-accent;
+    -fx-border-color: -game-accent;
 }
 
 .text-field {
-    -fx-background-color: #FFFFFF;
-    -fx-background-radius: 8;
+    -fx-background-color: -app-surface;
+    -fx-background-radius: 16;
     -fx-border-color: rgba(98, 91, 113, 0.24);
-    -fx-border-radius: 8;
+    -fx-border-radius: 16;
     -fx-border-width: 1;
     -fx-min-height: 36;
     -fx-padding: 8 12;
     -fx-prompt-text-fill: rgba(29, 27, 32, 0.46);
-    -fx-text-fill: #1D192B;
+    -fx-text-fill: -game-on-accent-container;
 }
 
 .radio-button {
-    -fx-text-fill: #1D192B;
+    -fx-text-fill: -game-on-accent-container;
 }
 
 .status-bar {
-    -fx-background-color: #E8DEF8;
+    -fx-background-color: -game-accent-container;
     -fx-padding: 10;
 }
 
@@ -575,46 +610,42 @@
 .memory-card {
     -fx-alignment: center;
     -fx-background-insets: 0;
-    -fx-background-radius: 8;
-    -fx-border-radius: 8;
+    -fx-background-radius: 18;
+    -fx-border-radius: 18;
     -fx-border-width: 1;
     -fx-content-display: graphic-only;
     -fx-cursor: hand;
     -fx-font-weight: 900;
     -fx-padding: 0;
-    -fx-effect: dropshadow(gaussian, rgba(29, 27, 32, 0.14), 10, 0.18, 0, 3);
-}
-
-.memory-card:pressed {
-    -fx-translate-y: 1;
+    -fx-effect: dropshadow(gaussian, rgba(29, 27, 32, 0.13), 10, 0.14, 0, 3);
 }
 
 .memory-card-symbol {
     -fx-font-family: "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "Segoe UI", sans-serif;
     -fx-font-weight: 400;
-    -fx-text-fill: #1D192B;
+    -fx-text-fill: -game-on-accent-container;
 }
 
 .memory-card-hidden {
-    -fx-background-color: linear-gradient(to bottom right, #625B71, #4A4458);
+    -fx-background-color: linear-gradient(to bottom right, -game-accent, -game-accent-hover);
     -fx-border-color: rgba(255, 255, 255, 0.28);
 }
 
 .memory-card-hidden:hover {
-    -fx-background-color: linear-gradient(to bottom right, #746A83, #625B71);
+    -fx-background-color: -game-accent-hover-soft;
 }
 
 .memory-card-face-up {
-    -fx-background-color: #FFFFFF;
-    -fx-border-color: #625B71;
-    -fx-text-fill: #1D192B;
+    -fx-background-color: -app-surface;
+    -fx-border-color: -game-accent;
+    -fx-text-fill: -game-on-accent-container;
     -fx-effect: dropshadow(gaussian, rgba(98, 91, 113, 0.20), 12, 0.16, 0, 3);
 }
 
 .memory-card-matched {
-    -fx-background-color: #EDF8F1;
-    -fx-border-color: rgba(39, 149, 87, 0.34);
-    -fx-text-fill: #1D192B;
+    -fx-background-color: -app-success-container;
+    -fx-border-color: rgba(45, 106, 76, 0.44);
+    -fx-text-fill: -game-on-accent-container;
     -fx-effect: none;
 }
 
@@ -623,10 +654,10 @@
 }
 
 .post-game-bar {
-    -fx-background-color: rgba(255, 255, 255, 0.74);
-    -fx-background-radius: 12;
+    -fx-background-color: -game-accent-container;
+    -fx-background-radius: 28;
     -fx-border-color: rgba(98, 91, 113, 0.18);
-    -fx-border-radius: 12;
+    -fx-border-radius: 28;
     -fx-border-width: 1;
     -fx-padding: 12 16 12 16;
 }
