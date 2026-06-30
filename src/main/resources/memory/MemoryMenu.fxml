@@ -51,7 +51,7 @@
                         </StackPane>
                         <Label text="Enter tuple size k (1-45):" styleClass="section-heading"/>
                         <Region HBox.hgrow="ALWAYS"/>
-                        <TextField fx:id="kField" promptText="Enter k" text="2" maxWidth="150.0" styleClass="k-input"/>
+                        <TextField fx:id="kField" promptText="Enter k" text="2" maxWidth="150.0"/>
                         <Button fx:id="btnApplyK" text="Apply" onAction="#onApplyK" styleClass="btn-primary apply-button"/>
                     </HBox>
                     <Label fx:id="kErrorLabel" text="" wrapText="true" styleClass="error-label"/>
@@ -66,16 +66,15 @@
                     </HBox>
 
                     <VBox fx:id="variantBox" spacing="8" styleClass="variant-list">
-                        <RadioButton fx:id="variant1Radio" id="rbVariant1" maxWidth="Infinity"/>
-                        <RadioButton fx:id="variant2Radio" id="rbVariant2" maxWidth="Infinity"/>
-                        <RadioButton fx:id="variant3Radio" id="rbVariant3" maxWidth="Infinity"/>
+                        <RadioButton fx:id="variant1Radio" maxWidth="Infinity"/>
+                        <RadioButton fx:id="variant2Radio" maxWidth="Infinity"/>
+                        <RadioButton fx:id="variant3Radio" maxWidth="Infinity"/>
                     </VBox>
                 </VBox>
 
                 <Region minHeight="1" styleClass="menu-divider"/>
 
                 <Button fx:id="btnLocalGame"
-                        id="btnLocalGame"
                         maxWidth="Infinity"
                         onAction="#onLocalGame"
                         styleClass="memory-action-row">
@@ -97,8 +96,7 @@
                     </graphic>
                 </Button>
 
-                <Button id="memory-exit-row"
-                        maxWidth="Infinity"
+                <Button maxWidth="Infinity"
                         onAction="#onBack"
                         styleClass="memory-action-row">
                     <graphic>
@@ -137,7 +135,7 @@
             </VBox>
 
             <VBox spacing="12" styleClass="network-section">
-                <Button fx:id="btnHostGame" onAction="#onHostGame" id="btnHostGame"
+                <Button fx:id="btnHostGame" onAction="#onHostGame"
                         maxWidth="Infinity" styleClass="mode-button">
                     <graphic>
                         <HBox alignment="CENTER_LEFT" spacing="12">
@@ -147,7 +145,7 @@
                     </graphic>
                 </Button>
 
-                <Button fx:id="btnJoinGame" onAction="#onJoinGame" id="btnJoinGame"
+                <Button fx:id="btnJoinGame" onAction="#onJoinGame"
                         maxWidth="Infinity" styleClass="mode-button">
                     <graphic>
                         <HBox alignment="CENTER_LEFT" spacing="12">
@@ -160,7 +158,7 @@
 
             <HBox fx:id="joinBox" alignment="CENTER" spacing="10" visible="false" managed="false" styleClass="join-box">
                 <TextField fx:id="ipField" promptText="Host IP address" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
-                <Button fx:id="btnConnect" text="Connect" onAction="#onConnect" id="btnConnect" styleClass="btn-primary"/>
+                <Button fx:id="btnConnect" text="Connect" onAction="#onConnect" styleClass="btn-primary"/>
             </HBox>
 
             <Button fx:id="btnCancelHost" text="Cancel Hosting" onAction="#onCancelHost"

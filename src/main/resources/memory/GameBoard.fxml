@@ -7,6 +7,8 @@
 
 <BorderPane maxHeight="Infinity"
             maxWidth="Infinity"
+            prefHeight="720.0"
+            prefWidth="1080.0"
             styleClass="memory-game-root"
             xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
@@ -44,7 +46,7 @@
                 <Label fx:id="p2ScoreLabel" text="0" styleClass="score-value"/>
             </HBox>
 
-            <Button text="Quit" onAction="#onQuit" id="btnQuit" styleClass="quit-button"/>
+            <Button text="Quit" onAction="#onQuit" styleClass="quit-button"/>
         </HBox>
     </top>
 

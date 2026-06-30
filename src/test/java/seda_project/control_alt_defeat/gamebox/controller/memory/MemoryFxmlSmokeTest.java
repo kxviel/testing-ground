@@ -1,6 +1,9 @@
 package seda_project.control_alt_defeat.gamebox.controller.memory;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.concurrent.CountDownLatch;
@@ -13,7 +16,9 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.BorderPane;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -40,6 +45,33 @@ class MemoryFxmlSmokeTest {
     @Test
     void gameBoardFxmlLoads() throws Exception {
         assertNotNull(loadOnFxThread("/memory/GameBoard.fxml"));
+    }
+
+    @Test
+    void menuVariantRadiosInitializeExclusively() throws Exception {
+        runOnFxThread(() -> {
+            Parent root = load("/memory/MemoryMenu.fxml");
+            RadioButton variant1 = find(root, "variant1Radio", RadioButton.class);
+            RadioButton variant2 = find(root, "variant2Radio", RadioButton.class);
+            RadioButton variant3 = find(root, "variant3Radio", RadioButton.class);
+
+            assertSame(variant1.getToggleGroup(), variant2.getToggleGroup());
+            assertSame(variant1.getToggleGroup(), variant3.getToggleGroup());
+            assertTrue(variant1.isSelected());
+
+            variant2.setSelected(true);
+            assertFalse(variant1.isSelected());
+        });
+    }
+
+    @Test
+    void gameBoardUsesStablePreferredSize() throws Exception {
+        runOnFxThread(() -> {
+            Parent root = load("/memory/GameBoard.fxml");
+            assertTrue(root instanceof BorderPane);
+            assertEquals(1080, ((BorderPane) root).getPrefWidth(), 0.01);
+            assertEquals(720, ((BorderPane) root).getPrefHeight(), 0.01);
+        });
     }
 
     @Test
@@ -96,6 +128,11 @@ class MemoryFxmlSmokeTest {
         return rootRef.get();
     }
 
+    private static Parent load(String resource) throws Exception {
+        FXMLLoader loader = new FXMLLoader(MemoryFxmlSmokeTest.class.getResource(resource));
+        return loader.load();
+    }
+
     private static Button findButton(Node node, String id) {
         if (node instanceof Button button && id.equals(button.getId())) {
             return button;
@@ -111,6 +148,23 @@ class MemoryFxmlSmokeTest {
                 .filter(button -> button != null)
                 .findFirst()
                 .orElse(null);
+    }
+
+    private static <T extends Node> T find(Node node, String id, Class<T> type) {
+        if (type.isInstance(node) && id.equals(node.getId())) {
+            return type.cast(node);
+        }
+        if (node instanceof ScrollPane scrollPane) {
+            return find(scrollPane.getContent(), id, type);
+        }
+        if (node instanceof Parent parent) {
+            return parent.getChildrenUnmodifiable().stream()
+                    .map(child -> find(child, id, type))
+                    .filter(found -> found != null)
+                    .findFirst()
+                    .orElse(null);
+        }
+        return null;
     }
 
     private static void runOnFxThread(ThrowingRunnable task) throws Exception {

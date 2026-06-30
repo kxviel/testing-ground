@@ -307,40 +307,6 @@
     -fx-text-fill: rgba(29, 27, 32, 0.64);
 }
 
-.memory-title {
-    -fx-font-size: 48px;
-    -fx-font-weight: 900;
-    -fx-text-fill: -game-on-accent-container;
-    -fx-line-spacing: -2;
-}
-
-.memory-subtitle {
-    -fx-font-size: 16px;
-    -fx-font-weight: 500;
-    -fx-text-fill: rgba(29, 27, 32, 0.62);
-}
-
-.hero-accent {
-    -fx-background-color: -game-accent;
-    -fx-background-radius: 99;
-    -fx-pref-height: 4;
-    -fx-pref-width: 74;
-}
-
-.memory-hero-icon {
-    -fx-alignment: center;
-    -fx-background-color: linear-gradient(to bottom right, -app-surface-container-lowest, -game-accent-container);
-    -fx-background-radius: 22;
-    -fx-border-color: rgba(98, 91, 113, 0.18);
-    -fx-border-radius: 22;
-    -fx-border-width: 1;
-    -fx-effect: dropshadow(gaussian, rgba(29, 27, 32, 0.10), 16, 0.16, 0, 5);
-    -fx-min-height: 112;
-    -fx-min-width: 112;
-    -fx-pref-height: 112;
-    -fx-pref-width: 112;
-}
-
 .menu-section {
     -fx-background-color: -app-surface-container-low;
     -fx-background-radius: 28;
@@ -599,7 +565,7 @@
 
 .memory-card-matched {
     -fx-background-color: -app-success-container;
-    -fx-border-color: rgba(45, 106, 76, 0.44);
+    -fx-border-color: -app-success-outline-soft;
     -fx-text-fill: -game-on-accent-container;
     -fx-effect: none;
 }
