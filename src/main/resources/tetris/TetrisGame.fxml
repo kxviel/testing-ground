@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import java.net.URL?>
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
@@ -18,103 +17,139 @@
     </stylesheets>
 
     <center>
-        <HBox alignment="CENTER" styleClass="game-layout">
+        <GridPane maxHeight="Infinity"
+                  maxWidth="Infinity"
+                  styleClass="tetris-game-main">
+            <columnConstraints>
+                <ColumnConstraints hgrow="ALWAYS" percentWidth="65"/>
+                <ColumnConstraints hgrow="ALWAYS" percentWidth="35"/>
+            </columnConstraints>
 
-            <VBox styleClass="game-panel object-legend">
-                <Label text="Special Objects" styleClass="field-title"/>
-                <GridPane styleClass="object-legend-grid">
-                    <columnConstraints>
-                        <ColumnConstraints minWidth="24" prefWidth="24"/>
-                        <ColumnConstraints hgrow="ALWAYS"/>
-                    </columnConstraints>
+            <StackPane GridPane.columnIndex="0"
+                       GridPane.hgrow="ALWAYS"
+                       GridPane.vgrow="ALWAYS"
+                       maxHeight="Infinity"
+                       maxWidth="Infinity"
+                       styleClass="tetris-board-zone">
+                <VBox alignment="CENTER" styleClass="boards-stack">
+                    <GridPane fx:id="topBoardGrid" rotate="180" styleClass="tetris-board"/>
+                    <GridPane fx:id="bottomBoardGrid" styleClass="tetris-board"/>
+                </VBox>
+            </StackPane>
 
-                    <Label text="+" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-                    <Label text="Opponent 2x faster (10s)" styleClass="object-description" wrapText="true"
-                           GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+            <VBox GridPane.columnIndex="1"
+                  GridPane.hgrow="ALWAYS"
+                  GridPane.vgrow="ALWAYS"
+                  maxHeight="Infinity"
+                  maxWidth="Infinity"
+                  spacing="18"
+                  styleClass="tetris-game-info-panel">
 
-                    <Label text="-" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-                    <Label text="You 2x slower (10s)" styleClass="object-description" wrapText="true"
-                           GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                <VBox styleClass="game-sidebar-header">
+                    <Label text="Zetris" styleClass="game-side-title"/>
+                    <Label fx:id="configLabel" text="Pieces: Standard" styleClass="subtitle"/>
+                    <Label fx:id="resultLabel" text="Game running." styleClass="status-line" wrapText="true"/>
+                </VBox>
 
-                    <Label text="R" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
-                    <Label text="Opponent rotation lags 2s per press (10s)" styleClass="object-description" wrapText="true"
-                           GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                <Separator styleClass="game-separator"/>
 
-                    <Label text="r" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
-                    <Label text="Your rotation lags 2s per press (10s)" styleClass="object-description" wrapText="true"
-                           GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                <VBox spacing="10" styleClass="score-section">
+                    <Label text="Points" styleClass="field-title"/>
 
-                    <Label text="S" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
-                    <Label text="Opponent 2x slower (10s)" styleClass="object-description" wrapText="true"
-                           GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+                    <HBox alignment="CENTER_LEFT" spacing="12">
+                        <VBox maxWidth="Infinity" styleClass="player-score-card" HBox.hgrow="ALWAYS">
+                            <Label text="Top" styleClass="field-title"/>
+                            <Label fx:id="topNameLabel" text="Player 2" styleClass="player-name"/>
+                            <Label fx:id="topScoreLabel" text="Score: 0" styleClass="score-label"/>
+                        </VBox>
 
-                    <Label text="*" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
-                    <Label text="Clears nearby blocks within a radius of 3" styleClass="object-description" wrapText="true"
-                           GridPane.columnIndex="1" GridPane.rowIndex="5"/>
-
-                    <Label text="v" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="6"/>
-                    <Label text="Clears blocks below it in your gravity direction" styleClass="object-description" wrapText="true"
-                           GridPane.columnIndex="1" GridPane.rowIndex="6"/>
-
-                    <Label text="P" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="7"/>
-                    <Label text="Sends your current piece to the opponent as their next falling piece" styleClass="object-description" wrapText="true"
-                           GridPane.columnIndex="1" GridPane.rowIndex="7"/>
-
-                    <Label text="T" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="8"/>
-                    <Label text="Teleporter: swap boards/pieces" styleClass="object-description" wrapText="true"
-                           GridPane.columnIndex="1" GridPane.rowIndex="8"/>
-
-                    <Label text="G" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="9"/>
-                    <Label text="Swap falling pieces only" styleClass="object-description" wrapText="true"
-                           GridPane.columnIndex="1" GridPane.rowIndex="9"/>
-                </GridPane>
-            </VBox>
-
-            <VBox alignment="CENTER" styleClass="boards-stack">
-                <GridPane fx:id="topBoardGrid" rotate="180" styleClass="tetris-board"/>
-                <GridPane fx:id="bottomBoardGrid" styleClass="tetris-board"/>
-            </VBox>
-
-            <VBox styleClass="game-panel game-sidebar">
-                <VBox styleClass="game-sidebar-inner">
-                    <VBox styleClass="game-sidebar-header">
-                        <Label text="ZETRIS" styleClass="game-side-title"/>
-                        <Label fx:id="configLabel" text="Pieces: Standard" styleClass="subtitle"/>
-                        <Label fx:id="resultLabel" text="Game running." styleClass="status-line" wrapText="true"/>
-                    </VBox>
-
-                    <Separator styleClass="game-separator"/>
-
-                    <VBox styleClass="game-player-block">
-                        <Label text="Top" styleClass="field-title"/>
-                        <Label fx:id="topNameLabel" text="Player 2" styleClass="player-name"/>
-                        <Label fx:id="topScoreLabel" text="Score: 0" styleClass="score-label"/>
-                    </VBox>
-
-                    <Separator styleClass="game-separator"/>
-
-                    <VBox styleClass="game-player-block">
-                        <Label text="Bottom" styleClass="field-title"/>
-                        <Label fx:id="bottomNameLabel" text="Player 1" styleClass="player-name"/>
-                        <Label fx:id="bottomScoreLabel" text="Score: 0" styleClass="score-label"/>
-                    </VBox>
-
-                    <Separator styleClass="game-separator"/>
-
-                    <VBox styleClass="keymap-block">
-                        <Label fx:id="keymapTitleLabel" text="Controls" styleClass="field-title"/>
-                        <Label fx:id="keymapLabel" text="" styleClass="keymap-label" wrapText="true"/>
-                    </VBox>
-
-                    <Separator styleClass="game-separator"/>
-
-                    <HBox styleClass="game-actions">
-                        <Button fx:id="restartButton" text="Restart" onAction="#onRestart"
-                                visible="false" managed="false" styleClass="btn-outline"/>
-                        <Button text="Quit" onAction="#onBackToMenu" styleClass="btn-primary"/>
+                        <VBox maxWidth="Infinity" styleClass="player-score-card" HBox.hgrow="ALWAYS">
+                            <Label text="Bottom" styleClass="field-title"/>
+                            <Label fx:id="bottomNameLabel" text="Player 1" styleClass="player-name"/>
+                            <Label fx:id="bottomScoreLabel" text="Score: 0" styleClass="score-label"/>
+                        </VBox>
                     </HBox>
                 </VBox>
+
+                <Separator styleClass="game-separator"/>
+
+                <VBox styleClass="keymap-block">
+                    <Label fx:id="keymapTitleLabel" text="Controls" styleClass="field-title"/>
+                    <Label fx:id="keymapLabel" text="" styleClass="keymap-label" wrapText="true"/>
+                </VBox>
+
+                <Separator styleClass="game-separator"/>
+
+                <VBox spacing="10" VBox.vgrow="ALWAYS">
+                    <Label text="Special Objects" styleClass="field-title"/>
+
+                    <ScrollPane fitToWidth="true"
+                                hbarPolicy="NEVER"
+                                maxHeight="Infinity"
+                                maxWidth="Infinity"
+                                VBox.vgrow="ALWAYS"
+                                styleClass="object-scroll">
+                        <content>
+                            <GridPane styleClass="object-legend-grid">
+                                <columnConstraints>
+                                    <ColumnConstraints minWidth="24" prefWidth="24"/>
+                                    <ColumnConstraints hgrow="ALWAYS"/>
+                                </columnConstraints>
+
+                                <Label text="+" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                                <Label text="Opponent 2x faster (10s)" styleClass="object-description" wrapText="true"
+                                       GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                                <Label text="-" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                                <Label text="You 2x slower (10s)" styleClass="object-description" wrapText="true"
+                                       GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                                <Label text="R" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                                <Label text="Opponent rotation lags 2s per press (10s)" styleClass="object-description" wrapText="true"
+                                       GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+                                <Label text="r" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                                <Label text="Your rotation lags 2s per press (10s)" styleClass="object-description" wrapText="true"
+                                       GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+
+                                <Label text="S" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+                                <Label text="Opponent 2x slower (10s)" styleClass="object-description" wrapText="true"
+                                       GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+
+                                <Label text="*" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
+                                <Label text="Clears nearby blocks within a radius of 3" styleClass="object-description" wrapText="true"
+                                       GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+
+                                <Label text="v" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="6"/>
+                                <Label text="Clears blocks below it in your gravity direction" styleClass="object-description" wrapText="true"
+                                       GridPane.columnIndex="1" GridPane.rowIndex="6"/>
+
+                                <Label text="P" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="7"/>
+                                <Label text="Sends your current piece to the opponent as their next falling piece" styleClass="object-description" wrapText="true"
+                                       GridPane.columnIndex="1" GridPane.rowIndex="7"/>
+
+                                <Label text="T" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="8"/>
+                                <Label text="Teleporter: swap boards/pieces" styleClass="object-description" wrapText="true"
+                                       GridPane.columnIndex="1" GridPane.rowIndex="8"/>
+
+                                <Label text="G" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="9"/>
+                                <Label text="Swap falling pieces only" styleClass="object-description" wrapText="true"
+                                       GridPane.columnIndex="1" GridPane.rowIndex="9"/>
+                            </GridPane>
+                        </content>
+                    </ScrollPane>
+                </VBox>
+
+                <Separator styleClass="game-separator"/>
+
+                <HBox styleClass="game-actions">
+                    <Button fx:id="restartButton" text="Restart" onAction="#onRestart"
+                            visible="false" managed="false" maxWidth="Infinity"
+                            styleClass="btn-outline" HBox.hgrow="ALWAYS"/>
+                    <Button text="Quit" onAction="#onBackToMenu" maxWidth="Infinity"
+                            styleClass="btn-primary" HBox.hgrow="ALWAYS"/>
+                </HBox>
             </VBox>
-        </HBox>
+        </GridPane>
     </center>
 </BorderPane>

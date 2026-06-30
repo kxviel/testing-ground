@@ -420,12 +420,7 @@ public class TetrisMenuController implements RouteDataReceiver {
     }
 
     private void startHost() {
-        String hostName = trimmed(hostPlayerNameField);
-
-        if (hostName.isEmpty()) {
-            statusLabel.setText("Enter your host player name before starting.");
-            return;
-        }
+        String hostName = defaultIfBlank(trimmed(hostPlayerNameField), "Player 1");
 
         this.hostName = hostName;
         joinedPlayerName = null;
@@ -479,14 +474,10 @@ public class TetrisMenuController implements RouteDataReceiver {
     }
 
     private void joinGame() {
-        String playerName = trimmed(joinPlayerNameField);
+        String playerName = defaultIfBlank(trimmed(joinPlayerNameField), "Player 2");
         TetrisLanDiscoveryService.DiscoveredGame selectedGame = availableGamesList.getSelectionModel()
                 .getSelectedItem();
 
-        if (playerName.isEmpty()) {
-            statusLabel.setText("Enter your player name before joining.");
-            return;
-        }
         if (selectedGame == null) {
             statusLabel.setText("Select an available game before joining.");
             return;

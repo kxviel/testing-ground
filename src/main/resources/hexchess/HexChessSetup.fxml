@@ -57,9 +57,9 @@
                             <ColumnConstraints hgrow="ALWAYS" minWidth="170" prefWidth="186"/>
                         </columnConstraints>
                         <Label text="White" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-                        <TextField fx:id="whiteNameField" text="White" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                        <TextField fx:id="whiteNameField" text="Player 1" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
                         <Label text="Black" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-                        <TextField fx:id="blackNameField" text="Black" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                        <TextField fx:id="blackNameField" text="Player 2" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
                     </GridPane>
                 </VBox>
 

@@ -2,7 +2,6 @@
 
 <?import java.lang.String?>
 <?import java.net.URL?>
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -17,44 +16,42 @@
     </stylesheets>
 
     <center>
-        <HBox alignment="TOP_CENTER" fillHeight="false" spacing="18" styleClass="hex-stage" BorderPane.alignment="CENTER">
-            <VBox minWidth="852"
-                  prefWidth="852"
-                  maxWidth="852">
-                <styleClass>
-                    <String fx:value="hex-board-panel"/>
-                    <String fx:value="board-surface"/>
-                </styleClass>
-                <HBox alignment="CENTER_LEFT" styleClass="board-header">
-                    <VBox spacing="2">
-                        <Label text="Board" styleClass="section-title"/>
-                        <Label text="Promotion files are marked with stars." styleClass="section-copy"/>
-                    </VBox>
-                </HBox>
-                <StackPane minWidth="820"
-                           minHeight="650"
-                           prefWidth="820"
-                           prefHeight="650"
-                           styleClass="canvas-frame">
-                    <Canvas fx:id="boardCanvas" width="820" height="650"/>
+        <GridPane maxHeight="Infinity"
+                  maxWidth="Infinity"
+                  styleClass="hex-game-main">
+            <columnConstraints>
+                <ColumnConstraints hgrow="ALWAYS" percentWidth="65"/>
+                <ColumnConstraints hgrow="ALWAYS" percentWidth="35"/>
+            </columnConstraints>
+
+            <StackPane GridPane.columnIndex="0"
+                       GridPane.hgrow="ALWAYS"
+                       GridPane.vgrow="ALWAYS"
+                       maxHeight="Infinity"
+                       maxWidth="Infinity"
+                       styleClass="hex-board-zone">
+                <StackPane styleClass="canvas-frame">
+                    <Canvas fx:id="boardCanvas" width="660" height="560"/>
                 </StackPane>
-            </VBox>
+            </StackPane>
 
-            <VBox minWidth="288" prefWidth="304" maxWidth="320" styleClass="hex-side-panel">
+            <VBox GridPane.columnIndex="1"
+                  GridPane.hgrow="ALWAYS"
+                  GridPane.vgrow="ALWAYS"
+                  maxHeight="Infinity"
+                  maxWidth="Infinity"
+                  spacing="18"
+                  styleClass="hex-game-info-panel">
 
-                <VBox>
-                    <VBox alignment="CENTER" styleClass="hex-game-header">
-                        <Label text="LIVE MATCH" styleClass="eyebrow"/>
-                        <Label text="Chexsagon" styleClass="title"/>
-                        <Label fx:id="modeLabel" styleClass="subtitle"/>
-                    </VBox>
+                <VBox styleClass="hex-game-header">
+                    <Label text="Live Match" styleClass="eyebrow"/>
+                    <Label text="Chexsagon" styleClass="title"/>
+                    <Label fx:id="modeLabel" styleClass="subtitle"/>
                 </VBox>
 
-                <VBox>
-                    <styleClass>
-                        <String fx:value="sidebar-section"/>
-                        <String fx:value="hero-section"/>
-                    </styleClass>
+                <Separator/>
+
+                <VBox styleClass="sidebar-section">
                     <Label text="Turn" styleClass="panel-label"/>
                     <Label fx:id="turnLabel" styleClass="turn-display"/>
                     <Label fx:id="statusLabel" wrapText="true" minHeight="52" styleClass="status-box"/>
@@ -63,7 +60,7 @@
                 <Separator/>
 
                 <VBox styleClass="sidebar-section">
-                    <Label text="Position" styleClass="panel-label"/>
+                    <Label text="Points" styleClass="panel-label"/>
                     <Label fx:id="scoreLabel" styleClass="stat-line"/>
                     <Label fx:id="lastMoveLabel" wrapText="true" styleClass="stat-line"/>
                     <Label fx:id="drawOfferLabel" wrapText="true">
@@ -101,11 +98,9 @@
                                 styleClass="btn-primary" HBox.hgrow="ALWAYS"/>
                     </HBox>
                 </VBox>
-            </VBox>
-        </HBox>
-    </center>
 
-    <padding>
-        <Insets top="18" right="24" bottom="18" left="24"/>
-    </padding>
+                <Region VBox.vgrow="ALWAYS"/>
+            </VBox>
+        </GridPane>
+    </center>
 </BorderPane>

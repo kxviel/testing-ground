@@ -207,10 +207,10 @@ public class HexChessMenuController {
     }
 
     private HexChessGameSetup setup(HexGameMode mode) {
-        String whiteName = whiteNameField == null ? "White" : whiteNameField.getText();
+        String whiteName = whiteNameField == null ? "Player 1" : whiteNameField.getText();
         String blackName = mode == HexGameMode.BOT
                 ? "Bot"
-                : blackNameField == null ? "Black" : blackNameField.getText();
+                : blackNameField == null ? "Player 2" : blackNameField.getText();
 
         return new HexChessGameSetup(whiteName, blackName, mode);
     }

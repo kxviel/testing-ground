@@ -173,7 +173,7 @@
                             </columnConstraints>
 
                             <Label text="Name" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-                            <TextField fx:id="hostPlayerNameField" text="Host Player" promptText="Host name"
+                            <TextField fx:id="hostPlayerNameField" text="Player 1" promptText="Player 1"
                                        GridPane.columnIndex="1" GridPane.rowIndex="0"/>
                         </GridPane>
 
@@ -197,7 +197,7 @@
                             </columnConstraints>
 
                             <Label text="Name" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-                            <TextField fx:id="joinPlayerNameField" text="Joining Player" promptText="Your name"
+                            <TextField fx:id="joinPlayerNameField" text="Player 2" promptText="Player 2"
                                        GridPane.columnIndex="1" GridPane.rowIndex="0"/>
                         </GridPane>
 

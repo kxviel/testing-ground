@@ -31,12 +31,12 @@ public class HexChessSetupController implements RouteDataReceiver {
     private static final double HEX_SIZE = 24.0;
     private static final double BOARD_WIDTH = 720.0;
     private static final double BOARD_HEIGHT = 590.0;
-    private static final Color CELL_LIGHT = Color.web("#FFF8FA");
-    private static final Color CELL_MID = Color.web("#FFD8E4");
-    private static final Color CELL_DARK = Color.web("#EFB8C8");
-    private static final Color STROKE_BASE = Color.web("#7D5260");
-    private static final Color STROKE_SELECTED = Color.web("#633B48");
-    private static final Color NOTATION_COLOR = Color.rgb(49, 17, 29, 0.48);
+    private static final Color CELL_LIGHT = Color.web("#f7c895");
+    private static final Color CELL_MID = Color.web("#e5aa68");
+    private static final Color CELL_DARK = Color.web("#cf873d");
+    private static final Color STROKE_BASE = Color.web("#6b4a28");
+    private static final Color STROKE_SELECTED = Color.web("#0f62fe");
+    private static final Color NOTATION_COLOR = Color.rgb(23, 23, 23, 0.45);
 
     @FXML
     private Canvas boardCanvas;

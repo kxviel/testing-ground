@@ -9,8 +9,8 @@ public record HexChessGameSetup(
         boolean customPosition) {
 
     public HexChessGameSetup {
-        whiteName = whiteName == null || whiteName.isBlank() ? "White" : whiteName.trim();
-        blackName = blackName == null || blackName.isBlank() ? "Black" : blackName.trim();
+        whiteName = whiteName == null || whiteName.isBlank() ? "Player 1" : whiteName.trim();
+        blackName = blackName == null || blackName.isBlank() ? "Player 2" : blackName.trim();
         mode = mode == null ? HexGameMode.LOCAL : mode;
         initialBoard = initialBoard == null ? HexBoard.standard() : initialBoard;
         startingTurn = startingTurn == null ? HexPieceColor.WHITE : startingTurn;
@@ -30,11 +30,11 @@ public record HexChessGameSetup(
     }
 
     public static HexChessGameSetup local() {
-        return new HexChessGameSetup("White", "Black", HexGameMode.LOCAL);
+        return new HexChessGameSetup("Player 1", "Player 2", HexGameMode.LOCAL);
     }
 
     public static HexChessGameSetup bot() {
-        return new HexChessGameSetup("White", "Bot", HexGameMode.BOT);
+        return new HexChessGameSetup("Player 1", "Bot", HexGameMode.BOT);
     }
 
     public HexChessGameSetup withMode(HexGameMode nextMode) {

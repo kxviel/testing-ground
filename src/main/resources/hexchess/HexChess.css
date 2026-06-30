@@ -9,7 +9,7 @@
 }
 
 .hex-game-root {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #FFFFFF 0%, -game-soft-surface 62%, -game-soft-surface 100%);
+    -fx-background-color: -app-surface;
 }
 
 .title {
@@ -133,7 +133,7 @@
 
 .hex-game-header {
     -fx-spacing: 5;
-    -fx-padding: 0 0 18 0;
+    -fx-padding: 0;
 }
 
 .hex-menu-main {
@@ -177,6 +177,33 @@
 
 .hex-stage {
     -fx-spacing: 18;
+}
+
+.hex-game-main {
+    -fx-background-color: linear-gradient(to bottom right, -app-surface, -app-surface-container-low 56%, -game-accent-container);
+}
+
+.hex-board-zone {
+    -fx-alignment: center;
+    -fx-padding: 8 10 8 10;
+}
+
+.hex-game-info-panel {
+    -fx-background-color: -game-accent-container;
+    -fx-background-radius: 0;
+    -fx-border-color: transparent transparent transparent rgba(125, 82, 96, 0.24);
+    -fx-border-width: 0 0 0 1;
+    -fx-padding: 46 40 30 40;
+}
+
+.hex-game-info-panel .title {
+    -fx-font-size: 2em;
+    -fx-font-weight: 900;
+}
+
+.hex-game-info-panel .subtitle,
+.hex-game-info-panel .stat-line {
+    -fx-font-size: 0.929em;
 }
 
 .hex-side-panel,

@@ -36,22 +36,22 @@ import java.util.Optional;
 
 public class HexChessGameController implements RouteDataReceiver {
 
-    private static final double HEX_SIZE = 27.0;
-    private static final double BOARD_WIDTH = 820.0;
-    private static final double BOARD_HEIGHT = 650.0;
+    private static final double HEX_SIZE = 22.0;
+    private static final double BOARD_WIDTH = 660.0;
+    private static final double BOARD_HEIGHT = 560.0;
     private static final Duration BOT_DELAY = Duration.millis(350);
     private static final Duration BOT_DRAW_DECLINE_DELAY = Duration.millis(800);
     private static final String NETWORK_RESTART_MESSAGE =
             "Network restart is not supported. Return to menu to start again.";
-    private static final Color CELL_LIGHT = Color.web("#FFF8FA");
-    private static final Color CELL_MID = Color.web("#FFD8E4");
-    private static final Color CELL_DARK = Color.web("#EFB8C8");
-    private static final Color CELL_LEGAL = Color.web("#FFD8E4");
-    private static final Color CELL_CHECK = Color.web("#7D5260");
-    private static final Color STROKE_BASE = Color.web("#7D5260");
-    private static final Color STROKE_SELECTED = Color.web("#633B48");
-    private static final Color STROKE_LAST = Color.web("#31111D");
-    private static final Color NOTATION_COLOR = Color.rgb(49, 17, 29, 0.48);
+    private static final Color CELL_LIGHT = Color.web("#f7c895");
+    private static final Color CELL_MID = Color.web("#e5aa68");
+    private static final Color CELL_DARK = Color.web("#cf873d");
+    private static final Color CELL_LEGAL = Color.web("#9fd3b5");
+    private static final Color CELL_CHECK = Color.web("#f87171");
+    private static final Color STROKE_BASE = Color.web("#6b4a28");
+    private static final Color STROKE_SELECTED = Color.web("#0f62fe");
+    private static final Color STROKE_LAST = Color.web("#7c3aed");
+    private static final Color NOTATION_COLOR = Color.rgb(23, 23, 23, 0.45);
 
     @FXML
     private Canvas boardCanvas;
@@ -82,8 +82,8 @@ public class HexChessGameController implements RouteDataReceiver {
             HEX_SIZE,
             BOARD_WIDTH,
             BOARD_HEIGHT,
-            14,
-            30);
+            11,
+            25);
 
     private HexChessGameSetup setup = HexChessGameSetup.local();
     private HexGameState gameState = HexGameState.standard();

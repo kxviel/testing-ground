@@ -15,6 +15,8 @@ public record TetrisGameSetup(
     }
 
     public TetrisGameSetup {
+        playerOneName = playerOneName == null || playerOneName.isBlank() ? "Player 1" : playerOneName.trim();
+        playerTwoName = playerTwoName == null || playerTwoName.isBlank() ? "Player 2" : playerTwoName.trim();
         config = config == null ? TetrisGameConfig.defaultConfig() : config;
         mode = mode == null ? TetrisGameMode.LOCAL : mode;
     }
