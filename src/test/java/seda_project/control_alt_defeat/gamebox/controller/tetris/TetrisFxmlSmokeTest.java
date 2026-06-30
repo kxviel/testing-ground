@@ -2,7 +2,12 @@ package seda_project.control_alt_defeat.gamebox.controller.tetris;
 
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.control.Button;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -11,6 +16,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -31,6 +38,33 @@ class TetrisFxmlSmokeTest {
     void menuFxmlLoads() throws Exception {
         Parent root = loadOnFxThread("/tetris/TetrisMenu.fxml", null);
         assertNotNull(root);
+    }
+
+    @Test
+    void menuUsesSharedTwoColumnShell() throws Exception {
+        Parent root = loadOnFxThread("/tetris/TetrisMenu.fxml", null);
+
+        assertTrue(root instanceof StackPane);
+        StackPane menuRoot = (StackPane) root;
+        assertEquals(1080, menuRoot.getPrefWidth(), 0.01);
+        assertEquals(720, menuRoot.getPrefHeight(), 0.01);
+        assertTrue(menuRoot.getChildren().getFirst() instanceof GridPane);
+    }
+
+    @Test
+    void menuStartsWithThreeRowsAndHiddenOptionsPanel() throws Exception {
+        Parent root = loadOnFxThread("/tetris/TetrisMenu.fxml", null);
+        GridPane grid = (GridPane) ((StackPane) root).getChildren().getFirst();
+        VBox modeChoicePane = find(root, "modeChoicePane", VBox.class);
+        VBox optionsPanel = find(root, "optionsPanel", VBox.class);
+
+        assertEquals(3, modeChoicePane.getChildren().stream()
+                .filter(Button.class::isInstance)
+                .count());
+        assertFalse(optionsPanel.isVisible());
+        assertFalse(optionsPanel.isManaged());
+        assertEquals(100, grid.getColumnConstraints().get(0).getPercentWidth(), 0.01);
+        assertEquals(0, grid.getColumnConstraints().get(1).getPercentWidth(), 0.01);
     }
 
     @Test
@@ -81,5 +115,19 @@ class TetrisFxmlSmokeTest {
             throw new RuntimeException(errorRef.get());
         }
         return rootRef.get();
+    }
+
+    private static <T extends Node> T find(Node node, String id, Class<T> type) {
+        if (type.isInstance(node) && id.equals(node.getId())) {
+            return type.cast(node);
+        }
+        if (node instanceof Parent parent) {
+            return parent.getChildrenUnmodifiable().stream()
+                    .map(child -> find(child, id, type))
+                    .filter(found -> found != null)
+                    .findFirst()
+                    .orElse(null);
+        }
+        return null;
     }
 }

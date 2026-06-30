@@ -14,7 +14,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -55,11 +57,19 @@ public class TetrisMenuController implements RouteDataReceiver {
     @FXML
     private VBox joinPane;
     @FXML
+    private VBox optionsPanel;
+    @FXML
     private VBox configBox;
     @FXML
     private VBox customEditorBox;
     @FXML
     private GridPane customPieceGrid;
+    @FXML
+    private ColumnConstraints contentColumn;
+    @FXML
+    private ColumnConstraints optionsColumn;
+    @FXML
+    private HBox actionButtonRow;
 
     @FXML
     private Button localModeButton;
@@ -292,6 +302,12 @@ public class TetrisMenuController implements RouteDataReceiver {
     }
 
     private void showOnly(MenuView view) {
+        boolean optionsShown = view != MenuView.MODE_CHOICE;
+        contentColumn.setPercentWidth(optionsShown ? 65 : 100);
+        optionsColumn.setPercentWidth(optionsShown ? 35 : 0);
+        setShown(optionsPanel, optionsShown);
+        setShown(actionButtonRow, optionsShown);
+
         setShown(modeChoicePane, view == MenuView.MODE_CHOICE);
         setShown(localPane, view == MenuView.LOCAL);
         setShown(lanPane, view == MenuView.LAN);

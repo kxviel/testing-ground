@@ -8,14 +8,15 @@
 }
 
 .title {
-    -fx-font-size: 30px;
-    -fx-font-weight: 700;
+    -fx-font-size: 3.714em;
+    -fx-font-weight: 900;
     -fx-text-fill: -game-on-accent-container;
     -fx-padding: 0;
+    -fx-effect: dropshadow(gaussian, rgba(49, 17, 29, 0.08), 8, 0.15, 0, 2);
 }
 
 .subtitle {
-    -fx-font-size: 14px;
+    -fx-font-size: 1.214em;
     -fx-text-fill: rgba(49, 17, 29, 0.66);
     -fx-padding: 0;
 }
@@ -23,33 +24,33 @@
 .menu-icon-frame {
     -fx-alignment: center;
     -fx-background-color: linear-gradient(to bottom right, -app-surface-container-lowest, -game-accent-container);
-    -fx-background-radius: 14;
+    -fx-background-radius: 20;
     -fx-border-color: rgba(125, 82, 96, 0.18);
-    -fx-border-radius: 14;
+    -fx-border-radius: 20;
     -fx-border-width: 1;
     -fx-effect: dropshadow(gaussian, rgba(49, 17, 29, 0.08), 10, 0.16, 0, 3);
-    -fx-min-height: 68;
-    -fx-min-width: 68;
-    -fx-pref-height: 68;
-    -fx-pref-width: 68;
+    -fx-min-height: 64;
+    -fx-min-width: 64;
+    -fx-pref-height: 64;
+    -fx-pref-width: 64;
 }
 
 .section-title {
-    -fx-font-size: 18px;
-    -fx-font-weight: 700;
+    -fx-font-size: 1.429em;
+    -fx-font-weight: 900;
     -fx-text-fill: -game-on-accent-container;
     -fx-padding: 0 0 2 0;
 }
 
 .field-title {
-    -fx-font-size: 12px;
-    -fx-font-weight: 700;
+    -fx-font-size: 1em;
+    -fx-font-weight: 800;
     -fx-text-fill: -game-on-accent-container;
     -fx-padding: 0 0 2 0;
 }
 
 .status-line {
-    -fx-font-size: 13px;
+    -fx-font-size: 0.929em;
     -fx-font-weight: 600;
     -fx-text-fill: rgba(49, 17, 29, 0.70);
     -fx-line-spacing: 2px;
@@ -87,15 +88,15 @@
 .button {
     -fx-alignment: center;
     -fx-background-insets: 0;
-    -fx-background-radius: 8;
-    -fx-border-radius: 8;
+    -fx-background-radius: 18;
+    -fx-border-radius: 18;
     -fx-border-width: 1;
     -fx-cursor: hand;
-    -fx-font-size: 14px;
-    -fx-font-weight: 600;
-    -fx-min-height: 36;
+    -fx-font-size: 1em;
+    -fx-font-weight: 700;
+    -fx-min-height: 44;
     -fx-min-width: 100;
-    -fx-padding: 8 16;
+    -fx-padding: 10 18;
 }
 
 .btn-primary {
@@ -148,8 +149,9 @@
 
 /* Form controls */
 .text-field {
-    -fx-background-radius: 8;
-    -fx-border-radius: 8;
+    -fx-background-color: -app-surface;
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
     -fx-border-color: rgba(125, 82, 96, 0.24);
     -fx-border-width: 1;
     -fx-min-height: 36;
@@ -157,14 +159,14 @@
 }
 
 .combo-box {
-    -fx-background-radius: 8;
-    -fx-border-radius: 8;
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
     -fx-border-color: rgba(125, 82, 96, 0.24);
     -fx-min-height: 36;
 }
 
 .check-box {
-    -fx-font-size: 13px;
+    -fx-font-size: 0.929em;
     -fx-font-weight: 600;
     -fx-text-fill: -game-on-accent-container;
     -fx-padding: 2 0;
@@ -187,8 +189,7 @@
 
 .menu-form-grid .text-field {
     -fx-min-width: 120;
-    -fx-pref-width: 168;
-    -fx-max-width: 168;
+    -fx-pref-width: 220;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -196,55 +197,195 @@
 /* -------------------------------------------------------------------------- */
 
 .tetris-menu-root {
-    -fx-padding: 20 28 18 28;
+    -fx-background-color: -app-surface;
+    -fx-padding: 0;
 }
 
-.menu-header {
-    -fx-spacing: 4;
-    -fx-padding: 0 0 8 0;
+.tetris-menu-main {
+    -fx-background-color: linear-gradient(to bottom right, -app-surface, -app-surface-container-low 56%, -game-accent-container);
 }
 
-.menu-body {
-    -fx-alignment: top-center;
-    -fx-spacing: 18;
-    -fx-padding: 12 0 0 0;
-    -fx-min-height: 248;
+.tetris-setup {
+    -fx-padding: 56 34 30 44;
+}
+
+.hero-copy {
+    -fx-padding: 0;
+}
+
+.title-divider {
+    -fx-padding: 8 0 4 0;
+}
+
+.divider-line {
+    -fx-background-color: rgba(125, 82, 96, 0.16);
+    -fx-pref-height: 4;
+    -fx-background-radius: 99;
+}
+
+.divider-line-active {
+    -fx-background-color: -game-accent;
+    -fx-pref-height: 7;
+    -fx-background-radius: 99;
+}
+
+.divider-seal {
+    -fx-background-color: -game-accent;
+    -fx-background-radius: 99;
+    -fx-pref-height: 11;
+    -fx-pref-width: 11;
+}
+
+.tetris-setup-list {
+    -fx-padding: 4 0 0 0;
+}
+
+.tetris-mode-card {
+    -fx-background-color: -app-surface-container-low;
+    -fx-background-radius: 28;
+    -fx-border-color: rgba(125, 82, 96, 0.16);
+    -fx-border-radius: 28;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(49, 17, 29, 0.05), 14, 0.08, 0, 3);
+    -fx-padding: 24 24 24 24;
+}
+
+.tetris-action-row {
+    -fx-alignment: center-left;
+    -fx-background-color: -app-surface-container-low;
+    -fx-background-insets: 0;
+    -fx-background-radius: 28;
+    -fx-border-color: rgba(125, 82, 96, 0.18);
+    -fx-border-radius: 28;
+    -fx-border-width: 1;
+    -fx-content-display: graphic-only;
+    -fx-cursor: hand;
+    -fx-min-height: 108;
+    -fx-padding: 20 20 20 22;
+    -fx-effect: dropshadow(gaussian, rgba(49, 17, 29, 0.06), 14, 0.10, 0, 3);
+}
+
+.tetris-action-row:hover {
+    -fx-background-color: -game-accent-container;
+    -fx-border-color: rgba(125, 82, 96, 0.45);
+}
+
+.tetris-action-row:pressed {
+    -fx-background-color: rgba(125, 82, 96, 0.18);
+    -fx-effect: none;
+}
+
+.row-content {
+    -fx-fill-height: true;
+}
+
+.row-icon-chip {
+    -fx-alignment: center;
+    -fx-background-color: -app-surface;
+    -fx-background-radius: 20;
+    -fx-border-color: rgba(125, 82, 96, 0.22);
+    -fx-border-radius: 20;
+    -fx-border-width: 1;
+    -fx-min-height: 64;
+    -fx-min-width: 64;
+    -fx-pref-height: 64;
+    -fx-pref-width: 64;
+    -fx-effect: dropshadow(gaussian, rgba(49, 17, 29, 0.08), 10, 0.16, 0, 3);
+}
+
+.row-icon-letter {
+    -fx-font-size: 2em;
+    -fx-font-weight: 800;
+    -fx-text-fill: -game-accent;
+}
+
+.row-title {
+    -fx-font-size: 1.429em;
+    -fx-font-weight: 900;
+    -fx-text-fill: -game-on-accent-container;
+}
+
+.row-subtitle {
+    -fx-font-size: 1em;
+    -fx-font-weight: 400;
+    -fx-text-fill: rgba(49, 17, 29, 0.66);
+}
+
+.row-arrow-chip {
+    -fx-alignment: center;
+    -fx-background-color: rgba(125, 82, 96, 0.10);
+    -fx-background-radius: 99;
+    -fx-min-height: 38;
+    -fx-min-width: 38;
+    -fx-pref-height: 38;
+    -fx-pref-width: 38;
+}
+
+.row-arrow {
+    -fx-font-size: 2.429em;
+    -fx-font-weight: 300;
+    -fx-text-fill: rgba(49, 17, 29, 0.68);
+}
+
+.tetris-action-row:hover .row-arrow-chip {
+    -fx-background-color: rgba(125, 82, 96, 0.16);
+}
+
+.tetris-action-row:hover .row-arrow {
+    -fx-text-fill: -game-accent;
 }
 
 .menu-pane-content {
     -fx-spacing: 16;
-    -fx-padding: 4 8;
+    -fx-padding: 0;
 }
 
-.menu-footer {
-    -fx-spacing: 10;
+.menu-divider {
+    -fx-background-color: rgba(125, 82, 96, 0.14);
+    -fx-pref-height: 2;
+    -fx-background-radius: 99;
+}
+
+.tetris-options-panel {
+    -fx-background-color: -game-accent-container;
+    -fx-background-radius: 0;
+    -fx-border-color: transparent transparent transparent rgba(125, 82, 96, 0.24);
+    -fx-border-width: 0 0 0 1;
+    -fx-padding: 74 40 58 40;
+}
+
+.settings-title {
+    -fx-font-size: 1.714em;
+    -fx-font-weight: 900;
+    -fx-text-fill: -game-on-accent-container;
+}
+
+.settings-subtitle {
+    -fx-font-size: 1em;
+    -fx-font-weight: 400;
+    -fx-text-fill: rgba(49, 17, 29, 0.64);
+}
+
+.settings-footer {
+    -fx-border-color: rgba(125, 82, 96, 0.20) transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
     -fx-padding: 16 0 0 0;
-    -fx-min-height: 80;
 }
 
-.menu-footer .status-line {
-    -fx-alignment: center;
-    -fx-text-alignment: center;
+.footer-line,
+.option-hint {
+    -fx-font-size: 0.857em;
+    -fx-font-weight: 500;
+    -fx-text-fill: rgba(49, 17, 29, 0.64);
 }
 
 .menu-config-column {
-    -fx-background-color: -game-accent-container;
-    -fx-background-radius: 10;
-    -fx-border-color: rgba(125, 82, 96, 0.18);
-    -fx-border-radius: 10;
-    -fx-border-width: 1;
-    -fx-padding: 14 12 12 12;
-    -fx-effect: dropshadow(gaussian, rgba(49, 17, 29, 0.06), 10, 0, 0, 2);
+    -fx-padding: 8 0 0 0;
 }
 
 .menu-config-content {
     -fx-spacing: 16;
-    -fx-padding: 2 6 10 4;
-}
-
-.menu-config-content .section-title {
-    -fx-font-size: 17px;
-    -fx-padding: 0 0 4 0;
+    -fx-padding: 0;
 }
 
 .menu-config-section {
@@ -280,7 +421,7 @@
 }
 
 .menu-custom-editor .status-line {
-    -fx-font-size: 12px;
+    -fx-font-size: 0.857em;
 }
 
 .menu-custom-editor .button-row {
