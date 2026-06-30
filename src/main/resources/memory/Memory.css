@@ -128,23 +128,186 @@
 }
 
 .memory-menu-root {
-    -fx-background-color: linear-gradient(to bottom right, #F8FBFF, #EAF2FD);
+    -fx-background-color: #F8FBFF;
     -fx-font-family: "Inter Variable", "Inter", "Segoe UI", "Arial", sans-serif;
-    -fx-padding: 30;
+    -fx-padding: 0;
 }
 
-.memory-menu-card {
+.memory-menu-main {
+    -fx-background-color: linear-gradient(to bottom right, #FFFFFF, #F7FAFF);
+}
+
+.memory-setup {
+    -fx-padding: 56 34 30 44;
+}
+
+.hero-copy {
+    -fx-padding: 0;
+}
+
+.memory-menu-title {
+    -fx-font-size: 43px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #102A4C;
+    -fx-effect: dropshadow(gaussian, rgba(16, 42, 76, 0.08), 8, 0.15, 0, 2);
+}
+
+.memory-menu-subtitle {
+    -fx-font-size: 17px;
+    -fx-font-weight: 400;
+    -fx-text-fill: rgba(16, 42, 76, 0.70);
+}
+
+.title-divider {
+    -fx-padding: 8 0 4 0;
+}
+
+.divider-line-active {
+    -fx-background-color: #2F7DF6;
+    -fx-pref-height: 3;
+    -fx-background-radius: 99;
+}
+
+.divider-seal {
+    -fx-background-color: #2F7DF6;
+    -fx-background-radius: 99;
+    -fx-pref-height: 8;
+    -fx-pref-width: 8;
+}
+
+.memory-setup-list {
+    -fx-padding: 4 0 0 0;
+}
+
+.memory-action-row {
+    -fx-alignment: center-left;
     -fx-background-color: rgba(255, 255, 255, 0.92);
-    -fx-background-radius: 18;
-    -fx-border-color: rgba(63, 114, 175, 0.18);
-    -fx-border-radius: 18;
+    -fx-background-insets: 0;
+    -fx-background-radius: 16;
+    -fx-border-color: rgba(63, 114, 175, 0.16);
+    -fx-border-radius: 16;
     -fx-border-width: 1;
-    -fx-effect: dropshadow(gaussian, rgba(16, 42, 76, 0.12), 22, 0.18, 0, 8);
-    -fx-padding: 42 42 32 42;
+    -fx-content-display: graphic-only;
+    -fx-cursor: hand;
+    -fx-min-height: 94;
+    -fx-padding: 18 18 18 22;
+    -fx-effect: dropshadow(gaussian, rgba(16, 42, 76, 0.08), 16, 0.14, 0, 5);
 }
 
-.memory-hero {
-    -fx-padding: 0 0 8 0;
+.memory-action-row:hover {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: rgba(47, 125, 246, 0.45);
+    -fx-effect: dropshadow(gaussian, rgba(47, 125, 246, 0.18), 20, 0.18, 0, 6);
+    -fx-translate-y: -1;
+}
+
+.memory-action-row:pressed {
+    -fx-translate-y: 0;
+    -fx-effect: dropshadow(gaussian, rgba(16, 42, 76, 0.08), 10, 0.12, 0, 3);
+}
+
+.row-content {
+    -fx-fill-height: true;
+}
+
+.icon-chip {
+    -fx-alignment: center;
+    -fx-background-color: linear-gradient(to bottom right, #FFFFFF, #F0F6FF);
+    -fx-background-radius: 14;
+    -fx-border-color: rgba(63, 114, 175, 0.18);
+    -fx-border-radius: 14;
+    -fx-border-width: 1;
+    -fx-min-height: 56;
+    -fx-min-width: 56;
+    -fx-pref-height: 56;
+    -fx-pref-width: 56;
+    -fx-effect: dropshadow(gaussian, rgba(16, 42, 76, 0.08), 10, 0.16, 0, 3);
+}
+
+.icon-letter {
+    -fx-font-size: 28px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #2F7DF6;
+}
+
+.row-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #102A4C;
+}
+
+.row-subtitle {
+    -fx-font-size: 14px;
+    -fx-font-weight: 400;
+    -fx-text-fill: rgba(16, 42, 76, 0.66);
+}
+
+.row-arrow-chip {
+    -fx-alignment: center;
+    -fx-background-color: rgba(16, 42, 76, 0.045);
+    -fx-background-radius: 99;
+    -fx-min-height: 38;
+    -fx-min-width: 38;
+    -fx-pref-height: 38;
+    -fx-pref-width: 38;
+}
+
+.row-arrow {
+    -fx-font-size: 34px;
+    -fx-font-weight: 300;
+    -fx-text-fill: rgba(16, 42, 76, 0.68);
+    -fx-translate-y: -2;
+}
+
+.memory-action-row:hover .row-arrow-chip {
+    -fx-background-color: rgba(47, 125, 246, 0.12);
+}
+
+.memory-action-row:hover .row-arrow {
+    -fx-text-fill: #2F7DF6;
+}
+
+.memory-network-panel {
+    -fx-background-color: #EAF2FD;
+    -fx-background-radius: 0;
+    -fx-border-color: transparent transparent transparent rgba(63, 114, 175, 0.22);
+    -fx-border-width: 0 0 0 1;
+    -fx-padding: 74 34 58 34;
+}
+
+.network-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #102A4C;
+}
+
+.network-subtitle {
+    -fx-font-size: 14px;
+    -fx-font-weight: 400;
+    -fx-text-fill: rgba(16, 42, 76, 0.64);
+}
+
+.network-section {
+    -fx-padding: 8 0 0 0;
+}
+
+.section-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #102A4C;
+    -fx-padding: 0 0 4 0;
+}
+
+.network-footer {
+    -fx-border-color: rgba(63, 114, 175, 0.18) transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+    -fx-padding: 16 0 0 0;
+}
+
+.footer-line {
+    -fx-font-size: 12px;
+    -fx-font-weight: 500;
+    -fx-text-fill: rgba(16, 42, 76, 0.64);
 }
 
 .memory-title {
@@ -182,12 +345,13 @@
 }
 
 .menu-section {
-    -fx-background-color: rgba(255, 255, 255, 0.62);
-    -fx-background-radius: 14;
-    -fx-border-color: rgba(63, 114, 175, 0.18);
-    -fx-border-radius: 14;
+    -fx-background-color: rgba(255, 255, 255, 0.92);
+    -fx-background-radius: 16;
+    -fx-border-color: rgba(63, 114, 175, 0.16);
+    -fx-border-radius: 16;
     -fx-border-width: 1;
-    -fx-padding: 18 20 18 20;
+    -fx-padding: 22 22 22 22;
+    -fx-effect: dropshadow(gaussian, rgba(16, 42, 76, 0.08), 16, 0.14, 0, 5);
 }
 
 .section-icon {
@@ -271,7 +435,7 @@
 }
 
 .mode-section {
-    -fx-padding: 0 20 0 20;
+    -fx-padding: 8 0 0 0;
 }
 
 .button {
@@ -293,7 +457,7 @@
 .mode-button {
     -fx-content-display: graphic-only;
     -fx-min-height: 58;
-    -fx-padding: 12 18;
+    -fx-padding: 12 14;
 }
 
 .mode-text {
@@ -305,15 +469,6 @@
 .mode-icon {
     -fx-font-size: 18px;
     -fx-font-weight: 900;
-}
-
-#btnLocalGame {
-    -fx-background-color: #F7FAFF;
-    -fx-border-color: rgba(47, 125, 246, 0.34);
-}
-
-#btnLocalGame .mode-icon {
-    -fx-text-fill: #2F7DF6;
 }
 
 #btnHostGame {
@@ -341,7 +496,16 @@
 
 .join-box,
 .menu-footer {
-    -fx-padding: 0 20 0 20;
+    -fx-padding: 0;
+}
+
+.join-box {
+    -fx-background-color: rgba(255, 255, 255, 0.48);
+    -fx-background-radius: 10;
+    -fx-border-color: rgba(63, 114, 175, 0.18);
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-padding: 12;
 }
 
 .btn-primary {
