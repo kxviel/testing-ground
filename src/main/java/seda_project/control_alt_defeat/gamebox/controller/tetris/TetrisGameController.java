@@ -249,14 +249,12 @@ public class TetrisGameController implements RouteDataReceiver {
 
     private void applyBoardLayout() {
         boolean horizontal = gameState.config().horizontalMode();
-        String layoutClass = horizontal ? "tetris-board-horizontal" : "tetris-board-vertical";
 
         for (GridPane grid : List.of(bottomBoardGrid, topBoardGrid)) {
             grid.getStyleClass().removeIf(style -> style.startsWith("tetris-board-"));
             if (!grid.getStyleClass().contains("tetris-board")) {
                 grid.getStyleClass().add("tetris-board");
             }
-            grid.getStyleClass().add(layoutClass);
         }
 
         if (horizontal) {
@@ -268,9 +266,6 @@ public class TetrisGameController implements RouteDataReceiver {
         }
     }
 
-    private String boardCellSizeClass() {
-        return gameState.config().horizontalMode() ? "board-cell-horizontal" : "board-cell-vertical";
-    }
 
     private void renderLabels() {
         bottomNameLabel.setText(gameState.bottomPlayer().playerName());
@@ -356,7 +351,7 @@ public class TetrisGameController implements RouteDataReceiver {
                 TetrisBoardObject object = player.boardObject();
                 boolean hasObject = object != null && position.equals(object.position());
                 Region cell = hasObject ? new Label(object.type().symbol()) : new Region();
-                cell.getStyleClass().addAll("board-cell", boardCellSizeClass());
+                cell.getStyleClass().addAll("board-cell", "board-cell-vertical");
 
                 if (activeCells.contains(position)) {
                     cell.getStyleClass().add("board-cell-active");
@@ -368,7 +363,11 @@ public class TetrisGameController implements RouteDataReceiver {
                     paintBlock(cell, player.board().colorAt(position));
                 }
 
-                grid.add(cell, column, row);
+                if (gameState.config().horizontalMode()) {
+                    grid.add(cell, row, column);
+                } else {
+                    grid.add(cell, column, row);
+                }
             }
         }
 
@@ -716,7 +715,9 @@ public class TetrisGameController implements RouteDataReceiver {
         TetrisPlayerState player = side == PlayerSide.BOTTOM
                 ? gameState.bottomPlayer()
                 : gameState.topPlayer();
-        grid.add(label, 0, 0, player.board().columns(), player.board().rows());
+        int columnSpan = gameState.config().horizontalMode() ? player.board().rows() : player.board().columns();
+        int rowSpan = gameState.config().horizontalMode() ? player.board().columns() : player.board().rows();
+        grid.add(label, 0, 0, columnSpan, rowSpan);
     }
 
     private void returnToMenuAfterDisconnect() {

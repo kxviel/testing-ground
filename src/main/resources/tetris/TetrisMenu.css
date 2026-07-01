@@ -437,11 +437,12 @@
 }
 
 .tetris-game-main {
-    -fx-background-color: linear-gradient(to bottom right, -app-surface, -app-surface-container-low 56%, -game-accent-container);
+    -fx-background-color: -app-surface-container-lowest;
 }
 
 .tetris-board-zone {
-    -fx-padding: 8 34 8 44;
+    -fx-background-color: -app-surface-container-lowest;
+    -fx-padding: 24 34 24 44;
 }
 
 .tetris-game-info-panel {
@@ -509,7 +510,7 @@
 }
 
 .boards-stack {
-    -fx-spacing: 14;
+    -fx-spacing: 20;
     -fx-padding: 0;
     -fx-alignment: center;
 }
@@ -540,14 +541,6 @@
     -fx-max-height: 16;
 }
 
-.board-cell-horizontal {
-    -fx-min-width: 13;
-    -fx-min-height: 13;
-    -fx-pref-width: 13;
-    -fx-pref-height: 13;
-    -fx-max-width: 13;
-    -fx-max-height: 13;
-}
 
 .game-sidebar-header {
     -fx-spacing: 6;
@@ -644,7 +637,7 @@
 
 /* Horizontal boards: slightly tighter columns, balanced gutters */
 .tetris-game-horizontal .tetris-board-zone {
-    -fx-padding: 8 28 8 36;
+    -fx-padding: 24 34 24 44;
 }
 
 .tetris-game-horizontal .object-description {
@@ -652,8 +645,8 @@
 }
 
 .tetris-game-horizontal .boards-stack {
-    -fx-spacing: 12;
-    -fx-padding: 2 4;
+    -fx-spacing: 20;
+    -fx-padding: 0;
 }
 
 /* Custom piece editor (menu) */

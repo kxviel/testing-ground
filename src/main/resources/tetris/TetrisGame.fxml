@@ -31,7 +31,7 @@
                        maxHeight="Infinity"
                        maxWidth="Infinity"
                        styleClass="tetris-board-zone">
-                <VBox alignment="CENTER" styleClass="boards-stack">
+                <VBox alignment="CENTER" fillWidth="false" styleClass="boards-stack">
                     <GridPane fx:id="topBoardGrid" rotate="180" styleClass="tetris-board"/>
                     <GridPane fx:id="bottomBoardGrid" styleClass="tetris-board"/>
                 </VBox>
