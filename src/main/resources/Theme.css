@@ -1,14 +1,4 @@
 .root {
-    -app-surface: #FFFBFE;
-    -app-surface-container-lowest: #FFFFFF;
-    -app-surface-container-low: #F7F2FA;
-    -app-on-surface: #1D1B20;
-    -app-on-surface-variant: #49454F;
-    -app-outline: #79747E;
-    -app-outline-variant: #CAC4D0;
-    -app-success-container: #DDEFE4;
-    -app-success-outline: #2D6A4C;
-    -app-success-outline-soft: rgba(45, 106, 76, 0.44);
     -sh-background: #FFFFFF;
     -sh-foreground: #090B0C;
     -sh-card: #FFFFFF;
@@ -23,7 +13,6 @@
     -sh-border: #E3E7E8;
     -sh-input: #E3E7E8;
     -sh-ring: #9CA8AB;
-
     -game-accent: #6750A4;
     -game-accent-hover: #5E4898;
     -game-accent-pressed: #4F378B;
@@ -32,7 +21,6 @@
     -game-on-accent: #FFFFFF;
     -game-on-accent-container: #21005D;
     -game-soft-surface: #F7F2FA;
-
     -fx-font-family: "Inter Variable", "Inter", "Segoe UI", "Arial", sans-serif;
 }
 
@@ -92,7 +80,7 @@
 }
 
 .app-scroll .scroll-bar .thumb {
-    -fx-background-color: rgba(29, 27, 32, 0.22);
+    -fx-background-color: rgba(9, 11, 12, 0.20);
     -fx-background-radius: 99;
 }
 

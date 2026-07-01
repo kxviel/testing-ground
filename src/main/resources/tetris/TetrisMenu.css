@@ -1,671 +1,25 @@
-/* -------------------------------------------------------------------------- */
-/* Shared foundation                                                          */
-/* -------------------------------------------------------------------------- */
-
 .tetris-menu-root,
-.tetris-game-root {
-    -fx-background-color: -app-surface;
-}
-
-.title {
-    -fx-font-size: 3.714em;
-    -fx-font-weight: 900;
-    -fx-text-fill: -game-on-accent-container;
-    -fx-padding: 0;
-    -fx-effect: dropshadow(gaussian, rgba(0, 29, 54, 0.08), 8, 0.15, 0, 2);
-}
-
-.subtitle {
-    -fx-font-size: 1.214em;
-    -fx-text-fill: rgba(0, 29, 54, 0.66);
-    -fx-padding: 0;
-}
-
-.menu-icon-frame {
-    -fx-alignment: center;
-    -fx-background-color: linear-gradient(to bottom right, -app-surface-container-lowest, -game-accent-container);
-    -fx-background-radius: 20;
-    -fx-border-color: rgba(0, 97, 164, 0.18);
-    -fx-border-radius: 20;
-    -fx-border-width: 1;
-    -fx-effect: dropshadow(gaussian, rgba(0, 29, 54, 0.08), 10, 0.16, 0, 3);
-    -fx-min-height: 64;
-    -fx-min-width: 64;
-    -fx-pref-height: 64;
-    -fx-pref-width: 64;
-}
-
-.section-title {
-    -fx-font-size: 1.429em;
-    -fx-font-weight: 900;
-    -fx-text-fill: -game-on-accent-container;
-    -fx-padding: 0 0 2 0;
-}
-
-.field-title {
-    -fx-font-size: 1em;
-    -fx-font-weight: 800;
-    -fx-text-fill: -game-on-accent-container;
-    -fx-padding: 0 0 2 0;
-}
-
-.status-line {
-    -fx-font-size: 0.929em;
-    -fx-font-weight: 600;
-    -fx-text-fill: rgba(0, 29, 54, 0.70);
-    -fx-line-spacing: 2px;
-}
-
-.game-separator {
-    -fx-padding: 4 0;
-}
-
-.game-separator .line {
-    -fx-border-color: rgba(0, 97, 164, 0.16);
-    -fx-background-color: rgba(0, 97, 164, 0.16);
-}
-
-/* Buttons */
-.button {
-    -fx-alignment: center;
-    -fx-background-insets: 0;
-    -fx-background-radius: 18;
-    -fx-border-radius: 18;
-    -fx-border-width: 1;
-    -fx-cursor: hand;
-    -fx-font-size: 1em;
-    -fx-font-weight: 700;
-    -fx-min-height: 44;
-    -fx-min-width: 100;
-    -fx-padding: 10 18;
-}
-
-.btn-primary {
-    -fx-background-color: -game-accent;
-    -fx-border-color: -game-accent;
-    -fx-text-fill: -game-on-accent;
-}
-
-.btn-primary:hover {
-    -fx-background-color: -game-accent-hover;
-    -fx-border-color: -game-accent-hover;
-}
-
-.btn-primary:pressed {
-    -fx-background-color: -game-accent-pressed;
-    -fx-border-color: -game-accent-pressed;
-}
-
-.btn-outline {
-    -fx-background-color: -app-surface-container-lowest;
-    -fx-border-color: rgba(0, 97, 164, 0.24);
-    -fx-text-fill: -game-on-accent-container;
-}
-
-.btn-outline:hover {
-    -fx-background-color: -game-soft-surface;
-    -fx-border-color: rgba(0, 97, 164, 0.40);
-}
-
-.btn-outline:pressed {
-    -fx-background-color: -game-accent-container;
-    -fx-border-color: -game-accent;
-}
-
-.btn-selected {
-    -fx-background-color: -game-accent-container;
-    -fx-border-color: -game-accent;
-    -fx-text-fill: -game-on-accent-container;
-}
-
-.button:disabled {
-    -fx-cursor: default;
-    -fx-opacity: 0.5;
-}
-
-.button-row {
-    -fx-spacing: 10;
-    -fx-padding: 2 0 0 0;
-}
-
-/* Form controls */
-.text-field {
-    -fx-background-color: -app-surface;
-    -fx-background-radius: 16;
-    -fx-border-radius: 16;
-    -fx-border-color: rgba(0, 97, 164, 0.24);
-    -fx-border-width: 1;
-    -fx-min-height: 36;
-    -fx-padding: 8 12;
-}
-
-.combo-box {
-    -fx-background-radius: 16;
-    -fx-border-radius: 16;
-    -fx-border-color: rgba(0, 97, 164, 0.24);
-    -fx-min-height: 36;
-}
-
-.check-box {
-    -fx-font-size: 0.929em;
-    -fx-font-weight: 600;
-    -fx-text-fill: -game-on-accent-container;
-    -fx-padding: 2 0;
-}
-
-.list-view {
-    -fx-background-radius: 8;
-    -fx-border-radius: 8;
-    -fx-border-color: rgba(0, 97, 164, 0.24);
-    -fx-border-width: 1;
-    -fx-padding: 4;
-}
-
-.menu-form-grid {
-    -fx-hgap: 12;
-    -fx-vgap: 10;
-    -fx-padding: 4 0 0 0;
-    -fx-alignment: center;
-}
-
-.menu-form-grid .text-field {
-    -fx-min-width: 120;
-    -fx-pref-width: 220;
-}
-
-/* -------------------------------------------------------------------------- */
-/* Menu                                                                       */
-/* -------------------------------------------------------------------------- */
-
-.tetris-menu-root {
-    -fx-background-color: -app-surface;
-    -fx-padding: 0;
-}
-
-.tetris-menu-main {
-    -fx-background-color: linear-gradient(to bottom right, -app-surface, -app-surface-container-low 56%, -game-accent-container);
-}
-
-.tetris-setup {
-    -fx-padding: 56 34 30 44;
-}
-
-.hero-copy {
-    -fx-padding: 0;
-}
-
-.title-divider {
-    -fx-padding: 8 0 4 0;
-}
-
-.divider-line {
-    -fx-background-color: rgba(0, 97, 164, 0.16);
-    -fx-pref-height: 4;
-    -fx-background-radius: 99;
-}
-
-.divider-line-active {
-    -fx-background-color: -game-accent;
-    -fx-pref-height: 7;
-    -fx-background-radius: 99;
-}
-
-.divider-seal {
-    -fx-background-color: -game-accent;
-    -fx-background-radius: 99;
-    -fx-pref-height: 11;
-    -fx-pref-width: 11;
-}
-
-.tetris-setup-list {
-    -fx-padding: 4 0 0 0;
-}
-
-.tetris-mode-card {
-    -fx-background-color: -app-surface-container-low;
-    -fx-background-radius: 28;
-    -fx-border-color: rgba(0, 97, 164, 0.16);
-    -fx-border-radius: 28;
-    -fx-border-width: 1;
-    -fx-effect: dropshadow(gaussian, rgba(0, 29, 54, 0.05), 14, 0.08, 0, 3);
-    -fx-padding: 24 24 24 24;
-}
-
-.tetris-action-row {
-    -fx-alignment: center-left;
-    -fx-background-color: -app-surface-container-low;
-    -fx-background-insets: 0;
-    -fx-background-radius: 28;
-    -fx-border-color: rgba(0, 97, 164, 0.18);
-    -fx-border-radius: 28;
-    -fx-border-width: 1;
-    -fx-content-display: graphic-only;
-    -fx-cursor: hand;
-    -fx-min-height: 108;
-    -fx-padding: 20 20 20 22;
-    -fx-effect: dropshadow(gaussian, rgba(0, 29, 54, 0.06), 14, 0.10, 0, 3);
-}
-
-.tetris-action-row:hover {
-    -fx-background-color: -game-accent-container;
-    -fx-border-color: rgba(0, 97, 164, 0.45);
-}
-
-.tetris-action-row:pressed {
-    -fx-background-color: rgba(0, 97, 164, 0.18);
-    -fx-effect: none;
-}
-
-.row-content {
-    -fx-fill-height: true;
-}
-
-.row-icon-chip {
-    -fx-alignment: center;
-    -fx-background-color: -app-surface;
-    -fx-background-radius: 20;
-    -fx-border-color: rgba(0, 97, 164, 0.22);
-    -fx-border-radius: 20;
-    -fx-border-width: 1;
-    -fx-min-height: 64;
-    -fx-min-width: 64;
-    -fx-pref-height: 64;
-    -fx-pref-width: 64;
-    -fx-effect: dropshadow(gaussian, rgba(0, 29, 54, 0.08), 10, 0.16, 0, 3);
-}
-
-.row-icon-letter {
-    -fx-font-size: 2em;
-    -fx-font-weight: 800;
-    -fx-text-fill: -game-accent;
-}
-
-.row-title {
-    -fx-font-size: 1.429em;
-    -fx-font-weight: 900;
-    -fx-text-fill: -game-on-accent-container;
-}
-
-.row-subtitle {
-    -fx-font-size: 1em;
-    -fx-font-weight: 400;
-    -fx-text-fill: rgba(0, 29, 54, 0.66);
-}
-
-.row-arrow-chip {
-    -fx-alignment: center;
-    -fx-background-color: rgba(0, 97, 164, 0.10);
-    -fx-background-radius: 99;
-    -fx-min-height: 38;
-    -fx-min-width: 38;
-    -fx-pref-height: 38;
-    -fx-pref-width: 38;
-}
-
-.row-arrow {
-    -fx-font-size: 2.429em;
-    -fx-font-weight: 300;
-    -fx-text-fill: rgba(0, 29, 54, 0.68);
-}
-
-.tetris-action-row:hover .row-arrow-chip {
-    -fx-background-color: rgba(0, 97, 164, 0.16);
-}
-
-.tetris-action-row:hover .row-arrow {
-    -fx-text-fill: -game-accent;
-}
-
-.menu-pane-content {
-    -fx-spacing: 16;
-    -fx-padding: 0;
-}
-
-.menu-divider {
-    -fx-background-color: rgba(0, 97, 164, 0.14);
-    -fx-pref-height: 2;
-    -fx-background-radius: 99;
-}
-
-.tetris-options-panel {
-    -fx-background-color: -game-accent-container;
-    -fx-background-radius: 0;
-    -fx-border-color: transparent transparent transparent rgba(0, 97, 164, 0.24);
-    -fx-border-width: 0 0 0 1;
-    -fx-padding: 74 40 58 40;
-}
-
-.settings-title {
-    -fx-font-size: 1.714em;
-    -fx-font-weight: 900;
-    -fx-text-fill: -game-on-accent-container;
-}
-
-.settings-subtitle {
-    -fx-font-size: 1em;
-    -fx-font-weight: 400;
-    -fx-text-fill: rgba(0, 29, 54, 0.64);
-}
-
-.settings-footer {
-    -fx-border-color: rgba(0, 97, 164, 0.20) transparent transparent transparent;
-    -fx-border-width: 1 0 0 0;
-    -fx-padding: 16 0 0 0;
-}
-
-.footer-line,
-.option-hint {
-    -fx-font-size: 0.857em;
-    -fx-font-weight: 500;
-    -fx-text-fill: rgba(0, 29, 54, 0.64);
-}
-
-.menu-config-column {
-    -fx-padding: 8 0 0 0;
-}
-
-.menu-config-content {
-    -fx-spacing: 16;
-    -fx-padding: 0;
-}
-
-.menu-config-section {
-    -fx-spacing: 8;
-}
-
-.menu-config-checks {
-    -fx-spacing: 4;
-    -fx-padding: 2 0 0 0;
-}
-
-.menu-config-content .combo-box {
-    -fx-max-width: infinity;
-    -fx-pref-width: 200;
-}
-
-.menu-custom-editor {
-    -fx-spacing: 10;
-    -fx-padding: 4 0 0 0;
-}
-
-.menu-custom-editor .separator {
-    -fx-padding: 2 0 6 0;
-}
-
-.menu-custom-editor .custom-cell {
-    -fx-min-width: 22;
-    -fx-min-height: 22;
-    -fx-pref-width: 22;
-    -fx-pref-height: 22;
-    -fx-max-width: 22;
-    -fx-max-height: 22;
-}
-
-.menu-custom-editor .status-line {
-    -fx-font-size: 0.857em;
-}
-
-.menu-custom-editor .button-row {
-    -fx-padding: 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* Game screen                                                                */
-/* -------------------------------------------------------------------------- */
-
-.tetris-game-root {
-    -fx-padding: 0;
-}
-
+.tetris-menu-main,
+.tetris-game-root,
 .tetris-game-main {
-    -fx-background-color: -app-surface-container-lowest;
-}
-
-.tetris-board-zone {
-    -fx-background-color: -app-surface-container-lowest;
-    -fx-padding: 24 34 24 44;
-}
-
-.tetris-game-info-panel {
-    -fx-background-color: -game-accent-container;
-    -fx-background-radius: 0;
-    -fx-border-color: transparent transparent transparent rgba(0, 97, 164, 0.24);
-    -fx-border-width: 0 0 0 1;
-    -fx-padding: 46 40 30 40;
-}
-
-.score-section {
-    -fx-padding: 0;
-}
-
-.player-score-card {
-    -fx-background-color: rgba(255, 251, 254, 0.62);
-    -fx-background-radius: 22;
-    -fx-border-color: rgba(0, 97, 164, 0.18);
-    -fx-border-radius: 22;
-    -fx-border-width: 1;
-    -fx-padding: 12 14;
-    -fx-spacing: 4;
-}
-
-.object-scroll {
-    -fx-background-color: transparent;
-    -fx-background: transparent;
-    -fx-border-color: transparent;
-    -fx-padding: 0;
-}
-
-.object-scroll > .viewport {
-    -fx-background-color: transparent;
-}
-
-.object-legend-grid {
-    -fx-hgap: 10;
-    -fx-vgap: 7;
-    -fx-padding: 0;
-}
-
-.object-symbol {
-    -fx-alignment: center;
-    -fx-background-color: -game-accent;
-    -fx-background-radius: 5;
-    -fx-border-color: -game-on-accent-container;
-    -fx-border-radius: 5;
-    -fx-border-width: 1;
-    -fx-font-size: 11px;
-    -fx-font-weight: 800;
-    -fx-min-height: 22;
-    -fx-min-width: 22;
-    -fx-pref-height: 22;
-    -fx-pref-width: 22;
-    -fx-text-fill: -game-on-accent;
-    -fx-padding: 0;
-}
-
-.object-description {
-    -fx-font-size: 0.857em;
-    -fx-font-weight: 600;
-    -fx-text-fill: rgba(0, 29, 54, 0.66);
-    -fx-line-spacing: 1px;
-    -fx-padding: 0 0 0 2;
-}
-
-.boards-stack {
-    -fx-spacing: 20;
-    -fx-padding: 0;
-    -fx-alignment: center;
-}
-
-.tetris-board {
-    -fx-background-color: -game-on-accent-container;
-    -fx-border-color: -game-on-accent-container;
-    -fx-border-width: 2;
-    -fx-background-radius: 4;
-    -fx-border-radius: 4;
-    -fx-hgap: 1;
-    -fx-vgap: 1;
-    -fx-padding: 3;
-}
-
-.board-cell {
-    -fx-background-color: -app-surface;
-    -fx-border-color: -game-accent-container;
-    -fx-border-width: 0.5;
-}
-
-.board-cell-vertical {
-    -fx-min-width: 16;
-    -fx-min-height: 16;
-    -fx-pref-width: 16;
-    -fx-pref-height: 16;
-    -fx-max-width: 16;
-    -fx-max-height: 16;
-}
-
-
-.game-sidebar-header {
-    -fx-spacing: 6;
-    -fx-padding: 0;
-}
-
-.keymap-block {
-    -fx-spacing: 4;
-    -fx-padding: 10 0 8 0;
-}
-
-.game-side-title {
-    -fx-font-size: 2em;
-    -fx-font-weight: 900;
-    -fx-text-fill: -game-on-accent-container;
-    -fx-padding: 0 0 2 0;
-}
-
-.tetris-game-info-panel .subtitle {
-    -fx-font-size: 0.929em;
-    -fx-font-weight: 600;
-}
-
-.tetris-game-info-panel .status-line {
-    -fx-font-size: 0.929em;
-    -fx-padding: 2 0 0 0;
-}
-
-.player-name {
-    -fx-font-size: 16px;
-    -fx-font-weight: 700;
-    -fx-text-fill: -game-on-accent-container;
-    -fx-padding: 0;
-}
-
-.score-label {
-    -fx-font-size: 14px;
-    -fx-font-weight: 600;
-    -fx-text-fill: rgba(0, 29, 54, 0.66);
-    -fx-padding: 0;
-}
-
-.keymap-block {
-    -fx-spacing: 6;
-}
-
-.keymap-label {
-    -fx-font-size: 12px;
-    -fx-font-weight: 600;
-    -fx-text-fill: rgba(0, 29, 54, 0.66);
-    -fx-line-spacing: 3px;
-    -fx-padding: 0;
-}
-
-.game-actions {
-    -fx-spacing: 10;
-    -fx-padding: 0;
-}
-
-.board-cell-filled {
-    -fx-background-color: -game-accent;
-    -fx-border-color: -game-on-accent-container;
-}
-
-.board-cell-active {
-    -fx-background-color: -game-accent;
-    -fx-border-color: -game-on-accent-container;
-}
-
-.board-cell-object {
-    -fx-background-color: -game-accent;
-    -fx-border-color: -game-on-accent-container;
-    -fx-alignment: center;
-    -fx-font-size: 10px;
-    -fx-font-weight: 800;
-    -fx-text-fill: -game-on-accent;
-    -fx-padding: 0;
-}
-
-.board-game-over {
-    -fx-alignment: center;
-    -fx-background-color: rgba(255, 251, 254, 0.88);
-    -fx-font-size: 22px;
-    -fx-font-weight: 800;
-    -fx-text-fill: -game-on-accent-container;
-    -fx-padding: 16;
-}
-
-/* Horizontal boards: slightly tighter columns, balanced gutters */
-.tetris-game-horizontal .tetris-board-zone {
-    -fx-padding: 24 34 24 44;
-}
-
-.tetris-game-horizontal .object-description {
-    -fx-font-size: 0.786em;
-}
-
-.tetris-game-horizontal .boards-stack {
-    -fx-spacing: 20;
-    -fx-padding: 0;
-}
-
-/* Custom piece editor (menu) */
-.custom-piece-grid {
-    -fx-hgap: 3;
-    -fx-vgap: 3;
-    -fx-padding: 2 0;
-}
-
-.custom-cell {
-    -fx-background-color: -app-surface-container-lowest;
-    -fx-border-color: rgba(0, 97, 164, 0.24);
-    -fx-background-radius: 4;
-    -fx-border-radius: 4;
-    -fx-min-width: 24;
-    -fx-min-height: 24;
-    -fx-pref-width: 24;
-    -fx-pref-height: 24;
-    -fx-max-width: 24;
-    -fx-max-height: 24;
-    -fx-padding: 0;
-}
-
-.custom-cell-selected {
-    -fx-background-color: -game-accent;
-    -fx-border-color: -game-on-accent-container;
-}
-
-/* -------------------------------------------------------------------------- */
-/* shadcn menu shell                                                          */
-/* -------------------------------------------------------------------------- */
-
-.tetris-menu-root,
-.tetris-menu-main {
     -fx-background-color: -sh-background;
 }
 
-.tetris-menu-main {
-    -fx-padding: 42 52 42 52;
+.tetris-menu-root,
+.tetris-game-root {
+    -fx-padding: 0;
+}
+
+.tetris-menu-main,
+.tetris-game-main {
     -fx-hgap: 28;
+    -fx-padding: 42 52 42 52;
 }
 
 .tetris-setup,
-.tetris-options-panel {
+.tetris-options-panel,
+.tetris-board-zone,
+.tetris-game-info-panel {
     -fx-background-color: -sh-card;
     -fx-background-radius: 16;
     -fx-border-color: -sh-border;
@@ -678,82 +32,97 @@
     -fx-padding: 38 34 34 34;
 }
 
-.tetris-options-panel {
+.tetris-options-panel,
+.tetris-game-info-panel {
     -fx-padding: 36 30 30 30;
 }
 
-.tetris-menu-root .title {
-    -fx-font-size: 40px;
-    -fx-font-weight: 800;
-    -fx-text-fill: -sh-card-foreground;
-    -fx-effect: none;
+.tetris-board-zone {
+    -fx-padding: 28;
 }
 
-.tetris-menu-root .subtitle,
-.tetris-menu-root .settings-subtitle,
-.tetris-menu-root .row-subtitle,
-.tetris-menu-root .footer-line,
-.tetris-menu-root .option-hint,
-.tetris-menu-root .status-line {
+.title,
+.settings-title,
+.row-title,
+.section-title,
+.field-title,
+.game-side-title,
+.player-name {
+    -fx-text-fill: -sh-card-foreground;
+}
+
+.title {
+    -fx-font-size: 40px;
+    -fx-font-weight: 800;
+}
+
+.settings-title,
+.game-side-title {
+    -fx-font-size: 28px;
+    -fx-font-weight: 800;
+}
+
+.subtitle,
+.settings-subtitle,
+.row-subtitle,
+.footer-line,
+.option-hint,
+.status-line,
+.score-label,
+.keymap-label,
+.object-description {
     -fx-text-fill: -sh-muted-foreground;
 }
 
-.tetris-menu-root .settings-title,
-.tetris-menu-root .section-title,
-.tetris-menu-root .field-title,
-.tetris-menu-root .row-title {
-    -fx-text-fill: -sh-card-foreground;
+.title-divider {
+    -fx-padding: 8 0 4 0;
 }
 
-.tetris-menu-root .menu-icon-frame,
-.tetris-menu-root .row-icon-chip {
-    -fx-background-color: -sh-muted;
-    -fx-background-radius: 12;
-    -fx-border-color: -sh-border;
-    -fx-border-radius: 12;
-    -fx-effect: none;
-}
-
-.tetris-menu-root .menu-icon-frame {
-    -fx-min-height: 58;
-    -fx-min-width: 58;
-    -fx-pref-height: 58;
-    -fx-pref-width: 58;
-}
-
-.tetris-menu-root .row-icon-chip {
-    -fx-min-height: 54;
-    -fx-min-width: 54;
-    -fx-pref-height: 54;
-    -fx-pref-width: 54;
-}
-
-.tetris-menu-root .divider-line {
-    -fx-background-color: -sh-input;
+.divider-line,
+.menu-divider {
+    -fx-background-color: -sh-border;
+    -fx-background-radius: 99;
     -fx-pref-height: 1;
 }
 
-.tetris-menu-root .divider-line-active,
-.tetris-menu-root .divider-seal {
+.divider-line-active {
     -fx-background-color: -game-accent;
+    -fx-background-radius: 99;
+    -fx-pref-height: 7;
+}
+
+.divider-seal {
+    -fx-background-color: -game-accent;
+    -fx-background-radius: 99;
+    -fx-pref-height: 11;
+    -fx-pref-width: 11;
+}
+
+.tetris-setup-list,
+.menu-pane-content,
+.menu-config-content,
+.game-actions {
+    -fx-spacing: 16;
 }
 
 .tetris-mode-card {
     -fx-background-color: transparent;
     -fx-border-color: transparent;
-    -fx-effect: none;
     -fx-padding: 0;
 }
 
 .tetris-action-row {
+    -fx-alignment: center-left;
     -fx-background-color: -sh-card;
+    -fx-background-insets: 0;
     -fx-background-radius: 12;
     -fx-border-color: -sh-border;
     -fx-border-radius: 12;
     -fx-border-width: 1;
-    -fx-effect: none;
+    -fx-content-display: graphic-only;
+    -fx-cursor: hand;
     -fx-min-height: 86;
-    -fx-padding: 16 16 16 16;
+    -fx-padding: 16;
 }
 
 .tetris-action-row:hover {
@@ -762,161 +131,256 @@
 }
 
 .tetris-action-row:pressed {
-    -fx-background-color: -app-surface-container-low;
+    -fx-background-color: -sh-muted;
 }
 
-.tetris-menu-root .row-arrow-chip,
-.tetris-action-row:hover .row-arrow-chip {
-    -fx-background-color: transparent;
+.menu-icon-frame,
+.row-icon-chip {
+    -fx-alignment: center;
+    -fx-background-color: -sh-muted;
+    -fx-background-radius: 12;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
 }
 
-.tetris-menu-root .row-arrow {
-    -fx-text-fill: -sh-muted-foreground;
+.menu-icon-frame {
+    -fx-min-height: 58;
+    -fx-min-width: 58;
+    -fx-pref-height: 58;
+    -fx-pref-width: 58;
 }
 
-.tetris-action-row:hover .row-arrow,
-.tetris-menu-root .row-icon-letter {
+.row-icon-chip {
+    -fx-min-height: 54;
+    -fx-min-width: 54;
+    -fx-pref-height: 54;
+    -fx-pref-width: 54;
+}
+
+.row-icon-letter {
+    -fx-font-size: 28px;
+    -fx-font-weight: 800;
     -fx-text-fill: -game-accent;
 }
 
-.tetris-menu-root .menu-divider {
-    -fx-background-color: -sh-border;
-    -fx-pref-height: 1;
+.row-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: 800;
 }
 
-.tetris-menu-root .settings-footer {
+.row-subtitle,
+.settings-subtitle {
+    -fx-font-size: 14px;
+}
+
+.row-arrow-chip {
+    -fx-alignment: center;
+    -fx-background-color: transparent;
+    -fx-min-height: 38;
+    -fx-min-width: 38;
+    -fx-pref-height: 38;
+    -fx-pref-width: 38;
+}
+
+.row-arrow {
+    -fx-font-size: 34px;
+    -fx-font-weight: 300;
+    -fx-text-fill: -sh-muted-foreground;
+}
+
+.tetris-action-row:hover .row-arrow {
+    -fx-text-fill: -game-accent;
+}
+
+.settings-footer,
+.game-separator .line {
     -fx-border-color: -sh-border transparent transparent transparent;
 }
 
-.tetris-menu-root .mode-button,
-.tetris-menu-root .btn-outline,
-.tetris-menu-root .combo-box,
-.tetris-menu-root .text-field,
-.tetris-menu-root .list-view {
-    -fx-background-color: -sh-card;
-    -fx-border-color: -sh-input;
-    -fx-text-fill: -sh-foreground;
+.settings-footer {
+    -fx-border-width: 1 0 0 0;
+    -fx-padding: 16 0 0 0;
 }
 
-.tetris-menu-root .mode-button,
-.tetris-menu-root .btn-outline,
-.tetris-menu-root .btn-primary {
+.menu-config-column,
+.menu-config-section,
+.menu-config-checks,
+.menu-custom-editor,
+.button-row,
+.keymap-block,
+.boards-stack {
+    -fx-spacing: 10;
+}
+
+.menu-form-grid {
+    -fx-alignment: center;
+    -fx-hgap: 12;
+    -fx-padding: 4 0 0 0;
+    -fx-vgap: 10;
+}
+
+.menu-form-grid .text-field {
+    -fx-pref-width: 220;
+}
+
+.menu-config-content .combo-box {
+    -fx-pref-width: 200;
+}
+
+.button {
+    -fx-background-insets: 0;
     -fx-background-radius: 10;
     -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-cursor: hand;
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-min-height: 42;
+    -fx-padding: 10 18;
 }
 
-.tetris-menu-root .mode-button {
-    -fx-min-height: 48;
-    -fx-padding: 10 14;
-}
-
-.tetris-menu-root .mode-button:hover,
-.tetris-menu-root .btn-outline:hover,
-.tetris-menu-root .combo-box:focused,
-.tetris-menu-root .text-field:focused,
-.tetris-menu-root .list-view:focused {
-    -fx-border-color: -sh-ring;
-}
-
-.tetris-menu-root .mode-button:hover,
-.tetris-menu-root .btn-outline:hover {
-    -fx-background-color: -sh-accent;
-}
-
-.tetris-menu-root .btn-primary {
+.btn-primary {
     -fx-background-color: -sh-primary;
     -fx-border-color: -sh-primary;
     -fx-text-fill: -sh-primary-foreground;
 }
 
-.tetris-menu-root .btn-primary:hover {
-    -fx-background-color: -game-accent;
-    -fx-border-color: -game-accent;
+.btn-outline,
+.mode-button,
+.text-field,
+.combo-box,
+.list-view {
+    -fx-background-color: -sh-card;
+    -fx-border-color: -sh-input;
+    -fx-text-fill: -sh-foreground;
 }
 
-.tetris-menu-root .btn-selected {
+.btn-primary:hover,
+.btn-outline:hover,
+.mode-button:hover,
+.text-field:focused,
+.combo-box:focused,
+.list-view:focused {
+    -fx-background-color: -sh-accent;
+    -fx-border-color: -sh-ring;
+    -fx-text-fill: -sh-accent-foreground;
+}
+
+.btn-selected {
     -fx-background-color: -sh-accent;
     -fx-border-color: -game-accent;
     -fx-text-fill: -sh-accent-foreground;
 }
 
-.tetris-menu-root .mode-icon,
-.tetris-menu-root .mode-text,
-.tetris-menu-root .check-box,
-.tetris-menu-root .combo-box .list-cell {
+.button:disabled {
+    -fx-cursor: default;
+    -fx-opacity: 0.5;
+}
+
+.mode-button {
+    -fx-content-display: graphic-only;
+    -fx-min-height: 48;
+    -fx-padding: 10 14;
+}
+
+.mode-icon,
+.mode-text,
+.check-box,
+.combo-box .list-cell {
     -fx-text-fill: -sh-foreground;
 }
 
-.tetris-menu-root .custom-cell {
-    -fx-background-color: -sh-card;
-    -fx-border-color: -sh-input;
+.mode-icon,
+.mode-text {
+    -fx-font-weight: 800;
 }
 
-.tetris-menu-root .custom-cell-selected {
+.mode-icon {
+    -fx-font-size: 18px;
+}
+
+.mode-text {
+    -fx-font-size: 13px;
+}
+
+.text-field,
+.combo-box,
+.list-view {
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-min-height: 36;
+}
+
+.text-field {
+    -fx-padding: 8 12;
+    -fx-prompt-text-fill: -sh-muted-foreground;
+}
+
+.combo-box {
+    -fx-padding: 2 4 2 8;
+}
+
+.combo-box .list-cell,
+.list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 6 8;
+}
+
+.combo-box .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.combo-box .arrow {
+    -fx-background-color: -sh-foreground;
+}
+
+.list-view {
+    -fx-padding: 4;
+}
+
+.list-cell:filled:selected,
+.list-cell:filled:selected:hover,
+.list-cell:filled:hover {
+    -fx-background-color: -sh-accent;
+    -fx-text-fill: -sh-accent-foreground;
+}
+
+.custom-piece-grid {
+    -fx-hgap: 3;
+    -fx-padding: 2 0;
+    -fx-vgap: 3;
+}
+
+.custom-cell {
+    -fx-background-color: -sh-card;
+    -fx-background-radius: 4;
+    -fx-border-color: -sh-input;
+    -fx-border-radius: 4;
+    -fx-min-height: 24;
+    -fx-min-width: 24;
+    -fx-pref-height: 24;
+    -fx-pref-width: 24;
+}
+
+.menu-custom-editor .custom-cell {
+    -fx-min-height: 22;
+    -fx-min-width: 22;
+    -fx-pref-height: 22;
+    -fx-pref-width: 22;
+}
+
+.custom-cell-selected {
     -fx-background-color: -game-accent;
     -fx-border-color: -game-accent;
 }
 
-/* -------------------------------------------------------------------------- */
-/* shadcn game shell                                                          */
-/* -------------------------------------------------------------------------- */
-
-.tetris-game-root,
-.tetris-game-main {
-    -fx-background-color: -sh-background;
+.game-sidebar-header {
+    -fx-spacing: 6;
 }
 
-.tetris-game-root {
-    -fx-padding: 0;
-}
-
-.tetris-game-main {
-    -fx-padding: 42 52 42 52;
-    -fx-hgap: 28;
-}
-
-.tetris-board-zone,
-.tetris-game-info-panel {
-    -fx-background-color: -sh-card;
-    -fx-background-radius: 16;
-    -fx-border-color: -sh-border;
-    -fx-border-radius: 16;
-    -fx-border-width: 1;
-    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.08), 18, 0.10, 0, 6);
-}
-
-.tetris-board-zone {
-    -fx-padding: 28;
-}
-
-.tetris-game-info-panel {
-    -fx-padding: 30 28 28 28;
-}
-
-.tetris-game-root .game-side-title,
-.tetris-game-root .field-title,
-.tetris-game-root .player-name {
-    -fx-text-fill: -sh-card-foreground;
-}
-
-.tetris-game-root .game-side-title {
-    -fx-font-size: 28px;
-    -fx-font-weight: 800;
-}
-
-.tetris-game-root .subtitle,
-.tetris-game-root .status-line,
-.tetris-game-root .score-label,
-.tetris-game-root .keymap-label,
-.tetris-game-root .object-description {
-    -fx-text-fill: -sh-muted-foreground;
-}
-
-.tetris-game-root .game-separator .line {
-    -fx-border-color: -sh-border;
-}
-
-.tetris-game-root .player-score-card {
+.player-score-card {
     -fx-background-color: -sh-card;
     -fx-background-radius: 12;
     -fx-border-color: -sh-border;
@@ -925,45 +389,110 @@
     -fx-padding: 12 14;
 }
 
-.tetris-game-root .object-symbol {
-    -fx-background-color: -game-accent;
-    -fx-border-color: -game-accent;
-    -fx-text-fill: -game-on-accent;
+.player-name {
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
 }
 
-.tetris-game-root .object-scroll,
-.tetris-game-root .object-scroll > .viewport {
+.score-label,
+.status-line,
+.keymap-label,
+.object-description {
+    -fx-font-weight: 600;
+}
+
+.keymap-label {
+    -fx-font-size: 12px;
+    -fx-line-spacing: 3px;
+}
+
+.object-scroll,
+.object-scroll > .viewport {
     -fx-background-color: transparent;
     -fx-background: transparent;
 }
 
-.tetris-game-root .btn-primary {
-    -fx-background-color: -sh-primary;
-    -fx-border-color: -sh-primary;
-    -fx-text-fill: -sh-primary-foreground;
+.object-legend-grid {
+    -fx-hgap: 10;
+    -fx-padding: 0;
+    -fx-vgap: 7;
 }
 
-.tetris-game-root .btn-outline {
+.object-symbol {
+    -fx-alignment: center;
+    -fx-background-color: -game-accent;
+    -fx-background-radius: 5;
+    -fx-border-color: -game-accent;
+    -fx-border-radius: 5;
+    -fx-border-width: 1;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-min-height: 22;
+    -fx-min-width: 22;
+    -fx-pref-height: 22;
+    -fx-pref-width: 22;
+    -fx-text-fill: -game-on-accent;
+}
+
+.boards-stack {
+    -fx-alignment: center;
+    -fx-padding: 0;
+    -fx-spacing: 20;
+}
+
+.tetris-board {
+    -fx-background-color: -game-on-accent-container;
+    -fx-background-radius: 4;
+    -fx-border-color: -game-on-accent-container;
+    -fx-border-radius: 4;
+    -fx-border-width: 2;
+    -fx-hgap: 1;
+    -fx-padding: 3;
+    -fx-vgap: 1;
+}
+
+.board-cell {
     -fx-background-color: -sh-card;
-    -fx-border-color: -sh-input;
-    -fx-text-fill: -sh-foreground;
+    -fx-border-color: -game-accent-container;
+    -fx-border-width: 0.5;
 }
 
-.tetris-game-root .btn-primary,
-.tetris-game-root .btn-outline {
-    -fx-background-radius: 10;
-    -fx-border-radius: 10;
-    -fx-effect: none;
-    -fx-min-height: 42;
+.board-cell-vertical {
+    -fx-max-height: 16;
+    -fx-max-width: 16;
+    -fx-min-height: 16;
+    -fx-min-width: 16;
+    -fx-pref-height: 16;
+    -fx-pref-width: 16;
 }
 
-.tetris-game-root .btn-primary:hover,
-.tetris-game-root .btn-outline:hover {
-    -fx-background-color: -sh-accent;
-    -fx-border-color: -sh-ring;
-    -fx-text-fill: -sh-accent-foreground;
+.board-cell-filled,
+.board-cell-active,
+.board-cell-object {
+    -fx-background-color: -game-accent;
+    -fx-border-color: -game-on-accent-container;
+}
+
+.board-cell-object {
+    -fx-alignment: center;
+    -fx-font-size: 10px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -game-on-accent;
+}
+
+.board-game-over {
+    -fx-alignment: center;
+    -fx-background-color: rgba(255, 255, 255, 0.90);
+    -fx-font-size: 22px;
+    -fx-font-weight: 800;
+    -fx-padding: 16;
+    -fx-text-fill: -game-on-accent-container;
 }
 
 .tetris-game-horizontal .tetris-board-zone {
     -fx-padding: 28;
+}
+
+.tetris-game-horizontal .object-description {
+    -fx-font-size: 11px;
 }
