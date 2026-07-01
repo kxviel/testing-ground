@@ -582,3 +582,207 @@
     -fx-border-width: 1;
     -fx-padding: 12 16 12 16;
 }
+
+/* -------------------------------------------------------------------------- */
+/* shadcn menu shell                                                          */
+/* -------------------------------------------------------------------------- */
+
+.memory-menu-root,
+.memory-menu-main {
+    -fx-background-color: -sh-background;
+}
+
+.memory-menu-main {
+    -fx-padding: 42 52 42 52;
+    -fx-hgap: 28;
+}
+
+.memory-setup,
+.memory-network-panel {
+    -fx-background-color: -sh-card;
+    -fx-background-radius: 16;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 16;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.08), 18, 0.10, 0, 6);
+}
+
+.memory-setup {
+    -fx-padding: 38 34 34 34;
+}
+
+.memory-network-panel {
+    -fx-padding: 36 30 30 30;
+}
+
+.memory-menu-title {
+    -fx-font-size: 40px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -sh-card-foreground;
+    -fx-effect: none;
+}
+
+.memory-menu-subtitle,
+.network-subtitle,
+.row-subtitle,
+.footer-line,
+.status-line {
+    -fx-text-fill: -sh-muted-foreground;
+}
+
+.network-title,
+.section-heading,
+.row-title,
+.section-label {
+    -fx-text-fill: -sh-card-foreground;
+}
+
+.divider-line {
+    -fx-background-color: -sh-input;
+    -fx-pref-height: 1;
+}
+
+.divider-line-active,
+.divider-seal {
+    -fx-background-color: -game-accent;
+}
+
+.menu-section {
+    -fx-background-color: -sh-card;
+    -fx-background-radius: 12;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-effect: none;
+    -fx-padding: 18 18 18 18;
+}
+
+.section-icon,
+.icon-chip {
+    -fx-background-color: -sh-muted;
+    -fx-background-radius: 12;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 12;
+    -fx-effect: none;
+}
+
+.section-icon {
+    -fx-min-height: 42;
+    -fx-min-width: 42;
+    -fx-pref-height: 42;
+    -fx-pref-width: 42;
+}
+
+.icon-chip {
+    -fx-min-height: 54;
+    -fx-min-width: 54;
+    -fx-pref-height: 54;
+    -fx-pref-width: 54;
+}
+
+.section-icon-text,
+.icon-letter {
+    -fx-text-fill: -game-accent;
+}
+
+.memory-action-row {
+    -fx-background-color: -sh-card;
+    -fx-background-radius: 12;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-effect: none;
+    -fx-min-height: 86;
+    -fx-padding: 16 16 16 16;
+}
+
+.memory-action-row:hover {
+    -fx-background-color: -sh-accent;
+    -fx-border-color: -sh-ring;
+}
+
+.memory-action-row:pressed {
+    -fx-background-color: -app-surface-container-low;
+}
+
+.row-arrow-chip,
+.memory-action-row:hover .row-arrow-chip {
+    -fx-background-color: transparent;
+}
+
+.row-arrow {
+    -fx-text-fill: -sh-muted-foreground;
+}
+
+.memory-action-row:hover .row-arrow {
+    -fx-text-fill: -game-accent;
+}
+
+.menu-divider {
+    -fx-background-color: -sh-border;
+    -fx-pref-height: 1;
+}
+
+.network-footer {
+    -fx-border-color: -sh-border transparent transparent transparent;
+}
+
+.mode-button,
+#btnHostGame,
+#btnJoinGame {
+    -fx-background-color: -sh-card;
+    -fx-background-radius: 10;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-effect: none;
+    -fx-min-height: 48;
+    -fx-padding: 10 14;
+}
+
+.mode-button:hover {
+    -fx-background-color: -sh-accent;
+    -fx-border-color: -sh-ring;
+}
+
+.mode-text,
+.mode-icon {
+    -fx-text-fill: -sh-foreground;
+}
+
+.join-box {
+    -fx-background-color: -sh-accent;
+    -fx-background-radius: 12;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 12;
+}
+
+.memory-menu-root .btn-primary {
+    -fx-background-color: -sh-primary;
+    -fx-border-color: -sh-primary;
+    -fx-text-fill: -sh-primary-foreground;
+}
+
+.memory-menu-root .btn-danger {
+    -fx-background-color: -sh-destructive;
+    -fx-border-color: -sh-destructive;
+    -fx-text-fill: -sh-primary-foreground;
+}
+
+.memory-menu-root .btn-primary:hover,
+.memory-menu-root .btn-danger:hover {
+    -fx-background-color: -game-accent;
+    -fx-border-color: -game-accent;
+}
+
+.memory-menu-root .btn-outline,
+.memory-menu-root .text-field {
+    -fx-background-color: -sh-card;
+    -fx-border-color: -sh-input;
+    -fx-text-fill: -sh-foreground;
+}
+
+.memory-menu-root .btn-outline:hover,
+.memory-menu-root .text-field:focused {
+    -fx-border-color: -sh-ring;
+}

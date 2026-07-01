@@ -572,3 +572,189 @@
     -fx-border-color: rgba(129, 199, 132, 0.18);
     -fx-border-width: 1 0 0 0;
 }
+
+/* -------------------------------------------------------------------------- */
+/* shadcn menu shell                                                          */
+/* -------------------------------------------------------------------------- */
+
+.hex-menu-root,
+.hex-menu-main {
+    -fx-background-color: -sh-background;
+}
+
+.hex-menu-main {
+    -fx-padding: 42 52 42 52;
+    -fx-hgap: 28;
+}
+
+.hex-setup,
+.hex-network-panel {
+    -fx-background-color: -sh-card;
+    -fx-background-radius: 16;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 16;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.08), 18, 0.10, 0, 6);
+}
+
+.hex-setup {
+    -fx-padding: 38 34 34 34;
+}
+
+.hex-network-panel {
+    -fx-padding: 36 30 30 30;
+}
+
+.hex-menu-root .title {
+    -fx-font-size: 40px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -sh-card-foreground;
+    -fx-effect: none;
+}
+
+.hex-menu-root .subtitle,
+.hex-menu-root .network-subtitle,
+.hex-menu-root .row-subtitle,
+.hex-menu-root .footer-line,
+.hex-menu-root .status-line,
+.hex-menu-root .empty-list-label {
+    -fx-text-fill: -sh-muted-foreground;
+}
+
+.hex-menu-root .network-title,
+.hex-menu-root .field-title,
+.hex-menu-root .row-title,
+.hex-menu-root .hex-form-grid .label {
+    -fx-text-fill: -sh-card-foreground;
+}
+
+.hex-menu-root .menu-icon-frame,
+.hex-menu-root .row-icon-chip {
+    -fx-background-color: -sh-muted;
+    -fx-background-radius: 12;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 12;
+    -fx-effect: none;
+}
+
+.hex-menu-root .menu-icon-frame {
+    -fx-min-height: 58;
+    -fx-min-width: 58;
+    -fx-pref-height: 58;
+    -fx-pref-width: 58;
+}
+
+.hex-menu-root .row-icon-chip {
+    -fx-min-height: 54;
+    -fx-min-width: 54;
+    -fx-pref-height: 54;
+    -fx-pref-width: 54;
+}
+
+.hex-menu-root .divider-line {
+    -fx-background-color: -sh-input;
+    -fx-pref-height: 1;
+}
+
+.hex-menu-root .divider-line-active,
+.hex-menu-root .divider-seal {
+    -fx-background-color: -game-accent;
+}
+
+.hex-action-row {
+    -fx-background-color: -sh-card;
+    -fx-background-radius: 12;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-effect: none;
+    -fx-min-height: 86;
+    -fx-padding: 16 16 16 16;
+}
+
+.hex-action-row:hover {
+    -fx-background-color: -sh-accent;
+    -fx-border-color: -sh-ring;
+}
+
+.hex-action-row:pressed {
+    -fx-background-color: -app-surface-container-low;
+}
+
+.hex-menu-root .row-arrow-chip,
+.hex-action-row:hover .row-arrow-chip {
+    -fx-background-color: transparent;
+}
+
+.hex-menu-root .row-arrow {
+    -fx-text-fill: -sh-muted-foreground;
+}
+
+.hex-action-row:hover .row-arrow,
+.hex-menu-root .row-icon-letter {
+    -fx-text-fill: -game-accent;
+}
+
+.hex-menu-root .menu-divider {
+    -fx-background-color: -sh-border;
+    -fx-pref-height: 1;
+}
+
+.hex-menu-root .network-footer,
+.hex-menu-root .separator .line {
+    -fx-border-color: -sh-border transparent transparent transparent;
+}
+
+.hex-menu-root .mode-button,
+.hex-menu-root .btn-outline,
+.hex-menu-root .btn-primary,
+.hex-menu-root .text-field,
+.hex-menu-root .list-view {
+    -fx-background-color: -sh-card;
+    -fx-border-color: -sh-input;
+    -fx-text-fill: -sh-foreground;
+}
+
+.hex-menu-root .mode-button,
+.hex-menu-root .btn-outline,
+.hex-menu-root .btn-primary {
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+}
+
+.hex-menu-root .mode-button {
+    -fx-min-height: 48;
+    -fx-padding: 10 14;
+}
+
+.hex-menu-root .mode-button:hover,
+.hex-menu-root .btn-outline:hover,
+.hex-menu-root .text-field:focused,
+.hex-menu-root .list-view:focused {
+    -fx-background-color: -sh-accent;
+    -fx-border-color: -sh-ring;
+}
+
+.hex-menu-root .btn-primary {
+    -fx-background-color: -sh-primary;
+    -fx-border-color: -sh-primary;
+    -fx-text-fill: -sh-primary-foreground;
+}
+
+.hex-menu-root .btn-primary:hover {
+    -fx-background-color: -game-accent;
+    -fx-border-color: -game-accent;
+    -fx-text-fill: -game-on-accent-container;
+}
+
+.hex-menu-root .mode-icon,
+.hex-menu-root .mode-text,
+.hex-menu-root .list-cell {
+    -fx-text-fill: -sh-foreground;
+}
+
+.hex-menu-root .list-cell:filled:selected,
+.hex-menu-root .list-cell:filled:selected:hover {
+    -fx-background-color: -sh-accent;
+    -fx-text-fill: -sh-accent-foreground;
+}

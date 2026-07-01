@@ -9,6 +9,20 @@
     -app-success-container: #DDEFE4;
     -app-success-outline: #2D6A4C;
     -app-success-outline-soft: rgba(45, 106, 76, 0.44);
+    -sh-background: #FFFFFF;
+    -sh-foreground: #090B0C;
+    -sh-card: #FFFFFF;
+    -sh-card-foreground: #090B0C;
+    -sh-primary: #161B1D;
+    -sh-primary-foreground: #F9FBFB;
+    -sh-muted: #F1F3F3;
+    -sh-muted-foreground: #67787C;
+    -sh-accent: #F1F3F3;
+    -sh-accent-foreground: #161B1D;
+    -sh-destructive: #E7000B;
+    -sh-border: #E3E7E8;
+    -sh-input: #E3E7E8;
+    -sh-ring: #9CA8AB;
 
     -game-accent: #6750A4;
     -game-accent-hover: #5E4898;
@@ -52,13 +66,13 @@
 
 .hex-menu-root,
 .hex-game-root {
-    -game-accent: #A7F3D0;
-    -game-accent-hover: #6EE7B7;
-    -game-accent-pressed: #34D399;
-    -game-accent-hover-soft: #D1FAE5;
-    -game-accent-container: #D1FAE5;
-    -game-on-accent-container: #064E3B;
-    -game-soft-surface: #ECFDF5;
+    -game-accent: #81C784;
+    -game-accent-hover: #66BB6A;
+    -game-accent-pressed: #4CAF50;
+    -game-accent-hover-soft: #A5D6A7;
+    -game-accent-container: #E8F5E9;
+    -game-on-accent-container: #0B2E13;
+    -game-soft-surface: #F1F8E9;
 }
 
 .app-scroll,

@@ -681,3 +681,210 @@
     -fx-font-weight: 800;
     -fx-text-fill: -game-on-accent-container;
 }
+
+/* -------------------------------------------------------------------------- */
+/* shadcn menu shell                                                          */
+/* -------------------------------------------------------------------------- */
+
+.tetris-menu-root,
+.tetris-menu-main {
+    -fx-background-color: -sh-background;
+}
+
+.tetris-menu-main {
+    -fx-padding: 42 52 42 52;
+    -fx-hgap: 28;
+}
+
+.tetris-setup,
+.tetris-options-panel {
+    -fx-background-color: -sh-card;
+    -fx-background-radius: 16;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 16;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.08), 18, 0.10, 0, 6);
+}
+
+.tetris-setup {
+    -fx-padding: 38 34 34 34;
+}
+
+.tetris-options-panel {
+    -fx-padding: 36 30 30 30;
+}
+
+.tetris-menu-root .title {
+    -fx-font-size: 40px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -sh-card-foreground;
+    -fx-effect: none;
+}
+
+.tetris-menu-root .subtitle,
+.tetris-menu-root .settings-subtitle,
+.tetris-menu-root .row-subtitle,
+.tetris-menu-root .footer-line,
+.tetris-menu-root .option-hint,
+.tetris-menu-root .status-line {
+    -fx-text-fill: -sh-muted-foreground;
+}
+
+.tetris-menu-root .settings-title,
+.tetris-menu-root .section-title,
+.tetris-menu-root .field-title,
+.tetris-menu-root .row-title {
+    -fx-text-fill: -sh-card-foreground;
+}
+
+.tetris-menu-root .menu-icon-frame,
+.tetris-menu-root .row-icon-chip {
+    -fx-background-color: -sh-muted;
+    -fx-background-radius: 12;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 12;
+    -fx-effect: none;
+}
+
+.tetris-menu-root .menu-icon-frame {
+    -fx-min-height: 58;
+    -fx-min-width: 58;
+    -fx-pref-height: 58;
+    -fx-pref-width: 58;
+}
+
+.tetris-menu-root .row-icon-chip {
+    -fx-min-height: 54;
+    -fx-min-width: 54;
+    -fx-pref-height: 54;
+    -fx-pref-width: 54;
+}
+
+.tetris-menu-root .divider-line {
+    -fx-background-color: -sh-input;
+    -fx-pref-height: 1;
+}
+
+.tetris-menu-root .divider-line-active,
+.tetris-menu-root .divider-seal {
+    -fx-background-color: -game-accent;
+}
+
+.tetris-mode-card {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-effect: none;
+    -fx-padding: 0;
+}
+
+.tetris-action-row {
+    -fx-background-color: -sh-card;
+    -fx-background-radius: 12;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-effect: none;
+    -fx-min-height: 86;
+    -fx-padding: 16 16 16 16;
+}
+
+.tetris-action-row:hover {
+    -fx-background-color: -sh-accent;
+    -fx-border-color: -sh-ring;
+}
+
+.tetris-action-row:pressed {
+    -fx-background-color: -app-surface-container-low;
+}
+
+.tetris-menu-root .row-arrow-chip,
+.tetris-action-row:hover .row-arrow-chip {
+    -fx-background-color: transparent;
+}
+
+.tetris-menu-root .row-arrow {
+    -fx-text-fill: -sh-muted-foreground;
+}
+
+.tetris-action-row:hover .row-arrow,
+.tetris-menu-root .row-icon-letter {
+    -fx-text-fill: -game-accent;
+}
+
+.tetris-menu-root .menu-divider {
+    -fx-background-color: -sh-border;
+    -fx-pref-height: 1;
+}
+
+.tetris-menu-root .settings-footer {
+    -fx-border-color: -sh-border transparent transparent transparent;
+}
+
+.tetris-menu-root .mode-button,
+.tetris-menu-root .btn-outline,
+.tetris-menu-root .combo-box,
+.tetris-menu-root .text-field,
+.tetris-menu-root .list-view {
+    -fx-background-color: -sh-card;
+    -fx-border-color: -sh-input;
+    -fx-text-fill: -sh-foreground;
+}
+
+.tetris-menu-root .mode-button,
+.tetris-menu-root .btn-outline,
+.tetris-menu-root .btn-primary {
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+}
+
+.tetris-menu-root .mode-button {
+    -fx-min-height: 48;
+    -fx-padding: 10 14;
+}
+
+.tetris-menu-root .mode-button:hover,
+.tetris-menu-root .btn-outline:hover,
+.tetris-menu-root .combo-box:focused,
+.tetris-menu-root .text-field:focused,
+.tetris-menu-root .list-view:focused {
+    -fx-border-color: -sh-ring;
+}
+
+.tetris-menu-root .mode-button:hover,
+.tetris-menu-root .btn-outline:hover {
+    -fx-background-color: -sh-accent;
+}
+
+.tetris-menu-root .btn-primary {
+    -fx-background-color: -sh-primary;
+    -fx-border-color: -sh-primary;
+    -fx-text-fill: -sh-primary-foreground;
+}
+
+.tetris-menu-root .btn-primary:hover {
+    -fx-background-color: -game-accent;
+    -fx-border-color: -game-accent;
+}
+
+.tetris-menu-root .btn-selected {
+    -fx-background-color: -sh-accent;
+    -fx-border-color: -game-accent;
+    -fx-text-fill: -sh-accent-foreground;
+}
+
+.tetris-menu-root .mode-icon,
+.tetris-menu-root .mode-text,
+.tetris-menu-root .check-box,
+.tetris-menu-root .combo-box .list-cell {
+    -fx-text-fill: -sh-foreground;
+}
+
+.tetris-menu-root .custom-cell {
+    -fx-background-color: -sh-card;
+    -fx-border-color: -sh-input;
+}
+
+.tetris-menu-root .custom-cell-selected {
+    -fx-background-color: -game-accent;
+    -fx-border-color: -game-accent;
+}

@@ -246,3 +246,158 @@
     -fx-font-weight: 500;
     -fx-text-fill: rgba(29, 27, 32, 0.64);
 }
+
+/* -------------------------------------------------------------------------- */
+/* shadcn menu shell                                                          */
+/* -------------------------------------------------------------------------- */
+
+.game-choice-root,
+.game-choice-main {
+    -fx-background-color: -sh-background;
+}
+
+.game-choice-main {
+    -fx-padding: 42 52 42 52;
+    -fx-hgap: 28;
+}
+
+.game-choices,
+.settings-panel {
+    -fx-background-color: -sh-card;
+    -fx-background-radius: 16;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 16;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.08), 18, 0.10, 0, 6);
+}
+
+.game-choices {
+    -fx-padding: 38 34 34 34;
+}
+
+.settings-panel {
+    -fx-padding: 36 30 30 30;
+}
+
+.game-choice-title {
+    -fx-font-size: 40px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -sh-card-foreground;
+    -fx-effect: none;
+}
+
+.game-choice-subtitle,
+.settings-subtitle,
+.row-subtitle,
+.resolution-hint,
+.footer-line {
+    -fx-text-fill: -sh-muted-foreground;
+}
+
+.settings-title,
+.section-label,
+.row-title {
+    -fx-text-fill: -sh-card-foreground;
+}
+
+.divider-line {
+    -fx-background-color: -sh-input;
+    -fx-pref-height: 1;
+}
+
+.divider-line-active,
+.divider-seal {
+    -fx-background-color: -game-accent;
+}
+
+.game-row,
+#exit-row {
+    -fx-background-color: -sh-card;
+    -fx-background-radius: 12;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-effect: none;
+    -fx-min-height: 86;
+    -fx-padding: 16 16 16 16;
+}
+
+.game-row:hover {
+    -fx-background-color: -sh-accent;
+    -fx-border-color: -sh-ring;
+}
+
+.game-row:pressed {
+    -fx-background-color: -app-surface-container-low;
+}
+
+.icon-chip {
+    -fx-background-color: -sh-muted;
+    -fx-background-radius: 12;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 12;
+    -fx-effect: none;
+    -fx-min-height: 54;
+    -fx-min-width: 54;
+    -fx-pref-height: 54;
+    -fx-pref-width: 54;
+}
+
+.row-arrow-chip {
+    -fx-background-color: transparent;
+}
+
+.row-arrow {
+    -fx-text-fill: -sh-muted-foreground;
+}
+
+.game-row:hover .row-arrow-chip {
+    -fx-background-color: transparent;
+}
+
+.game-row:hover .row-arrow,
+.icon-letter {
+    -fx-text-fill: -game-accent;
+}
+
+.menu-divider,
+.settings-footer {
+    -fx-background-color: transparent;
+    -fx-border-color: -sh-border transparent transparent transparent;
+}
+
+.settings-radio {
+    -fx-background-color: -sh-card;
+    -fx-background-radius: 10;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-font-weight: 600;
+    -fx-padding: 9 11 9 11;
+    -fx-text-fill: -sh-foreground;
+}
+
+.settings-radio:hover,
+.settings-radio:selected {
+    -fx-background-color: -sh-accent;
+    -fx-border-color: -sh-ring;
+    -fx-text-fill: -sh-accent-foreground;
+}
+
+.settings-radio:selected {
+    -fx-border-color: -game-accent;
+}
+
+.settings-radio .radio {
+    -fx-background-color: -sh-card;
+    -fx-border-color: -sh-ring;
+}
+
+.settings-radio:selected .radio {
+    -fx-background-color: -sh-card;
+    -fx-border-color: -game-accent;
+}
+
+.settings-radio:selected .dot {
+    -fx-background-color: -game-accent;
+}
