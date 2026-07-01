@@ -5,6 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -48,13 +49,14 @@ class TetrisFxmlSmokeTest {
         StackPane menuRoot = (StackPane) root;
         assertEquals(1080, menuRoot.getPrefWidth(), 0.01);
         assertEquals(720, menuRoot.getPrefHeight(), 0.01);
-        assertTrue(menuRoot.getChildren().getFirst() instanceof GridPane);
+        assertTrue(menuRoot.getChildren().getFirst() instanceof ScrollPane);
+        assertTrue(((ScrollPane) menuRoot.getChildren().getFirst()).getContent() instanceof GridPane);
     }
 
     @Test
     void menuStartsWithThreeRowsAndHiddenOptionsPanel() throws Exception {
         Parent root = loadOnFxThread("/tetris/TetrisMenu.fxml", null);
-        GridPane grid = (GridPane) ((StackPane) root).getChildren().getFirst();
+        GridPane grid = (GridPane) ((ScrollPane) ((StackPane) root).getChildren().getFirst()).getContent();
         VBox modeChoicePane = find(root, "modeChoicePane", VBox.class);
         VBox optionsPanel = find(root, "optionsPanel", VBox.class);
 
@@ -120,6 +122,9 @@ class TetrisFxmlSmokeTest {
     private static <T extends Node> T find(Node node, String id, Class<T> type) {
         if (type.isInstance(node) && id.equals(node.getId())) {
             return type.cast(node);
+        }
+        if (node instanceof ScrollPane scrollPane && scrollPane.getContent() != null) {
+            return find(scrollPane.getContent(), id, type);
         }
         if (node instanceof Parent parent) {
             return parent.getChildrenUnmodifiable().stream()

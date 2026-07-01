@@ -15,6 +15,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -93,6 +94,9 @@ class GameChoiceFxmlSmokeTest {
     private static <T extends Node> T find(Node node, String id, Class<T> type) {
         if (type.isInstance(node) && id.equals(node.getId())) {
             return type.cast(node);
+        }
+        if (node instanceof ScrollPane scrollPane && scrollPane.getContent() != null) {
+            return find(scrollPane.getContent(), id, type);
         }
         if (node instanceof Parent parent) {
             return parent.getChildrenUnmodifiable().stream()

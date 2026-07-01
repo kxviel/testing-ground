@@ -34,13 +34,20 @@
                 <Canvas fx:id="boardCanvas" width="1122" height="952"/>
             </StackPane>
 
-            <VBox GridPane.columnIndex="1"
-                  GridPane.hgrow="ALWAYS"
-                  GridPane.vgrow="ALWAYS"
-                  maxHeight="Infinity"
-                  maxWidth="Infinity"
-                  spacing="18"
-                  styleClass="hex-game-info-panel">
+            <ScrollPane GridPane.columnIndex="1"
+                        GridPane.hgrow="ALWAYS"
+                        GridPane.vgrow="ALWAYS"
+                        fitToHeight="true"
+                        fitToWidth="true"
+                        hbarPolicy="NEVER"
+                        vbarPolicy="AS_NEEDED"
+                        maxHeight="Infinity"
+                        maxWidth="Infinity"
+                        styleClass="app-scroll">
+                <VBox maxHeight="Infinity"
+                      maxWidth="Infinity"
+                      spacing="18"
+                      styleClass="hex-game-info-panel">
 
                 <VBox styleClass="hex-game-header">
                     <Label text="Live Match" styleClass="eyebrow"/>
@@ -99,7 +106,8 @@
                 </VBox>
 
                 <Region VBox.vgrow="ALWAYS"/>
-            </VBox>
+                </VBox>
+            </ScrollPane>
         </GridPane>
     </center>
 </BorderPane>

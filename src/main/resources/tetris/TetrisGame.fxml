@@ -37,13 +37,20 @@
                 </VBox>
             </StackPane>
 
-            <VBox GridPane.columnIndex="1"
-                  GridPane.hgrow="ALWAYS"
-                  GridPane.vgrow="ALWAYS"
-                  maxHeight="Infinity"
-                  maxWidth="Infinity"
-                  spacing="18"
-                  styleClass="tetris-game-info-panel">
+            <ScrollPane GridPane.columnIndex="1"
+                        GridPane.hgrow="ALWAYS"
+                        GridPane.vgrow="ALWAYS"
+                        fitToHeight="true"
+                        fitToWidth="true"
+                        hbarPolicy="NEVER"
+                        vbarPolicy="AS_NEEDED"
+                        maxHeight="Infinity"
+                        maxWidth="Infinity"
+                        styleClass="app-scroll">
+                <VBox maxHeight="Infinity"
+                      maxWidth="Infinity"
+                      spacing="18"
+                      styleClass="tetris-game-info-panel">
 
                 <VBox styleClass="game-sidebar-header">
                     <Label text="Zetris" styleClass="game-side-title"/>
@@ -149,7 +156,8 @@
                     <Button text="Quit" onAction="#onBackToMenu" maxWidth="Infinity"
                             styleClass="btn-primary" HBox.hgrow="ALWAYS"/>
                 </HBox>
-            </VBox>
+                </VBox>
+            </ScrollPane>
         </GridPane>
     </center>
 </BorderPane>

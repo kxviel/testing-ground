@@ -25,7 +25,17 @@
     </top>
 
     <center>
-        <HBox alignment="TOP_CENTER" spacing="18" styleClass="hex-stage" BorderPane.alignment="CENTER">
+        <ScrollPane fitToHeight="true"
+                    fitToWidth="true"
+                    hbarPolicy="AS_NEEDED"
+                    vbarPolicy="AS_NEEDED"
+                    styleClass="app-scroll"
+                    BorderPane.alignment="CENTER">
+            <HBox alignment="TOP_CENTER"
+                  minHeight="620"
+                  minWidth="1080"
+                  spacing="18"
+                  styleClass="hex-stage">
             <VBox minWidth="752"
                   prefWidth="752"
                   maxWidth="752">
@@ -96,7 +106,8 @@
                             styleClass="btn-primary" HBox.hgrow="ALWAYS"/>
                 </HBox>
             </VBox>
-        </HBox>
+            </HBox>
+        </ScrollPane>
     </center>
 
     <padding>

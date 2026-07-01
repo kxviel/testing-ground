@@ -60,3 +60,30 @@
     -game-on-accent-container: #064E3B;
     -game-soft-surface: #ECFDF5;
 }
+
+.app-scroll,
+.app-scroll > .viewport {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.app-scroll {
+    -fx-padding: 0;
+}
+
+.app-scroll .scroll-bar:vertical,
+.app-scroll .scroll-bar:horizontal {
+    -fx-background-color: transparent;
+    -fx-padding: 2;
+}
+
+.app-scroll .scroll-bar .thumb {
+    -fx-background-color: rgba(29, 27, 32, 0.22);
+    -fx-background-radius: 99;
+}
+
+.app-scroll .scroll-bar .track,
+.app-scroll .scroll-bar .increment-button,
+.app-scroll .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+}

@@ -19,10 +19,17 @@
         <URL value="@GameChoice.css"/>
     </stylesheets>
 
-    <GridPane alignment="TOP_CENTER"
-              maxHeight="Infinity"
-              maxWidth="Infinity"
-              styleClass="game-choice-main">
+    <ScrollPane fitToHeight="true"
+                fitToWidth="true"
+                hbarPolicy="AS_NEEDED"
+                vbarPolicy="AS_NEEDED"
+                styleClass="app-scroll">
+        <GridPane alignment="TOP_CENTER"
+                  minHeight="680"
+                  minWidth="960"
+                  maxHeight="Infinity"
+                  maxWidth="Infinity"
+                  styleClass="game-choice-main">
         <columnConstraints>
             <ColumnConstraints hgrow="ALWAYS" percentWidth="65"/>
             <ColumnConstraints hgrow="ALWAYS" percentWidth="35"/>
@@ -216,5 +223,6 @@
                        styleClass="footer-line"/>
             </VBox>
         </VBox>
-    </GridPane>
+        </GridPane>
+    </ScrollPane>
 </StackPane>
