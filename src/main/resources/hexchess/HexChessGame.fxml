@@ -16,12 +16,19 @@
     </stylesheets>
 
     <center>
-        <GridPane maxHeight="Infinity"
+        <ScrollPane fitToHeight="true"
+                    fitToWidth="true"
+                    hbarPolicy="AS_NEEDED"
+                    vbarPolicy="AS_NEEDED"
+                    styleClass="app-scroll">
+        <GridPane minHeight="640"
+                  minWidth="960"
+                  maxHeight="Infinity"
                   maxWidth="Infinity"
                   styleClass="hex-game-main">
             <columnConstraints>
-                <ColumnConstraints hgrow="ALWAYS" percentWidth="65"/>
-                <ColumnConstraints hgrow="ALWAYS" percentWidth="35"/>
+                <ColumnConstraints hgrow="ALWAYS" percentWidth="70"/>
+                <ColumnConstraints hgrow="ALWAYS" percentWidth="30"/>
             </columnConstraints>
 
             <StackPane fx:id="boardZone"
@@ -79,6 +86,8 @@
 
                 <Separator/>
 
+                <Region VBox.vgrow="ALWAYS"/>
+
                 <VBox styleClass="sidebar-section">
                     <Label text="Actions" styleClass="panel-label"/>
                     <HBox styleClass="button-row">
@@ -100,14 +109,13 @@
                     <HBox styleClass="button-row">
                         <Button fx:id="restartButton" text="Restart" onAction="#onRestart" maxWidth="Infinity"
                                 styleClass="btn-outline" HBox.hgrow="ALWAYS"/>
-                        <Button text="Menu" onAction="#onBackToMenu" maxWidth="Infinity"
+                        <Button text="Back to Menu" onAction="#onBackToMenu" maxWidth="Infinity"
                                 styleClass="btn-primary" HBox.hgrow="ALWAYS"/>
                     </HBox>
                 </VBox>
-
-                <Region VBox.vgrow="ALWAYS"/>
                 </VBox>
             </ScrollPane>
         </GridPane>
+        </ScrollPane>
     </center>
 </BorderPane>

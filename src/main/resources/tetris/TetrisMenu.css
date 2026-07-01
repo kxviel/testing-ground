@@ -56,25 +56,6 @@
     -fx-line-spacing: 2px;
 }
 
-/* Panels (menu + game) */
-.menu-panel,
-.game-panel {
-    -fx-background-color: -app-surface-container-lowest;
-    -fx-background-radius: 10;
-    -fx-border-color: rgba(0, 97, 164, 0.18);
-    -fx-border-radius: 10;
-    -fx-border-width: 1;
-    -fx-effect: dropshadow(gaussian, rgba(0, 29, 54, 0.06), 10, 0, 0, 2);
-}
-
-.menu-panel {
-    -fx-padding: 22 26;
-}
-
-.game-panel {
-    -fx-padding: 16 18;
-}
-
 .game-separator {
     -fx-padding: 4 0;
 }
@@ -547,7 +528,6 @@
     -fx-padding: 0;
 }
 
-.game-player-block,
 .keymap-block {
     -fx-spacing: 4;
     -fx-padding: 10 0 8 0;
@@ -568,11 +548,6 @@
 .tetris-game-info-panel .status-line {
     -fx-font-size: 0.929em;
     -fx-padding: 2 0 0 0;
-}
-
-.game-player-block {
-    -fx-spacing: 4;
-    -fx-padding: 0;
 }
 
 .player-name {
@@ -673,13 +648,6 @@
 .custom-cell-selected {
     -fx-background-color: -game-accent;
     -fx-border-color: -game-on-accent-container;
-}
-
-/* Legacy alias */
-.game-title {
-    -fx-font-size: 56px;
-    -fx-font-weight: 800;
-    -fx-text-fill: -game-on-accent-container;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -887,4 +855,115 @@
 .tetris-menu-root .custom-cell-selected {
     -fx-background-color: -game-accent;
     -fx-border-color: -game-accent;
+}
+
+/* -------------------------------------------------------------------------- */
+/* shadcn game shell                                                          */
+/* -------------------------------------------------------------------------- */
+
+.tetris-game-root,
+.tetris-game-main {
+    -fx-background-color: -sh-background;
+}
+
+.tetris-game-root {
+    -fx-padding: 0;
+}
+
+.tetris-game-main {
+    -fx-padding: 42 52 42 52;
+    -fx-hgap: 28;
+}
+
+.tetris-board-zone,
+.tetris-game-info-panel {
+    -fx-background-color: -sh-card;
+    -fx-background-radius: 16;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 16;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.08), 18, 0.10, 0, 6);
+}
+
+.tetris-board-zone {
+    -fx-padding: 28;
+}
+
+.tetris-game-info-panel {
+    -fx-padding: 30 28 28 28;
+}
+
+.tetris-game-root .game-side-title,
+.tetris-game-root .field-title,
+.tetris-game-root .player-name {
+    -fx-text-fill: -sh-card-foreground;
+}
+
+.tetris-game-root .game-side-title {
+    -fx-font-size: 28px;
+    -fx-font-weight: 800;
+}
+
+.tetris-game-root .subtitle,
+.tetris-game-root .status-line,
+.tetris-game-root .score-label,
+.tetris-game-root .keymap-label,
+.tetris-game-root .object-description {
+    -fx-text-fill: -sh-muted-foreground;
+}
+
+.tetris-game-root .game-separator .line {
+    -fx-border-color: -sh-border;
+}
+
+.tetris-game-root .player-score-card {
+    -fx-background-color: -sh-card;
+    -fx-background-radius: 12;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-padding: 12 14;
+}
+
+.tetris-game-root .object-symbol {
+    -fx-background-color: -game-accent;
+    -fx-border-color: -game-accent;
+    -fx-text-fill: -game-on-accent;
+}
+
+.tetris-game-root .object-scroll,
+.tetris-game-root .object-scroll > .viewport {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.tetris-game-root .btn-primary {
+    -fx-background-color: -sh-primary;
+    -fx-border-color: -sh-primary;
+    -fx-text-fill: -sh-primary-foreground;
+}
+
+.tetris-game-root .btn-outline {
+    -fx-background-color: -sh-card;
+    -fx-border-color: -sh-input;
+    -fx-text-fill: -sh-foreground;
+}
+
+.tetris-game-root .btn-primary,
+.tetris-game-root .btn-outline {
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-effect: none;
+    -fx-min-height: 42;
+}
+
+.tetris-game-root .btn-primary:hover,
+.tetris-game-root .btn-outline:hover {
+    -fx-background-color: -sh-accent;
+    -fx-border-color: -sh-ring;
+    -fx-text-fill: -sh-accent-foreground;
+}
+
+.tetris-game-horizontal .tetris-board-zone {
+    -fx-padding: 28;
 }

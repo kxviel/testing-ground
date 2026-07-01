@@ -248,10 +248,6 @@
     -fx-spacing: 10;
 }
 
-.hero-section {
-    -fx-spacing: 8;
-}
-
 .hex-form-grid {
     -fx-hgap: 12;
     -fx-vgap: 10;
@@ -756,5 +752,111 @@
 .hex-menu-root .list-cell:filled:selected,
 .hex-menu-root .list-cell:filled:selected:hover {
     -fx-background-color: -sh-accent;
+    -fx-text-fill: -sh-accent-foreground;
+}
+
+/* -------------------------------------------------------------------------- */
+/* shadcn game shell                                                          */
+/* -------------------------------------------------------------------------- */
+
+.hex-game-root,
+.hex-game-main {
+    -fx-background-color: -sh-background;
+}
+
+.hex-game-root {
+    -fx-padding: 0;
+}
+
+.hex-game-main {
+    -fx-padding: 42 52 42 52;
+    -fx-hgap: 28;
+}
+
+.hex-board-zone,
+.hex-game-info-panel {
+    -fx-background-color: -sh-card;
+    -fx-background-radius: 16;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 16;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.08), 18, 0.10, 0, 6);
+}
+
+.hex-board-zone {
+    -fx-padding: 28;
+}
+
+.hex-game-info-panel {
+    -fx-padding: 30 28 28 28;
+}
+
+.hex-game-info-panel .title,
+.hex-game-root .turn-display,
+.hex-game-root .field-title,
+.hex-game-root .panel-label {
+    -fx-text-fill: -sh-card-foreground;
+}
+
+.hex-game-info-panel .title {
+    -fx-font-size: 28px;
+    -fx-font-weight: 800;
+}
+
+.hex-game-root .eyebrow {
+    -fx-text-fill: -game-accent;
+}
+
+.hex-game-info-panel .subtitle,
+.hex-game-info-panel .stat-line {
+    -fx-text-fill: -sh-muted-foreground;
+}
+
+.hex-game-root .separator .line {
+    -fx-border-color: -sh-border;
+}
+
+.hex-game-root .status-box {
+    -fx-background-color: -sh-accent;
+    -fx-background-radius: 12;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-effect: none;
+    -fx-text-fill: -sh-accent-foreground;
+}
+
+.hex-game-root .btn-primary {
+    -fx-background-color: -sh-primary;
+    -fx-border-color: -sh-primary;
+    -fx-text-fill: -sh-primary-foreground;
+}
+
+.hex-game-root .btn-outline {
+    -fx-background-color: -sh-card;
+    -fx-border-color: -sh-input;
+    -fx-text-fill: -sh-foreground;
+}
+
+.hex-game-root .btn-danger {
+    -fx-background-color: -sh-destructive;
+    -fx-border-color: -sh-destructive;
+    -fx-text-fill: -sh-primary-foreground;
+}
+
+.hex-game-root .btn-primary,
+.hex-game-root .btn-outline,
+.hex-game-root .btn-danger {
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-effect: none;
+    -fx-min-height: 42;
+}
+
+.hex-game-root .btn-primary:hover,
+.hex-game-root .btn-outline:hover,
+.hex-game-root .btn-danger:hover {
+    -fx-background-color: -sh-accent;
+    -fx-border-color: -sh-ring;
     -fx-text-fill: -sh-accent-foreground;
 }

@@ -72,7 +72,7 @@
                         <Label text="Select board variant:" styleClass="section-heading"/>
                     </HBox>
 
-                    <VBox fx:id="variantBox" spacing="8" styleClass="variant-list">
+                    <VBox spacing="8" styleClass="variant-list">
                         <RadioButton fx:id="variant1Radio" maxWidth="Infinity"/>
                         <RadioButton fx:id="variant2Radio" maxWidth="Infinity"/>
                         <RadioButton fx:id="variant3Radio" maxWidth="Infinity"/>
