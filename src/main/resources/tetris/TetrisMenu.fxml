@@ -60,7 +60,7 @@
                     <StackPane styleClass="menu-icon-frame">
                         <ImageView fitHeight="42.0" fitWidth="42.0" preserveRatio="true">
                             <image>
-                                <Image url="@../icons/icons8-tetris-64.png"/>
+                                <Image url="@../icons/tetris-icon.png"/>
                             </image>
                         </ImageView>
                     </StackPane>

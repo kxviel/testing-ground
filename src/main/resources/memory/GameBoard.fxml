@@ -53,7 +53,7 @@
                     <VBox alignment="CENTER" spacing="14" maxWidth="Infinity" maxHeight="Infinity" styleClass="memory-board-card">
                         <ImageView fitHeight="52.0" fitWidth="52.0" preserveRatio="true">
                             <image>
-                                <Image url="@../icons/icons8-memory-game-64.png"/>
+                                <Image url="@../icons/memory-card-icon.png"/>
                             </image>
                         </ImageView>
 

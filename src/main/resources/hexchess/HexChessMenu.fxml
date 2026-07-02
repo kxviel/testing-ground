@@ -57,7 +57,7 @@
                     <StackPane styleClass="menu-icon-frame">
                         <ImageView fitHeight="42.0" fitWidth="42.0" preserveRatio="true">
                             <image>
-                                <Image url="@../icons/icons8-chess-100.png"/>
+                                <Image url="@../icons/chess-icon.png"/>
                             </image>
                         </ImageView>
                     </StackPane>

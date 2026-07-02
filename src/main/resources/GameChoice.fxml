@@ -7,6 +7,7 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
@@ -32,35 +33,39 @@
                    minWidth="960"
                    maxHeight="Infinity"
                    maxWidth="Infinity"
-                   alignment="TOP_CENTER"
+                   alignment="CENTER"
                    styleClass="game-choice-main">
-            <StackPane prefHeight="560"
-                       prefWidth="1000"
-                       maxHeight="600"
-                       maxWidth="1080"
+            <StackPane prefHeight="620"
+                       prefWidth="620"
+                       maxHeight="620"
+                       maxWidth="620"
                        styleClass="game-choice-frame">
                 <VBox alignment="TOP_CENTER"
-                      prefHeight="470"
-                      prefWidth="600"
-                      maxHeight="500"
-                      maxWidth="620"
-                      spacing="28"
+                      prefWidth="536"
+                      maxWidth="536"
+                      spacing="46"
                       styleClass="game-choices">
 
-                    <Label text="Zero Runtime Warranty" styleClass="game-choice-title"/>
+                    <VBox alignment="CENTER" spacing="17" styleClass="game-choice-header">
+                        <Label text="G A M E B O X" styleClass="game-choice-eyebrow"/>
+                        <Label text="Zero Runtime Warranty" styleClass="game-choice-title"/>
+                    </VBox>
 
-                    <VBox spacing="24" styleClass="game-list">
+                    <VBox spacing="32" styleClass="game-list">
                         <Button maxWidth="Infinity" onAction="#playMemory" styleClass="game-row">
                             <graphic>
-                                <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="18" styleClass="row-content">
+                                <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="19" styleClass="row-content">
                                     <StackPane styleClass="icon-chip">
                                         <ImageView fitHeight="34.0" fitWidth="34.0" preserveRatio="true" styleClass="game-icon">
                                             <image>
-                                                <Image url="@icons/icons8-memory-game-64.png"/>
+                                                <Image url="@icons/memory-card-icon.png"/>
                                             </image>
                                         </ImageView>
                                     </StackPane>
-                                    <Label maxWidth="Infinity" text="EarlyAlzheimers" HBox.hgrow="ALWAYS" styleClass="row-title"/>
+                                    <VBox spacing="3" HBox.hgrow="ALWAYS">
+                                        <Label maxWidth="Infinity" text="EarlyAlzheimers" styleClass="row-title"/>
+                                        <Label maxWidth="Infinity" text="A memory matching challenge" styleClass="row-subtitle"/>
+                                    </VBox>
                                     <StackPane styleClass="row-arrow-chip">
                                         <ImageView fitHeight="20.0" fitWidth="20.0" preserveRatio="true" styleClass="row-chevron-icon">
                                             <image>
@@ -74,15 +79,18 @@
 
                         <Button maxWidth="Infinity" onAction="#playTetris" styleClass="game-row">
                             <graphic>
-                                <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="18" styleClass="row-content">
+                                <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="19" styleClass="row-content">
                                     <StackPane styleClass="icon-chip">
                                         <ImageView fitHeight="34.0" fitWidth="34.0" preserveRatio="true" styleClass="game-icon">
                                             <image>
-                                                <Image url="@icons/icons8-tetris-64.png"/>
+                                                <Image url="@icons/tetris-icon.png"/>
                                             </image>
                                         </ImageView>
                                     </StackPane>
-                                    <Label maxWidth="Infinity" text="Zetris" HBox.hgrow="ALWAYS" styleClass="row-title"/>
+                                    <VBox spacing="3" HBox.hgrow="ALWAYS">
+                                        <Label maxWidth="Infinity" text="Zetris" styleClass="row-title"/>
+                                        <Label maxWidth="Infinity" text="Stack the falling blocks" styleClass="row-subtitle"/>
+                                    </VBox>
                                     <StackPane styleClass="row-arrow-chip">
                                         <ImageView fitHeight="20.0" fitWidth="20.0" preserveRatio="true" styleClass="row-chevron-icon">
                                             <image>
@@ -96,15 +104,18 @@
 
                         <Button maxWidth="Infinity" onAction="#playHexChess" styleClass="game-row">
                             <graphic>
-                                <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="18" styleClass="row-content">
+                                <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="19" styleClass="row-content">
                                     <StackPane styleClass="icon-chip">
-                                        <ImageView fitHeight="36.0" fitWidth="36.0" preserveRatio="true" styleClass="game-icon">
+                                        <ImageView fitHeight="34.0" fitWidth="34.0" preserveRatio="true" styleClass="game-icon">
                                             <image>
-                                                <Image url="@icons/icons8-chess-100.png"/>
+                                                <Image url="@icons/chess-icon.png"/>
                                             </image>
                                         </ImageView>
                                     </StackPane>
-                                    <Label maxWidth="Infinity" text="Chexsagon" HBox.hgrow="ALWAYS" styleClass="row-title"/>
+                                    <VBox spacing="3" HBox.hgrow="ALWAYS">
+                                        <Label maxWidth="Infinity" text="Chexsagon" styleClass="row-title"/>
+                                        <Label maxWidth="Infinity" text="Hex chess with a twist" styleClass="row-subtitle"/>
+                                    </VBox>
                                     <StackPane styleClass="row-arrow-chip">
                                         <ImageView fitHeight="20.0" fitWidth="20.0" preserveRatio="true" styleClass="row-chevron-icon">
                                             <image>
@@ -116,13 +127,22 @@
                             </graphic>
                         </Button>
 
+                        <Region maxHeight="1.0" maxWidth="Infinity" minHeight="1.0" prefHeight="1.0" styleClass="game-choice-divider"/>
+
                         <Button id="exit-row" maxWidth="Infinity" onAction="#exit" styleClass="game-row">
                             <graphic>
-                                <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="18" styleClass="row-content">
+                                <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="19" styleClass="row-content">
                                     <StackPane styleClass="icon-chip">
-                                        <Label text="X" styleClass="icon-letter"/>
+                                        <ImageView fitHeight="34.0" fitWidth="34.0" preserveRatio="true" styleClass="game-icon">
+                                            <image>
+                                                <Image url="@icons/game-icon.png"/>
+                                            </image>
+                                        </ImageView>
                                     </StackPane>
-                                    <Label maxWidth="Infinity" text="Exit" HBox.hgrow="ALWAYS" styleClass="row-title"/>
+                                    <VBox spacing="3" HBox.hgrow="ALWAYS">
+                                        <Label maxWidth="Infinity" text="Exit" styleClass="row-title"/>
+                                        <Label maxWidth="Infinity" text="Close GameBox" styleClass="row-subtitle"/>
+                                    </VBox>
                                     <StackPane styleClass="row-arrow-chip">
                                         <ImageView fitHeight="20.0" fitWidth="20.0" preserveRatio="true" styleClass="row-chevron-icon">
                                             <image>

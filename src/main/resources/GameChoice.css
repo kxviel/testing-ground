@@ -4,26 +4,35 @@
 }
 
 .game-choice-main {
-    -fx-padding: 72 42 28 42;
+    -fx-padding: 0;
 }
 
 .game-choice-frame {
     -fx-background-color: -sh-card;
-    -fx-background-radius: 8;
-    -fx-border-color: -sh-foreground;
-    -fx-border-radius: 8;
+    -fx-background-radius: 16;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 16;
     -fx-border-width: 1;
-    -fx-padding: 52;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.10), 12, 0, 0, 2);
+    -fx-padding: 38 42 46 42;
 }
 
 .game-choices {
-    -fx-background-color: -sh-card;
-    -fx-background-radius: 2px;
-    -fx-padding: 36 24 34 24;
+    -fx-padding: 0;
+}
+
+.game-choice-header {
+    -fx-padding: 0;
+}
+
+.game-choice-eyebrow {
+    -fx-font-size: 13px;
+    -fx-font-weight: 500;
+    -fx-text-fill: -sh-muted-foreground;
 }
 
 .game-choice-title {
-    -fx-font-size: 24px;
+    -fx-font-size: 29px;
     -fx-font-weight: 700;
     -fx-text-fill: -sh-card-foreground;
 }
@@ -34,20 +43,22 @@
 
 .game-row {
     -fx-alignment: center-left;
-    -fx-background-color: -sh-card;
+    -fx-background-color: transparent;
     -fx-background-insets: 0;
-    -fx-background-radius: 2px;
-    -fx-border-color: -sh-foreground;
-    -fx-border-radius: 2px;
+    -fx-background-radius: 12;
+    -fx-border-color: transparent;
+    -fx-border-radius: 12;
     -fx-border-width: 1;
     -fx-content-display: graphic-only;
     -fx-cursor: hand;
-    -fx-min-height: 62;
-    -fx-padding: 8 16;
+    -fx-min-height: 64;
+    -fx-pref-height: 64;
+    -fx-max-height: 64;
+    -fx-padding: 8 14;
 }
 
 .game-row:hover {
-    -fx-background-color: -sh-accent;
+    -fx-border-color: -sh-border;
 }
 
 .game-row:pressed {
@@ -61,30 +72,37 @@
 .icon-chip {
     -fx-alignment: center;
     -fx-background-color: -sh-muted;
-    -fx-background-radius: 2px;
+    -fx-background-radius: 12;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 2px;
+    -fx-border-radius: 12;
     -fx-border-width: 1;
-    -fx-min-height: 44;
-    -fx-min-width: 44;
-    -fx-pref-height: 44;
-    -fx-pref-width: 44;
+    -fx-min-height: 48;
+    -fx-min-width: 48;
+    -fx-pref-height: 48;
+    -fx-pref-width: 48;
 }
 
 .game-icon {
     -fx-opacity: 0.96;
 }
 
-.icon-letter {
-    -fx-font-size: 24px;
-    -fx-font-weight: 600;
-    -fx-text-fill: -game-accent;
+.row-title {
+    -fx-font-size: 19px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -sh-foreground;
 }
 
-.row-title {
-    -fx-font-size: 18px;
+.row-subtitle {
+    -fx-font-size: 16px;
     -fx-font-weight: 500;
-    -fx-text-fill: -sh-foreground;
+    -fx-text-fill: -sh-muted-foreground;
+}
+
+.game-choice-divider {
+    -fx-background-color: -sh-border;
+    -fx-min-height: 1;
+    -fx-pref-height: 1;
+    -fx-max-height: 1;
 }
 
 .row-arrow-chip {
