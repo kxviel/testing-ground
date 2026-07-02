@@ -43,7 +43,8 @@ class GameChoiceFxmlSmokeTest {
             VBox gameChoices = findByStyleClass(root, "game-choices", VBox.class);
 
             assertNotNull(gameChoices);
-            assertEquals(760, gameChoices.getMaxWidth());
+            assertEquals(640, gameChoices.getMaxWidth());
+            assertTrue(hasStyleClass(root, "game-choice-frame"));
             assertFalse(hasStyleClass(root, "settings-panel"));
             assertFalse(hasId(root, "resolutionBox"));
             assertFalse(hasId(root, "maximizedRadio"));
