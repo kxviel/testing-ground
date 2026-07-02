@@ -1,6 +1,7 @@
 module seda.project.control.alt.defeat.gamebox {
     requires javafx.controls;
     requires javafx.fxml;
+    requires javafx.media;
     requires transitive javafx.graphics;
     requires org.slf4j;
     requires ch.qos.logback.classic;

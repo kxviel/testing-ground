@@ -7,6 +7,8 @@
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
@@ -63,9 +65,6 @@
             <VBox spacing="12" styleClass="memory-setup-list">
                 <VBox spacing="8" styleClass="menu-section">
                     <HBox alignment="CENTER_LEFT" spacing="18">
-                        <StackPane styleClass="section-icon">
-                            <Label text="k" styleClass="section-icon-text"/>
-                        </StackPane>
                         <Label text="Enter tuple size k (1-45):" styleClass="section-heading"/>
                         <Region HBox.hgrow="ALWAYS"/>
                         <TextField fx:id="kField" promptText="Enter k" text="2" maxWidth="150.0"/>
@@ -76,9 +75,6 @@
 
                 <VBox spacing="14" styleClass="menu-section">
                     <HBox alignment="CENTER_LEFT" spacing="18">
-                        <StackPane styleClass="section-icon">
-                            <Label text="#" styleClass="section-icon-text"/>
-                        </StackPane>
                         <Label text="Select board variant:" styleClass="section-heading"/>
                     </HBox>
 
@@ -97,17 +93,17 @@
                         styleClass="memory-action-row">
                     <graphic>
                         <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="18" styleClass="row-content">
-                            <StackPane styleClass="icon-chip">
-                                <Label text="S" styleClass="icon-letter"/>
-                            </StackPane>
-
                             <VBox spacing="4" HBox.hgrow="ALWAYS">
                                 <Label text="Start Game" styleClass="row-title"/>
                                 <Label text="Start local 2-player memory" styleClass="row-subtitle"/>
                             </VBox>
 
                             <StackPane styleClass="row-arrow-chip">
-                                <Label text="›" styleClass="row-arrow"/>
+                                <ImageView fitHeight="20.0" fitWidth="20.0" preserveRatio="true" styleClass="row-chevron-icon">
+                                    <image>
+                                        <Image url="@../icons/icons8-chevron-right-96.png"/>
+                                    </image>
+                                </ImageView>
                             </StackPane>
                         </HBox>
                     </graphic>
@@ -118,17 +114,17 @@
                         styleClass="memory-action-row">
                     <graphic>
                         <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="18" styleClass="row-content">
-                            <StackPane styleClass="icon-chip">
-                                <Label text="X" styleClass="icon-letter"/>
-                            </StackPane>
-
                             <VBox spacing="4" HBox.hgrow="ALWAYS">
                                 <Label text="Exit Game" styleClass="row-title"/>
                                 <Label text="Return to GameBox" styleClass="row-subtitle"/>
                             </VBox>
 
                             <StackPane styleClass="row-arrow-chip">
-                                <Label text="›" styleClass="row-arrow"/>
+                                <ImageView fitHeight="20.0" fitWidth="20.0" preserveRatio="true" styleClass="row-chevron-icon">
+                                    <image>
+                                        <Image url="@../icons/icons8-chevron-right-96.png"/>
+                                    </image>
+                                </ImageView>
                             </StackPane>
                         </HBox>
                     </graphic>

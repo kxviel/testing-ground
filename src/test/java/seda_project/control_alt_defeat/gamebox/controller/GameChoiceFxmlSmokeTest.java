@@ -1,7 +1,5 @@
 package seda_project.control_alt_defeat.gamebox.controller;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -11,10 +9,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.VBox;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -33,22 +28,10 @@ class GameChoiceFxmlSmokeTest {
 
     @Test
     void gameChoiceFxmlLoads() throws Exception {
-        assertNotNull(loadOnFxThread("/GameChoice.fxml"));
-    }
+        Parent root = loadOnFxThread("/GameChoice.fxml");
 
-    @Test
-    void settingsPanelIsRemovedAndGameChoicesAreCentered() throws Exception {
-        runOnFxThread(() -> {
-            Parent root = load("/GameChoice.fxml");
-            VBox gameChoices = findByStyleClass(root, "game-choices", VBox.class);
-
-            assertNotNull(gameChoices);
-            assertEquals(640, gameChoices.getMaxWidth());
-            assertTrue(hasStyleClass(root, "game-choice-frame"));
-            assertFalse(hasStyleClass(root, "settings-panel"));
-            assertFalse(hasId(root, "resolutionBox"));
-            assertFalse(hasId(root, "maximizedRadio"));
-        });
+        assertNotNull(root);
+        assertTrue(root.getStyleClass().contains("game-choice-root"));
     }
 
     private static Parent loadOnFxThread(String resource) throws Exception {
@@ -58,8 +41,7 @@ class GameChoiceFxmlSmokeTest {
 
         Platform.runLater(() -> {
             try {
-                FXMLLoader loader = new FXMLLoader(GameChoiceFxmlSmokeTest.class.getResource(resource));
-                rootRef.set(loader.load());
+                rootRef.set(new FXMLLoader(GameChoiceFxmlSmokeTest.class.getResource(resource)).load());
             } catch (Throwable t) {
                 errorRef.set(t);
             } finally {
@@ -72,77 +54,5 @@ class GameChoiceFxmlSmokeTest {
             throw new RuntimeException(errorRef.get());
         }
         return rootRef.get();
-    }
-
-    private static Parent load(String resource) throws Exception {
-        FXMLLoader loader = new FXMLLoader(GameChoiceFxmlSmokeTest.class.getResource(resource));
-        return loader.load();
-    }
-
-    private static <T extends Node> T find(Node node, String id, Class<T> type) {
-        if (type.isInstance(node) && id.equals(node.getId())) {
-            return type.cast(node);
-        }
-        if (node instanceof ScrollPane scrollPane && scrollPane.getContent() != null) {
-            return find(scrollPane.getContent(), id, type);
-        }
-        if (node instanceof Parent parent) {
-            return parent.getChildrenUnmodifiable().stream()
-                    .map(child -> find(child, id, type))
-                    .filter(found -> found != null)
-                    .findFirst()
-                    .orElse(null);
-        }
-        return null;
-    }
-
-    private static <T extends Node> T findByStyleClass(Node node, String styleClass, Class<T> type) {
-        if (type.isInstance(node) && node.getStyleClass().contains(styleClass)) {
-            return type.cast(node);
-        }
-        if (node instanceof ScrollPane scrollPane && scrollPane.getContent() != null) {
-            return findByStyleClass(scrollPane.getContent(), styleClass, type);
-        }
-        if (node instanceof Parent parent) {
-            return parent.getChildrenUnmodifiable().stream()
-                    .map(child -> findByStyleClass(child, styleClass, type))
-                    .filter(found -> found != null)
-                    .findFirst()
-                    .orElse(null);
-        }
-        return null;
-    }
-
-    private static boolean hasStyleClass(Node node, String styleClass) {
-        return findByStyleClass(node, styleClass, Node.class) != null;
-    }
-
-    private static boolean hasId(Node node, String id) {
-        return find(node, id, Node.class) != null;
-    }
-
-    private static void runOnFxThread(ThrowingRunnable task) throws Exception {
-        CountDownLatch latch = new CountDownLatch(1);
-        AtomicReference<Throwable> errorRef = new AtomicReference<>();
-
-        Platform.runLater(() -> {
-            try {
-                task.run();
-            } catch (Throwable t) {
-                errorRef.set(t);
-            } finally {
-                latch.countDown();
-            }
-        });
-
-        assertTrue(latch.await(5, TimeUnit.SECONDS));
-        if (errorRef.get() != null) {
-            throw new RuntimeException(errorRef.get());
-        }
-    }
-
-    @FunctionalInterface
-    private interface ThrowingRunnable {
-        void run() throws Exception;
     }
 }

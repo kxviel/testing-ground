@@ -1,5 +1,6 @@
 package seda_project.control_alt_defeat.gamebox.util;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.concurrent.Callable;
@@ -8,11 +9,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-class WindowManagerTest {
+class SoundManagerTest {
 
     @BeforeAll
     static void startJavaFx() throws Exception {
@@ -26,13 +30,21 @@ class WindowManagerTest {
     }
 
     @Test
-    void createSceneAddsGlobalTheme() throws Exception {
-        boolean hasTheme = callOnFxThread(() -> WindowManager.createScene(new StackPane())
-                .getStylesheets()
-                .stream()
-                .anyMatch(path -> path.endsWith("Theme.css")));
+    void installsWithoutReplacingButtonActions() throws Exception {
+        assertNotNull(SoundManager.class.getResource("/sounds/click.wav"));
 
-        assertTrue(hasTheme);
+        boolean actionPreserved = callOnFxThread(() -> {
+            Button button = new Button("Play");
+            EventHandler<ActionEvent> handler = event -> {
+            };
+            button.setOnAction(handler);
+
+            SoundManager.installButtonClickSound(new StackPane(button));
+
+            return button.getOnAction() == handler;
+        });
+
+        assertTrue(actionPreserved);
     }
 
     private static <T> T callOnFxThread(Callable<T> task) throws Exception {

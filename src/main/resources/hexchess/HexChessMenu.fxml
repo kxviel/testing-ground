@@ -92,7 +92,11 @@
                             </VBox>
 
                             <StackPane styleClass="row-arrow-chip">
-                                <Label text="›" styleClass="row-arrow"/>
+                                <ImageView fitHeight="20.0" fitWidth="20.0" preserveRatio="true" styleClass="row-chevron-icon">
+                                    <image>
+                                        <Image url="@../icons/icons8-chevron-right-96.png"/>
+                                    </image>
+                                </ImageView>
                             </StackPane>
                         </HBox>
                     </graphic>
@@ -113,7 +117,11 @@
                             </VBox>
 
                             <StackPane styleClass="row-arrow-chip">
-                                <Label text="›" styleClass="row-arrow"/>
+                                <ImageView fitHeight="20.0" fitWidth="20.0" preserveRatio="true" styleClass="row-chevron-icon">
+                                    <image>
+                                        <Image url="@../icons/icons8-chevron-right-96.png"/>
+                                    </image>
+                                </ImageView>
                             </StackPane>
                         </HBox>
                     </graphic>
@@ -134,7 +142,11 @@
                             </VBox>
 
                             <StackPane styleClass="row-arrow-chip">
-                                <Label text="›" styleClass="row-arrow"/>
+                                <ImageView fitHeight="20.0" fitWidth="20.0" preserveRatio="true" styleClass="row-chevron-icon">
+                                    <image>
+                                        <Image url="@../icons/icons8-chevron-right-96.png"/>
+                                    </image>
+                                </ImageView>
                             </StackPane>
                         </HBox>
                     </graphic>
@@ -157,7 +169,11 @@
                             </VBox>
 
                             <StackPane styleClass="row-arrow-chip">
-                                <Label text="›" styleClass="row-arrow"/>
+                                <ImageView fitHeight="20.0" fitWidth="20.0" preserveRatio="true" styleClass="row-chevron-icon">
+                                    <image>
+                                        <Image url="@../icons/icons8-chevron-right-96.png"/>
+                                    </image>
+                                </ImageView>
                             </StackPane>
                         </HBox>
                     </graphic>

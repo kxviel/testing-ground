@@ -42,6 +42,7 @@ public final class WindowManager {
     }
 
     public static void setScene(Stage stage, Parent root) {
+        SoundManager.installButtonClickSound(root);
         setScene(stage, createScene(root));
     }
 

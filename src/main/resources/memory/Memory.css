@@ -21,9 +21,9 @@
 .memory-game-stage,
 .memory-game-info-panel {
     -fx-background-color: -sh-card;
-    -fx-background-radius: 0;
+    -fx-background-radius: 2px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 0;
+    -fx-border-radius: 2px;
     -fx-border-width: 1;
     -fx-effect: null;
 }
@@ -110,9 +110,9 @@
 .player-chip,
 .turn-pill {
     -fx-background-color: -sh-accent;
-    -fx-background-radius: 0;
+    -fx-background-radius: 2px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 0;
+    -fx-border-radius: 2px;
     -fx-border-width: 1;
 }
 
@@ -124,51 +124,13 @@
     -fx-padding: 12;
 }
 
-.section-icon,
-.icon-chip {
-    -fx-alignment: center;
-    -fx-background-color: -sh-muted;
-    -fx-background-radius: 0;
-    -fx-border-color: -sh-border;
-    -fx-border-radius: 0;
-    -fx-border-width: 1;
-}
-
-.section-icon {
-    -fx-min-height: 42;
-    -fx-min-width: 42;
-    -fx-pref-height: 42;
-    -fx-pref-width: 42;
-}
-
-.icon-chip {
-    -fx-min-height: 54;
-    -fx-min-width: 54;
-    -fx-pref-height: 54;
-    -fx-pref-width: 54;
-}
-
-.section-icon-text,
-.icon-letter {
-    -fx-font-weight: 800;
-    -fx-text-fill: -game-accent;
-}
-
-.section-icon-text {
-    -fx-font-size: 20px;
-}
-
-.icon-letter {
-    -fx-font-size: 28px;
-}
-
 .memory-action-row {
     -fx-alignment: center-left;
     -fx-background-color: -sh-card;
     -fx-background-insets: 0;
-    -fx-background-radius: 0;
+    -fx-background-radius: 2px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 0;
+    -fx-border-radius: 2px;
     -fx-border-width: 1;
     -fx-content-display: graphic-only;
     -fx-cursor: hand;
@@ -204,14 +166,12 @@
     -fx-pref-width: 38;
 }
 
-.row-arrow {
-    -fx-font-size: 34px;
-    -fx-font-weight: 300;
-    -fx-text-fill: -sh-muted-foreground;
+.row-chevron-icon {
+    -fx-opacity: 0.65;
 }
 
-.memory-action-row:hover .row-arrow {
-    -fx-text-fill: -game-accent;
+.memory-action-row:hover .row-chevron-icon {
+    -fx-opacity: 1;
 }
 
 .network-section {
@@ -231,7 +191,7 @@
 }
 
 .section-heading {
-    -fx-font-size: 16px;
+    -fx-font-size: 20px;
 }
 
 .footer-line,
@@ -342,8 +302,8 @@
 .memory-card {
     -fx-alignment: center;
     -fx-background-insets: 0;
-    -fx-background-radius: 0;
-    -fx-border-radius: 0;
+    -fx-background-radius: 2px;
+    -fx-border-radius: 2px;
     -fx-border-width: 1;
     -fx-content-display: graphic-only;
     -fx-cursor: hand;

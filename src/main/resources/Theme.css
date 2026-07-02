@@ -22,7 +22,7 @@
     -sh-chart-3: #525252;
     -sh-chart-4: #404040;
     -sh-chart-5: #262626;
-    -sh-radius: 0;
+    -sh-radius: 2px;
     -sh-sidebar: #FAFAFA;
     -sh-sidebar-foreground: #0A0A0A;
     -sh-sidebar-primary: #155DFC;
@@ -72,9 +72,9 @@
 .button {
     -fx-background-color: -sh-card;
     -fx-background-insets: 0;
-    -fx-background-radius: 0;
+    -fx-background-radius: 2px;
     -fx-border-color: -sh-input;
-    -fx-border-radius: 0;
+    -fx-border-radius: 2px;
     -fx-border-width: 1;
     -fx-cursor: hand;
     -fx-font-size: 14px;
@@ -157,9 +157,9 @@
 .list-view {
     -fx-background-color: -sh-card;
     -fx-background-insets: 0;
-    -fx-background-radius: 0;
+    -fx-background-radius: 2px;
     -fx-border-color: -sh-input;
-    -fx-border-radius: 0;
+    -fx-border-radius: 2px;
     -fx-border-width: 1;
     -fx-min-height: 40;
     -fx-text-fill: -sh-foreground;
@@ -197,7 +197,7 @@
 .list-cell:filled:selected,
 .list-cell:filled:selected:hover {
     -fx-background-color: -sh-accent;
-    -fx-background-radius: 0;
+    -fx-background-radius: 2px;
     -fx-text-fill: -sh-accent-foreground;
 }
 
@@ -237,8 +237,8 @@
 }
 
 .check-box .box {
-    -fx-background-radius: 0;
-    -fx-border-radius: 0;
+    -fx-background-radius: 2px;
+    -fx-border-radius: 2px;
     -fx-padding: 3;
 }
 
