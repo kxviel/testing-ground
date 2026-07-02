@@ -21,11 +21,11 @@
 .memory-game-stage,
 .memory-game-info-panel {
     -fx-background-color: -sh-card;
-    -fx-background-radius: 16;
+    -fx-background-radius: 0;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 16;
+    -fx-border-radius: 0;
     -fx-border-width: 1;
-    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.08), 18, 0.10, 0, 6);
+    -fx-effect: null;
 }
 
 .memory-setup {
@@ -35,6 +35,8 @@
 .memory-network-panel,
 .memory-game-info-panel {
     -fx-padding: 36 30 30 30;
+    -fx-background-color: -sh-sidebar;
+    -fx-border-color: -sh-sidebar-border;
 }
 
 .memory-game-stage {
@@ -111,9 +113,9 @@
 .player-chip,
 .turn-pill {
     -fx-background-color: -sh-accent;
-    -fx-background-radius: 12;
+    -fx-background-radius: 0;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 12;
+    -fx-border-radius: 0;
     -fx-border-width: 1;
 }
 
@@ -130,9 +132,9 @@
 .icon-chip {
     -fx-alignment: center;
     -fx-background-color: -sh-muted;
-    -fx-background-radius: 12;
+    -fx-background-radius: 0;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 12;
+    -fx-border-radius: 0;
     -fx-border-width: 1;
 }
 
@@ -168,9 +170,9 @@
     -fx-alignment: center-left;
     -fx-background-color: -sh-card;
     -fx-background-insets: 0;
-    -fx-background-radius: 12;
+    -fx-background-radius: 0;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 12;
+    -fx-border-radius: 0;
     -fx-border-width: 1;
     -fx-content-display: graphic-only;
     -fx-cursor: hand;
@@ -254,14 +256,14 @@
 
 .button {
     -fx-background-insets: 0;
-    -fx-background-radius: 10;
-    -fx-border-radius: 10;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
     -fx-border-width: 1;
     -fx-cursor: hand;
     -fx-font-size: 14px;
-    -fx-font-weight: 700;
-    -fx-min-height: 42;
-    -fx-padding: 10 18;
+    -fx-font-weight: 600;
+    -fx-min-height: 40;
+    -fx-padding: 9 16;
 }
 
 .apply-button {
@@ -275,9 +277,22 @@
     -fx-text-fill: -sh-primary-foreground;
 }
 
+.btn-primary:hover,
+.quit-button:hover {
+    -fx-background-color: derive(-sh-primary, 16%);
+    -fx-border-color: derive(-sh-primary, 16%);
+    -fx-text-fill: -sh-primary-foreground;
+}
+
 .btn-danger {
     -fx-background-color: -sh-destructive;
     -fx-border-color: -sh-destructive;
+    -fx-text-fill: -sh-primary-foreground;
+}
+
+.btn-danger:hover {
+    -fx-background-color: derive(-sh-destructive, 12%);
+    -fx-border-color: derive(-sh-destructive, 12%);
     -fx-text-fill: -sh-primary-foreground;
 }
 
@@ -288,10 +303,7 @@
     -fx-text-fill: -sh-foreground;
 }
 
-.btn-primary:hover,
 .btn-outline:hover,
-.btn-danger:hover,
-.quit-button:hover,
 .text-field:focused {
     -fx-background-color: -sh-accent;
     -fx-border-color: -sh-ring;
@@ -299,19 +311,19 @@
 }
 
 .text-field {
-    -fx-background-radius: 10;
-    -fx-border-radius: 10;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
     -fx-border-width: 1;
-    -fx-min-height: 36;
+    -fx-min-height: 40;
     -fx-padding: 8 12;
     -fx-prompt-text-fill: -sh-muted-foreground;
 }
 
 .mode-button {
     -fx-background-color: -sh-card;
-    -fx-background-radius: 10;
-    -fx-border-color: -sh-border;
-    -fx-border-radius: 10;
+    -fx-background-radius: 0;
+    -fx-border-color: -sh-input;
+    -fx-border-radius: 0;
     -fx-border-width: 1;
     -fx-content-display: graphic-only;
     -fx-min-height: 48;
@@ -412,8 +424,8 @@
 .memory-card {
     -fx-alignment: center;
     -fx-background-insets: 0;
-    -fx-background-radius: 12;
-    -fx-border-radius: 12;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
     -fx-border-width: 1;
     -fx-content-display: graphic-only;
     -fx-cursor: hand;

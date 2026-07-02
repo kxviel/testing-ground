@@ -1,66 +1,45 @@
 .root {
     -sh-background: #FFFFFF;
-    -sh-foreground: #090B0C;
+    -sh-foreground: #0A0A0A;
     -sh-card: #FFFFFF;
-    -sh-card-foreground: #090B0C;
-    -sh-primary: #161B1D;
-    -sh-primary-foreground: #F9FBFB;
-    -sh-muted: #F1F3F3;
-    -sh-muted-foreground: #67787C;
-    -sh-accent: #F1F3F3;
-    -sh-accent-foreground: #161B1D;
+    -sh-card-foreground: #0A0A0A;
+    -sh-popover: #FFFFFF;
+    -sh-popover-foreground: #0A0A0A;
+    -sh-primary: #1447E6;
+    -sh-primary-foreground: #EFF6FF;
+    -sh-secondary: #F4F4F5;
+    -sh-secondary-foreground: #18181B;
+    -sh-muted: #F5F5F5;
+    -sh-muted-foreground: #737373;
+    -sh-accent: #F5F5F5;
+    -sh-accent-foreground: #171717;
     -sh-destructive: #E7000B;
-    -sh-border: #E3E7E8;
-    -sh-input: #E3E7E8;
-    -sh-ring: #9CA8AB;
-    -game-accent: #6750A4;
-    -game-accent-hover: #5E4898;
-    -game-accent-pressed: #4F378B;
-    -game-accent-hover-soft: #7C67B8;
-    -game-accent-container: #EADDFF;
-    -game-on-accent: #FFFFFF;
-    -game-on-accent-container: #21005D;
-    -game-soft-surface: #F7F2FA;
+    -sh-border: #E5E5E5;
+    -sh-input: #E5E5E5;
+    -sh-ring: #A1A1A1;
+    -sh-chart-1: #D4D4D4;
+    -sh-chart-2: #737373;
+    -sh-chart-3: #525252;
+    -sh-chart-4: #404040;
+    -sh-chart-5: #262626;
+    -sh-radius: 0;
+    -sh-sidebar: #FAFAFA;
+    -sh-sidebar-foreground: #0A0A0A;
+    -sh-sidebar-primary: #155DFC;
+    -sh-sidebar-primary-foreground: #EFF6FF;
+    -sh-sidebar-accent: #F5F5F5;
+    -sh-sidebar-accent-foreground: #171717;
+    -sh-sidebar-border: #E5E5E5;
+    -sh-sidebar-ring: #A1A1A1;
+    -game-accent: #1447E6;
+    -game-accent-hover: #155DFC;
+    -game-accent-pressed: #123ABD;
+    -game-accent-hover-soft: #EFF6FF;
+    -game-accent-container: #EFF6FF;
+    -game-on-accent: #EFF6FF;
+    -game-on-accent-container: #0A0A0A;
+    -game-soft-surface: #F5F5F5;
     -fx-font-family: "Inter Variable", "Inter", "Segoe UI", "Arial", sans-serif;
-}
-
-.game-choice-root {
-    -game-accent: #6750A4;
-    -game-accent-container: #EADDFF;
-    -game-on-accent-container: #21005D;
-}
-
-.memory-menu-root,
-.memory-game-root {
-    -game-accent: #7D5260;
-    -game-accent-hover: #633B48;
-    -game-accent-pressed: #5D3A46;
-    -game-accent-hover-soft: #986977;
-    -game-accent-container: #FFD8E4;
-    -game-on-accent-container: #31111D;
-    -game-soft-surface: #FFF8FA;
-}
-
-.tetris-menu-root,
-.tetris-game-root {
-    -game-accent: #0061A4;
-    -game-accent-hover: #00497D;
-    -game-accent-pressed: #003258;
-    -game-accent-hover-soft: #3F7FBD;
-    -game-accent-container: #D1E4FF;
-    -game-on-accent-container: #001D36;
-    -game-soft-surface: #F4FAFF;
-}
-
-.hex-menu-root,
-.hex-game-root {
-    -game-accent: #81C784;
-    -game-accent-hover: #66BB6A;
-    -game-accent-pressed: #4CAF50;
-    -game-accent-hover-soft: #A5D6A7;
-    -game-accent-container: #E8F5E9;
-    -game-on-accent-container: #0B2E13;
-    -game-soft-surface: #F1F8E9;
 }
 
 .app-scroll,
@@ -88,4 +67,186 @@
 .app-scroll .scroll-bar .increment-button,
 .app-scroll .scroll-bar .decrement-button {
     -fx-background-color: transparent;
+}
+
+.button {
+    -fx-background-color: -sh-card;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-border-color: -sh-input;
+    -fx-border-radius: 0;
+    -fx-border-width: 1;
+    -fx-cursor: hand;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-min-height: 40;
+    -fx-padding: 9 16;
+    -fx-text-fill: -sh-foreground;
+}
+
+.button:hover {
+    -fx-background-color: -sh-accent;
+    -fx-border-color: -sh-ring;
+    -fx-text-fill: -sh-accent-foreground;
+}
+
+.button:pressed {
+    -fx-background-color: -sh-muted;
+}
+
+.button:focused,
+.text-field:focused,
+.combo-box:focused,
+.list-view:focused,
+.radio-button:focused .radio,
+.check-box:focused .box {
+    -fx-border-color: -sh-ring;
+    -fx-effect: dropshadow(gaussian, rgba(9, 11, 12, 0.18), 6, 0.12, 0, 0);
+}
+
+.button:disabled,
+.text-field:disabled,
+.combo-box:disabled,
+.list-view:disabled,
+.radio-button:disabled,
+.check-box:disabled {
+    -fx-cursor: default;
+    -fx-opacity: 0.5;
+}
+
+.btn-primary {
+    -fx-background-color: -sh-primary;
+    -fx-border-color: -sh-primary;
+    -fx-text-fill: -sh-primary-foreground;
+}
+
+.btn-primary:hover {
+    -fx-background-color: derive(-sh-primary, 16%);
+    -fx-border-color: derive(-sh-primary, 16%);
+    -fx-text-fill: -sh-primary-foreground;
+}
+
+.btn-outline,
+.mode-button {
+    -fx-background-color: -sh-card;
+    -fx-border-color: -sh-input;
+    -fx-text-fill: -sh-foreground;
+}
+
+.btn-outline:hover,
+.mode-button:hover {
+    -fx-background-color: -sh-accent;
+    -fx-border-color: -sh-ring;
+    -fx-text-fill: -sh-accent-foreground;
+}
+
+.btn-danger {
+    -fx-background-color: -sh-destructive;
+    -fx-border-color: -sh-destructive;
+    -fx-text-fill: -sh-primary-foreground;
+}
+
+.btn-danger:hover {
+    -fx-background-color: derive(-sh-destructive, 12%);
+    -fx-border-color: derive(-sh-destructive, 12%);
+    -fx-text-fill: -sh-primary-foreground;
+}
+
+.text-field,
+.combo-box,
+.list-view {
+    -fx-background-color: -sh-card;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-border-color: -sh-input;
+    -fx-border-radius: 0;
+    -fx-border-width: 1;
+    -fx-min-height: 40;
+    -fx-text-fill: -sh-foreground;
+}
+
+.text-field {
+    -fx-padding: 8 12;
+    -fx-prompt-text-fill: -sh-muted-foreground;
+}
+
+.combo-box {
+    -fx-padding: 2 4 2 8;
+}
+
+.combo-box .list-cell,
+.list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 7 8;
+    -fx-text-fill: -sh-foreground;
+}
+
+.combo-box .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.combo-box .arrow {
+    -fx-background-color: -sh-foreground;
+}
+
+.list-view {
+    -fx-padding: 4;
+}
+
+.list-cell:filled:hover,
+.list-cell:filled:selected,
+.list-cell:filled:selected:hover {
+    -fx-background-color: -sh-accent;
+    -fx-background-radius: 0;
+    -fx-text-fill: -sh-accent-foreground;
+}
+
+.radio-button,
+.check-box {
+    -fx-cursor: hand;
+    -fx-font-size: 14px;
+    -fx-font-weight: 500;
+    -fx-text-fill: -sh-foreground;
+}
+
+.radio-button .radio,
+.check-box .box {
+    -fx-background-color: -sh-card;
+    -fx-background-insets: 0;
+    -fx-border-color: -sh-input;
+    -fx-border-width: 1;
+}
+
+.radio-button .radio {
+    -fx-background-radius: 99;
+    -fx-border-radius: 99;
+    -fx-padding: 4;
+}
+
+.radio-button:selected .radio {
+    -fx-border-color: -sh-primary;
+}
+
+.radio-button .dot {
+    -fx-background-radius: 99;
+    -fx-padding: 4;
+}
+
+.radio-button:selected .dot {
+    -fx-background-color: -sh-primary;
+}
+
+.check-box .box {
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+    -fx-padding: 3;
+}
+
+.check-box:selected .box {
+    -fx-background-color: -sh-primary;
+    -fx-border-color: -sh-primary;
+}
+
+.check-box:selected .mark {
+    -fx-background-color: -sh-primary-foreground;
 }

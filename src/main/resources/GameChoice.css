@@ -11,11 +11,11 @@
 .game-choices,
 .settings-panel {
     -fx-background-color: -sh-card;
-    -fx-background-radius: 16;
+    -fx-background-radius: 0;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 16;
+    -fx-border-radius: 0;
     -fx-border-width: 1;
-    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.08), 18, 0.10, 0, 6);
+    -fx-effect: null;
 }
 
 .game-choices {
@@ -24,6 +24,8 @@
 
 .settings-panel {
     -fx-padding: 36 30 30 30;
+    -fx-background-color: -sh-sidebar;
+    -fx-border-color: -sh-sidebar-border;
 }
 
 .game-choice-title {
@@ -77,9 +79,9 @@
     -fx-alignment: center-left;
     -fx-background-color: -sh-card;
     -fx-background-insets: 0;
-    -fx-background-radius: 12;
+    -fx-background-radius: 0;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 12;
+    -fx-border-radius: 0;
     -fx-border-width: 1;
     -fx-content-display: graphic-only;
     -fx-cursor: hand;
@@ -99,9 +101,9 @@
 .icon-chip {
     -fx-alignment: center;
     -fx-background-color: -sh-muted;
-    -fx-background-radius: 12;
+    -fx-background-radius: 0;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 12;
+    -fx-border-radius: 0;
     -fx-border-width: 1;
     -fx-min-height: 54;
     -fx-min-width: 54;
@@ -166,14 +168,14 @@
 
 .settings-radio {
     -fx-background-color: -sh-card;
-    -fx-background-radius: 10;
-    -fx-border-color: -sh-border;
-    -fx-border-radius: 10;
+    -fx-background-radius: 0;
+    -fx-border-color: -sh-input;
+    -fx-border-radius: 0;
     -fx-border-width: 1;
     -fx-cursor: hand;
     -fx-font-size: 14px;
-    -fx-font-weight: 600;
-    -fx-padding: 9 11 9 11;
+    -fx-font-weight: 500;
+    -fx-padding: 9 12;
     -fx-text-fill: -sh-foreground;
 }
 
@@ -185,20 +187,20 @@
 }
 
 .settings-radio:selected {
-    -fx-border-color: -game-accent;
+    -fx-border-color: -sh-primary;
 }
 
 .settings-radio .radio {
     -fx-background-color: -sh-card;
     -fx-background-radius: 99;
-    -fx-border-color: -sh-ring;
+    -fx-border-color: -sh-input;
     -fx-border-radius: 99;
     -fx-border-width: 1;
     -fx-padding: 4;
 }
 
 .settings-radio:selected .radio {
-    -fx-border-color: -game-accent;
+    -fx-border-color: -sh-primary;
 }
 
 .settings-radio .dot {
@@ -207,11 +209,11 @@
 }
 
 .settings-radio:selected .dot {
-    -fx-background-color: -game-accent;
+    -fx-background-color: -sh-primary;
 }
 
 .settings-radio:disabled {
-    -fx-opacity: 0.45;
+    -fx-opacity: 0.5;
 }
 
 .resolution-hint,

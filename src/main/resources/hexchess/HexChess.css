@@ -23,11 +23,11 @@
 .hex-side-panel,
 .canvas-frame {
     -fx-background-color: -sh-card;
-    -fx-background-radius: 16;
+    -fx-background-radius: 0;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 16;
+    -fx-border-radius: 0;
     -fx-border-width: 1;
-    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.08), 18, 0.10, 0, 6);
+    -fx-effect: null;
 }
 
 .hex-setup {
@@ -38,11 +38,28 @@
 .hex-game-info-panel,
 .hex-side-panel {
     -fx-padding: 36 30 30 30;
+    -fx-background-color: -sh-sidebar;
+    -fx-border-color: -sh-sidebar-border;
 }
 
 .hex-board-zone,
 .canvas-frame {
     -fx-padding: 28;
+}
+
+.hex-board-zone,
+.hex-board-panel,
+.board-surface,
+.canvas-frame {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #fcf7ee 0%, #f6ebd9 100%);
+    -fx-border-color: #e6d7bf;
+}
+
+.hex-board-panel,
+.board-surface {
+    -fx-border-width: 1;
+    -fx-padding: 14;
+    -fx-spacing: 12;
 }
 
 .title,
@@ -109,9 +126,9 @@
 .row-icon-chip {
     -fx-alignment: center;
     -fx-background-color: -sh-muted;
-    -fx-background-radius: 12;
+    -fx-background-radius: 0;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 12;
+    -fx-border-radius: 0;
     -fx-border-width: 1;
 }
 
@@ -148,9 +165,9 @@
     -fx-alignment: center-left;
     -fx-background-color: -sh-card;
     -fx-background-insets: 0;
-    -fx-background-radius: 12;
+    -fx-background-radius: 0;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 12;
+    -fx-border-radius: 0;
     -fx-border-width: 1;
     -fx-content-display: graphic-only;
     -fx-cursor: hand;
@@ -221,20 +238,37 @@
 
 .button {
     -fx-background-insets: 0;
-    -fx-background-radius: 10;
-    -fx-border-radius: 10;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
     -fx-border-width: 1;
     -fx-cursor: hand;
     -fx-font-size: 14px;
-    -fx-font-weight: 700;
-    -fx-min-height: 42;
-    -fx-padding: 10 18;
+    -fx-font-weight: 600;
+    -fx-min-height: 40;
+    -fx-padding: 9 16;
 }
 
-.btn-primary,
-.btn-danger {
+.btn-primary {
     -fx-background-color: -sh-primary;
     -fx-border-color: -sh-primary;
+    -fx-text-fill: -sh-primary-foreground;
+}
+
+.btn-primary:hover {
+    -fx-background-color: derive(-sh-primary, 16%);
+    -fx-border-color: derive(-sh-primary, 16%);
+    -fx-text-fill: -sh-primary-foreground;
+}
+
+.btn-danger {
+    -fx-background-color: -sh-destructive;
+    -fx-border-color: -sh-destructive;
+    -fx-text-fill: -sh-primary-foreground;
+}
+
+.btn-danger:hover {
+    -fx-background-color: derive(-sh-destructive, 12%);
+    -fx-border-color: derive(-sh-destructive, 12%);
     -fx-text-fill: -sh-primary-foreground;
 }
 
@@ -248,9 +282,7 @@
     -fx-text-fill: -sh-foreground;
 }
 
-.btn-primary:hover,
 .btn-outline:hover,
-.btn-danger:hover,
 .mode-button:hover,
 .text-field:focused,
 .combo-box:focused,
@@ -294,10 +326,10 @@
 .text-field,
 .combo-box,
 .list-view {
-    -fx-background-radius: 10;
-    -fx-border-radius: 10;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
     -fx-border-width: 1;
-    -fx-min-height: 36;
+    -fx-min-height: 40;
 }
 
 .text-field {
@@ -312,7 +344,7 @@
 .combo-box .list-cell,
 .list-cell {
     -fx-background-color: transparent;
-    -fx-padding: 6 8;
+    -fx-padding: 7 8;
 }
 
 .combo-box .arrow-button {
@@ -331,14 +363,15 @@
 .list-cell:filled:selected:hover,
 .list-cell:filled:hover {
     -fx-background-color: -sh-accent;
+    -fx-background-radius: 0;
     -fx-text-fill: -sh-accent-foreground;
 }
 
 .status-box {
     -fx-background-color: -sh-accent;
-    -fx-background-radius: 10;
+    -fx-background-radius: 0;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 10;
+    -fx-border-radius: 0;
     -fx-border-width: 1;
     -fx-font-weight: 700;
     -fx-padding: 10 12;
