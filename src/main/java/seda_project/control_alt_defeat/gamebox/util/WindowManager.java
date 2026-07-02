@@ -47,6 +47,8 @@ public final class WindowManager {
 
     public static void setScene(Stage stage, Scene scene) {
         stage.setResizable(true);
+        stage.setMinWidth(WindowSettings.MIN_WINDOWED_WIDTH);
+        stage.setMinHeight(WindowSettings.MIN_WINDOWED_HEIGHT);
         installSizeTracking(stage);
         stage.setScene(scene);
         applyCurrentSettings(stage);
@@ -106,7 +108,9 @@ public final class WindowManager {
 
     private static void rememberWindowedSize(Stage stage) {
         if (stage.isShowing() && !stage.isMaximized() && !stage.isFullScreen()) {
-            WindowSettingsStore.rememberWindowedSize(stage.getWidth(), stage.getHeight());
+            WindowSettingsStore.rememberWindowedSize(
+                    Math.max(WindowSettings.MIN_WINDOWED_WIDTH, stage.getWidth()),
+                    Math.max(WindowSettings.MIN_WINDOWED_HEIGHT, stage.getHeight()));
         }
     }
 }

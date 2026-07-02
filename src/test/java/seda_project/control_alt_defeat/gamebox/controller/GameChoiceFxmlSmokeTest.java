@@ -1,8 +1,8 @@
 package seda_project.control_alt_defeat.gamebox.controller;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.concurrent.CountDownLatch;
@@ -13,8 +13,6 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 import org.junit.jupiter.api.BeforeAll;
@@ -39,27 +37,16 @@ class GameChoiceFxmlSmokeTest {
     }
 
     @Test
-    void windowSettingsControlsInitializeExclusively() throws Exception {
+    void settingsPanelIsRemovedAndGameChoicesAreCentered() throws Exception {
         runOnFxThread(() -> {
             Parent root = load("/GameChoice.fxml");
-            RadioButton maximized = find(root, "maximizedRadio", RadioButton.class);
-            RadioButton windowed = find(root, "windowedRadio", RadioButton.class);
-            RadioButton fullscreen = find(root, "fullscreenRadio", RadioButton.class);
-            RadioButton resolution1280 = find(root, "resolution1280Radio", RadioButton.class);
-            RadioButton resolution1920 = find(root, "resolution1920Radio", RadioButton.class);
-            VBox resolutionBox = find(root, "resolutionBox", VBox.class);
-            Label resolutionHint = find(root, "resolutionHint", Label.class);
+            VBox gameChoices = findByStyleClass(root, "game-choices", VBox.class);
 
-            assertSame(maximized.getToggleGroup(), windowed.getToggleGroup());
-            assertSame(maximized.getToggleGroup(), fullscreen.getToggleGroup());
-            assertSame(resolution1280.getToggleGroup(), resolution1920.getToggleGroup());
-            assertTrue(maximized.isSelected());
-            assertTrue(resolution1280.isSelected());
-            assertTrue(resolutionBox.isDisabled());
-            assertTrue(resolutionHint.isVisible());
-
-            windowed.setSelected(true);
-            assertFalse(maximized.isSelected());
+            assertNotNull(gameChoices);
+            assertEquals(760, gameChoices.getMaxWidth());
+            assertFalse(hasStyleClass(root, "settings-panel"));
+            assertFalse(hasId(root, "resolutionBox"));
+            assertFalse(hasId(root, "maximizedRadio"));
         });
     }
 
@@ -106,6 +93,31 @@ class GameChoiceFxmlSmokeTest {
                     .orElse(null);
         }
         return null;
+    }
+
+    private static <T extends Node> T findByStyleClass(Node node, String styleClass, Class<T> type) {
+        if (type.isInstance(node) && node.getStyleClass().contains(styleClass)) {
+            return type.cast(node);
+        }
+        if (node instanceof ScrollPane scrollPane && scrollPane.getContent() != null) {
+            return findByStyleClass(scrollPane.getContent(), styleClass, type);
+        }
+        if (node instanceof Parent parent) {
+            return parent.getChildrenUnmodifiable().stream()
+                    .map(child -> findByStyleClass(child, styleClass, type))
+                    .filter(found -> found != null)
+                    .findFirst()
+                    .orElse(null);
+        }
+        return null;
+    }
+
+    private static boolean hasStyleClass(Node node, String styleClass) {
+        return findByStyleClass(node, styleClass, Node.class) != null;
+    }
+
+    private static boolean hasId(Node node, String id) {
+        return find(node, id, Node.class) != null;
     }
 
     private static void runOnFxThread(ThrowingRunnable task) throws Exception {
