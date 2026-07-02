@@ -4,7 +4,6 @@ import java.util.Objects;
 
 public record WindowSettings(WindowMode mode, double windowedWidth, double windowedHeight) {
 
-    public static final WindowMode DEFAULT_MODE = WindowMode.MAXIMIZED;
     public static final double DEFAULT_WINDOWED_WIDTH = 1280;
     public static final double DEFAULT_WINDOWED_HEIGHT = 720;
     public static final double MIN_WINDOWED_WIDTH = 640;
@@ -22,7 +21,7 @@ public record WindowSettings(WindowMode mode, double windowedWidth, double windo
     }
 
     public static WindowSettings defaults() {
-        return new WindowSettings(DEFAULT_MODE, DEFAULT_WINDOWED_WIDTH, DEFAULT_WINDOWED_HEIGHT);
+        return new WindowSettings(WindowMode.MAXIMIZED, DEFAULT_WINDOWED_WIDTH, DEFAULT_WINDOWED_HEIGHT);
     }
 
     public WindowSettings withMode(WindowMode mode) {

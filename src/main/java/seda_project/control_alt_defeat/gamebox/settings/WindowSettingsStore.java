@@ -13,16 +13,16 @@ public final class WindowSettingsStore {
         return settings;
     }
 
-    public static WindowSettings set(WindowSettings newSettings) {
-        settings = Objects.requireNonNull(newSettings, "newSettings");
-        return settings;
-    }
-
     public static WindowSettings rememberMaximized() {
         return set(settings.withMode(WindowMode.MAXIMIZED));
     }
 
     public static WindowSettings rememberWindowedSize(double width, double height) {
         return set(settings.withWindowedSize(width, height));
+    }
+
+    private static WindowSettings set(WindowSettings newSettings) {
+        settings = Objects.requireNonNull(newSettings, "newSettings");
+        return settings;
     }
 }

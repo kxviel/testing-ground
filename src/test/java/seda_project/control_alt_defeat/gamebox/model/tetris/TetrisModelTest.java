@@ -2,15 +2,27 @@ package seda_project.control_alt_defeat.gamebox.model.tetris;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import seda_project.control_alt_defeat.gamebox.model.tetris.enums.*;
+import seda_project.control_alt_defeat.gamebox.model.tetris.enums.GravityDirection;
+import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PieceType;
+import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerSide;
+import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerStatus;
+import seda_project.control_alt_defeat.gamebox.model.tetris.enums.Rotation;
+import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisCell;
+import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisGameStatus;
+import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisItemType;
 
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-import java.util.stream.IntStream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class TetrisModelTest {
 

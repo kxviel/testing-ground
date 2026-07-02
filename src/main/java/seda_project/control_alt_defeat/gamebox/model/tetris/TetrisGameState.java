@@ -7,8 +7,6 @@ import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisGameStat
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisCell;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisItemType;
 
-import java.util.List;
-import java.util.Set;
 import java.util.function.Function;
 
 public record TetrisGameState(

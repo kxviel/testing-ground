@@ -20,7 +20,8 @@ import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisPlayerState;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TetrisProtocolTest {
 

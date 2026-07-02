@@ -63,7 +63,6 @@
 .network-title,
 .section-heading,
 .section-title,
-.section-label,
 .row-title,
 .board-title,
 .game-side-title,
@@ -225,16 +224,10 @@
     -fx-padding: 16 0 0 0;
 }
 
-.section-label,
 .section-heading,
 .section-title,
 .field-title {
     -fx-font-weight: 800;
-}
-
-.section-label {
-    -fx-font-size: 14px;
-    -fx-padding: 0 0 4 0;
 }
 
 .section-heading {

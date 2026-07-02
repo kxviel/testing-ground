@@ -20,7 +20,6 @@ import javafx.util.Duration;
 import seda_project.control_alt_defeat.gamebox.model.tetris.BoardPosition;
 import seda_project.control_alt_defeat.gamebox.model.tetris.PieceShape;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisBoardObject;
-import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisBoard;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerSide;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.GravityDirection;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisCell;
