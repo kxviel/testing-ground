@@ -1,5 +1,7 @@
 package seda_project.control_alt_defeat.gamebox.model.hexchess;
 
+import seda_project.control_alt_defeat.gamebox.util.SafeText;
+
 public record HexChessGameSetup(
         String whiteName,
         String blackName,
@@ -9,8 +11,8 @@ public record HexChessGameSetup(
         boolean customPosition) {
 
     public HexChessGameSetup {
-        whiteName = whiteName == null || whiteName.isBlank() ? "Player 1" : whiteName.trim();
-        blackName = blackName == null || blackName.isBlank() ? "Player 2" : blackName.trim();
+        whiteName = SafeText.playerName(whiteName, "Player 1");
+        blackName = SafeText.playerName(blackName, "Player 2");
         mode = mode == null ? HexGameMode.LOCAL : mode;
         initialBoard = initialBoard == null ? HexBoard.standard() : initialBoard;
         startingTurn = startingTurn == null ? HexPieceColor.WHITE : startingTurn;

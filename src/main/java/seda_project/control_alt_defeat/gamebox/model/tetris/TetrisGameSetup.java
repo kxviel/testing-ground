@@ -2,6 +2,7 @@ package seda_project.control_alt_defeat.gamebox.model.tetris;
 
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerSide;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisGameMode;
+import seda_project.control_alt_defeat.gamebox.util.SafeText;
 
 public record TetrisGameSetup(
         String playerOneName,
@@ -15,8 +16,8 @@ public record TetrisGameSetup(
     }
 
     public TetrisGameSetup {
-        playerOneName = playerOneName == null || playerOneName.isBlank() ? "Player 1" : playerOneName.trim();
-        playerTwoName = playerTwoName == null || playerTwoName.isBlank() ? "Player 2" : playerTwoName.trim();
+        playerOneName = SafeText.playerName(playerOneName, "Player 1");
+        playerTwoName = SafeText.playerName(playerTwoName, "Player 2");
         config = config == null ? TetrisGameConfig.defaultConfig() : config;
         mode = mode == null ? TetrisGameMode.LOCAL : mode;
     }

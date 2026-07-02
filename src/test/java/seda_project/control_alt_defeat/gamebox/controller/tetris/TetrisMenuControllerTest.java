@@ -12,4 +12,11 @@ class TetrisMenuControllerTest {
         assertEquals("Player 2", TetrisMenuController.defaultIfBlank("   ", "Player 2"));
         assertEquals("Alice", TetrisMenuController.defaultIfBlank(" Alice ", "Player 1"));
     }
+
+    @Test
+    void localNamesAreSanitizedBeforeUse() {
+        assertEquals("Alice Bob", TetrisMenuController.defaultIfBlank(" Alice\tBob\n", "Player 1"));
+        assertEquals("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                TetrisMenuController.defaultIfBlank("A".repeat(128), "Player 1"));
+    }
 }

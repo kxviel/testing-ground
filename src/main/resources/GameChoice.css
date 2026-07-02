@@ -4,12 +4,10 @@
 }
 
 .game-choice-main {
-    -fx-hgap: 28;
     -fx-padding: 42 52 42 52;
 }
 
-.game-choices,
-.settings-panel {
+.game-choices {
     -fx-background-color: -sh-card;
     -fx-background-radius: 0;
     -fx-border-color: -sh-border;
@@ -22,12 +20,6 @@
     -fx-padding: 38 34 34 34;
 }
 
-.settings-panel {
-    -fx-padding: 36 30 30 30;
-    -fx-background-color: -sh-sidebar;
-    -fx-border-color: -sh-sidebar-border;
-}
-
 .game-choice-title {
     -fx-font-size: 40px;
     -fx-font-weight: 800;
@@ -35,15 +27,10 @@
 }
 
 .game-choice-subtitle,
-.settings-subtitle,
-.row-subtitle,
-.resolution-hint,
-.footer-line {
+.row-subtitle {
     -fx-text-fill: -sh-muted-foreground;
 }
 
-.settings-title,
-.section-label,
 .row-title {
     -fx-text-fill: -sh-card-foreground;
 }
@@ -126,8 +113,7 @@
     -fx-font-weight: 800;
 }
 
-.row-subtitle,
-.settings-subtitle {
+.row-subtitle {
     -fx-font-size: 14px;
 }
 
@@ -150,78 +136,7 @@
     -fx-text-fill: -game-accent;
 }
 
-.menu-divider,
-.settings-footer {
+.menu-divider {
     -fx-border-color: -sh-border transparent transparent transparent;
     -fx-border-width: 1 0 0 0;
-}
-
-.settings-section {
-    -fx-padding: 8 0 0 0;
-}
-
-.section-label {
-    -fx-font-size: 14px;
-    -fx-font-weight: 800;
-    -fx-padding: 0 0 4 0;
-}
-
-.settings-radio {
-    -fx-background-color: -sh-card;
-    -fx-background-radius: 0;
-    -fx-border-color: -sh-input;
-    -fx-border-radius: 0;
-    -fx-border-width: 1;
-    -fx-cursor: hand;
-    -fx-font-size: 14px;
-    -fx-font-weight: 500;
-    -fx-padding: 9 12;
-    -fx-text-fill: -sh-foreground;
-}
-
-.settings-radio:hover,
-.settings-radio:selected {
-    -fx-background-color: -sh-accent;
-    -fx-border-color: -sh-ring;
-    -fx-text-fill: -sh-accent-foreground;
-}
-
-.settings-radio:selected {
-    -fx-border-color: -sh-primary;
-}
-
-.settings-radio .radio {
-    -fx-background-color: -sh-card;
-    -fx-background-radius: 99;
-    -fx-border-color: -sh-input;
-    -fx-border-radius: 99;
-    -fx-border-width: 1;
-    -fx-padding: 4;
-}
-
-.settings-radio:selected .radio {
-    -fx-border-color: -sh-primary;
-}
-
-.settings-radio .dot {
-    -fx-background-radius: 99;
-    -fx-padding: 4;
-}
-
-.settings-radio:selected .dot {
-    -fx-background-color: -sh-primary;
-}
-
-.settings-radio:disabled {
-    -fx-opacity: 0.5;
-}
-
-.resolution-hint,
-.footer-line {
-    -fx-font-size: 12px;
-    -fx-font-weight: 500;
-}
-
-.settings-footer {
-    -fx-padding: 16 0 0 0;
 }

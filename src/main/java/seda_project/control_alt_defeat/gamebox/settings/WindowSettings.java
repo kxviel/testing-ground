@@ -1,51 +1,35 @@
 package seda_project.control_alt_defeat.gamebox.settings;
 
-import java.util.List;
 import java.util.Objects;
 
-public record WindowSettings(WindowMode mode, WindowResolution windowedResolution) {
+public record WindowSettings(WindowMode mode, double windowedWidth, double windowedHeight) {
 
     public static final WindowMode DEFAULT_MODE = WindowMode.MAXIMIZED;
-    public static final WindowResolution RESOLUTION_800_600 = new WindowResolution(800, 600);
-    public static final WindowResolution RESOLUTION_1024_768 = new WindowResolution(1024, 768);
-    public static final WindowResolution RESOLUTION_1280_720 = new WindowResolution(1280, 720);
-    public static final WindowResolution RESOLUTION_1366_768 = new WindowResolution(1366, 768);
-    public static final WindowResolution RESOLUTION_1920_1080 = new WindowResolution(1920, 1080);
-    public static final WindowResolution DEFAULT_WINDOWED_RESOLUTION = RESOLUTION_1280_720;
-
-    private static final List<WindowResolution> SUPPORTED_WINDOWED_RESOLUTIONS = List.of(
-            RESOLUTION_800_600,
-            RESOLUTION_1024_768,
-            RESOLUTION_1280_720,
-            RESOLUTION_1366_768,
-            RESOLUTION_1920_1080);
+    public static final double DEFAULT_WINDOWED_WIDTH = 1280;
+    public static final double DEFAULT_WINDOWED_HEIGHT = 720;
+    public static final double MIN_WINDOWED_WIDTH = 640;
+    public static final double MIN_WINDOWED_HEIGHT = 480;
 
     public WindowSettings {
         Objects.requireNonNull(mode, "mode");
-        Objects.requireNonNull(windowedResolution, "windowedResolution");
 
-        if (!isSupportedWindowedResolution(windowedResolution)) {
-            throw new IllegalArgumentException("Unsupported windowed resolution: " + windowedResolution);
+        if (!Double.isFinite(windowedWidth) || windowedWidth < MIN_WINDOWED_WIDTH) {
+            throw new IllegalArgumentException("windowedWidth must be at least " + MIN_WINDOWED_WIDTH);
+        }
+        if (!Double.isFinite(windowedHeight) || windowedHeight < MIN_WINDOWED_HEIGHT) {
+            throw new IllegalArgumentException("windowedHeight must be at least " + MIN_WINDOWED_HEIGHT);
         }
     }
 
     public static WindowSettings defaults() {
-        return new WindowSettings(DEFAULT_MODE, DEFAULT_WINDOWED_RESOLUTION);
-    }
-
-    public static List<WindowResolution> supportedWindowedResolutions() {
-        return SUPPORTED_WINDOWED_RESOLUTIONS;
-    }
-
-    public static boolean isSupportedWindowedResolution(WindowResolution resolution) {
-        return SUPPORTED_WINDOWED_RESOLUTIONS.contains(resolution);
+        return new WindowSettings(DEFAULT_MODE, DEFAULT_WINDOWED_WIDTH, DEFAULT_WINDOWED_HEIGHT);
     }
 
     public WindowSettings withMode(WindowMode mode) {
-        return new WindowSettings(mode, windowedResolution);
+        return new WindowSettings(mode, windowedWidth, windowedHeight);
     }
 
-    public WindowSettings withWindowedResolution(WindowResolution windowedResolution) {
-        return new WindowSettings(mode, windowedResolution);
+    public WindowSettings withWindowedSize(double width, double height) {
+        return new WindowSettings(WindowMode.WINDOWED, width, height);
     }
 }

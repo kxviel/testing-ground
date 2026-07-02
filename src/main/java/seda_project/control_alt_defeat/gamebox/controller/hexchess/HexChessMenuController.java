@@ -23,6 +23,7 @@ import seda_project.control_alt_defeat.gamebox.network.GameServer;
 import seda_project.control_alt_defeat.gamebox.network.LanDiscoveryService;
 import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
 import seda_project.control_alt_defeat.gamebox.util.Router;
+import seda_project.control_alt_defeat.gamebox.util.UiInputGuards;
 
 import java.io.IOException;
 import java.util.stream.IntStream;
@@ -48,9 +49,11 @@ public class HexChessMenuController implements RouteDataReceiver {
     private GameServer pendingHostServer;
     private GameClient pendingJoinClient;
     private Timeline staleGameTimer;
+    private boolean navigationPending;
 
     @FXML
     private void initialize() {
+        UiInputGuards.limitPlayerNames(whiteNameField, blackNameField);
         if (lanGamesList != null) {
             lanGamesList.setItems(discoveredGames);
         }
@@ -75,24 +78,37 @@ public class HexChessMenuController implements RouteDataReceiver {
 
     @FXML
     private void onStartLocal(ActionEvent event) {
+        if (!beginNavigation()) {
+            return;
+        }
         closeMenuNetwork();
         Router.goTo(event, "/hexchess/HexChessGame.fxml", setup(HexGameMode.LOCAL));
     }
 
     @FXML
     private void onStartBot(ActionEvent event) {
+        if (!beginNavigation()) {
+            return;
+        }
         closeMenuNetwork();
         Router.goTo(event, "/hexchess/HexChessGame.fxml", setup(HexGameMode.BOT));
     }
 
     @FXML
     private void onCustomSetup(ActionEvent event) {
+        if (!beginNavigation()) {
+            return;
+        }
         closeMenuNetwork();
         Router.goTo(event, "/hexchess/HexChessSetup.fxml", setup(HexGameMode.LOCAL));
     }
 
     @FXML
     private void onHostLan(ActionEvent event) {
+        if (hasPendingNetwork()) {
+            return;
+        }
+
         Stage stage = stageFrom(event);
         closePendingJoinClient();
         closePendingHostServer();
@@ -124,6 +140,10 @@ public class HexChessMenuController implements RouteDataReceiver {
                     }
                     clearPendingHostServer(server);
                     closeDiscovery();
+                    if (!beginNavigation()) {
+                        server.close();
+                        return;
+                    }
                     Router.goTo(
                             stage,
                             "/hexchess/HexChessGame.fxml",
@@ -132,6 +152,8 @@ public class HexChessMenuController implements RouteDataReceiver {
             } catch (IOException e) {
                 Platform.runLater(() -> {
                     if (pendingHostServer == server) {
+                        pendingHostServer = null;
+                        server.close();
                         statusLabel.setText("LAN host failed: " + e.getMessage());
                         closeDiscovery();
                         startListeningForLanGames();
@@ -146,6 +168,10 @@ public class HexChessMenuController implements RouteDataReceiver {
 
     @FXML
     private void onJoinSelectedLan(ActionEvent event) {
+        if (hasPendingNetwork()) {
+            return;
+        }
+
         LanDiscoveryService.DiscoveredGame selected = lanGamesList == null
                 ? null
                 : lanGamesList.getSelectionModel().getSelectedItem();
@@ -159,6 +185,10 @@ public class HexChessMenuController implements RouteDataReceiver {
 
     @FXML
     private void onRefreshLan() {
+        if (hasPendingNetwork()) {
+            return;
+        }
+
         discoveredGames.clear();
         startListeningForLanGames();
         startStaleGameTimer();
@@ -166,6 +196,10 @@ public class HexChessMenuController implements RouteDataReceiver {
     }
 
     private void joinHost(Stage stage, String host, int port) {
+        if (hasPendingNetwork()) {
+            return;
+        }
+
         closePendingJoinClient();
         statusLabel.setText("Connecting to " + host + ":" + port + "...");
         GameClient client = new GameClient();
@@ -183,6 +217,10 @@ public class HexChessMenuController implements RouteDataReceiver {
                     }
                     pendingJoinClient = null;
                     closeDiscovery();
+                    if (!beginNavigation()) {
+                        client.close();
+                        return;
+                    }
                     Router.goTo(
                             stage,
                             "/hexchess/HexChessGame.fxml",
@@ -204,6 +242,9 @@ public class HexChessMenuController implements RouteDataReceiver {
 
     @FXML
     private void onBack(ActionEvent event) {
+        if (!beginNavigation()) {
+            return;
+        }
         closeMenuNetwork();
         Router.goTo(event, "/GameChoice.fxml", null);
     }
@@ -337,6 +378,18 @@ public class HexChessMenuController implements RouteDataReceiver {
         if (pendingHostServer == server) {
             pendingHostServer = null;
         }
+    }
+
+    private boolean hasPendingNetwork() {
+        return pendingHostServer != null || pendingJoinClient != null;
+    }
+
+    private boolean beginNavigation() {
+        if (navigationPending) {
+            return false;
+        }
+        navigationPending = true;
+        return true;
     }
 
     private void bindOptionalLabel(Label label) {

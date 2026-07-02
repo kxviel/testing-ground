@@ -7,6 +7,8 @@ import java.util.stream.Stream;
 
 public final class NetworkMessage {
 
+    public static final int MAX_MESSAGE_CHARS = 256 * 1024;
+
     private NetworkMessage() {
     }
 
@@ -26,7 +28,7 @@ public final class NetworkMessage {
     }
 
     public static String type(String message) {
-        if (message == null || message.isBlank()) {
+        if (message == null || message.isBlank() || message.length() > MAX_MESSAGE_CHARS) {
             return "";
         }
 
@@ -35,7 +37,7 @@ public final class NetworkMessage {
     }
 
     public static List<String> fields(String message) {
-        if (message == null || !message.contains(":")) {
+        if (message == null || message.length() > MAX_MESSAGE_CHARS || !message.contains(":")) {
             return List.of();
         }
 

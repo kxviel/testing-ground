@@ -31,6 +31,8 @@ import seda_project.control_alt_defeat.gamebox.network.LanDiscoveryService;
 import seda_project.control_alt_defeat.gamebox.network.tetris.TetrisProtocol;
 import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
 import seda_project.control_alt_defeat.gamebox.util.Router;
+import seda_project.control_alt_defeat.gamebox.util.SafeText;
+import seda_project.control_alt_defeat.gamebox.util.UiInputGuards;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -138,9 +140,15 @@ public class TetrisMenuController implements RouteDataReceiver {
     private String joinedPlayerName;
     private TetrisGameConfig hostConfig = TetrisGameConfig.defaultConfig();
     private volatile boolean gameStarted;
+    private boolean navigationPending;
 
     @FXML
     public void initialize() {
+        UiInputGuards.limitPlayerNames(
+                localPlayerOneField,
+                localPlayerTwoField,
+                hostPlayerNameField,
+                joinPlayerNameField);
         buildCustomPieceGrid();
         speedChoiceBox.getItems().setAll("Slow", "Normal", "Fast");
         speedChoiceBox.getSelectionModel().select("Normal");
@@ -181,6 +189,10 @@ public class TetrisMenuController implements RouteDataReceiver {
 
     @FXML
     private void onRefreshGames() {
+        if (joinClient != null || gameStarted) {
+            return;
+        }
+
         startDiscovery();
         statusLabel.setText("Searching for LAN games...");
     }
@@ -240,6 +252,10 @@ public class TetrisMenuController implements RouteDataReceiver {
 
     @FXML
     private void onHostStartGame(ActionEvent event) {
+        if (gameStarted) {
+            return;
+        }
+
         if (joinedPlayerName == null || joinedPlayerName.isBlank()) {
             statusLabel.setText("Wait for a player to join first.");
             return;
@@ -251,6 +267,9 @@ public class TetrisMenuController implements RouteDataReceiver {
             return;
         }
 
+        if (!beginNavigation()) {
+            return;
+        }
         gameStarted = true;
         gameServer.send(TetrisProtocol.start(hostName, joinedPlayerName, hostConfig));
         hostServer = null;
@@ -263,6 +282,9 @@ public class TetrisMenuController implements RouteDataReceiver {
     @FXML
     private void onBack(ActionEvent event) {
         if (currentView == MenuView.MODE_CHOICE) {
+            if (!beginNavigation()) {
+                return;
+            }
             closeLan();
             Router.goTo(event, "/GameChoice.fxml", null);
             return;
@@ -455,12 +477,19 @@ public class TetrisMenuController implements RouteDataReceiver {
         if (config == null) {
             return;
         }
+        if (!beginNavigation()) {
+            return;
+        }
 
         TetrisGameSetup setup = TetrisGameSetup.local(playerOne, playerTwo, config);
         Router.goTo(event, "/tetris/TetrisGame.fxml", TetrisGameRouteData.local(setup));
     }
 
     private void startHost() {
+        if (hostServer != null || gameStarted) {
+            return;
+        }
+
         String hostName = defaultIfBlank(trimmed(hostPlayerNameField), "Player 1");
 
         this.hostName = hostName;
@@ -531,6 +560,10 @@ public class TetrisMenuController implements RouteDataReceiver {
     }
 
     private void joinGame() {
+        if (joinClient != null || gameStarted) {
+            return;
+        }
+
         String playerName = defaultIfBlank(trimmed(joinPlayerNameField), "Player 2");
         LanDiscoveryService.DiscoveredGame selectedGame = availableGamesList.getSelectionModel()
                 .getSelectedItem();
@@ -667,7 +700,7 @@ public class TetrisMenuController implements RouteDataReceiver {
                 return;
             }
 
-            joinedPlayerName = fields.get(0).trim();
+            joinedPlayerName = defaultIfBlank(fields.get(0), "Player 2");
             if (joinedPlayerName.isBlank()) {
                 return;
             }
@@ -700,6 +733,10 @@ public class TetrisMenuController implements RouteDataReceiver {
             Stage stage = (Stage) statusLabel.getScene().getWindow();
             joinClient = null;
             udpDiscovery.close();
+            if (!beginNavigation()) {
+                gameClient.close();
+                return;
+            }
             Router.goTo(stage,
                     "/tetris/TetrisGame.fxml",
                     TetrisGameRouteData.join(TetrisGameSetup.join(fields.get(0), fields.get(1), config), gameClient));
@@ -788,6 +825,14 @@ public class TetrisMenuController implements RouteDataReceiver {
     }
 
     static String defaultIfBlank(String value, String fallback) {
-        return value == null || value.isBlank() ? fallback : value.trim();
+        return SafeText.playerName(value, fallback);
+    }
+
+    private boolean beginNavigation() {
+        if (navigationPending) {
+            return false;
+        }
+        navigationPending = true;
+        return true;
     }
 }

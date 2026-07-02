@@ -42,11 +42,11 @@ abstract class AbstractGameConnection implements Closeable {
 
     protected void startReadLoop(String threadName, String logName) {
         Thread thread = new Thread(() -> {
+            StringBuilder pendingLine = new StringBuilder();
             try {
-                String line;
                 while (running) {
                     try {
-                        line = reader.readLine();
+                        String line = readBoundedLine(pendingLine);
                         if (line == null) {
                             disconnectListener.run();
                             break;
@@ -75,6 +75,12 @@ abstract class AbstractGameConnection implements Closeable {
      * @param message already formatted protocol message
      */
     public synchronized void send(String message) {
+        if (message == null || message.length() > NetworkMessage.MAX_MESSAGE_CHARS) {
+            log.warn("Dropping oversized outbound message.");
+            close();
+            return;
+        }
+
         if (writer != null && socket != null && !socket.isClosed()) {
             writer.println(message);
         }
@@ -104,5 +110,32 @@ abstract class AbstractGameConnection implements Closeable {
             }
         } catch (IOException ignored) {
         }
+    }
+
+    private String readBoundedLine(StringBuilder pendingLine) throws IOException {
+        while (running) {
+            int next = reader.read();
+            if (next < 0) {
+                return pendingLine.isEmpty() ? null : drainLine(pendingLine);
+            }
+            if (next == '\n') {
+                return drainLine(pendingLine);
+            }
+            if (pendingLine.length() >= NetworkMessage.MAX_MESSAGE_CHARS) {
+                throw new IOException("Inbound message exceeded " + NetworkMessage.MAX_MESSAGE_CHARS + " chars.");
+            }
+            pendingLine.append((char) next);
+        }
+        return null;
+    }
+
+    private static String drainLine(StringBuilder pendingLine) {
+        int length = pendingLine.length();
+        if (length > 0 && pendingLine.charAt(length - 1) == '\r') {
+            pendingLine.setLength(length - 1);
+        }
+        String line = pendingLine.toString();
+        pendingLine.setLength(0);
+        return line;
     }
 }

@@ -20,6 +20,11 @@ import seda_project.control_alt_defeat.gamebox.network.tetris.TetrisProtocol;
 import seda_project.control_alt_defeat.gamebox.network.tetris.TetrisStateSnapshot;
 
 import java.util.List;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -184,6 +189,46 @@ class GameNetworkEndToEndTest {
             hostMessage = await(transport.serverMessages());
             assertEquals(quit, hostMessage);
             assertTrue(HexChessProtocol.isType(hostMessage, HexChessProtocol.QUIT));
+        }
+    }
+
+    @Test
+    void transportDisconnectsPeerThatSendsOversizedLine() throws Exception {
+        GameServer server = new GameServer();
+        BlockingQueue<String> serverMessages = new LinkedBlockingQueue<>();
+        CountDownLatch serverAccepted = new CountDownLatch(1);
+        CountDownLatch disconnected = new CountDownLatch(1);
+        AtomicReference<Exception> serverError = new AtomicReference<>();
+
+        server.listen(0, serverMessages::add, disconnected::countDown);
+        Thread acceptThread = new Thread(() -> {
+            try {
+                server.waitForClient();
+            } catch (Exception e) {
+                serverError.set(e);
+            } finally {
+                serverAccepted.countDown();
+            }
+        }, "game-network-oversized-accept");
+        acceptThread.setDaemon(true);
+        acceptThread.start();
+
+        try (Socket rawClient = new Socket("127.0.0.1", server.localPort())) {
+            assertTrue(serverAccepted.await(5, TimeUnit.SECONDS));
+            assertNull(serverError.get());
+
+            try {
+                Writer writer = new OutputStreamWriter(rawClient.getOutputStream(), StandardCharsets.UTF_8);
+                writer.write("X".repeat(NetworkMessage.MAX_MESSAGE_CHARS + 1));
+                writer.write('\n');
+                writer.flush();
+            } catch (IOException ignored) {
+            }
+
+            assertTrue(disconnected.await(5, TimeUnit.SECONDS));
+            assertNull(serverMessages.poll(300, TimeUnit.MILLISECONDS));
+        } finally {
+            server.close();
         }
     }
 

@@ -23,6 +23,7 @@ import seda_project.control_alt_defeat.gamebox.model.hexchess.HexPositionValidat
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexPositionValidator;
 import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
 import seda_project.control_alt_defeat.gamebox.util.Router;
+import seda_project.control_alt_defeat.gamebox.util.UiInputGuards;
 
 import java.util.Map;
 
@@ -70,6 +71,7 @@ public class HexChessSetupController implements RouteDataReceiver {
 
     @FXML
     public void initialize() {
+        UiInputGuards.limitPlayerNames(whiteNameField, blackNameField);
         colorChoiceBox.getItems().setAll(HexPieceColor.values());
         colorChoiceBox.getSelectionModel().select(HexPieceColor.WHITE);
         typeChoiceBox.getItems().setAll(HexPieceType.KING, HexPieceType.QUEEN, HexPieceType.ROOK,
@@ -125,6 +127,7 @@ public class HexChessSetupController implements RouteDataReceiver {
             return;
         }
 
+        startButton.setDisable(true);
         Router.goTo(event, "/hexchess/HexChessGame.fxml", new HexChessGameSetup(
                 whiteNameField.getText(),
                 blackNameField.getText(),

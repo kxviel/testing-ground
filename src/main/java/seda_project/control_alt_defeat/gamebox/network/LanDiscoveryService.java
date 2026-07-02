@@ -19,6 +19,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import seda_project.control_alt_defeat.gamebox.util.SafeText;
+
 public class LanDiscoveryService implements Closeable {
 
     private static final String PREFIX = "GAMEBOX_DISCOVERY";
@@ -167,7 +169,7 @@ public class LanDiscoveryService implements Closeable {
     }
 
     private String buildMessage(String playerName, int tcpPort) {
-        String safePlayerName = playerName == null || playerName.isBlank() ? "Host" : playerName.trim();
+        String safePlayerName = SafeText.playerName(playerName, "Host");
         return NetworkMessage.make(
                 PREFIX,
                 gameType,
@@ -199,11 +201,11 @@ public class LanDiscoveryService implements Closeable {
         try {
             int tcpPort = Integer.parseInt(fields.get(2));
             long timestamp = Long.parseLong(fields.get(4));
-            if (System.currentTimeMillis() - timestamp > ADVERTISEMENT_TTL_MS) {
+            if (tcpPort <= 0 || tcpPort > 65_535 || System.currentTimeMillis() - timestamp > ADVERTISEMENT_TTL_MS) {
                 return null;
             }
             return new DiscoveredGame(
-                    fields.get(3),
+                    SafeText.playerName(fields.get(3), "Host"),
                     gameType,
                     packet.getAddress().getHostAddress(),
                     tcpPort,

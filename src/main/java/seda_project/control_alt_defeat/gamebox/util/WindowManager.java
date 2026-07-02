@@ -7,12 +7,12 @@ import javafx.scene.Scene;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import seda_project.control_alt_defeat.gamebox.settings.WindowMode;
-import seda_project.control_alt_defeat.gamebox.settings.WindowResolution;
 import seda_project.control_alt_defeat.gamebox.settings.WindowSettings;
 import seda_project.control_alt_defeat.gamebox.settings.WindowSettingsStore;
 
 public final class WindowManager {
     private static final String THEME = "/Theme.css";
+    private static final String SIZE_TRACKING_KEY = WindowManager.class.getName() + ".sizeTracking";
 
     private WindowManager() {
     }
@@ -20,8 +20,7 @@ public final class WindowManager {
     public static Scene createScene(Parent root) {
         WindowSettings settings = WindowSettingsStore.get();
         if (settings.mode() == WindowMode.WINDOWED) {
-            WindowResolution resolution = settings.windowedResolution();
-            return createScene(root, resolution.width(), resolution.height());
+            return createScene(root, settings.windowedWidth(), settings.windowedHeight());
         }
 
         Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
@@ -47,6 +46,8 @@ public final class WindowManager {
     }
 
     public static void setScene(Stage stage, Scene scene) {
+        stage.setResizable(true);
+        installSizeTracking(stage);
         stage.setScene(scene);
         applyCurrentSettings(stage);
     }
@@ -67,8 +68,7 @@ public final class WindowManager {
     private static void apply(Stage stage, WindowSettings settings) {
         switch (settings.mode()) {
             case MAXIMIZED -> applyMaximized(stage);
-            case WINDOWED -> applyWindowed(stage, settings.windowedResolution());
-            case FULLSCREEN -> applyFullscreen(stage);
+            case WINDOWED -> applyWindowed(stage, settings.windowedWidth(), settings.windowedHeight());
         }
     }
 
@@ -77,16 +77,36 @@ public final class WindowManager {
         stage.setMaximized(true);
     }
 
-    private static void applyWindowed(Stage stage, WindowResolution resolution) {
+    private static void applyWindowed(Stage stage, double width, double height) {
         stage.setFullScreen(false);
         stage.setMaximized(false);
-        stage.setWidth(resolution.width());
-        stage.setHeight(resolution.height());
-        stage.centerOnScreen();
+        stage.setWidth(width);
+        stage.setHeight(height);
     }
 
-    private static void applyFullscreen(Stage stage) {
-        stage.setMaximized(false);
-        stage.setFullScreen(true);
+    private static void installSizeTracking(Stage stage) {
+        if (Boolean.TRUE.equals(stage.getProperties().get(SIZE_TRACKING_KEY))) {
+            return;
+        }
+
+        stage.getProperties().put(SIZE_TRACKING_KEY, true);
+        stage.maximizedProperty().addListener((observable, wasMaximized, maximized) -> {
+            if (!stage.isShowing()) {
+                return;
+            }
+            if (maximized) {
+                WindowSettingsStore.rememberMaximized();
+            } else {
+                rememberWindowedSize(stage);
+            }
+        });
+        stage.widthProperty().addListener((observable, oldWidth, width) -> rememberWindowedSize(stage));
+        stage.heightProperty().addListener((observable, oldHeight, height) -> rememberWindowedSize(stage));
+    }
+
+    private static void rememberWindowedSize(Stage stage) {
+        if (stage.isShowing() && !stage.isMaximized() && !stage.isFullScreen()) {
+            WindowSettingsStore.rememberWindowedSize(stage.getWidth(), stage.getHeight());
+        }
     }
 }

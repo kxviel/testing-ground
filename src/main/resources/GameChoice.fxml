@@ -24,22 +24,21 @@
                 hbarPolicy="AS_NEEDED"
                 vbarPolicy="AS_NEEDED"
                 styleClass="app-scroll">
-        <GridPane alignment="TOP_CENTER"
+        <GridPane alignment="CENTER"
                   minHeight="680"
-                  minWidth="960"
+                  minWidth="640"
                   maxHeight="Infinity"
                   maxWidth="Infinity"
                   styleClass="game-choice-main">
         <columnConstraints>
-            <ColumnConstraints hgrow="ALWAYS" percentWidth="65"/>
-            <ColumnConstraints hgrow="ALWAYS" percentWidth="35"/>
+            <ColumnConstraints hgrow="ALWAYS" percentWidth="100"/>
         </columnConstraints>
 
         <VBox GridPane.columnIndex="0"
               GridPane.hgrow="ALWAYS"
               GridPane.vgrow="ALWAYS"
               maxHeight="Infinity"
-              maxWidth="Infinity"
+              maxWidth="760"
               spacing="26"
               styleClass="game-choices">
 
@@ -146,81 +145,6 @@
                         </HBox>
                     </graphic>
                 </Button>
-            </VBox>
-        </VBox>
-
-        <VBox GridPane.columnIndex="1"
-              GridPane.hgrow="ALWAYS"
-              GridPane.vgrow="ALWAYS"
-              maxHeight="Infinity"
-              maxWidth="Infinity"
-              spacing="24"
-              styleClass="settings-panel">
-
-            <VBox spacing="8">
-                <Label text="Settings" styleClass="settings-title"/>
-                <Label text="Customize your experience" styleClass="settings-subtitle"/>
-            </VBox>
-
-            <VBox spacing="10" styleClass="settings-section">
-                <Label text="Window Mode" styleClass="section-label"/>
-
-                <RadioButton fx:id="maximizedRadio"
-                             onAction="#onWindowModeChanged"
-                             text="Maximized (Default)"
-                             styleClass="settings-radio"/>
-
-                <RadioButton fx:id="windowedRadio"
-                             onAction="#onWindowModeChanged"
-                             text="Windowed"
-                             styleClass="settings-radio"/>
-
-                <RadioButton fx:id="fullscreenRadio"
-                             onAction="#onWindowModeChanged"
-                             text="Fullscreen"
-                             styleClass="settings-radio"/>
-            </VBox>
-
-            <VBox fx:id="resolutionBox" spacing="10" styleClass="settings-section">
-                <Label text="Screen Resolution" styleClass="section-label"/>
-
-                <RadioButton fx:id="resolution1920Radio"
-                             onAction="#onResolutionChanged"
-                             text="1920 × 1080"
-                             styleClass="settings-radio"/>
-
-                <RadioButton fx:id="resolution1366Radio"
-                             onAction="#onResolutionChanged"
-                             text="1366 × 768"
-                             styleClass="settings-radio"/>
-
-                <RadioButton fx:id="resolution1280Radio"
-                             onAction="#onResolutionChanged"
-                             text="1280 × 720"
-                             styleClass="settings-radio"/>
-
-                <RadioButton fx:id="resolution1024Radio"
-                             onAction="#onResolutionChanged"
-                             text="1024 × 768"
-                             styleClass="settings-radio"/>
-
-                <RadioButton fx:id="resolution800Radio"
-                             onAction="#onResolutionChanged"
-                             text="800 × 600"
-                             styleClass="settings-radio"/>
-            </VBox>
-
-            <Label fx:id="resolutionHint"
-                   text="Only available in windowed mode."
-                   styleClass="resolution-hint"/>
-
-            <Region VBox.vgrow="ALWAYS"/>
-
-            <VBox spacing="8" styleClass="settings-footer">
-                <Label text="Build: 3.5.0  •  Stable" styleClass="footer-line"/>
-                <Label text="Made by Kevin • Shashank • Sagar"
-                       wrapText="true"
-                       styleClass="footer-line"/>
             </VBox>
         </VBox>
         </GridPane>

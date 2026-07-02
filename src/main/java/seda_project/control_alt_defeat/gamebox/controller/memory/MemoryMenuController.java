@@ -21,6 +21,7 @@ import seda_project.control_alt_defeat.gamebox.network.GameServer;
 import seda_project.control_alt_defeat.gamebox.network.LanDiscoveryService;
 import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
 import seda_project.control_alt_defeat.gamebox.util.Router;
+import seda_project.control_alt_defeat.gamebox.util.UiInputGuards;
 
 import java.io.IOException;
 import java.util.List;
@@ -78,6 +79,7 @@ public class MemoryMenuController implements RouteDataReceiver {
     private PauseTransition statusTimer;
     private boolean networkPending;
     private boolean variantsApplied;
+    private boolean navigationPending;
 
     @Override
     public void setRouteData(Object data) {
@@ -88,6 +90,7 @@ public class MemoryMenuController implements RouteDataReceiver {
 
     @FXML
     public void initialize() {
+        UiInputGuards.limitWholeNumber(kField, 2);
         variantRadios().forEach(radio -> radio.setToggleGroup(variantGroup));
         availableGamesList.setItems(discoveredGames);
         availableGamesList.getSelectionModel().selectedItemProperty()
@@ -192,12 +195,19 @@ public class MemoryMenuController implements RouteDataReceiver {
         BoardVariant v = validateAndGetVariant();
         if (v == null)
             return;
+        if (!beginNavigation()) {
+            return;
+        }
         closeMenuNetwork();
         Router.goTo(event, GAME_BOARD_ROUTE, MemoryGameRouteData.local(v));
     }
 
     @FXML
     private void onHostGame(ActionEvent event) {
+        if (networkPending) {
+            return;
+        }
+
         BoardVariant v = validateAndGetVariant();
         if (v == null)
             return;
@@ -234,6 +244,10 @@ public class MemoryMenuController implements RouteDataReceiver {
                     discoveryService.close();
                     stopStaleGameTimer();
                     setVisibleManaged(btnCancelHost, false);
+                    if (!beginNavigation()) {
+                        server.close();
+                        return;
+                    }
                     Router.goTo(stage, GAME_BOARD_ROUTE, MemoryGameRouteData.host(v, server));
                 });
             } catch (IOException e) {
@@ -272,6 +286,10 @@ public class MemoryMenuController implements RouteDataReceiver {
 
     @FXML
     private void onRefreshLan() {
+        if (networkPending) {
+            return;
+        }
+
         discoveredGames.clear();
         startListeningForLanGames();
         statusLabel.setText("Looking for Memory LAN games...");
@@ -280,6 +298,10 @@ public class MemoryMenuController implements RouteDataReceiver {
 
     @FXML
     private void onJoinSelectedLan(ActionEvent event) {
+        if (networkPending) {
+            return;
+        }
+
         LanDiscoveryService.DiscoveredGame selectedGame = availableGamesList.getSelectionModel().getSelectedItem();
         if (selectedGame == null) {
             statusLabel.setText("Select a discovered LAN game first.");
@@ -307,6 +329,10 @@ public class MemoryMenuController implements RouteDataReceiver {
                     pendingClient = null;
                     discoveryService.close();
                     stopStaleGameTimer();
+                    if (!beginNavigation()) {
+                        client.close();
+                        return;
+                    }
                     Router.goTo(stage, GAME_BOARD_ROUTE, MemoryGameRouteData.join(client, pendingMessages));
                 });
             } catch (IOException e) {
@@ -327,6 +353,9 @@ public class MemoryMenuController implements RouteDataReceiver {
 
     @FXML
     private void onBack(ActionEvent event) {
+        if (!beginNavigation()) {
+            return;
+        }
         closeMenuNetwork();
         Router.goTo(event, "/GameChoice.fxml", null);
     }
@@ -428,6 +457,14 @@ public class MemoryMenuController implements RouteDataReceiver {
         if (btnJoinSelectedGame != null && availableGamesList != null) {
             btnJoinSelectedGame.setDisable(networkPending || availableGamesList.getSelectionModel().isEmpty());
         }
+    }
+
+    private boolean beginNavigation() {
+        if (navigationPending) {
+            return false;
+        }
+        navigationPending = true;
+        return true;
     }
 
     private List<RadioButton> variantRadios() {

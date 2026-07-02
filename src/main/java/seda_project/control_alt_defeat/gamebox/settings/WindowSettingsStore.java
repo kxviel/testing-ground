@@ -18,11 +18,11 @@ public final class WindowSettingsStore {
         return settings;
     }
 
-    public static WindowSettings setWindowMode(WindowMode mode) {
-        return set(settings.withMode(mode));
+    public static WindowSettings rememberMaximized() {
+        return set(settings.withMode(WindowMode.MAXIMIZED));
     }
 
-    public static WindowSettings setWindowedResolution(WindowResolution resolution) {
-        return set(settings.withWindowedResolution(resolution));
+    public static WindowSettings rememberWindowedSize(double width, double height) {
+        return set(settings.withWindowedSize(width, height));
     }
 }
