@@ -40,6 +40,27 @@ class HexChessRulesTest {
     }
 
     @Test
+    void customPositionRejectsElevenQueensForOneSide() {
+        HexBoard board = addPieces(emptyBoardWithKings(), HexPieceColor.WHITE, HexPieceType.QUEEN, 11);
+
+        HexPositionValidation validation = HexPositionValidator.validate(board, HexPieceColor.WHITE);
+
+        assertFalse(validation.isValid());
+        assertTrue(validation.message().contains("too many queens"));
+    }
+
+    @Test
+    void customPositionRejectsCombinedPromotedMaterialBeyondMissingPawns() {
+        HexBoard board = addPieces(emptyBoardWithKings(), HexPieceColor.WHITE, HexPieceType.QUEEN, 10);
+        board = addPieces(board, HexPieceColor.WHITE, HexPieceType.ROOK, 3);
+
+        HexPositionValidation validation = HexPositionValidator.validate(board, HexPieceColor.WHITE);
+
+        assertFalse(validation.isValid());
+        assertTrue(validation.message().contains("too many promoted pieces"));
+    }
+
+    @Test
     void customPawnsOnStandardStartSquaresDoNotGetInitialDoubleMove() {
         HexBoard board = HexBoard.empty()
                 .withPiece(HexCoordinate.of("g1"), new HexPiece(HexPieceColor.WHITE, HexPieceType.KING))
@@ -241,6 +262,28 @@ class HexChessRulesTest {
         return board.piecesOf(color)
                 .filter(entry -> entry.getValue().type() == type)
                 .count();
+    }
+
+    private HexBoard emptyBoardWithKings() {
+        return HexBoard.empty()
+                .withPiece(coordinate("g1"), piece(HexPieceColor.WHITE, HexPieceType.KING))
+                .withPiece(coordinate("g10"), piece(HexPieceColor.BLACK, HexPieceType.KING));
+    }
+
+    private HexBoard addPieces(HexBoard board, HexPieceColor color, HexPieceType type, int count) {
+        HexBoard next = board;
+        int placed = 0;
+        for (HexCoordinate coordinate : HexBoardGeometry.coordinates()) {
+            if (next.pieceAt(coordinate).isPresent()) {
+                continue;
+            }
+            next = next.withPiece(coordinate, piece(color, type));
+            placed++;
+            if (placed == count) {
+                return next;
+            }
+        }
+        throw new AssertionError("Not enough empty coordinates to place pieces.");
     }
 
     private boolean hasMoveTo(HexGameState state, String from, String to) {

@@ -1,12 +1,16 @@
 package seda_project.control_alt_defeat.gamebox.controller.memory;
 
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
 import javafx.animation.PauseTransition;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.slf4j.Logger;
@@ -14,9 +18,11 @@ import org.slf4j.LoggerFactory;
 import seda_project.control_alt_defeat.gamebox.model.memory.BoardVariant;
 import seda_project.control_alt_defeat.gamebox.network.GameClient;
 import seda_project.control_alt_defeat.gamebox.network.GameServer;
+import seda_project.control_alt_defeat.gamebox.network.LanDiscoveryService;
 import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
 import seda_project.control_alt_defeat.gamebox.util.Router;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -27,7 +33,9 @@ public class MemoryMenuController implements RouteDataReceiver {
 
     private static final Logger log = LoggerFactory.getLogger(MemoryMenuController.class);
     private static final String GAME_BOARD_ROUTE = "/memory/GameBoard.fxml";
+    private static final String PLAYER_ONE = "Player 1";
     private static final int STATUS_SECONDS = 10;
+    private static final long DISCOVERED_GAME_TTL_MS = 5_000;
 
     @FXML
     private TextField kField;
@@ -44,27 +52,32 @@ public class MemoryMenuController implements RouteDataReceiver {
     private RadioButton variant3Radio;
 
     @FXML
-    private TextField ipField;
-    @FXML
-    private HBox joinBox;
-    @FXML
     private Button btnLocalGame;
     @FXML
     private Button btnHostGame;
-    @FXML
-    private Button btnJoinGame;
     @FXML
     private Button btnCancelHost;
     @FXML
     private Button btnApplyK;
     @FXML
-    private Button btnConnect;
+    private Button btnRefreshGames;
+    @FXML
+    private Button btnJoinSelectedGame;
+    @FXML
+    private ListView<LanDiscoveryService.DiscoveredGame> availableGamesList;
 
     private volatile GameServer pendingServer;
     private volatile GameClient pendingClient;
 
+    private final LanDiscoveryService discoveryService = LanDiscoveryService.memory();
+    private final ObservableList<LanDiscoveryService.DiscoveredGame> discoveredGames =
+            FXCollections.observableArrayList();
     private final ToggleGroup variantGroup = new ToggleGroup();
     private List<BoardVariant> currentVariants = List.of();
+    private Timeline staleGameTimer;
+    private PauseTransition statusTimer;
+    private boolean networkPending;
+    private boolean variantsApplied;
 
     @Override
     public void setRouteData(Object data) {
@@ -76,7 +89,14 @@ public class MemoryMenuController implements RouteDataReceiver {
     @FXML
     public void initialize() {
         variantRadios().forEach(radio -> radio.setToggleGroup(variantGroup));
+        availableGamesList.setItems(discoveredGames);
+        availableGamesList.getSelectionModel().selectedItemProperty()
+                .addListener((observable, oldGame, newGame) -> updateJoinSelectedButton());
+        kField.textProperty().addListener((observable, oldValue, newValue) -> variantsApplied = false);
         onApplyK();
+        startListeningForLanGames();
+        startStaleGameTimer();
+        updateJoinSelectedButton();
     }
 
     @FXML
@@ -85,12 +105,14 @@ public class MemoryMenuController implements RouteDataReceiver {
 
         Integer k = parseK();
         if (k == null) {
+            variantsApplied = false;
             disableVariants();
             return;
         }
 
         currentVariants = BoardVariant.computeVariants(k);
         updateVariantRadios();
+        variantsApplied = true;
     }
 
     private Integer parseK() {
@@ -108,15 +130,17 @@ public class MemoryMenuController implements RouteDataReceiver {
 
     private void disableVariants() {
         currentVariants = List.of();
+        variantGroup.selectToggle(null);
         variantRadios().forEach(radio -> setVisibleManaged(radio, false));
     }
 
     private void updateVariantRadios() {
         List<RadioButton> radios = variantRadios();
+        int selectedIndex = selectedVariantIndex(radios);
         IntStream.range(0, radios.size())
                 .forEach(i -> updateVariantRadio(radios.get(i), i));
 
-        if (!currentVariants.isEmpty() && variantGroup.getSelectedToggle() == null) {
+        if (!currentVariants.isEmpty() && (selectedIndex < 0 || selectedIndex >= currentVariants.size())) {
             variant1Radio.setSelected(true);
         }
     }
@@ -141,8 +165,18 @@ public class MemoryMenuController implements RouteDataReceiver {
                 .orElse(currentVariants.get(0));
     }
 
+    private int selectedVariantIndex(List<RadioButton> radios) {
+        return IntStream.range(0, radios.size())
+                .filter(i -> radios.get(i).isSelected())
+                .findFirst()
+                .orElse(-1);
+    }
+
     private BoardVariant validateAndGetVariant() {
-        onApplyK();
+        if (!variantsApplied) {
+            kErrorLabel.setText("Click Apply before starting after changing k.");
+            return null;
+        }
 
         if (currentVariants.isEmpty()) {
             if (kErrorLabel.getText().isEmpty()) {
@@ -158,6 +192,7 @@ public class MemoryMenuController implements RouteDataReceiver {
         BoardVariant v = validateAndGetVariant();
         if (v == null)
             return;
+        closeMenuNetwork();
         Router.goTo(event, GAME_BOARD_ROUTE, MemoryGameRouteData.local(v));
     }
 
@@ -169,6 +204,8 @@ public class MemoryMenuController implements RouteDataReceiver {
 
         Stage stage = stageFrom(event);
         setNetworkPending(true, "Cancel Hosting");
+        discoveryService.stopListening();
+        closePendingNetwork();
 
         GameServer server = new GameServer();
         pendingServer = server;
@@ -179,9 +216,13 @@ public class MemoryMenuController implements RouteDataReceiver {
                 server.listen(GameServer.DEFAULT_PORT, msg -> {
                 }, () -> {
                 });
+                discoveryService.startAdvertising(
+                        PLAYER_ONE,
+                        GameServer.DEFAULT_PORT,
+                        message -> Platform.runLater(() -> statusLabel.setText(message)));
                 String ip = GameServer.getLocalAddress();
                 Platform.runLater(() -> statusLabel.setText(
-                        "Waiting for Player 2... Your IP: " + ip + "  Port: " + GameServer.DEFAULT_PORT));
+                        "Hosting on " + ip + ":" + GameServer.DEFAULT_PORT + ". Waiting for Player 2..."));
                 server.waitForClient();
                 Platform.runLater(() -> {
                     if (pendingServer != server) {
@@ -189,18 +230,25 @@ public class MemoryMenuController implements RouteDataReceiver {
                         return;
                     }
                     pendingServer = null;
+                    discoveryService.stopAdvertising();
+                    discoveryService.close();
+                    stopStaleGameTimer();
                     setVisibleManaged(btnCancelHost, false);
                     Router.goTo(stage, GAME_BOARD_ROUTE, MemoryGameRouteData.host(v, server));
                 });
-            } catch (Exception e) {
+            } catch (IOException e) {
                 if (server.isConnected() || pendingServer == null)
                     return;
                 log.error("Host setup failed: {}", e.getMessage());
                 Platform.runLater(() -> {
+                    if (pendingServer == server) {
+                        pendingServer = null;
+                    }
                     statusLabel.setText("Error: " + e.getMessage());
                     setNetworkPending(false, "");
                 });
                 server.close();
+                discoveryService.stopAdvertising();
             }
         }, "memory-host-setup");
     }
@@ -209,32 +257,39 @@ public class MemoryMenuController implements RouteDataReceiver {
     private void onCancelHost() {
         boolean hosting = pendingServer != null;
         closePendingNetwork();
+        discoveryService.stopAdvertising();
+        startListeningForLanGames();
         statusLabel.setText(hosting ? "Hosting cancelled." : "Connection cancelled.");
         setNetworkPending(false, "");
     }
 
     private void setMenuButtonsDisabled(boolean disabled) {
-        Stream.of(btnLocalGame, btnHostGame, btnJoinGame, kField, btnApplyK,
-                variant1Radio, variant2Radio, variant3Radio, ipField, btnConnect)
+        Stream.of(btnLocalGame, btnHostGame, kField, btnApplyK,
+                variant1Radio, variant2Radio, variant3Radio, btnRefreshGames, availableGamesList)
                 .forEach(control -> control.setDisable(disabled));
+        updateJoinSelectedButton();
     }
 
     @FXML
-    private void onJoinGame() {
-        setVisibleManaged(joinBox, true);
+    private void onRefreshLan() {
+        discoveredGames.clear();
+        startListeningForLanGames();
+        statusLabel.setText("Looking for Memory LAN games...");
+        updateJoinSelectedButton();
     }
 
     @FXML
-    private void onConnect(ActionEvent event) {
-        String ip = ipField.getText().trim();
-        if (ip.isEmpty()) {
-            statusLabel.setText("Please enter a host IP address.");
+    private void onJoinSelectedLan(ActionEvent event) {
+        LanDiscoveryService.DiscoveredGame selectedGame = availableGamesList.getSelectionModel().getSelectedItem();
+        if (selectedGame == null) {
+            statusLabel.setText("Select a discovered LAN game first.");
             return;
         }
 
         Stage stage = stageFrom(event);
         setNetworkPending(true, "Cancel Connecting");
-        statusLabel.setText("Connecting to " + ip + "...");
+        discoveryService.stopListening();
+        statusLabel.setText("Connecting to " + selectedGame.playerName() + "...");
 
         GameClient client = new GameClient();
         pendingClient = client;
@@ -242,7 +297,7 @@ public class MemoryMenuController implements RouteDataReceiver {
 
         startDaemon(() -> {
             try {
-                client.connect(ip, GameServer.DEFAULT_PORT, pendingMessages::add, () -> {
+                client.connect(selectedGame.hostAddress(), selectedGame.tcpPort(), pendingMessages::add, () -> {
                 });
                 Platform.runLater(() -> {
                     if (pendingClient != client) {
@@ -250,9 +305,11 @@ public class MemoryMenuController implements RouteDataReceiver {
                         return;
                     }
                     pendingClient = null;
+                    discoveryService.close();
+                    stopStaleGameTimer();
                     Router.goTo(stage, GAME_BOARD_ROUTE, MemoryGameRouteData.join(client, pendingMessages));
                 });
-            } catch (Exception e) {
+            } catch (IOException e) {
                 log.error("Join failed: {}", e.getMessage());
                 Platform.runLater(() -> {
                     if (pendingClient != client) {
@@ -261,6 +318,7 @@ public class MemoryMenuController implements RouteDataReceiver {
                     pendingClient = null;
                     statusLabel.setText("Connection failed: " + e.getMessage());
                     setNetworkPending(false, "");
+                    startListeningForLanGames();
                 });
                 client.close();
             }
@@ -269,7 +327,7 @@ public class MemoryMenuController implements RouteDataReceiver {
 
     @FXML
     private void onBack(ActionEvent event) {
-        closePendingNetwork();
+        closeMenuNetwork();
         Router.goTo(event, "/GameChoice.fxml", null);
     }
 
@@ -278,9 +336,11 @@ public class MemoryMenuController implements RouteDataReceiver {
     }
 
     private void setNetworkPending(boolean pending, String cancelText) {
+        networkPending = pending;
         setMenuButtonsDisabled(pending);
         btnCancelHost.setText(cancelText);
         setVisibleManaged(btnCancelHost, pending);
+        updateJoinSelectedButton();
     }
 
     private void closePendingNetwork() {
@@ -291,6 +351,82 @@ public class MemoryMenuController implements RouteDataReceiver {
         if (pendingClient != null) {
             pendingClient.close();
             pendingClient = null;
+        }
+    }
+
+    private void closeMenuNetwork() {
+        discoveryService.close();
+        stopStaleGameTimer();
+        closePendingNetwork();
+    }
+
+    private void startListeningForLanGames() {
+        discoveryService.startListening(
+                game -> Platform.runLater(() -> rememberDiscoveredGame(game)),
+                message -> Platform.runLater(() -> statusLabel.setText(message)));
+    }
+
+    private void rememberDiscoveredGame(LanDiscoveryService.DiscoveredGame game) {
+        String selectedSessionId = selectedLanSessionId();
+        removeStaleDiscoveredGames();
+
+        int existingIndex = IntStream.range(0, discoveredGames.size())
+                .filter(index -> discoveredGames.get(index).sessionId().equals(game.sessionId()))
+                .findFirst()
+                .orElse(-1);
+
+        if (existingIndex >= 0) {
+            discoveredGames.set(existingIndex, game);
+        } else {
+            discoveredGames.add(game);
+        }
+
+        restoreLanSelection(selectedSessionId);
+        if (availableGamesList.getSelectionModel().isEmpty()) {
+            availableGamesList.getSelectionModel().selectFirst();
+        }
+        updateJoinSelectedButton();
+    }
+
+    private void removeStaleDiscoveredGames() {
+        long cutoff = System.currentTimeMillis() - DISCOVERED_GAME_TTL_MS;
+        discoveredGames.removeIf(game -> game.timestamp() < cutoff);
+        updateJoinSelectedButton();
+    }
+
+    private String selectedLanSessionId() {
+        LanDiscoveryService.DiscoveredGame selected = availableGamesList.getSelectionModel().getSelectedItem();
+        return selected == null ? null : selected.sessionId();
+    }
+
+    private void restoreLanSelection(String sessionId) {
+        if (sessionId == null) {
+            return;
+        }
+
+        IntStream.range(0, discoveredGames.size())
+                .filter(index -> discoveredGames.get(index).sessionId().equals(sessionId))
+                .findFirst()
+                .ifPresent(index -> availableGamesList.getSelectionModel().select(index));
+    }
+
+    private void startStaleGameTimer() {
+        stopStaleGameTimer();
+        staleGameTimer = new Timeline(new KeyFrame(Duration.seconds(1), event -> removeStaleDiscoveredGames()));
+        staleGameTimer.setCycleCount(Animation.INDEFINITE);
+        staleGameTimer.play();
+    }
+
+    private void stopStaleGameTimer() {
+        if (staleGameTimer != null) {
+            staleGameTimer.stop();
+            staleGameTimer = null;
+        }
+    }
+
+    private void updateJoinSelectedButton() {
+        if (btnJoinSelectedGame != null && availableGamesList != null) {
+            btnJoinSelectedGame.setDisable(networkPending || availableGamesList.getSelectionModel().isEmpty());
         }
     }
 
@@ -311,8 +447,17 @@ public class MemoryMenuController implements RouteDataReceiver {
 
     public void showTimedStatus(String message, int seconds) {
         statusLabel.setText(message);
-        PauseTransition timer = new PauseTransition(Duration.seconds(seconds));
-        timer.setOnFinished(e -> statusLabel.setText(""));
-        timer.play();
+        if (statusTimer != null) {
+            statusTimer.stop();
+        }
+
+        statusTimer = new PauseTransition(Duration.seconds(seconds));
+        statusTimer.setOnFinished(e -> {
+            if (message.equals(statusLabel.getText())) {
+                statusLabel.setText("");
+            }
+            statusTimer = null;
+        });
+        statusTimer.play();
     }
 }

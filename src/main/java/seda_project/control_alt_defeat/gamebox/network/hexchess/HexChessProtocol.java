@@ -8,6 +8,8 @@ import seda_project.control_alt_defeat.gamebox.network.NetworkMessage;
 
 import java.util.List;
 
+import static seda_project.control_alt_defeat.gamebox.network.SnapshotCodec.parseBoolean;
+
 public final class HexChessProtocol {
 
     public static final String JOIN = "JOIN";
@@ -94,16 +96,6 @@ public final class HexChessProtocol {
             case QUEEN, ROOK, BISHOP, KNIGHT -> promotion;
             default -> throw new IllegalArgumentException("Invalid promotion piece: " + promotion);
         };
-    }
-
-    private static boolean parseBoolean(String value) {
-        if ("true".equals(value)) {
-            return true;
-        }
-        if ("false".equals(value)) {
-            return false;
-        }
-        throw new IllegalArgumentException("Invalid boolean value: " + value);
     }
 
     private static String make(String type, String... fields) {

@@ -51,13 +51,9 @@ public class TetrisGameController implements RouteDataReceiver {
     private static final int MENU_RETURN_SECONDS = 2;
     private static final String OPPONENT_LEFT_MESSAGE = "Your opponent has left the game.";
     private static final String[] BLOCK_COLORS = {
-            "#2F7DF6:#102A4C",
-            "#3F72AF:#102A4C",
-            "#102A4C:#3F72AF",
-            "#EAF2FD:#3F72AF",
-            "#F7FAFF:#3F72AF",
-            "#DBE2EF:#3F72AF",
-            "#F8FBFF:#3F72AF"
+            "#EA7B7B",
+            "#BDA6CE",
+            "#A1BC98"
     };
 
     @FXML
@@ -687,8 +683,8 @@ public class TetrisGameController implements RouteDataReceiver {
     }
 
     private void paintBlock(Region cell, int colorIndex) {
-        String[] colors = BLOCK_COLORS[Math.floorMod(colorIndex, BLOCK_COLORS.length)].split(":", 2);
-        cell.setStyle("-fx-background-color: " + colors[0] + "; -fx-border-color: " + colors[1] + ";");
+        String color = BLOCK_COLORS[Math.floorMod(colorIndex, BLOCK_COLORS.length)];
+        cell.setStyle("-fx-background-color: " + color + "; -fx-border-color: derive(" + color + ", -24%);");
     }
 
     private int randomBlockColor() {

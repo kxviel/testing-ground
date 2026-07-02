@@ -96,8 +96,13 @@
 
 .memory-setup-list,
 .variant-list,
-.join-box {
+.join-box,
+.button-row {
     -fx-padding: 0;
+}
+
+.button-row {
+    -fx-spacing: 10;
 }
 
 .menu-section,

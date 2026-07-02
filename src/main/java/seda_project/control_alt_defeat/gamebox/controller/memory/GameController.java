@@ -19,7 +19,8 @@ import seda_project.control_alt_defeat.gamebox.model.memory.Card;
 import seda_project.control_alt_defeat.gamebox.model.memory.GameModel;
 import seda_project.control_alt_defeat.gamebox.network.GameClient;
 import seda_project.control_alt_defeat.gamebox.network.GameServer;
-import seda_project.control_alt_defeat.gamebox.network.Protocol;
+import seda_project.control_alt_defeat.gamebox.network.memory.MemoryProtocol;
+import seda_project.control_alt_defeat.gamebox.network.memory.MemoryStateSnapshot;
 import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
 import seda_project.control_alt_defeat.gamebox.util.Router;
 
@@ -76,10 +77,6 @@ public class GameController implements RouteDataReceiver {
     private HBox postGameBar;
     @FXML
     private Label resultLabel;
-    @FXML
-    private Button btnPostPlayAgain;
-    @FXML
-    private Button btnPostMainMenu;
 
     private GameModel model;
     private Mode mode;
@@ -92,6 +89,7 @@ public class GameController implements RouteDataReceiver {
     private boolean inputLocked = false;
     private boolean gameEnded = false;
     private PauseTransition mismatchPause;
+    private PauseTransition statusTimer;
 
     @FXML
     private void initialize() {
@@ -122,7 +120,7 @@ public class GameController implements RouteDataReceiver {
 
         if (isNetworkHost()) {
             configureHost();
-            sendInitToClient();
+            sendStartToClient();
         }
 
         buildBoard();
@@ -149,33 +147,34 @@ public class GameController implements RouteDataReceiver {
         }
     }
 
-    private void sendInitToClient() {
-        server.send(Protocol.make(Protocol.INIT,
-                String.valueOf(model.getK()),
-                String.valueOf(model.getN()),
-                String.valueOf(model.getRows()),
-                String.valueOf(model.getCols()),
-                String.join(",", model.getSymbolOrder())));
+    private void sendStartToClient() {
+        server.send(MemoryProtocol.start(PLAYER_ONE, PLAYER_TWO, snapshot()));
     }
 
     private void processClientMessage(String msg) {
         if (msg == null || msg.isBlank())
             return;
 
-        List<String> fields = Protocol.fields(msg);
-        switch (Protocol.type(msg)) {
-            case Protocol.FLIP -> {
+        List<String> fields = MemoryProtocol.fields(msg);
+        switch (MemoryProtocol.type(msg)) {
+            case MemoryProtocol.JOIN -> sendStartToClient();
+            case MemoryProtocol.FLIP -> {
                 Integer idx = parseCardIndex(fields, "FLIP from client");
-                if (idx != null && model.getCurrentPlayer() == 1) {
-                    executeCardSelect(idx);
+                if (idx == null) {
+                    return;
                 }
+                if (model.getCurrentPlayer() != 1) {
+                    server.send(MemoryProtocol.error("It is not your turn."));
+                    return;
+                }
+                executeCardSelect(idx);
             }
-            case Protocol.RESTART -> {
+            case MemoryProtocol.RESTART_REQUEST -> {
                 String initiator = fieldOrDefault(fields, 0, PLAYER_TWO);
-                restartGame(initiator);
+                restartGame();
                 showTimedStatus(initiator + " restarted the game!", STATUS_SECONDS);
             }
-            case Protocol.QUIT -> handleRemoteQuit();
+            case MemoryProtocol.QUIT -> handleRemoteQuit();
         }
     }
 
@@ -183,75 +182,73 @@ public class GameController implements RouteDataReceiver {
         if (msg == null || msg.isBlank())
             return;
 
-        List<String> fields = Protocol.fields(msg);
-        switch (Protocol.type(msg)) {
-            case Protocol.INIT -> handleInit(fields);
-            case Protocol.FLIP -> handleRemoteFlip(fields);
-            case Protocol.CLOSE -> handleRemoteClose();
-            case Protocol.GAMEOVER -> handleGameOverMsg();
-            case Protocol.RESTART -> handleRestart(fields);
-            case Protocol.QUIT -> handleRemoteQuit();
+        List<String> fields = MemoryProtocol.fields(msg);
+        switch (MemoryProtocol.type(msg)) {
+            case MemoryProtocol.START -> handleStart(fields);
+            case MemoryProtocol.STATE -> handleState(fields);
+            case MemoryProtocol.RESTART_STATE -> handleRestartState(fields);
+            case MemoryProtocol.ERROR -> handleError(fields);
+            case MemoryProtocol.QUIT -> handleRemoteQuit();
         }
     }
 
-    private void handleInit(List<String> fields) {
-        if (fields.size() < 5) {
-            log.warn("Ignoring malformed INIT message");
+    private void handleStart(List<String> fields) {
+        if (fields.size() != 3) {
+            log.warn("Ignoring malformed START message");
             return;
         }
 
-        boolean isRestart = (model != null);
-
-        int k = Integer.parseInt(fields.get(0));
-        int n = Integer.parseInt(fields.get(1));
-        int rows = Integer.parseInt(fields.get(2));
-        int cols = Integer.parseInt(fields.get(3));
-        List<String> symList = List.of(fields.get(4).split(","));
-        model = new GameModel(k, n, rows, cols, symList, 0);
-
-        gameEnded = false;
-        inputLocked = false;
-        hidePostGameBar();
-
-        buildBoard();
-        refreshUI();
-        if (!isRestart) {
+        if (applySnapshot(fields.get(2))) {
             showTimedStatus("Game started! " + PLAYER_ONE + " (Host) goes first.", STATUS_SECONDS);
         }
     }
 
-    private void handleRemoteFlip(List<String> fields) {
-        Integer idx = parseCardIndex(fields, "FLIP message");
-        if (idx == null)
-            return;
-
-        handleSelectionResult(idx, model.selectCard(idx), "Mismatch! Closing cards...");
-    }
-
-    private void handleRemoteClose() {
-        model.closeOpenCards();
-        refreshAll();
-        inputLocked = false;
-        statusLabel.setText("");
-    }
-
-    private void handleGameOverMsg() {
-        if (gameEnded)
-            return;
-        gameEnded = true;
-        inputLocked = true;
-        showGameOver();
-    }
-
-    private void handleRestart(List<String> fields) {
-        if (isNetworkClient()) {
-            String initiator = fieldOrDefault(fields, 0, PLAYER_ONE);
-            showTimedStatus(initiator + " restarted the game!", STATUS_SECONDS);
-            return;
+    private boolean handleState(List<String> fields) {
+        if (fields.size() != 1) {
+            log.warn("Ignoring malformed STATE message");
+            return false;
         }
+        return applySnapshot(fields.getFirst());
+    }
 
+    private void handleRestartState(List<String> fields) {
+        if (handleState(fields)) {
+            showTimedStatus("Game restarted!", STATUS_SECONDS);
+        }
+    }
+
+    private void handleError(List<String> fields) {
+        statusLabel.setText(fieldOrDefault(fields, 0, "Network error."));
         inputLocked = false;
-        gameEnded = false;
+    }
+
+    private boolean applySnapshot(String snapshot) {
+        try {
+            GameModel nextModel = MemoryStateSnapshot.deserialize(snapshot);
+            boolean rebuild = model == null
+                    || cardButtons == null
+                    || model.getRows() != nextModel.getRows()
+                    || model.getCols() != nextModel.getCols();
+
+            model = nextModel;
+            gameEnded = model.isGameOver();
+            inputLocked = gameEnded || hasPendingMismatch();
+            hidePostGameBar();
+
+            if (rebuild) {
+                buildBoard();
+            }
+            refreshAll();
+
+            if (gameEnded) {
+                showGameOver();
+            }
+            return true;
+        } catch (IllegalArgumentException e) {
+            statusLabel.setText("Invalid network state received.");
+            inputLocked = true;
+            return false;
+        }
     }
 
     private void handleRemoteQuit() {
@@ -335,51 +332,46 @@ public class GameController implements RouteDataReceiver {
             return;
 
         if (isNetworkClient()) {
-            client.send(Protocol.make(Protocol.FLIP, String.valueOf(idx)));
-            handleSelectionResult(idx, model.selectCard(idx), "Mismatch! Waiting for host...");
+            inputLocked = true;
+            statusLabel.setText("Move sent. Waiting for host...");
+            client.send(MemoryProtocol.flip(idx));
         } else {
             executeCardSelect(idx);
         }
     }
 
     private void executeCardSelect(int idx) {
-        Card card = model.getCard(idx);
-        if (!card.isSelectable())
+        if (idx < 0 || idx >= model.getCards().size()) {
+            if (isNetworkHost()) {
+                server.send(MemoryProtocol.error("Invalid card."));
+            }
             return;
+        }
+
+        Card card = model.getCard(idx);
+        if (!card.isSelectable()) {
+            broadcastStateIfHost();
+            return;
+        }
 
         GameModel.SelectResult result = model.selectCard(idx);
         if (result == GameModel.SelectResult.IGNORED)
             return;
 
         updateCardButton(idx);
-
-        if (isNetworkHost()) {
-            server.send(Protocol.make(Protocol.FLIP, String.valueOf(idx)));
-        }
         refreshUI();
 
         switch (result) {
-            case RESOLVED_MATCH -> handleResolvedMatch();
-            case RESOLVED_MISMATCH -> showMismatchThenClose();
-            case IGNORED, OPENED -> {
+            case OPENED -> broadcastStateIfHost();
+            case RESOLVED_MATCH -> {
+                handleResolvedMatch();
+                broadcastStateIfHost();
             }
-        }
-    }
-
-    private void handleSelectionResult(int idx, GameModel.SelectResult result, String mismatchMessage) {
-        switch (result) {
-            case IGNORED -> {
-            }
-            case OPENED -> {
-                updateCardButton(idx);
-                refreshUI();
-            }
-            case RESOLVED_MATCH -> handleResolvedMatch();
             case RESOLVED_MISMATCH -> {
-                updateCardButton(idx);
-                refreshUI();
-                inputLocked = true;
-                statusLabel.setText(mismatchMessage);
+                broadcastStateIfHost();
+                showMismatchThenClose();
+            }
+            case IGNORED -> {
             }
         }
     }
@@ -388,13 +380,6 @@ public class GameController implements RouteDataReceiver {
         refreshAll();
         if (!model.isGameOver())
             return;
-
-        if (isNetworkHost()) {
-            server.send(Protocol.make(Protocol.GAMEOVER,
-                    String.valueOf(model.getWinner()),
-                    String.valueOf(model.getScore(0)),
-                    String.valueOf(model.getScore(1))));
-        }
         showGameOver();
     }
 
@@ -409,10 +394,34 @@ public class GameController implements RouteDataReceiver {
             refreshAll();
             inputLocked = false;
             statusLabel.setText("");
-            if (isNetworkHost() && server != null)
-                server.send(Protocol.CLOSE);
+            broadcastStateIfHost();
         });
         mismatchPause.play();
+    }
+
+    private void broadcastStateIfHost() {
+        if (isNetworkHost() && server != null && server.isConnected()) {
+            server.send(MemoryProtocol.state(snapshot()));
+        }
+    }
+
+    private String snapshot() {
+        return MemoryStateSnapshot.serialize(model);
+    }
+
+    private boolean hasPendingMismatch() {
+        List<Card> openCards = model.getCards().stream()
+                .filter(card -> card.isFaceUp() && !card.isMatched())
+                .toList();
+
+        if (openCards.size() < model.getK()) {
+            return false;
+        }
+
+        String symbol = openCards.getFirst().getSymbol();
+        return openCards.stream()
+                .map(Card::getSymbol)
+                .anyMatch(cardSymbol -> !symbol.equals(cardSymbol));
     }
 
     private void refreshUI() {
@@ -558,7 +567,6 @@ public class GameController implements RouteDataReceiver {
             showLocalGameOver(resultText, scores);
         } else {
             resultLabel.setText(resultText + "   " + scores);
-            setPostGameButtonsDisabled(false);
             postGameBar.setVisible(true);
             postGameBar.setManaged(true);
         }
@@ -582,16 +590,29 @@ public class GameController implements RouteDataReceiver {
 
     @FXML
     private void onPostPlayAgain() {
-        setPostGameButtonsDisabled(true);
-        String myName = playerName();
         hidePostGameBar();
-        restartGame(myName);
-        showTimedStatus(myName + " restarted the game!", STATUS_SECONDS);
+        requestRestart();
+    }
+
+    @FXML
+    private void onRestart() {
+        requestRestart();
+    }
+
+    private void requestRestart() {
+        String myName = playerName();
+        if (isNetworkClient()) {
+            inputLocked = true;
+            client.send(MemoryProtocol.restartRequest(myName));
+            showTimedStatus("Restart requested. Waiting for host...", STATUS_SECONDS);
+        } else {
+            restartGame();
+            showTimedStatus(myName + " restarted the game!", STATUS_SECONDS);
+        }
     }
 
     @FXML
     private void onPostMainMenu() {
-        setPostGameButtonsDisabled(true);
         String myName = playerName();
         hidePostGameBar();
         sendQuit();
@@ -600,9 +621,18 @@ public class GameController implements RouteDataReceiver {
 
     private void showTimedStatus(String message, int seconds) {
         statusLabel.setText(message);
-        PauseTransition timer = new PauseTransition(Duration.seconds(seconds));
-        timer.setOnFinished(e -> statusLabel.setText(""));
-        timer.play();
+        if (statusTimer != null) {
+            statusTimer.stop();
+        }
+
+        statusTimer = new PauseTransition(Duration.seconds(seconds));
+        statusTimer.setOnFinished(e -> {
+            if (message.equals(statusLabel.getText())) {
+                statusLabel.setText("");
+            }
+            statusTimer = null;
+        });
+        statusTimer.play();
     }
 
     private void hidePostGameBar() {
@@ -610,10 +640,9 @@ public class GameController implements RouteDataReceiver {
             postGameBar.setVisible(false);
             postGameBar.setManaged(false);
         }
-        setPostGameButtonsDisabled(false);
     }
 
-    private void restartGame(String initiator) {
+    private void restartGame() {
         hidePostGameBar();
         stopMismatchPause();
         model = new GameModel(model.getK(), model.getN(), model.getRows(), model.getCols());
@@ -627,20 +656,8 @@ public class GameController implements RouteDataReceiver {
                 returnToMainMenu(null);
                 return;
             }
-            sendInitToClient();
-            server.send(Protocol.make(Protocol.RESTART, initiator != null ? initiator : PLAYER_ONE));
+            server.send(MemoryProtocol.restartState(snapshot()));
         }
-        if (isNetworkClient()) {
-            if (client == null) {
-                returnToMainMenu(null);
-                return;
-            }
-            client.send(Protocol.make(Protocol.RESTART, initiator != null ? initiator : PLAYER_TWO));
-        }
-    }
-
-    private void restartGame() {
-        restartGame(null);
     }
 
     @FXML
@@ -670,9 +687,9 @@ public class GameController implements RouteDataReceiver {
 
     private void sendQuit() {
         if (isNetworkHost() && server != null)
-            server.send(Protocol.QUIT);
+            server.send(MemoryProtocol.quit(PLAYER_ONE));
         if (isNetworkClient() && client != null)
-            client.send(Protocol.QUIT);
+            client.send(MemoryProtocol.quit(PLAYER_TWO));
     }
 
     private void closeNetwork() {
@@ -695,13 +712,6 @@ public class GameController implements RouteDataReceiver {
 
     private String playerName() {
         return isNetworkHost() ? PLAYER_ONE : PLAYER_TWO;
-    }
-
-    private void setPostGameButtonsDisabled(boolean disabled) {
-        if (btnPostPlayAgain != null)
-            btnPostPlayAgain.setDisable(disabled);
-        if (btnPostMainMenu != null)
-            btnPostMainMenu.setDisable(disabled);
     }
 
     private String opponentName() {

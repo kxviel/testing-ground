@@ -116,15 +116,20 @@
                               styleClass="post-game-bar"
                               visible="false" managed="false">
                             <Label fx:id="resultLabel" wrapText="true" styleClass="post-result" HBox.hgrow="ALWAYS"/>
-                            <Button fx:id="btnPostPlayAgain" text="Play Again" onAction="#onPostPlayAgain"
+                            <Button text="Play Again" onAction="#onPostPlayAgain"
                                     styleClass="btn-primary"/>
-                            <Button fx:id="btnPostMainMenu" text="Main Menu" onAction="#onPostMainMenu"
+                            <Button text="Main Menu" onAction="#onPostMainMenu"
                                     styleClass="btn-outline"/>
                         </HBox>
 
                         <Region VBox.vgrow="ALWAYS"/>
 
-                        <Button text="Quit to Menu" onAction="#onQuit" maxWidth="Infinity" styleClass="quit-button"/>
+                        <HBox spacing="10" styleClass="button-row">
+                            <Button text="Restart" onAction="#onRestart" maxWidth="Infinity"
+                                    styleClass="btn-outline" HBox.hgrow="ALWAYS"/>
+                            <Button text="Quit to Menu" onAction="#onQuit" maxWidth="Infinity"
+                                    styleClass="quit-button" HBox.hgrow="ALWAYS"/>
+                        </HBox>
                     </VBox>
                 </ScrollPane>
             </GridPane>

@@ -21,6 +21,7 @@ import seda_project.control_alt_defeat.gamebox.model.hexchess.HexChessGameSetup;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexCoordinate;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexGameMode;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexGameState;
+import seda_project.control_alt_defeat.gamebox.model.hexchess.HexGameStatus;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexMove;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexPiece;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexPieceColor;
@@ -43,8 +44,6 @@ public class HexChessGameController implements RouteDataReceiver {
     private static final double BOARD_FIT_MARGIN = 24.0;
     private static final Duration BOT_DELAY = Duration.millis(350);
     private static final Duration BOT_DRAW_DECLINE_DELAY = Duration.millis(800);
-    private static final String NETWORK_RESTART_MESSAGE =
-            "Network restart is not supported. Return to menu to start again.";
     private static final Color CELL_LIGHT = Color.web("#f7c895");
     private static final Color CELL_MID = Color.web("#e5aa68");
     private static final Color CELL_DARK = Color.web("#cf873d");
@@ -185,13 +184,14 @@ public class HexChessGameController implements RouteDataReceiver {
 
     @FXML
     private void onRestart() {
-        if (isNetworkGame()) {
-            gameState = gameState.withStatusMessage(NETWORK_RESTART_MESSAGE);
+        if (isNetworkClient()) {
+            joinClient.send(HexChessProtocol.simple(HexChessProtocol.RESTART));
+            gameState = gameState.withStatusMessage("Restart requested. Waiting for host...");
             render();
             return;
         }
 
-        startGame(setup);
+        restartMatch("Game restarted.");
     }
 
     @FXML
@@ -210,8 +210,15 @@ public class HexChessGameController implements RouteDataReceiver {
     }
 
     private void startGame(HexChessGameSetup nextSetup) {
+        startGame(nextSetup, null);
+    }
+
+    private void startGame(HexChessGameSetup nextSetup, String statusMessage) {
         setup = nextSetup == null ? HexChessGameSetup.local() : nextSetup;
         gameState = HexGameState.create(setup.initialBoard(), setup.startingTurn(), !setup.customPosition());
+        if (statusMessage != null) {
+            gameState = gameState.withStatusMessage(statusMessage);
+        }
         clearSelection();
         botThinking = false;
         buildBoard();
@@ -409,7 +416,7 @@ public class HexChessGameController implements RouteDataReceiver {
             case HexChessProtocol.DRAW_ACCEPT -> applyAndBroadcast(gameState.acceptDraw(HexPieceColor.BLACK));
             case HexChessProtocol.DRAW_DECLINE -> applyAndBroadcast(gameState.declineDraw(HexPieceColor.BLACK));
             case HexChessProtocol.RESIGN -> applyAndBroadcast(gameState.resign(HexPieceColor.BLACK));
-            case HexChessProtocol.RESTART -> hostServer.send(HexChessProtocol.error(NETWORK_RESTART_MESSAGE));
+            case HexChessProtocol.RESTART -> restartMatch("Game restarted.");
             case HexChessProtocol.QUIT -> markDisconnected("Joiner left the game.");
             default -> {
             }
@@ -530,8 +537,15 @@ public class HexChessGameController implements RouteDataReceiver {
             resignButton.setDisable(!gameState.isActive());
         }
         if (restartButton != null) {
-            setVisibleManaged(restartButton, !isNetworkGame());
+            setVisibleManaged(restartButton, true);
+            restartButton.setDisable(gameState.status() == HexGameStatus.DISCONNECTED
+                    || gameState.status() == HexGameStatus.ERROR);
         }
+    }
+
+    private void restartMatch(String message) {
+        startGame(setup, message);
+        sendStartStateIfHost();
     }
 
     private void drawCell(GraphicsContext graphics, HexCoordinate coordinate) {
@@ -624,10 +638,6 @@ public class HexChessGameController implements RouteDataReceiver {
 
     private boolean isNetworkClient() {
         return joinClient != null;
-    }
-
-    private boolean isNetworkGame() {
-        return isNetworkHost() || isNetworkClient();
     }
 
     private void closeNetwork() {

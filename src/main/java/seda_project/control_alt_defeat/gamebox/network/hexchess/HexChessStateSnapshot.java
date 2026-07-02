@@ -10,13 +10,16 @@ import seda_project.control_alt_defeat.gamebox.model.hexchess.HexPiece;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexPieceColor;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexPieceType;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static seda_project.control_alt_defeat.gamebox.network.SnapshotCodec.decode;
+import static seda_project.control_alt_defeat.gamebox.network.SnapshotCodec.encode;
+import static seda_project.control_alt_defeat.gamebox.network.SnapshotCodec.parseBoolean;
+import static seda_project.control_alt_defeat.gamebox.network.SnapshotCodec.parseInt;
 
 public final class HexChessStateSnapshot {
 
@@ -185,18 +188,6 @@ public final class HexChessStateSnapshot {
         return HexGameStatus.valueOf(value);
     }
 
-    private static int parseInt(String value) {
-        if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException("Missing integer value.");
-        }
-
-        try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid integer value: " + value, e);
-        }
-    }
-
     private static double parseDouble(String value) {
         if (value == null || value.isBlank()) {
             throw new IllegalArgumentException("Missing score value.");
@@ -207,16 +198,6 @@ public final class HexChessStateSnapshot {
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Invalid score value: " + value, e);
         }
-    }
-
-    private static boolean parseBoolean(String value) {
-        if ("true".equals(value)) {
-            return true;
-        }
-        if ("false".equals(value)) {
-            return false;
-        }
-        throw new IllegalArgumentException("Invalid boolean value: " + value);
     }
 
     private static String serializeCoordinateSet(Set<HexCoordinate> coordinates) {
@@ -272,13 +253,4 @@ public final class HexChessStateSnapshot {
         return Map.copyOf(counts);
     }
 
-    private static String encode(String value) {
-        return Base64.getUrlEncoder()
-                .withoutPadding()
-                .encodeToString((value == null ? "" : value).getBytes(StandardCharsets.UTF_8));
-    }
-
-    private static String decode(String value) {
-        return new String(Base64.getUrlDecoder().decode(value), StandardCharsets.UTF_8);
-    }
 }

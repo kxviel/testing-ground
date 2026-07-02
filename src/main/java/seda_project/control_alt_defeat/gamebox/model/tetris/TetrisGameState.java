@@ -1,14 +1,12 @@
 package seda_project.control_alt_defeat.gamebox.model.tetris;
 
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.GravityDirection;
-import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PieceType;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerSide;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.Rotation;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisGameStatus;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisCell;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisItemType;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -192,7 +190,7 @@ public record TetrisGameState(
                     ? next
                     : next.withPlayer(side, actor.withActivePiece(null))
                             .withPlayer(opponentSide, opponent.queueShapeFirst(actor.activePiece().shape()));
-            case TELEPORT_SWAP -> swapPlayStates(side);
+            case TELEPORT_SWAP -> swapBoards(side);
             case PIECE_SWAP -> swapActivePieces(next, side);
         };
     }
@@ -255,31 +253,26 @@ public record TetrisGameState(
                 : opponent.removeLeftColumns(clearedColumns);
     }
 
-    private TetrisGameState swapPlayStates(PlayerSide triggeringSide) {
+    private TetrisGameState swapBoards(PlayerSide triggeringSide) {
         PlayerSide otherSide = opponent(triggeringSide);
         TetrisPlayerState triggeringPlayer = player(triggeringSide).clearBoardObject();
         TetrisPlayerState otherPlayer = player(otherSide).clearBoardObject();
-        TetrisPlayerState swappedTriggeringPlayer = swapBoardAndPiece(triggeringPlayer, otherPlayer);
-        TetrisPlayerState swappedOtherPlayer = swapBoardAndPiece(otherPlayer, triggeringPlayer);
+        TetrisBoard triggeringBoard = boardForBoardSwap(otherPlayer.board());
+        TetrisBoard otherBoard = boardForBoardSwap(triggeringPlayer.board());
 
-        return withPlayer(triggeringSide, swappedTriggeringPlayer)
-                .withPlayer(otherSide, swappedOtherPlayer);
+        return withPlayer(triggeringSide, withSwappedBoard(triggeringPlayer, triggeringBoard))
+                .withPlayer(otherSide, withSwappedBoard(otherPlayer, otherBoard));
     }
 
-    private TetrisPlayerState swapBoardAndPiece(TetrisPlayerState target, TetrisPlayerState source) {
-        if (!config.horizontalMode()) {
-            return transferredState(target, source.board(), source.activePiece());
-        }
-
-        TetrisBoard swappedBoard = mirrorBoardAcrossColumns(source.board());
-        TetrisPiece swappedPiece = mirrorPieceAcrossColumns(source.activePiece(), source.board(), swappedBoard);
-        return transferredState(target, swappedBoard, swappedPiece);
+    private TetrisBoard boardForBoardSwap(TetrisBoard sourceBoard) {
+        return config.horizontalMode() ? mirrorBoardAcrossColumns(sourceBoard) : sourceBoard;
     }
 
-    private static TetrisPlayerState transferredState(
-            TetrisPlayerState target,
-            TetrisBoard board,
-            TetrisPiece activePiece) {
+    private static TetrisPlayerState withSwappedBoard(TetrisPlayerState target, TetrisBoard board) {
+        TetrisPiece activePiece = target.activePiece() != null && board.canPlace(target.activePiece())
+                ? target.activePiece()
+                : null;
+
         return new TetrisPlayerState(
                 target.playerName(),
                 target.side(),
@@ -308,39 +301,6 @@ public record TetrisGameState(
         }
 
         return new TetrisBoard(mirroredCells, mirroredColors);
-    }
-
-    private TetrisPiece mirrorPieceAcrossColumns(
-            TetrisPiece sourcePiece,
-            TetrisBoard sourceBoard,
-            TetrisBoard mirroredBoard) {
-        if (sourcePiece == null) {
-            return null;
-        }
-
-        Set<BoardPosition> mirroredCells = sourcePiece.boardCells().stream()
-                .map(position -> new BoardPosition(position.row(), mirrorColumn(sourceBoard.columns(), position.column())))
-                .collect(HashSet::new, Set::add, Set::addAll);
-
-        int minRow = mirroredCells.stream().mapToInt(BoardPosition::row).min().orElse(0);
-        int minColumn = mirroredCells.stream().mapToInt(BoardPosition::column).min().orElse(0);
-        BoardPosition anchor = new BoardPosition(minRow, minColumn);
-
-        for (PieceShape shape : config.availableShapes()) {
-            for (Rotation rotation : Rotation.values()) {
-                TetrisPiece candidate = new TetrisPiece(shape, anchor, rotation, sourcePiece.colorIndex());
-                if (mirroredCells.equals(new HashSet<>(candidate.boardCells())) && mirroredBoard.canPlace(candidate)) {
-                    return candidate;
-                }
-            }
-        }
-
-        List<BoardPosition> normalizedCells = mirroredCells.stream()
-                .map(position -> new BoardPosition(position.row() - minRow, position.column() - minColumn))
-                .toList();
-        PieceShape fallbackShape = new PieceShape(PieceType.CUSTOM, sourcePiece.shape().name(), normalizedCells);
-        TetrisPiece fallback = new TetrisPiece(fallbackShape, anchor, Rotation.SPAWN, sourcePiece.colorIndex());
-        return mirroredBoard.canPlace(fallback) ? fallback : null;
     }
 
     private static int mirrorColumn(int columns, int column) {

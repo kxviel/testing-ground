@@ -17,11 +17,13 @@ import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisItemType
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisPiece;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisPlayerState;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static seda_project.control_alt_defeat.gamebox.network.SnapshotCodec.decode;
+import static seda_project.control_alt_defeat.gamebox.network.SnapshotCodec.encode;
+import static seda_project.control_alt_defeat.gamebox.network.SnapshotCodec.parseInt;
 
 public final class TetrisStateSnapshot {
 
@@ -136,10 +138,6 @@ public final class TetrisStateSnapshot {
             }
         }
         return builder.toString();
-    }
-
-    private static TetrisBoard deserializeBoard(String value) {
-        return deserializeBoard(value, "");
     }
 
     private static TetrisBoard deserializeBoard(String value, String colorsValue) {
@@ -350,7 +348,7 @@ public final class TetrisStateSnapshot {
         }
 
         return Arrays.stream(value.split("\\."))
-                .map(TetrisStateSnapshot::decode)
+                .map(encodedShape -> decode(encodedShape))
                 .map(TetrisStateSnapshot::deserializeShape)
                 .filter(shape -> shape != null)
                 .toList();
@@ -376,24 +374,6 @@ public final class TetrisStateSnapshot {
 
         char color = value.charAt(index);
         return color == '.' ? -1 : Character.digit(color, 36);
-    }
-
-    private static String encode(String value) {
-        return Base64.getUrlEncoder()
-                .withoutPadding()
-                .encodeToString((value == null ? "" : value).getBytes(StandardCharsets.UTF_8));
-    }
-
-    private static String decode(String value) {
-        return new String(Base64.getUrlDecoder().decode(value), StandardCharsets.UTF_8);
-    }
-
-    private static int parseInt(String value, int defaultValue) {
-        try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException e) {
-            return defaultValue;
-        }
     }
 
     private static TetrisGameStatus parseStatus(String value) {

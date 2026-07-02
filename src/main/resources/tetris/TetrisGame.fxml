@@ -131,19 +131,19 @@
                                        GridPane.columnIndex="1" GridPane.rowIndex="4"/>
 
                                 <Label text="*" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
-                                <Label text="Clears nearby blocks within a radius of 3" styleClass="object-description" wrapText="true"
+                                <Label text="Radius bomb: clears nearby blocks within 3 cells" styleClass="object-description" wrapText="true"
                                        GridPane.columnIndex="1" GridPane.rowIndex="5"/>
 
                                 <Label text="v" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="6"/>
-                                <Label text="Clears blocks below it in your gravity direction" styleClass="object-description" wrapText="true"
+                                <Label text="Column bomb: clears along your gravity direction" styleClass="object-description" wrapText="true"
                                        GridPane.columnIndex="1" GridPane.rowIndex="6"/>
 
                                 <Label text="P" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="7"/>
-                                <Label text="Sends your current piece to the opponent as their next falling piece" styleClass="object-description" wrapText="true"
+                                <Label text="Teleport: sends your falling piece to the opponent next" styleClass="object-description" wrapText="true"
                                        GridPane.columnIndex="1" GridPane.rowIndex="7"/>
 
                                 <Label text="T" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="8"/>
-                                <Label text="Teleporter: swap boards/pieces" styleClass="object-description" wrapText="true"
+                                <Label text="Board swap: swaps boards only" styleClass="object-description" wrapText="true"
                                        GridPane.columnIndex="1" GridPane.rowIndex="8"/>
 
                                 <Label text="G" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="9"/>

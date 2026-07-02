@@ -47,10 +47,11 @@ public record PieceShape(PieceType type, String name, List<BoardPosition> cells)
     }
 
     public static PieceShape standardShape(PieceType type) {
-        return standardShapes().stream()
+        List<PieceShape> shapes = standardShapes();
+        return shapes.stream()
                 .filter(shape -> shape.type() == type)
                 .findFirst()
-                .orElseGet(() -> standardShapes().get(0));
+                .orElseGet(shapes::getFirst);
     }
 
     public static List<PieceShape> standardShapes() {

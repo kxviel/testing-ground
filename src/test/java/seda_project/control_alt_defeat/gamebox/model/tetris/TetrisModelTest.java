@@ -130,8 +130,8 @@ public class TetrisModelTest {
     }
 
     @Test
-    @DisplayName("FR-OUTPUT-23: teleporter object swaps player boards and active pieces without changing scores")
-    void frOutput23TeleporterObjectSwapsBoardsAndPiecesButKeepsScores() {
+    @DisplayName("FR-OUTPUT-23: board-swap object swaps player boards without changing scores or falling pieces")
+    void frOutput23BoardSwapObjectSwapsBoardsOnlyAndKeepsScores() {
         TetrisPiece bottomPiece = new TetrisPiece(
                 PieceShape.standardShape(PieceType.O),
                 new BoardPosition(0, 0),
@@ -169,10 +169,11 @@ public class TetrisModelTest {
         assertEquals("Top", swapped.topPlayer().playerName());
         assertEquals(3, swapped.bottomPlayer().score());
         assertEquals(7, swapped.topPlayer().score());
-        assertEquals(topPiece, swapped.bottomPlayer().activePiece());
-        assertEquals(bottomPiece.withPosition(new BoardPosition(1, 0)), swapped.topPlayer().activePiece());
+        assertEquals(bottomPiece.withPosition(new BoardPosition(1, 0)), swapped.bottomPlayer().activePiece());
+        assertEquals(topPiece, swapped.topPlayer().activePiece());
         assertEquals(TetrisCell.FILLED, swapped.bottomPlayer().board().cellAt(new BoardPosition(18, 9)));
         assertEquals(TetrisCell.FILLED, swapped.topPlayer().board().cellAt(new BoardPosition(19, 0)));
+        assertNull(swapped.bottomPlayer().bugPosition());
         assertNull(swapped.topPlayer().bugPosition());
     }
 
@@ -505,7 +506,7 @@ public class TetrisModelTest {
     }
 
     @Test
-    void horizontalTeleporterMirrorsBoardAndPieceIntoReceivingSide() {
+    void horizontalBoardSwapMirrorsBoardsAndKeepsFallingPiecesWithOwners() {
         TetrisGameConfig config = new TetrisGameConfig(List.of("Standard"), List.of(), 550, false, true);
         TetrisPlayerState bottom = new TetrisPlayerState(
                 "Bottom",
@@ -535,20 +536,8 @@ public class TetrisModelTest {
         assertFalse(swapped.isFinished());
         assertEquals(PlayerStatus.PLAYING, swapped.bottomPlayer().status());
         assertEquals(PlayerStatus.PLAYING, swapped.topPlayer().status());
-        assertEquals(
-                Set.of(
-                        new BoardPosition(2, 1),
-                        new BoardPosition(3, 1),
-                        new BoardPosition(3, 2),
-                        new BoardPosition(3, 3)),
-                Set.copyOf(swapped.bottomPlayer().activePiece().boardCells()));
-        assertEquals(
-                Set.of(
-                        new BoardPosition(4, 18),
-                        new BoardPosition(5, 16),
-                        new BoardPosition(5, 17),
-                        new BoardPosition(5, 18)),
-                Set.copyOf(swapped.topPlayer().activePiece().boardCells()));
+        assertEquals(bottom.activePiece().shape(), swapped.bottomPlayer().activePiece().shape());
+        assertEquals(top.activePiece().shape(), swapped.topPlayer().activePiece().shape());
         assertTrue(swapped.bottomPlayer().board().canPlace(swapped.bottomPlayer().activePiece()));
         assertTrue(swapped.topPlayer().board().canPlace(swapped.topPlayer().activePiece()));
         assertEquals(TetrisCell.FILLED, swapped.bottomPlayer().board().cellAt(new BoardPosition(2, 19)));

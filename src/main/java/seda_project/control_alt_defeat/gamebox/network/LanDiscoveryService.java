@@ -1,6 +1,7 @@
 package seda_project.control_alt_defeat.gamebox.network;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -22,6 +23,7 @@ public class LanDiscoveryService implements Closeable {
 
     private static final String PREFIX = "GAMEBOX_DISCOVERY";
     private static final int TETRIS_PORT = 54322;
+    private static final int MEMORY_PORT = 54323;
     private static final int HEX_CHESS_PORT = 54324;
     private static final int TICK_MS = 1_000;
     private static final long ADVERTISEMENT_TTL_MS = 5_000;
@@ -35,8 +37,8 @@ public class LanDiscoveryService implements Closeable {
 
     private volatile boolean advertising;
     private volatile boolean listening;
-    private DatagramSocket advertisingSocket;
-    private DatagramSocket listeningSocket;
+    private volatile DatagramSocket advertisingSocket;
+    private volatile DatagramSocket listeningSocket;
 
     public record DiscoveredGame(
             String playerName,
@@ -54,6 +56,10 @@ public class LanDiscoveryService implements Closeable {
 
     public static LanDiscoveryService tetris() {
         return new LanDiscoveryService("TETRIS", TETRIS_PORT, "Zetris", "tetris");
+    }
+
+    public static LanDiscoveryService memory() {
+        return new LanDiscoveryService("MEMORY", MEMORY_PORT, "Memory", "memory");
     }
 
     public static LanDiscoveryService hexChess() {
@@ -125,7 +131,7 @@ public class LanDiscoveryService implements Closeable {
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-        } catch (Exception e) {
+        } catch (IOException e) {
             if (advertising) {
                 onError.accept("Could not advertise " + displayName + " LAN game: " + e.getMessage());
             }
@@ -153,7 +159,7 @@ public class LanDiscoveryService implements Closeable {
                 } catch (SocketTimeoutException ignored) {
                 }
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             if (listening) {
                 onError.accept("Could not find " + displayName + " LAN games: " + e.getMessage());
             }

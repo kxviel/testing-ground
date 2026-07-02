@@ -6,6 +6,19 @@ import java.util.stream.Stream;
 
 public final class HexPositionValidator {
 
+    private static final Map<HexPieceType, Integer> STARTING_COUNTS = Map.of(
+            HexPieceType.KING, 1,
+            HexPieceType.QUEEN, 1,
+            HexPieceType.ROOK, 2,
+            HexPieceType.BISHOP, 3,
+            HexPieceType.KNIGHT, 2,
+            HexPieceType.PAWN, HexMoveRules.MAX_PAWNS_PER_SIDE);
+    private static final List<HexPieceType> PROMOTION_TYPES = List.of(
+            HexPieceType.QUEEN,
+            HexPieceType.ROOK,
+            HexPieceType.BISHOP,
+            HexPieceType.KNIGHT);
+
     private HexPositionValidator() {
     }
 
@@ -99,9 +112,35 @@ public final class HexPositionValidator {
 
     private static List<String> validatePieceCounts(HexBoard board) {
         return Stream.of(HexPieceColor.WHITE, HexPieceColor.BLACK)
-                .filter(color -> count(board, color) > HexMoveRules.MAX_PIECES_PER_SIDE)
-                .map(color -> color.displayName() + " has too many pieces; maximum is "
+                .flatMap(color -> validatePieceCounts(board, color).stream())
+                .toList();
+    }
+
+    private static List<String> validatePieceCounts(HexBoard board, HexPieceColor color) {
+        List<String> totalCountErrors = count(board, color) > HexMoveRules.MAX_PIECES_PER_SIDE
+                ? List.of(color.displayName() + " has too many pieces; maximum is "
                         + HexMoveRules.MAX_PIECES_PER_SIDE + ".")
+                : List.of();
+
+        long pawns = count(board, color, HexPieceType.PAWN);
+        long missingPawns = Math.max(0, HexMoveRules.MAX_PAWNS_PER_SIDE - pawns);
+        List<String> promotedTypeErrors = PROMOTION_TYPES.stream()
+                .filter(type -> count(board, color, type) > STARTING_COUNTS.get(type) + missingPawns)
+                .map(type -> color.displayName() + " has too many " + displayPlural(type)
+                        + "; maximum is " + (STARTING_COUNTS.get(type) + missingPawns)
+                        + " with " + pawns + " pawns on the board.")
+                .toList();
+
+        long promotedExcess = PROMOTION_TYPES.stream()
+                .mapToLong(type -> Math.max(0, count(board, color, type) - STARTING_COUNTS.get(type)))
+                .sum();
+        List<String> promotedTotalErrors = promotedExcess > missingPawns
+                ? List.of(color.displayName() + " has too many promoted pieces; maximum is "
+                        + missingPawns + " with " + pawns + " pawns on the board.")
+                : List.of();
+
+        return Stream.of(totalCountErrors, promotedTypeErrors, promotedTotalErrors)
+                .flatMap(List::stream)
                 .toList();
     }
 
@@ -122,5 +161,15 @@ public final class HexPositionValidator {
             HexPieceColor color,
             HexPieceType type) {
         return entry.getValue().color() == color && entry.getValue().type() == type;
+    }
+
+    private static String displayPlural(HexPieceType type) {
+        return switch (type) {
+            case QUEEN -> "queens";
+            case ROOK -> "rooks";
+            case BISHOP -> "bishops";
+            case KNIGHT -> "knights";
+            default -> type.name().toLowerCase() + "s";
+        };
     }
 }

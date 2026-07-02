@@ -147,26 +147,35 @@
                     <graphic>
                         <HBox alignment="CENTER_LEFT" spacing="12">
                             <Label text="H" styleClass="mode-icon"/>
-                            <Label text="Host Network Game" styleClass="mode-text"/>
+                            <Label text="Host LAN Game" styleClass="mode-text"/>
                         </HBox>
                     </graphic>
                 </Button>
 
-                <Button fx:id="btnJoinGame" onAction="#onJoinGame"
-                        maxWidth="Infinity" styleClass="mode-button">
-                    <graphic>
-                        <HBox alignment="CENTER_LEFT" spacing="12">
-                            <Label text="J" styleClass="mode-icon"/>
-                            <Label text="Join Network Game" styleClass="mode-text"/>
-                        </HBox>
-                    </graphic>
-                </Button>
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Button fx:id="btnRefreshGames"
+                            text="Refresh"
+                            onAction="#onRefreshLan"
+                            maxWidth="Infinity"
+                            styleClass="btn-outline"
+                            HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="btnJoinSelectedGame"
+                            text="Join Selected"
+                            onAction="#onJoinSelectedLan"
+                            maxWidth="Infinity"
+                            styleClass="btn-outline"
+                            HBox.hgrow="ALWAYS"/>
+                </HBox>
             </VBox>
 
-            <HBox fx:id="joinBox" alignment="CENTER" spacing="10" visible="false" managed="false" styleClass="join-box">
-                <TextField fx:id="ipField" promptText="Host IP address" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
-                <Button fx:id="btnConnect" text="Connect" onAction="#onConnect" styleClass="btn-primary"/>
-            </HBox>
+            <VBox spacing="8">
+                <Label text="Available Games" styleClass="field-title"/>
+                <ListView fx:id="availableGamesList" prefHeight="110" maxHeight="150" maxWidth="Infinity">
+                    <placeholder>
+                        <Label text="No LAN games found" styleClass="empty-list-label"/>
+                    </placeholder>
+                </ListView>
+            </VBox>
 
             <Button fx:id="btnCancelHost" text="Cancel Hosting" onAction="#onCancelHost"
                     visible="false" managed="false"

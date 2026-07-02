@@ -1,5 +1,8 @@
 package seda_project.control_alt_defeat.gamebox.controller.hexchess;
 
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
@@ -12,17 +15,19 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexChessGameSetup;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexGameMode;
 import seda_project.control_alt_defeat.gamebox.network.GameClient;
 import seda_project.control_alt_defeat.gamebox.network.GameServer;
 import seda_project.control_alt_defeat.gamebox.network.LanDiscoveryService;
+import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
 import seda_project.control_alt_defeat.gamebox.util.Router;
 
 import java.io.IOException;
 import java.util.stream.IntStream;
 
-public class HexChessMenuController {
+public class HexChessMenuController implements RouteDataReceiver {
 
     private static final long DISCOVERED_GAME_TTL_MS = 5_000;
 
@@ -30,10 +35,6 @@ public class HexChessMenuController {
     private TextField whiteNameField;
     @FXML
     private TextField blackNameField;
-    @FXML
-    private TextField lanHostField;
-    @FXML
-    private TextField lanPortField;
     @FXML
     private Label statusLabel;
     @FXML
@@ -46,6 +47,7 @@ public class HexChessMenuController {
             FXCollections.observableArrayList();
     private GameServer pendingHostServer;
     private GameClient pendingJoinClient;
+    private Timeline staleGameTimer;
 
     @FXML
     private void initialize() {
@@ -58,6 +60,17 @@ public class HexChessMenuController {
                     .bind(lanGamesList.getSelectionModel().selectedItemProperty().isNull());
         }
         startListeningForLanGames();
+        startStaleGameTimer();
+    }
+
+    @Override
+    public void setRouteData(Object data) {
+        if (data instanceof HexChessGameSetup nextSetup) {
+            whiteNameField.setText(nextSetup.whiteName());
+            blackNameField.setText(nextSetup.blackName());
+        } else if (data instanceof String message && !message.isBlank()) {
+            statusLabel.setText(message);
+        }
     }
 
     @FXML
@@ -121,26 +134,14 @@ public class HexChessMenuController {
                     if (pendingHostServer == server) {
                         statusLabel.setText("LAN host failed: " + e.getMessage());
                         closeDiscovery();
+                        startListeningForLanGames();
+                        startStaleGameTimer();
                     }
                 });
             }
         }, "hexchess-host-wait");
         waitThread.setDaemon(true);
         waitThread.start();
-    }
-
-    @FXML
-    private void onJoinLan(ActionEvent event) {
-        String host = lanHostField == null ? "" : lanHostField.getText().trim();
-        if (host.isBlank()) {
-            statusLabel.setText("Enter the host IP address first.");
-            return;
-        }
-
-        Integer port = parseLanPort();
-        if (port != null) {
-            joinHost(stageFrom(event), host, port);
-        }
     }
 
     @FXML
@@ -160,6 +161,7 @@ public class HexChessMenuController {
     private void onRefreshLan() {
         discoveredGames.clear();
         startListeningForLanGames();
+        startStaleGameTimer();
         statusLabel.setText("Looking for Hex Chess LAN games...");
     }
 
@@ -272,6 +274,20 @@ public class HexChessMenuController {
         discoveredGames.removeIf(game -> game.timestamp() < cutoff);
     }
 
+    private void startStaleGameTimer() {
+        stopStaleGameTimer();
+        staleGameTimer = new Timeline(new KeyFrame(Duration.seconds(1), event -> removeStaleDiscoveredGames()));
+        staleGameTimer.setCycleCount(Animation.INDEFINITE);
+        staleGameTimer.play();
+    }
+
+    private void stopStaleGameTimer() {
+        if (staleGameTimer != null) {
+            staleGameTimer.stop();
+            staleGameTimer = null;
+        }
+    }
+
     private String selectedLanSessionId() {
         if (lanGamesList == null) {
             return null;
@@ -292,26 +308,9 @@ public class HexChessMenuController {
                 .ifPresent(index -> lanGamesList.getSelectionModel().select(index));
     }
 
-    private Integer parseLanPort() {
-        String rawPort = lanPortField == null ? "" : lanPortField.getText().trim();
-        if (rawPort.isBlank()) {
-            return GameServer.DEFAULT_PORT;
-        }
-
-        try {
-            int port = Integer.parseInt(rawPort);
-            if (port >= 1 && port <= 65_535) {
-                return port;
-            }
-        } catch (NumberFormatException ignored) {
-        }
-
-        statusLabel.setText("Enter a valid TCP port from 1 to 65535.");
-        return null;
-    }
-
     private void closeDiscovery() {
         discoveryService.close();
+        stopStaleGameTimer();
         closePendingHostServer();
     }
 

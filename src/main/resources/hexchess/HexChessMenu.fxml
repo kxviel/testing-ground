@@ -194,7 +194,7 @@
                     <graphic>
                         <HBox alignment="CENTER_LEFT" spacing="12">
                             <Label text="H" styleClass="mode-icon"/>
-                            <Label text="Host LAN" styleClass="mode-text"/>
+                            <Label text="Host LAN Game" styleClass="mode-text"/>
                         </HBox>
                     </graphic>
                 </Button>
@@ -215,20 +215,6 @@
                         <Label text="No LAN games found" styleClass="empty-list-label"/>
                     </placeholder>
                 </ListView>
-            </VBox>
-
-            <Separator/>
-
-            <VBox spacing="12">
-                <Label text="Direct Join" styleClass="field-title"/>
-
-                <HBox alignment="CENTER_LEFT" spacing="10" maxWidth="Infinity" styleClass="direct-join-row">
-                    <TextField fx:id="lanHostField" promptText="Host IP"
-                               maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
-                    <TextField fx:id="lanPortField" promptText="Port" text="54321"
-                               maxWidth="82" prefWidth="82"/>
-                    <Button text="Join" onAction="#onJoinLan" styleClass="btn-primary"/>
-                </HBox>
             </VBox>
 
             <Label fx:id="statusLabel" text="" wrapText="true" maxWidth="Infinity" styleClass="status-line"/>

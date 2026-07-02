@@ -65,6 +65,45 @@ public class GameModel {
         this.cards = cardsFromSymbols(orderedSymbols);
     }
 
+    public GameModel(
+            int k,
+            int n,
+            int rows,
+            int cols,
+            List<String> orderedSymbols,
+            int currentPlayer,
+            int score0,
+            int score1,
+            boolean gameOver,
+            List<Boolean> faceUp,
+            List<Boolean> matched) {
+        if (orderedSymbols.size() != faceUp.size() || orderedSymbols.size() != matched.size()) {
+            throw new IllegalArgumentException("Card state size must match symbol count.");
+        }
+
+        this.k = k;
+        this.n = n;
+        this.rows = rows;
+        this.cols = cols;
+        this.scores = new int[] { score0, score1 };
+        this.currentPlayer = currentPlayer;
+        this.openedThisTurn = new ArrayList<>();
+        this.gameOver = gameOver;
+        this.cards = cardsFromSymbols(orderedSymbols);
+
+        IntStream.range(0, cards.size()).forEach(i -> {
+            Card card = cards.get(i);
+            card.setMatched(matched.get(i));
+            card.setFaceUp(faceUp.get(i) || matched.get(i));
+            if (card.isFaceUp() && !card.isMatched()) {
+                openedThisTurn.add(i);
+            }
+        });
+        this.remainingCards = (int) cards.stream()
+                .filter(card -> !card.isMatched())
+                .count();
+    }
+
     public int getK() {
         return k;
     }

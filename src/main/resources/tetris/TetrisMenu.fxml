@@ -158,67 +158,6 @@
                         </GridPane>
                     </VBox>
 
-                    <VBox fx:id="lanPane" alignment="CENTER_LEFT" styleClass="menu-pane-content" visible="false" managed="false">
-                        <Label text="LAN" styleClass="section-title"/>
-
-                        <VBox alignment="CENTER_LEFT" spacing="10">
-                            <Label text="Role" styleClass="field-title"/>
-                            <HBox alignment="CENTER_LEFT" styleClass="button-row">
-                                <Button fx:id="hostRoleButton" text="Host" onAction="#onHostRole" styleClass="btn-outline"/>
-                                <Button fx:id="joinRoleButton" text="Join" onAction="#onJoinRole" styleClass="btn-outline"/>
-                            </HBox>
-                        </VBox>
-                    </VBox>
-
-                    <VBox fx:id="hostPane" alignment="TOP_LEFT" styleClass="menu-pane-content" visible="false" managed="false">
-                        <Label text="Host" styleClass="section-title"/>
-
-                        <GridPane styleClass="menu-form-grid">
-                            <columnConstraints>
-                                <ColumnConstraints halignment="RIGHT" minWidth="56" prefWidth="56"/>
-                                <ColumnConstraints hgrow="ALWAYS" minWidth="168" prefWidth="220"/>
-                            </columnConstraints>
-
-                            <Label text="Name" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-                            <TextField fx:id="hostPlayerNameField" text="Player 1" promptText="Player 1"
-                                       GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-                        </GridPane>
-
-                        <Separator/>
-
-                        <VBox alignment="CENTER_LEFT" spacing="8">
-                            <Label fx:id="hostInfoLabel" text="Not advertising." styleClass="status-line" wrapText="true" maxWidth="Infinity"/>
-                            <Label fx:id="joinedPlayerLabel" text="Joined: none" styleClass="status-line"/>
-                            <Button fx:id="hostStartGameButton" text="Start Game" onAction="#onHostStartGame"
-                                    disable="true" visible="false" managed="false" styleClass="btn-primary"/>
-                        </VBox>
-                    </VBox>
-
-                    <VBox fx:id="joinPane" alignment="TOP_LEFT" styleClass="menu-pane-content" visible="false" managed="false">
-                        <Label text="Join" styleClass="section-title"/>
-
-                        <GridPane styleClass="menu-form-grid">
-                            <columnConstraints>
-                                <ColumnConstraints halignment="RIGHT" minWidth="56" prefWidth="56"/>
-                                <ColumnConstraints hgrow="ALWAYS" minWidth="168" prefWidth="220"/>
-                            </columnConstraints>
-
-                            <Label text="Name" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-                            <TextField fx:id="joinPlayerNameField" text="Player 2" promptText="Player 2"
-                                       GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-                        </GridPane>
-
-                        <Separator/>
-
-                        <VBox alignment="TOP_LEFT" spacing="8" maxWidth="Infinity">
-                            <Label text="Available Games" styleClass="field-title"/>
-                            <ListView fx:id="availableGamesList" prefHeight="150" maxHeight="180" maxWidth="Infinity"
-                                      onMouseClicked="#onGameSelected" VBox.vgrow="SOMETIMES"/>
-                            <HBox alignment="CENTER_LEFT" styleClass="button-row">
-                                <Button text="Refresh" onAction="#onRefreshGames" styleClass="btn-outline"/>
-                            </HBox>
-                        </VBox>
-                    </VBox>
                 </StackPane>
 
                 <Region minHeight="1" styleClass="menu-divider"/>
@@ -244,8 +183,73 @@
               styleClass="tetris-options-panel">
 
             <VBox spacing="8">
-                <Label text="Game Options" styleClass="settings-title"/>
-                <Label text="Pieces, speed, and board rules" styleClass="settings-subtitle"/>
+                <Label fx:id="optionsTitleLabel" text="Game Options" styleClass="settings-title"/>
+                <Label fx:id="optionsSubtitleLabel" text="Pieces, speed, and board rules" styleClass="settings-subtitle"/>
+            </VBox>
+
+            <VBox fx:id="lanPane" alignment="CENTER_LEFT" styleClass="menu-pane-content" visible="false" managed="false">
+                <Label text="LAN" styleClass="section-title"/>
+
+                <VBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="Role" styleClass="field-title"/>
+                    <HBox alignment="CENTER_LEFT" styleClass="button-row">
+                        <Button fx:id="hostRoleButton" text="Host LAN" onAction="#onHostRole" styleClass="btn-outline"/>
+                        <Button fx:id="joinRoleButton" text="Join LAN" onAction="#onJoinRole" styleClass="btn-outline"/>
+                    </HBox>
+                </VBox>
+            </VBox>
+
+            <VBox fx:id="hostPane" alignment="TOP_LEFT" styleClass="menu-pane-content" visible="false" managed="false">
+                <Label text="Host LAN" styleClass="section-title"/>
+
+                <GridPane styleClass="menu-form-grid">
+                    <columnConstraints>
+                        <ColumnConstraints halignment="RIGHT" minWidth="56" prefWidth="56"/>
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="168" prefWidth="220"/>
+                    </columnConstraints>
+
+                    <Label text="Name" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                    <TextField fx:id="hostPlayerNameField" text="Player 1" promptText="Player 1"
+                               GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                </GridPane>
+
+                <Separator/>
+
+                <VBox alignment="CENTER_LEFT" spacing="8">
+                    <Label fx:id="hostInfoLabel" text="Not advertising." styleClass="status-line" wrapText="true" maxWidth="Infinity"/>
+                    <Label fx:id="joinedPlayerLabel" text="Joined: none" styleClass="status-line"/>
+                    <Button fx:id="hostStartGameButton" text="Start Game" onAction="#onHostStartGame"
+                            disable="true" visible="false" managed="false" styleClass="btn-primary"/>
+                </VBox>
+            </VBox>
+
+            <VBox fx:id="joinPane" alignment="TOP_LEFT" styleClass="menu-pane-content" visible="false" managed="false">
+                <Label text="Join LAN" styleClass="section-title"/>
+
+                <GridPane styleClass="menu-form-grid">
+                    <columnConstraints>
+                        <ColumnConstraints halignment="RIGHT" minWidth="56" prefWidth="56"/>
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="168" prefWidth="220"/>
+                    </columnConstraints>
+
+                    <Label text="Name" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                    <TextField fx:id="joinPlayerNameField" text="Player 2" promptText="Player 2"
+                               GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                </GridPane>
+
+                <Separator/>
+
+                <VBox alignment="TOP_LEFT" spacing="8" maxWidth="Infinity">
+                    <Label text="Available Games" styleClass="field-title"/>
+                    <ListView fx:id="availableGamesList" prefHeight="150" maxHeight="180" maxWidth="Infinity"
+                              onMouseClicked="#onGameSelected" VBox.vgrow="SOMETIMES"/>
+                    <HBox alignment="CENTER_LEFT" styleClass="button-row">
+                        <Button text="Refresh" onAction="#onRefreshGames" maxWidth="Infinity"
+                                styleClass="btn-outline" HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="joinSelectedGameButton" text="Join Selected" onAction="#onJoinSelectedLan"
+                                maxWidth="Infinity" styleClass="btn-outline" HBox.hgrow="ALWAYS"/>
+                    </HBox>
+                </VBox>
             </VBox>
 
             <VBox fx:id="configBox"

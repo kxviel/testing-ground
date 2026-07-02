@@ -7,7 +7,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
 import javafx.scene.input.MouseButton;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -204,19 +203,13 @@ class HexChessEndToEndSmokeTest {
     }
 
     @Test
-    void lanMenuValidatesDirectJoinAndRefreshesDiscoveredGames() throws Exception {
+    void lanMenuRequiresSelectedLanGameAndRefreshesDiscoveredGames() throws Exception {
         LoadedFxml<HexChessMenuController> menu = loadFxml("/hexchess/HexChessMenu.fxml");
 
         try {
             runOnFx(() -> {
-                invoke(menu.controller(), "onJoinLan", (Object) null);
-                assertEquals("Enter the host IP address first.", labelTextNow(menu.controller(), "statusLabel"));
-
-                field(menu.controller(), "lanHostField", TextField.class).setText("127.0.0.1");
-                field(menu.controller(), "lanPortField", TextField.class).setText("70000");
-                invoke(menu.controller(), "onJoinLan", (Object) null);
-                assertEquals("Enter a valid TCP port from 1 to 65535.",
-                        labelTextNow(menu.controller(), "statusLabel"));
+                invoke(menu.controller(), "onJoinSelectedLan", (Object) null);
+                assertEquals("Select a discovered LAN game first.", labelTextNow(menu.controller(), "statusLabel"));
 
                 LanDiscoveryService.DiscoveredGame game = new LanDiscoveryService.DiscoveredGame(
                         "Host",
@@ -251,8 +244,8 @@ class HexChessEndToEndSmokeTest {
             HexChessGameController joiner = game.joiner().controller();
 
             runOnFx(() -> invoke(host, "onRestart"));
-            assertEquals("Network restart is not supported. Return to menu to start again.",
-                    state(host).statusMessage());
+            assertEquals("Game restarted.", state(host).statusMessage());
+            waitUntil("joiner receives host restart", () -> "Game restarted.".equals(state(joiner).statusMessage()));
 
             clickGameCell(host, "b1");
             clickGameCell(host, "b3");

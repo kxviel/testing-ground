@@ -3,23 +3,25 @@ package seda_project.control_alt_defeat.gamebox.network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.net.*;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Inet4Address;
+import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.Enumeration;
 import java.util.function.Consumer;
 
 // TCP server used by the host player in a network game.
-public class GameServer implements Closeable {
+public class GameServer extends AbstractGameConnection {
 
     private static final Logger log = LoggerFactory.getLogger(GameServer.class);
     public static final int DEFAULT_PORT = 54321;
 
     private ServerSocket serverSocket;
-    private Socket clientSocket;
-    private BufferedReader reader;
-    private PrintWriter writer;
-    private volatile boolean running = false;
-    private Consumer<String> messageListener;
-    private Runnable disconnectListener;
 
     /**
      * Opens the server socket and stores callbacks for future client messages.
@@ -30,8 +32,9 @@ public class GameServer implements Closeable {
      * @throws IOException if the port cannot be opened
      */
     public void listen(int port, Consumer<String> onMessage, Runnable onDisconnect) throws IOException {
-        this.messageListener = onMessage;
-        this.disconnectListener = onDisconnect;
+        close();
+        setMessageListener(onMessage);
+        setDisconnectListener(onDisconnect);
         serverSocket = new ServerSocket(port);
         serverSocket.setSoTimeout(120_000);
         log.info("Server listening on port {}", port);
@@ -43,70 +46,23 @@ public class GameServer implements Closeable {
      * @throws IOException if accepting the client or opening streams fails
      */
     public void waitForClient() throws IOException {
-        clientSocket = serverSocket.accept();
-        clientSocket.setTcpNoDelay(true);
-        clientSocket.setSoTimeout(5_000);
-        reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream())), true);
-        running = true;
-        log.info("Client connected from {}", clientSocket.getRemoteSocketAddress());
-        startReadLoop();
-    }
-
-    private void startReadLoop() {
-        Thread t = new Thread(() -> {
-            try {
-                String line;
-                while (running) {
-                    try {
-                        // Use a timeout so close() can stop the loop without waiting forever.
-                        line = reader.readLine();
-                        if (line == null) {
-                            disconnectListener.run();
-                            break;
-                        }
-                        String msg = line;
-                        messageListener.accept(msg);
-                    } catch (SocketTimeoutException e) {
-                    }
-                }
-            } catch (IOException e) {
-                if (running) {
-                    log.warn("Server read loop ended: {}", e.getMessage());
-                    disconnectListener.run();
-                }
-            } finally {
-                running = false;
-            }
-        }, "server-reader");
-        t.setDaemon(true);
-        t.start();
-    }
-
-    /**
-     * Sends one protocol message to the connected client.
-     *
-     * @param message already formatted protocol message
-     */
-    public synchronized void send(String message) {
-        if (writer != null && clientSocket != null && !clientSocket.isClosed()) {
-            writer.println(message);
+        if (serverSocket == null) {
+            throw new IOException("Server is not listening.");
         }
-    }
 
-    public void setMessageListener(Consumer<String> messageListener) {
-        this.messageListener = messageListener;
-    }
-
-    public void setDisconnectListener(Runnable disconnectListener) {
-        this.disconnectListener = disconnectListener;
-    }
-
-    /**
-     * @return true while the client socket is open and the read loop is active
-     */
-    public boolean isConnected() {
-        return running && clientSocket != null && !clientSocket.isClosed();
+        Socket clientSocket = serverSocket.accept();
+        try {
+            prepareConnection(clientSocket);
+            log.info("Client connected from {}", clientSocket.getRemoteSocketAddress());
+            startReadLoop("server-reader", "Server");
+        } catch (IOException e) {
+            try {
+                clientSocket.close();
+            } catch (IOException closeException) {
+                e.addSuppressed(closeException);
+            }
+            throw e;
+        }
     }
 
     public int localPort() {
@@ -118,15 +74,12 @@ public class GameServer implements Closeable {
      */
     @Override
     public void close() {
-        running = false;
+        super.close();
         try {
-            if (clientSocket != null)
-                clientSocket.close();
-        } catch (IOException ignored) {
-        }
-        try {
-            if (serverSocket != null)
+            if (serverSocket != null) {
                 serverSocket.close();
+                serverSocket = null;
+            }
         } catch (IOException ignored) {
         }
     }
@@ -139,17 +92,50 @@ public class GameServer implements Closeable {
      */
     public static String getLocalAddress() {
         try {
+            InetAddress address = localInterfaceAddress(true);
+            if (address != null) {
+                return address.getHostAddress();
+            }
+            address = localInterfaceAddress(false);
+            if (address != null) {
+                return address.getHostAddress();
+            }
+        } catch (SocketException ignored) {
+        }
+
+        try {
             // Connecting to a public address reveals the interface used for LAN traffic.
             try (Socket s = new Socket()) {
                 s.connect(new InetSocketAddress("8.8.8.8", 80), 1000);
                 return s.getLocalAddress().getHostAddress();
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             try {
                 return InetAddress.getLocalHost().getHostAddress();
             } catch (UnknownHostException ex) {
                 return "127.0.0.1";
             }
         }
+    }
+
+    private static InetAddress localInterfaceAddress(boolean siteLocalOnly) throws SocketException {
+        Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+        while (interfaces.hasMoreElements()) {
+            NetworkInterface networkInterface = interfaces.nextElement();
+            if (!networkInterface.isUp() || networkInterface.isLoopback() || networkInterface.isVirtual()) {
+                continue;
+            }
+
+            Enumeration<InetAddress> addresses = networkInterface.getInetAddresses();
+            while (addresses.hasMoreElements()) {
+                InetAddress address = addresses.nextElement();
+                if (address instanceof Inet4Address
+                        && !address.isLoopbackAddress()
+                        && (!siteLocalOnly || address.isSiteLocalAddress())) {
+                    return address;
+                }
+            }
+        }
+        return null;
     }
 }
