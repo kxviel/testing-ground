@@ -98,7 +98,6 @@
 
 .memory-setup-list,
 .variant-list,
-.join-box,
 .button-row {
     -fx-padding: 0;
 }
@@ -108,7 +107,6 @@
 }
 
 .menu-section,
-.join-box,
 .post-game-bar,
 .player-chip,
 .turn-pill {
@@ -123,7 +121,6 @@
     -fx-padding: 18;
 }
 
-.join-box,
 .post-game-bar {
     -fx-padding: 12;
 }
@@ -254,90 +251,18 @@
     -fx-text-fill: -sh-destructive;
 }
 
-.button {
-    -fx-background-insets: 0;
-    -fx-background-radius: 0;
-    -fx-border-radius: 0;
-    -fx-border-width: 1;
-    -fx-cursor: hand;
-    -fx-font-size: 14px;
-    -fx-font-weight: 600;
-    -fx-min-height: 40;
-    -fx-padding: 9 16;
-}
-
 .apply-button {
     -fx-min-width: 118;
 }
 
-.btn-primary,
-.quit-button {
-    -fx-background-color: -sh-primary;
-    -fx-border-color: -sh-primary;
-    -fx-text-fill: -sh-primary-foreground;
-}
-
-.btn-primary:hover,
-.quit-button:hover {
-    -fx-background-color: derive(-sh-primary, 16%);
-    -fx-border-color: derive(-sh-primary, 16%);
-    -fx-text-fill: -sh-primary-foreground;
-}
-
-.btn-danger {
-    -fx-background-color: -sh-destructive;
-    -fx-border-color: -sh-destructive;
-    -fx-text-fill: -sh-primary-foreground;
-}
-
-.btn-danger:hover {
-    -fx-background-color: derive(-sh-destructive, 12%);
-    -fx-border-color: derive(-sh-destructive, 12%);
-    -fx-text-fill: -sh-primary-foreground;
-}
-
-.btn-outline,
-.text-field {
-    -fx-background-color: -sh-card;
-    -fx-border-color: -sh-input;
-    -fx-text-fill: -sh-foreground;
-}
-
-.btn-outline:hover,
-.text-field:focused {
-    -fx-background-color: -sh-accent;
-    -fx-border-color: -sh-ring;
-    -fx-text-fill: -sh-accent-foreground;
-}
-
-.text-field {
-    -fx-background-radius: 0;
-    -fx-border-radius: 0;
-    -fx-border-width: 1;
-    -fx-min-height: 40;
-    -fx-padding: 8 12;
-    -fx-prompt-text-fill: -sh-muted-foreground;
-}
-
 .mode-button {
-    -fx-background-color: -sh-card;
-    -fx-background-radius: 0;
-    -fx-border-color: -sh-input;
-    -fx-border-radius: 0;
-    -fx-border-width: 1;
     -fx-content-display: graphic-only;
     -fx-min-height: 48;
     -fx-padding: 10 14;
 }
 
-.mode-button:hover {
-    -fx-background-color: -sh-accent;
-    -fx-border-color: -sh-ring;
-}
-
 .mode-text,
-.mode-icon,
-.radio-button {
+.mode-icon {
     -fx-text-fill: -sh-foreground;
 }
 

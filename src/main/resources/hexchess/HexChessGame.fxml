@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.String?>
 <?import java.net.URL?>
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.*?>
@@ -76,12 +75,7 @@
                     <Label text="Points" styleClass="panel-label"/>
                     <Label fx:id="scoreLabel" styleClass="stat-line"/>
                     <Label fx:id="lastMoveLabel" wrapText="true" styleClass="stat-line"/>
-                    <Label fx:id="drawOfferLabel" wrapText="true">
-                        <styleClass>
-                            <String fx:value="stat-line"/>
-                            <String fx:value="accent-line"/>
-                        </styleClass>
-                    </Label>
+                    <Label fx:id="drawOfferLabel" wrapText="true" styleClass="stat-line"/>
                 </VBox>
 
                 <Separator/>

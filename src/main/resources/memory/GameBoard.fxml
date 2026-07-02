@@ -128,7 +128,7 @@
                             <Button text="Restart" onAction="#onRestart" maxWidth="Infinity"
                                     styleClass="btn-outline" HBox.hgrow="ALWAYS"/>
                             <Button text="Quit to Menu" onAction="#onQuit" maxWidth="Infinity"
-                                    styleClass="quit-button" HBox.hgrow="ALWAYS"/>
+                                    styleClass="btn-primary" HBox.hgrow="ALWAYS"/>
                         </HBox>
                     </VBox>
                 </ScrollPane>

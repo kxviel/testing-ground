@@ -230,59 +230,10 @@
     -fx-pref-width: 200;
 }
 
-.button {
-    -fx-background-insets: 0;
-    -fx-background-radius: 0;
-    -fx-border-radius: 0;
-    -fx-border-width: 1;
-    -fx-cursor: hand;
-    -fx-font-size: 14px;
-    -fx-font-weight: 600;
-    -fx-min-height: 40;
-    -fx-padding: 9 16;
-}
-
-.btn-primary {
-    -fx-background-color: -sh-primary;
-    -fx-border-color: -sh-primary;
-    -fx-text-fill: -sh-primary-foreground;
-}
-
-.btn-primary:hover {
-    -fx-background-color: derive(-sh-primary, 16%);
-    -fx-border-color: derive(-sh-primary, 16%);
-    -fx-text-fill: -sh-primary-foreground;
-}
-
-.btn-outline,
-.mode-button,
-.text-field,
-.combo-box,
-.list-view {
-    -fx-background-color: -sh-card;
-    -fx-border-color: -sh-input;
-    -fx-text-fill: -sh-foreground;
-}
-
-.btn-outline:hover,
-.mode-button:hover,
-.text-field:focused,
-.combo-box:focused,
-.list-view:focused {
-    -fx-background-color: -sh-accent;
-    -fx-border-color: -sh-ring;
-    -fx-text-fill: -sh-accent-foreground;
-}
-
 .btn-selected {
     -fx-background-color: -sh-accent;
     -fx-border-color: -game-accent;
     -fx-text-fill: -sh-accent-foreground;
-}
-
-.button:disabled {
-    -fx-cursor: default;
-    -fx-opacity: 0.5;
 }
 
 .mode-button {
@@ -292,9 +243,7 @@
 }
 
 .mode-icon,
-.mode-text,
-.check-box,
-.combo-box .list-cell {
+.mode-text {
     -fx-text-fill: -sh-foreground;
 }
 
@@ -309,50 +258,6 @@
 
 .mode-text {
     -fx-font-size: 13px;
-}
-
-.text-field,
-.combo-box,
-.list-view {
-    -fx-background-radius: 0;
-    -fx-border-radius: 0;
-    -fx-border-width: 1;
-    -fx-min-height: 40;
-}
-
-.text-field {
-    -fx-padding: 8 12;
-    -fx-prompt-text-fill: -sh-muted-foreground;
-}
-
-.combo-box {
-    -fx-padding: 2 4 2 8;
-}
-
-.combo-box .list-cell,
-.list-cell {
-    -fx-background-color: transparent;
-    -fx-padding: 7 8;
-}
-
-.combo-box .arrow-button {
-    -fx-background-color: transparent;
-}
-
-.combo-box .arrow {
-    -fx-background-color: -sh-foreground;
-}
-
-.list-view {
-    -fx-padding: 4;
-}
-
-.list-cell:filled:selected,
-.list-cell:filled:selected:hover,
-.list-cell:filled:hover {
-    -fx-background-color: -sh-accent;
-    -fx-background-radius: 0;
-    -fx-text-fill: -sh-accent-foreground;
 }
 
 .custom-piece-grid {
