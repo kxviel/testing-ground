@@ -4,13 +4,9 @@ import seda_project.control_alt_defeat.gamebox.model.hexchess.HexChessGameSetup;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexCoordinate;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexMove;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexPieceType;
+import seda_project.control_alt_defeat.gamebox.network.NetworkMessage;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Base64;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public final class HexChessProtocol {
 
@@ -58,31 +54,15 @@ public final class HexChessProtocol {
     }
 
     public static boolean isType(String message, String type) {
-        return type(message).equals(type);
+        return NetworkMessage.isType(message, type);
     }
 
     public static String type(String message) {
-        if (message == null || message.isBlank()) {
-            return "";
-        }
-
-        int splitIndex = message.indexOf(':');
-        return splitIndex < 0 ? message : message.substring(0, splitIndex);
+        return NetworkMessage.type(message);
     }
 
     public static List<String> fields(String message) {
-        if (message == null || !message.contains(":")) {
-            return List.of();
-        }
-
-        try {
-            return Arrays.stream(message.split(":", -1))
-                    .skip(1)
-                    .map(HexChessProtocol::decode)
-                    .toList();
-        } catch (IllegalArgumentException e) {
-            return List.of();
-        }
+        return NetworkMessage.fields(message);
     }
 
     public static HexMove parseMove(List<String> fields) {
@@ -127,24 +107,6 @@ public final class HexChessProtocol {
     }
 
     private static String make(String type, String... fields) {
-        String safeType = type == null ? "" : type.trim();
-
-        if (fields == null || fields.length == 0) {
-            return safeType;
-        }
-
-        return safeType + ":" + Stream.of(fields)
-                .map(HexChessProtocol::encode)
-                .collect(Collectors.joining(":"));
-    }
-
-    private static String encode(String value) {
-        return Base64.getUrlEncoder()
-                .withoutPadding()
-                .encodeToString((value == null ? "" : value).getBytes(StandardCharsets.UTF_8));
-    }
-
-    private static String decode(String value) {
-        return new String(Base64.getUrlDecoder().decode(value), StandardCharsets.UTF_8);
+        return NetworkMessage.make(type, fields);
     }
 }

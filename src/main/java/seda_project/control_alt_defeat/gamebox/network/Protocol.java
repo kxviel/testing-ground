@@ -1,5 +1,7 @@
 package seda_project.control_alt_defeat.gamebox.network;
 
+import java.util.List;
+
 // Defines the small line-based protocol used by network multiplayer.
 public final class Protocol {
     private Protocol() {
@@ -12,16 +14,19 @@ public final class Protocol {
     public static final String RESTART = "RESTART";
     public static final String QUIT = "QUIT";
 
-    /**
-     * Builds a protocol line from a message type and optional fields.
-     *
-     * @param type  protocol message type
-     * @param parts message fields
-     * @return colon-separated protocol line
-     */
     public static String make(String type, String... parts) {
-        if (parts.length == 0)
-            return type;
-        return type + ":" + String.join(":", parts);
+        return NetworkMessage.make(type, parts);
+    }
+
+    public static String type(String message) {
+        return NetworkMessage.type(message);
+    }
+
+    public static boolean isType(String message, String type) {
+        return NetworkMessage.isType(message, type);
+    }
+
+    public static List<String> fields(String message) {
+        return NetworkMessage.fields(message);
     }
 }

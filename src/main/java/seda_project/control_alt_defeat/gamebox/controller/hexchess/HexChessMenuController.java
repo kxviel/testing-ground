@@ -16,7 +16,7 @@ import seda_project.control_alt_defeat.gamebox.model.hexchess.HexChessGameSetup;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexGameMode;
 import seda_project.control_alt_defeat.gamebox.network.GameClient;
 import seda_project.control_alt_defeat.gamebox.network.GameServer;
-import seda_project.control_alt_defeat.gamebox.network.hexchess.HexChessLanDiscoveryService;
+import seda_project.control_alt_defeat.gamebox.network.LanDiscoveryService;
 import seda_project.control_alt_defeat.gamebox.util.Router;
 
 import java.io.IOException;
@@ -37,12 +37,12 @@ public class HexChessMenuController {
     @FXML
     private Label statusLabel;
     @FXML
-    private ListView<HexChessLanDiscoveryService.DiscoveredGame> lanGamesList;
+    private ListView<LanDiscoveryService.DiscoveredGame> lanGamesList;
     @FXML
     private Button joinSelectedLanButton;
 
-    private final HexChessLanDiscoveryService discoveryService = new HexChessLanDiscoveryService();
-    private final ObservableList<HexChessLanDiscoveryService.DiscoveredGame> discoveredGames =
+    private final LanDiscoveryService discoveryService = LanDiscoveryService.hexChess();
+    private final ObservableList<LanDiscoveryService.DiscoveredGame> discoveredGames =
             FXCollections.observableArrayList();
     private GameServer pendingHostServer;
     private GameClient pendingJoinClient;
@@ -145,7 +145,7 @@ public class HexChessMenuController {
 
     @FXML
     private void onJoinSelectedLan(ActionEvent event) {
-        HexChessLanDiscoveryService.DiscoveredGame selected = lanGamesList == null
+        LanDiscoveryService.DiscoveredGame selected = lanGamesList == null
                 ? null
                 : lanGamesList.getSelectionModel().getSelectedItem();
         if (selected == null) {
@@ -248,7 +248,7 @@ public class HexChessMenuController {
                 message -> Platform.runLater(() -> statusLabel.setText(message)));
     }
 
-    private void rememberDiscoveredGame(HexChessLanDiscoveryService.DiscoveredGame game) {
+    private void rememberDiscoveredGame(LanDiscoveryService.DiscoveredGame game) {
         String selectedSessionId = selectedLanSessionId();
 
         removeStaleDiscoveredGames();
@@ -277,7 +277,7 @@ public class HexChessMenuController {
             return null;
         }
 
-        HexChessLanDiscoveryService.DiscoveredGame selected = lanGamesList.getSelectionModel().getSelectedItem();
+        LanDiscoveryService.DiscoveredGame selected = lanGamesList.getSelectionModel().getSelectedItem();
         return selected == null ? null : selected.sessionId();
     }
 

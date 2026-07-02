@@ -27,7 +27,7 @@ import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameConfig;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameSetup;
 import seda_project.control_alt_defeat.gamebox.network.GameClient;
 import seda_project.control_alt_defeat.gamebox.network.GameServer;
-import seda_project.control_alt_defeat.gamebox.network.tetris.TetrisLanDiscoveryService;
+import seda_project.control_alt_defeat.gamebox.network.LanDiscoveryService;
 import seda_project.control_alt_defeat.gamebox.network.tetris.TetrisProtocol;
 import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
 import seda_project.control_alt_defeat.gamebox.util.Router;
@@ -114,13 +114,13 @@ public class TetrisMenuController implements RouteDataReceiver {
     private Label customPieceStatusLabel;
 
     @FXML
-    private ListView<TetrisLanDiscoveryService.DiscoveredGame> availableGamesList;
+    private ListView<LanDiscoveryService.DiscoveredGame> availableGamesList;
 
     private static final int CUSTOM_EDITOR_SIZE = 5;
     private static final int LAN_GAME_STALE_MS = 4_000;
 
     private MenuView currentView = MenuView.MODE_CHOICE;
-    private final TetrisLanDiscoveryService udpDiscovery = new TetrisLanDiscoveryService();
+    private final LanDiscoveryService udpDiscovery = LanDiscoveryService.tetris();
     private final Button[][] customPieceButtons = new Button[CUSTOM_EDITOR_SIZE][CUSTOM_EDITOR_SIZE];
     private final boolean[][] customPieceCells = new boolean[CUSTOM_EDITOR_SIZE][CUSTOM_EDITOR_SIZE];
     private final List<PieceShape> customPieces = new ArrayList<>();
@@ -475,7 +475,7 @@ public class TetrisMenuController implements RouteDataReceiver {
 
     private void joinGame() {
         String playerName = defaultIfBlank(trimmed(joinPlayerNameField), "Player 2");
-        TetrisLanDiscoveryService.DiscoveredGame selectedGame = availableGamesList.getSelectionModel()
+        LanDiscoveryService.DiscoveredGame selectedGame = availableGamesList.getSelectionModel()
                 .getSelectedItem();
 
         if (selectedGame == null) {
@@ -529,7 +529,7 @@ public class TetrisMenuController implements RouteDataReceiver {
                 error -> Platform.runLater(() -> statusLabel.setText(error)));
     }
 
-    private void addOrUpdateGame(TetrisLanDiscoveryService.DiscoveredGame game) {
+    private void addOrUpdateGame(LanDiscoveryService.DiscoveredGame game) {
         int existingIndex = IntStream.range(0, availableGamesList.getItems().size())
                 .filter(index -> availableGamesList.getItems().get(index).sessionId().equals(game.sessionId()))
                 .findFirst()

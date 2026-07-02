@@ -162,16 +162,16 @@ public class GameController implements RouteDataReceiver {
         if (msg == null || msg.isBlank())
             return;
 
-        String[] parts = msg.split(":", -1);
-        switch (parts[0]) {
+        List<String> fields = Protocol.fields(msg);
+        switch (Protocol.type(msg)) {
             case Protocol.FLIP -> {
-                Integer idx = parseCardIndex(parts, "FLIP from client");
+                Integer idx = parseCardIndex(fields, "FLIP from client");
                 if (idx != null && model.getCurrentPlayer() == 1) {
                     executeCardSelect(idx);
                 }
             }
             case Protocol.RESTART -> {
-                String initiator = fieldOrDefault(parts, 1, PLAYER_TWO);
+                String initiator = fieldOrDefault(fields, 0, PLAYER_TWO);
                 restartGame(initiator);
                 showTimedStatus(initiator + " restarted the game!", STATUS_SECONDS);
             }
@@ -183,25 +183,30 @@ public class GameController implements RouteDataReceiver {
         if (msg == null || msg.isBlank())
             return;
 
-        String[] parts = msg.split(":", -1);
-        switch (parts[0]) {
-            case Protocol.INIT -> handleInit(parts);
-            case Protocol.FLIP -> handleRemoteFlip(parts);
+        List<String> fields = Protocol.fields(msg);
+        switch (Protocol.type(msg)) {
+            case Protocol.INIT -> handleInit(fields);
+            case Protocol.FLIP -> handleRemoteFlip(fields);
             case Protocol.CLOSE -> handleRemoteClose();
             case Protocol.GAMEOVER -> handleGameOverMsg();
-            case Protocol.RESTART -> handleRestart(parts);
+            case Protocol.RESTART -> handleRestart(fields);
             case Protocol.QUIT -> handleRemoteQuit();
         }
     }
 
-    private void handleInit(String[] parts) {
+    private void handleInit(List<String> fields) {
+        if (fields.size() < 5) {
+            log.warn("Ignoring malformed INIT message");
+            return;
+        }
+
         boolean isRestart = (model != null);
 
-        int k = Integer.parseInt(parts[1]);
-        int n = Integer.parseInt(parts[2]);
-        int rows = Integer.parseInt(parts[3]);
-        int cols = Integer.parseInt(parts[4]);
-        List<String> symList = List.of(parts[5].split(","));
+        int k = Integer.parseInt(fields.get(0));
+        int n = Integer.parseInt(fields.get(1));
+        int rows = Integer.parseInt(fields.get(2));
+        int cols = Integer.parseInt(fields.get(3));
+        List<String> symList = List.of(fields.get(4).split(","));
         model = new GameModel(k, n, rows, cols, symList, 0);
 
         gameEnded = false;
@@ -215,8 +220,8 @@ public class GameController implements RouteDataReceiver {
         }
     }
 
-    private void handleRemoteFlip(String[] parts) {
-        Integer idx = parseCardIndex(parts, "FLIP message");
+    private void handleRemoteFlip(List<String> fields) {
+        Integer idx = parseCardIndex(fields, "FLIP message");
         if (idx == null)
             return;
 
@@ -238,9 +243,9 @@ public class GameController implements RouteDataReceiver {
         showGameOver();
     }
 
-    private void handleRestart(String[] parts) {
+    private void handleRestart(List<String> fields) {
         if (isNetworkClient()) {
-            String initiator = fieldOrDefault(parts, 1, PLAYER_ONE);
+            String initiator = fieldOrDefault(fields, 0, PLAYER_ONE);
             showTimedStatus(initiator + " restarted the game!", STATUS_SECONDS);
             return;
         }
@@ -718,22 +723,22 @@ public class GameController implements RouteDataReceiver {
         return (Stage) cardGrid.getScene().getWindow();
     }
 
-    private Integer parseCardIndex(String[] parts, String source) {
-        if (parts.length <= 1) {
+    private Integer parseCardIndex(List<String> fields, String source) {
+        if (fields.isEmpty()) {
             log.warn("Ignoring malformed {}: missing card index", source);
             return null;
         }
         try {
-            return Integer.parseInt(parts[1]);
+            return Integer.parseInt(fields.getFirst());
         } catch (NumberFormatException e) {
-            log.warn("Ignoring malformed {}: {}", source, parts[1]);
+            log.warn("Ignoring malformed {}: {}", source, fields.getFirst());
             return null;
         }
     }
 
-    private static String fieldOrDefault(String[] parts, int index, String fallback) {
-        return parts != null && parts.length > index && !parts[index].isBlank()
-                ? parts[index]
+    private static String fieldOrDefault(List<String> fields, int index, String fallback) {
+        return fields != null && fields.size() > index && !fields.get(index).isBlank()
+                ? fields.get(index)
                 : fallback;
     }
 }

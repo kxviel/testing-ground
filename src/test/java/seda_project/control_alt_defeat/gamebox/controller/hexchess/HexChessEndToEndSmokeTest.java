@@ -21,7 +21,7 @@ import seda_project.control_alt_defeat.gamebox.model.hexchess.HexPieceColor;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexPieceType;
 import seda_project.control_alt_defeat.gamebox.network.GameClient;
 import seda_project.control_alt_defeat.gamebox.network.GameServer;
-import seda_project.control_alt_defeat.gamebox.network.hexchess.HexChessLanDiscoveryService;
+import seda_project.control_alt_defeat.gamebox.network.LanDiscoveryService;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -165,7 +165,7 @@ class HexChessEndToEndSmokeTest {
 
         try {
             runOnFx(() -> {
-                HexChessLanDiscoveryService.DiscoveredGame first = new HexChessLanDiscoveryService.DiscoveredGame(
+                LanDiscoveryService.DiscoveredGame first = new LanDiscoveryService.DiscoveredGame(
                         "Host",
                         "HEX_CHESS",
                         "127.0.0.1",
@@ -175,8 +175,8 @@ class HexChessEndToEndSmokeTest {
                 invoke(menu.controller(), "rememberDiscoveredGame", first);
 
                 @SuppressWarnings("unchecked")
-                ListView<HexChessLanDiscoveryService.DiscoveredGame> lanGamesList =
-                        (ListView<HexChessLanDiscoveryService.DiscoveredGame>) field(
+                ListView<LanDiscoveryService.DiscoveredGame> lanGamesList =
+                        (ListView<LanDiscoveryService.DiscoveredGame>) field(
                                 menu.controller(),
                                 "lanGamesList",
                                 ListView.class);
@@ -185,7 +185,7 @@ class HexChessEndToEndSmokeTest {
 
                 assertFalse(joinButton.isDisabled());
 
-                HexChessLanDiscoveryService.DiscoveredGame refresh = new HexChessLanDiscoveryService.DiscoveredGame(
+                LanDiscoveryService.DiscoveredGame refresh = new LanDiscoveryService.DiscoveredGame(
                         "Host",
                         "HEX_CHESS",
                         "127.0.0.1",
@@ -218,7 +218,7 @@ class HexChessEndToEndSmokeTest {
                 assertEquals("Enter a valid TCP port from 1 to 65535.",
                         labelTextNow(menu.controller(), "statusLabel"));
 
-                HexChessLanDiscoveryService.DiscoveredGame game = new HexChessLanDiscoveryService.DiscoveredGame(
+                LanDiscoveryService.DiscoveredGame game = new LanDiscoveryService.DiscoveredGame(
                         "Host",
                         "HEX_CHESS",
                         "127.0.0.1",
@@ -228,8 +228,8 @@ class HexChessEndToEndSmokeTest {
                 invoke(menu.controller(), "rememberDiscoveredGame", game);
 
                 @SuppressWarnings("unchecked")
-                ListView<HexChessLanDiscoveryService.DiscoveredGame> lanGamesList =
-                        (ListView<HexChessLanDiscoveryService.DiscoveredGame>) field(
+                ListView<LanDiscoveryService.DiscoveredGame> lanGamesList =
+                        (ListView<LanDiscoveryService.DiscoveredGame>) field(
                                 menu.controller(),
                                 "lanGamesList",
                                 ListView.class);

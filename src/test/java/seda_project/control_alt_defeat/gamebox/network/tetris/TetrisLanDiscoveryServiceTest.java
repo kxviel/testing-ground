@@ -1,6 +1,7 @@
 package seda_project.control_alt_defeat.gamebox.network.tetris;
 
 import org.junit.jupiter.api.Test;
+import seda_project.control_alt_defeat.gamebox.network.LanDiscoveryService;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -15,10 +16,10 @@ class TetrisLanDiscoveryServiceTest {
 
     @Test
     void advertisingIsDiscoverableOnLocalListener() throws Exception {
-        TetrisLanDiscoveryService advertiser = new TetrisLanDiscoveryService();
-        TetrisLanDiscoveryService listener = new TetrisLanDiscoveryService();
+        LanDiscoveryService advertiser = LanDiscoveryService.tetris();
+        LanDiscoveryService listener = LanDiscoveryService.tetris();
         CountDownLatch latch = new CountDownLatch(1);
-        AtomicReference<TetrisLanDiscoveryService.DiscoveredGame> discovered = new AtomicReference<>();
+        AtomicReference<LanDiscoveryService.DiscoveredGame> discovered = new AtomicReference<>();
         AtomicReference<String> error = new AtomicReference<>();
 
         try {
