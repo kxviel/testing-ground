@@ -8,11 +8,29 @@ import java.util.stream.IntStream;
 public class GameModel {
 
     private static final String[] SYMBOL_POOL = {
-            "🍎", "🍊", "🍋", "🍇", "🍓", "🍒", "🍑", "🍍", "🥝", "🍉",
-            "🌸", "🌻", "🌺", "🌹", "🌷", "🍄", "🌈", "⭐", "🌟", "💫",
-            "🔥", "❄️", "🎯", "🎲", "🎸", "🎺", "🎻", "🎹", "🥁", "🎮",
-            "🚀", "🌙", "☀️", "🌊", "⚡", "🦋", "🐝", "🦜", "🦊", "🐬",
-            "🍕", "🍦", "🎂", "🧁", "🍫"
+            "card_faces/icons8-ahri-100.svg",
+            "card_faces/icons8-bad-piggies-100.svg",
+            "card_faces/icons8-best-terraria-100.svg",
+            "card_faces/icons8-call-of-duty-warzone-100.svg",
+            "card_faces/icons8-clubs-100.svg",
+            "card_faces/icons8-color-by-number-100.svg",
+            "card_faces/icons8-counter-strike-100.svg",
+            "card_faces/icons8-diamonds-100.svg",
+            "card_faces/icons8-elden-ring-100.svg",
+            "card_faces/icons8-favorite-100.svg",
+            "card_faces/icons8-five-nights-at-freddys-100.svg",
+            "card_faces/icons8-greek-helmet-100.svg",
+            "card_faces/icons8-mage-staff-100.svg",
+            "card_faces/icons8-minecraft-logo-100.svg",
+            "card_faces/icons8-minecraft-pig-100.svg",
+            "card_faces/icons8-monster-face-100.svg",
+            "card_faces/icons8-pixel-cat-100.svg",
+            "card_faces/icons8-pixel-star-100.svg",
+            "card_faces/icons8-scary-tree-100.svg",
+            "card_faces/icons8-spades-100.svg",
+            "card_faces/icons8-spartan-helmet-100.svg",
+            "card_faces/icons8-super-mario-100.svg",
+            "card_faces/icons8-ultra-ball-100.svg"
     };
 
     private final int k;

@@ -1,148 +1,142 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import java.net.URL?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane maxHeight="Infinity"
-            maxWidth="Infinity"
-            prefHeight="720.0"
-            prefWidth="1080.0"
-            styleClass="memory-game-root"
-            xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="seda_project.control_alt_defeat.gamebox.controller.memory.GameController">
+<StackPane alignment="CENTER"
+           prefWidth="1226.0"
+           prefHeight="576.0"
+           maxWidth="Infinity"
+           maxHeight="Infinity"
+           styleClass="memory-game-root"
+           xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="seda_project.control_alt_defeat.gamebox.controller.memory.GameController">
     <stylesheets>
         <URL value="@Memory.css"/>
+        <URL value="@game.css"/>
     </stylesheets>
+    <padding>
+        <Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/>
+    </padding>
 
-    <center>
-        <ScrollPane fitToHeight="true"
-                    fitToWidth="true"
-                    hbarPolicy="AS_NEEDED"
-                    vbarPolicy="AS_NEEDED"
-                    styleClass="app-scroll">
-            <GridPane alignment="TOP_CENTER"
-                      minHeight="640"
-                      minWidth="960"
-                      maxHeight="Infinity"
-                      maxWidth="Infinity"
-                      styleClass="memory-game-main">
-                <columnConstraints>
-                    <ColumnConstraints hgrow="ALWAYS" percentWidth="70"/>
-                    <ColumnConstraints hgrow="ALWAYS" percentWidth="30"/>
-                </columnConstraints>
+    <HBox alignment="CENTER"
+          minWidth="0.0"
+          maxWidth="Infinity"
+          minHeight="480.0"
+          prefHeight="544.0"
+          maxHeight="Infinity"
+          spacing="20.0"
+          styleClass="memory-game-layout">
 
-                <StackPane GridPane.columnIndex="0"
-                           GridPane.hgrow="ALWAYS"
-                           GridPane.vgrow="ALWAYS"
-                           maxHeight="Infinity"
-                           maxWidth="Infinity"
-                           styleClass="memory-game-stage">
-                    <VBox alignment="CENTER" spacing="14" maxWidth="Infinity" maxHeight="Infinity" styleClass="memory-board-card">
-                        <ImageView fitHeight="52.0" fitWidth="52.0" preserveRatio="true">
-                            <image>
-                                <Image url="@../icons/memory-card-icon.png"/>
-                            </image>
-                        </ImageView>
+        <VBox alignment="TOP_CENTER"
+              minWidth="0.0"
+              prefWidth="858.0"
+              maxWidth="Infinity"
+              minHeight="480.0"
+              prefHeight="544.0"
+              maxHeight="Infinity"
+              spacing="20.0"
+              HBox.hgrow="ALWAYS"
+              styleClass="memory-board-panel">
+            <padding>
+                <Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/>
+            </padding>
 
-                        <VBox alignment="CENTER" spacing="4">
-                            <Label text="Memory Match" styleClass="board-title"/>
-                            <Label text="Find all the matching pairs!" styleClass="board-subtitle"/>
-                        </VBox>
-
-                        <ScrollPane fx:id="memoryScroll"
-                                    fitToWidth="true"
-                                    fitToHeight="true"
-                                    hbarPolicy="NEVER"
-                                    vbarPolicy="NEVER"
-                                    maxWidth="Infinity"
-                                    maxHeight="Infinity"
-                                    VBox.vgrow="ALWAYS"
-                                    styleClass="memory-scroll">
-                            <GridPane fx:id="cardGrid" alignment="CENTER"/>
-                        </ScrollPane>
-                    </VBox>
+            <VBox alignment="CENTER" spacing="8.0" styleClass="memory-board-header">
+                <StackPane maxWidth="44.0" maxHeight="44.0" styleClass="memory-board-icon-tile">
+                    <Label text="▦" styleClass="memory-board-icon"/>
                 </StackPane>
+                <Label text="Memory Match" styleClass="memory-game-title"/>
+                <Label text="Find all the matching pairs." styleClass="memory-game-muted"/>
+            </VBox>
 
-                <ScrollPane GridPane.columnIndex="1"
-                            GridPane.hgrow="ALWAYS"
-                            GridPane.vgrow="ALWAYS"
-                            fitToHeight="true"
-                            fitToWidth="true"
-                            hbarPolicy="NEVER"
-                            vbarPolicy="AS_NEEDED"
-                            maxWidth="Infinity"
-                            maxHeight="Infinity"
-                            styleClass="app-scroll">
-                    <VBox maxHeight="Infinity"
-                          maxWidth="Infinity"
-                          spacing="18"
-                          styleClass="memory-game-info-panel">
-                        <VBox styleClass="game-sidebar-header">
-                            <Label text="Memory Match" styleClass="game-side-title"/>
-                            <Label text="Match in progress" styleClass="subtitle"/>
-                            <Label fx:id="statusLabel" text="" wrapText="true" styleClass="status-line"/>
-                        </VBox>
+            <StackPane fx:id="boardGridWrapper"
+                       alignment="CENTER"
+                       minWidth="0.0"
+                       prefWidth="826.0"
+                       maxWidth="Infinity"
+                       maxHeight="Infinity"
+                       styleClass="memory-grid-wrap"
+                       VBox.vgrow="ALWAYS">
+                <GridPane fx:id="cardGrid" alignment="CENTER" styleClass="memory-board-grid"/>
+            </StackPane>
+        </VBox>
 
-                        <Separator styleClass="game-separator"/>
+        <VBox alignment="TOP_LEFT"
+              prefWidth="320.0"
+              minWidth="320.0"
+              maxWidth="320.0"
+              minHeight="480.0"
+              prefHeight="544.0"
+              maxHeight="Infinity"
+              spacing="0.0"
+              styleClass="memory-game-sidebar">
+            <padding>
+                <Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/>
+            </padding>
 
-                        <VBox spacing="10" styleClass="score-section">
-                            <Label text="Score" styleClass="field-title"/>
+            <VBox spacing="8.0" styleClass="memory-sidebar-header">
+                <Label text="Memory Match" styleClass="memory-sidebar-title"/>
+                <Label text="Match in progress" styleClass="memory-game-muted"/>
+                <Label fx:id="statusLabel" text="" wrapText="true" styleClass="memory-status"/>
+            </VBox>
 
-                            <HBox fx:id="p1Chip" alignment="CENTER_LEFT" spacing="12" styleClass="player-chip">
-                                <Label fx:id="p1Label" text="Player 1" styleClass="score-label" HBox.hgrow="ALWAYS"/>
-                                <Label fx:id="p1ScoreLabel" text="0" styleClass="score-value"/>
-                            </HBox>
+            <Separator styleClass="memory-section-separator"/>
 
-                            <HBox fx:id="p2Chip" alignment="CENTER_LEFT" spacing="12" styleClass="player-chip">
-                                <Label fx:id="p2Label" text="Player 2" styleClass="score-label" HBox.hgrow="ALWAYS"/>
-                                <Label fx:id="p2ScoreLabel" text="0" styleClass="score-value"/>
-                            </HBox>
-                        </VBox>
+            <VBox spacing="8.0" styleClass="memory-sidebar-section">
+                <Label text="SCORE" styleClass="memory-section-label"/>
+                <HBox fx:id="p1Chip" alignment="CENTER_LEFT" styleClass="memory-score-row">
+                    <Label fx:id="p1Label" text="Player 1" styleClass="memory-score-label" HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="p1ScoreLabel" text="0" styleClass="memory-score-value"/>
+                </HBox>
+                <HBox fx:id="p2Chip" alignment="CENTER_LEFT" styleClass="memory-score-row">
+                    <Label fx:id="p2Label" text="Player 2" styleClass="memory-score-label" HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="p2ScoreLabel" text="0" styleClass="memory-score-value"/>
+                </HBox>
+            </VBox>
 
-                        <Separator styleClass="game-separator"/>
+            <Separator styleClass="memory-section-separator"/>
 
-                        <VBox spacing="10" styleClass="sidebar-section">
-                            <Label text="Turn" styleClass="field-title"/>
-                            <HBox alignment="CENTER_LEFT" spacing="8" styleClass="turn-pill">
-                                <Region styleClass="turn-ring"/>
-                                <Label fx:id="turnLabel" text="Player 1's Turn" styleClass="turn-label"/>
-                            </HBox>
-                        </VBox>
+            <VBox spacing="10.0" styleClass="memory-sidebar-section">
+                <Label text="TURN" styleClass="memory-section-label"/>
+                <HBox alignment="CENTER_LEFT" styleClass="memory-turn-pill">
+                    <Region styleClass="memory-turn-dot"/>
+                    <Label fx:id="turnLabel" text="Player 1's turn" styleClass="memory-turn-label"/>
+                </HBox>
+            </VBox>
 
-                        <HBox fx:id="postGameBar" alignment="CENTER_LEFT" spacing="10"
-                              styleClass="post-game-bar"
-                              visible="false" managed="false">
-                            <Label fx:id="resultLabel" wrapText="true" styleClass="post-result" HBox.hgrow="ALWAYS"/>
-                            <Button text="Play Again" onAction="#onPostPlayAgain"
-                                    styleClass="btn-primary"/>
-                            <Button text="Main Menu" onAction="#onPostMainMenu"
-                                    styleClass="btn-outline"/>
-                        </HBox>
+            <HBox fx:id="postGameBar"
+                  alignment="CENTER_LEFT"
+                  spacing="10.0"
+                  visible="false"
+                  managed="false"
+                  styleClass="memory-post-game-bar">
+                <Label fx:id="resultLabel" wrapText="true" styleClass="memory-post-result" HBox.hgrow="ALWAYS"/>
+                <Button text="Play Again" onAction="#onPostPlayAgain" styleClass="memory-primary-button"/>
+                <Button text="Main Menu" onAction="#onPostMainMenu" styleClass="memory-secondary-button"/>
+            </HBox>
 
-                        <Region VBox.vgrow="ALWAYS"/>
+            <Region VBox.vgrow="ALWAYS"/>
 
-                        <HBox spacing="10" styleClass="button-row">
-                            <Button text="Restart" onAction="#onRestart" maxWidth="Infinity"
-                                    styleClass="btn-outline" HBox.hgrow="ALWAYS"/>
-                            <Button text="Quit to Menu" onAction="#onQuit" maxWidth="Infinity"
-                                    styleClass="btn-primary" HBox.hgrow="ALWAYS"/>
-                        </HBox>
-                    </VBox>
-                </ScrollPane>
-            </GridPane>
-        </ScrollPane>
-    </center>
-</BorderPane>
+            <VBox spacing="8.0" styleClass="memory-game-actions">
+                <Button text="↻  Restart"
+                        onAction="#onRestart"
+                        maxWidth="Infinity"
+                        styleClass="memory-secondary-button"/>
+                <Button text="↪  Quit to Menu"
+                        onAction="#onQuit"
+                        maxWidth="Infinity"
+                        styleClass="memory-primary-button"/>
+            </VBox>
+        </VBox>
+    </HBox>
+</StackPane>

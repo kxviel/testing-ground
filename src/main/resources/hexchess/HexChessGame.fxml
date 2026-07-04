@@ -30,7 +30,7 @@
                     vbarPolicy="AS_NEEDED"
                     styleClass="app-scroll">
         <GridPane minHeight="640"
-                  minWidth="960"
+                  minWidth="0"
                   maxHeight="Infinity"
                   maxWidth="Infinity"
                   styleClass="hex-game-main">
@@ -46,7 +46,7 @@
                        maxHeight="Infinity"
                        maxWidth="Infinity"
                        styleClass="hex-board-zone">
-                <Canvas fx:id="boardCanvas" width="1122" height="952"/>
+                <Canvas fx:id="boardCanvas" width="720" height="620"/>
             </StackPane>
 
             <ScrollPane GridPane.columnIndex="1"
@@ -91,29 +91,29 @@
 
                 <Region VBox.vgrow="ALWAYS"/>
 
-                <VBox styleClass="sidebar-section">
+                <VBox styleClass="sidebar-section hex-match-actions">
                     <Label text="Actions" styleClass="panel-label"/>
                     <HBox styleClass="button-row">
                         <Button fx:id="offerDrawButton" text="Offer Draw" onAction="#onOfferDraw" maxWidth="Infinity"
-                                styleClass="btn-outline" HBox.hgrow="ALWAYS"/>
+                                styleClass="hex-control-button" HBox.hgrow="ALWAYS"/>
                         <Button fx:id="resignButton" text="Resign" onAction="#onResign" maxWidth="Infinity"
-                                styleClass="btn-danger" HBox.hgrow="ALWAYS"/>
+                                styleClass="hex-control-button hex-control-danger" HBox.hgrow="ALWAYS"/>
                     </HBox>
 
                     <HBox styleClass="button-row">
                         <Button fx:id="acceptDrawButton" text="Accept" onAction="#onAcceptDraw"
                                 visible="false" managed="false" maxWidth="Infinity"
-                                styleClass="btn-primary" HBox.hgrow="ALWAYS"/>
+                                styleClass="hex-control-button" HBox.hgrow="ALWAYS"/>
                         <Button fx:id="declineDrawButton" text="Decline" onAction="#onDeclineDraw"
                                 visible="false" managed="false" maxWidth="Infinity"
-                                styleClass="btn-outline" HBox.hgrow="ALWAYS"/>
+                                styleClass="hex-control-button" HBox.hgrow="ALWAYS"/>
                     </HBox>
 
                     <HBox styleClass="button-row">
                         <Button fx:id="restartButton" text="Restart" onAction="#onRestart" maxWidth="Infinity"
-                                styleClass="btn-outline" HBox.hgrow="ALWAYS"/>
+                                styleClass="hex-control-button" HBox.hgrow="ALWAYS"/>
                         <Button text="Back to Menu" onAction="#onBackToMenu" maxWidth="Infinity"
-                                styleClass="btn-primary" HBox.hgrow="ALWAYS"/>
+                                styleClass="hex-control-button" HBox.hgrow="ALWAYS"/>
                     </HBox>
                 </VBox>
                 </VBox>

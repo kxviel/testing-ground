@@ -1,344 +1,319 @@
 .memory-menu-root,
-.memory-menu-main,
-.memory-game-root,
-.memory-game-main {
+.memory-game-root {
     -fx-background-color: -sh-background;
 }
 
-.memory-menu-root,
-.memory-game-root {
+.memory-screen-scroll,
+.memory-screen-scroll > .viewport {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.memory-screen-scroll {
     -fx-padding: 0;
 }
 
-.memory-menu-main,
-.memory-game-main {
-    -fx-hgap: 28;
-    -fx-padding: 42 52 42 52;
+.memory-screen-scroll .scroll-bar:vertical,
+.memory-screen-scroll .scroll-bar:horizontal {
+    -fx-background-color: transparent;
+    -fx-padding: 2;
 }
 
-.memory-setup,
-.memory-network-panel,
-.memory-game-stage,
-.memory-game-info-panel {
+.memory-screen-scroll .scroll-bar .thumb {
+    -fx-background-color: rgba(10, 10, 10, 0.18);
+    -fx-background-radius: 99;
+}
+
+.memory-screen-scroll .scroll-bar .track,
+.memory-screen-scroll .scroll-bar .increment-button,
+.memory-screen-scroll .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+}
+
+.memory-menu-viewport {
+    -fx-background-color: -sh-background;
+}
+
+.memory-menu-layout {
+    -fx-alignment: top-center;
+}
+
+.memory-setup-card,
+.memory-network-card,
+.memory-board-panel,
+.memory-game-sidebar {
     -fx-background-color: -sh-card;
-    -fx-background-radius: 2px;
+    -fx-background-radius: 16;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 2px;
+    -fx-border-radius: 16;
     -fx-border-width: 1;
-    -fx-effect: null;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.10), 14, 0.08, 0, 2);
 }
 
-.memory-setup {
-    -fx-padding: 38 34 34 34;
+.memory-copy-block {
+    -fx-alignment: top-left;
 }
 
-.memory-network-panel,
-.memory-game-info-panel {
-    -fx-padding: 36 30 30 30;
-    -fx-background-color: -sh-sidebar;
-    -fx-border-color: -sh-sidebar-border;
-}
-
-.memory-game-stage {
-    -fx-padding: 28;
+.memory-eyebrow {
+    -fx-font-size: 14px;
+    -fx-font-weight: 500;
+    -fx-letter-spacing: 0;
+    -fx-text-fill: -sh-muted-foreground;
 }
 
 .memory-menu-title {
-    -fx-font-size: 40px;
+    -fx-font-size: 26px;
     -fx-font-weight: 800;
     -fx-text-fill: -sh-card-foreground;
 }
 
-.memory-menu-subtitle,
-.network-subtitle,
-.row-subtitle,
-.footer-line,
-.status-line,
-.board-subtitle,
-.score-label,
-.subtitle {
+.memory-muted,
+.memory-caption,
+.memory-row-subtitle,
+.memory-score-label,
+.memory-status {
     -fx-text-fill: -sh-muted-foreground;
 }
 
-.network-title,
-.section-heading,
-.section-title,
-.row-title,
-.board-title,
-.game-side-title,
-.field-title,
-.post-result {
+.memory-muted {
+    -fx-font-size: 16px;
+}
+
+.memory-label {
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
     -fx-text-fill: -sh-card-foreground;
 }
 
-.title-divider {
-    -fx-padding: 8 0 4 0;
+.memory-caption {
+    -fx-font-size: 14px;
 }
 
-.divider-line,
-.menu-divider {
+.memory-parameter-panel {
+    -fx-background-color: -sh-muted;
+    -fx-background-radius: 14;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 14;
+    -fx-border-width: 1;
+    -fx-padding: 20;
+}
+
+.memory-input {
+    -fx-background-color: -sh-card;
+    -fx-background-insets: 0;
+    -fx-background-radius: 10;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-font-size: 16px;
+    -fx-min-height: 36;
+    -fx-pref-height: 36;
+    -fx-padding: 7 12;
+    -fx-text-fill: -sh-card-foreground;
+}
+
+.memory-slider .track {
     -fx-background-color: -sh-border;
     -fx-background-radius: 99;
-    -fx-pref-height: 1;
+    -fx-pref-height: 6;
 }
 
-.divider-line-active {
-    -fx-background-color: -game-accent;
+.memory-slider .thumb {
+    -fx-background-color: -sh-card-foreground;
     -fx-background-radius: 99;
-    -fx-pref-height: 7;
+    -fx-pref-height: 12;
+    -fx-pref-width: 12;
 }
 
-.divider-seal {
-    -fx-background-color: -game-accent;
-    -fx-background-radius: 99;
-    -fx-pref-height: 11;
-    -fx-pref-width: 11;
+.memory-error {
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-text-fill: -sh-destructive;
 }
 
-.memory-setup-list,
-.variant-list,
-.button-row {
-    -fx-padding: 0;
-}
-
-.button-row {
-    -fx-spacing: 10;
-}
-
-.menu-section,
-.post-game-bar,
-.player-chip,
-.turn-pill {
-    -fx-background-color: -sh-accent;
-    -fx-background-radius: 2px;
+.memory-variant-row {
+    -fx-alignment: center-left;
+    -fx-background-color: -sh-card;
+    -fx-background-insets: 0;
+    -fx-background-radius: 14;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 2px;
+    -fx-border-radius: 14;
     -fx-border-width: 1;
+    -fx-content-display: right;
+    -fx-cursor: hand;
+    -fx-min-height: 60;
+    -fx-padding: 0 20;
+    -fx-graphic-text-gap: 12;
 }
 
-.menu-section {
-    -fx-padding: 18;
+.memory-variant-row:hover,
+.memory-variant-row:selected {
+    -fx-border-color: -game-accent;
 }
 
-.post-game-bar {
-    -fx-padding: 12;
+.memory-variant-row .radio {
+    -fx-background-color: -sh-card;
+    -fx-background-insets: 0;
+    -fx-background-radius: 99;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 99;
+    -fx-border-width: 1;
+    -fx-min-height: 20;
+    -fx-min-width: 20;
+    -fx-pref-height: 20;
+    -fx-pref-width: 20;
+}
+
+.memory-variant-row .dot {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 99;
+    -fx-padding: 4;
+}
+
+.memory-variant-row:selected .radio {
+    -fx-border-color: -game-accent;
+}
+
+.memory-variant-row:selected .dot {
+    -fx-background-color: -game-accent;
+}
+
+.memory-row-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -sh-card-foreground;
+}
+
+.memory-row-subtitle {
+    -fx-font-size: 14px;
+}
+
+.memory-divider {
+    -fx-background-color: -sh-border;
 }
 
 .memory-action-row {
     -fx-alignment: center-left;
-    -fx-background-color: -sh-card;
+    -fx-background-color: transparent;
     -fx-background-insets: 0;
-    -fx-background-radius: 2px;
-    -fx-border-color: -sh-border;
-    -fx-border-radius: 2px;
+    -fx-background-radius: 12;
+    -fx-border-color: transparent;
+    -fx-border-radius: 12;
     -fx-border-width: 1;
     -fx-content-display: graphic-only;
     -fx-cursor: hand;
-    -fx-min-height: 86;
-    -fx-padding: 16;
+    -fx-min-height: 58;
+    -fx-padding: 8 12;
 }
 
 .memory-action-row:hover {
-    -fx-background-color: -sh-accent;
-    -fx-border-color: -sh-ring;
+    -fx-background-color: -sh-card;
+    -fx-border-color: -sh-border;
 }
 
 .memory-action-row:pressed {
     -fx-background-color: -sh-muted;
 }
 
-.row-title {
-    -fx-font-size: 20px;
-    -fx-font-weight: 800;
-}
-
-.row-subtitle,
-.network-subtitle {
-    -fx-font-size: 14px;
-}
-
-.row-arrow-chip {
+.memory-icon-box,
+.memory-danger-icon-box {
     -fx-alignment: center;
-    -fx-background-color: transparent;
-    -fx-min-height: 38;
-    -fx-min-width: 38;
-    -fx-pref-height: 38;
-    -fx-pref-width: 38;
-}
-
-.row-chevron-icon {
-    -fx-opacity: 0.65;
-}
-
-.memory-action-row:hover .row-chevron-icon {
-    -fx-opacity: 1;
-}
-
-.network-section {
-    -fx-padding: 8 0 0 0;
-}
-
-.network-footer {
-    -fx-border-color: -sh-border transparent transparent transparent;
-    -fx-border-width: 1 0 0 0;
-    -fx-padding: 16 0 0 0;
-}
-
-.section-heading,
-.section-title,
-.field-title {
-    -fx-font-weight: 800;
-}
-
-.section-heading {
-    -fx-font-size: 20px;
-}
-
-.footer-line,
-.error-label {
-    -fx-font-size: 12px;
-    -fx-font-weight: 600;
-}
-
-.error-label {
-    -fx-text-fill: -sh-destructive;
-}
-
-.apply-button {
-    -fx-min-width: 118;
-}
-
-.mode-button {
-    -fx-content-display: graphic-only;
-    -fx-min-height: 48;
-    -fx-padding: 10 14;
-}
-
-.mode-text,
-.mode-icon {
-    -fx-text-fill: -sh-foreground;
-}
-
-.mode-text {
-    -fx-font-size: 13px;
-    -fx-font-weight: 800;
-}
-
-.mode-icon {
-    -fx-font-size: 18px;
-    -fx-font-weight: 800;
-}
-
-.memory-board-card {
-    -fx-background-color: transparent;
-    -fx-border-width: 0;
-    -fx-padding: 0;
-}
-
-.board-title {
-    -fx-font-size: 32px;
-    -fx-font-weight: 800;
-}
-
-.game-side-title {
-    -fx-font-size: 28px;
-    -fx-font-weight: 800;
-}
-
-.game-sidebar-header {
-    -fx-spacing: 6;
-}
-
-.game-separator .line {
+    -fx-background-color: -sh-muted;
+    -fx-background-radius: 10;
     -fx-border-color: -sh-border;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-min-height: 40;
+    -fx-min-width: 40;
+    -fx-pref-height: 40;
+    -fx-pref-width: 40;
 }
 
-.player-chip {
-    -fx-padding: 12 14;
-}
-
-.player-chip.active-player {
-    -fx-background-color: -sh-accent;
-    -fx-border-color: -game-accent;
-}
-
-.score-value {
-    -fx-font-size: 24px;
+.memory-icon {
+    -fx-font-size: 19px;
     -fx-font-weight: 800;
     -fx-text-fill: -sh-card-foreground;
 }
 
-.turn-pill {
-    -fx-padding: 10 12;
+.memory-danger-icon-box .memory-icon {
+    -fx-text-fill: -sh-destructive;
 }
 
-.turn-ring {
-    -fx-background-color: transparent;
+.memory-chevron {
+    -fx-font-size: 27px;
+    -fx-font-weight: 400;
+    -fx-text-fill: -sh-muted-foreground;
+}
+
+.memory-primary-button,
+.memory-secondary-button {
+    -fx-background-insets: 0;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-cursor: hand;
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-min-height: 40;
+    -fx-padding: 9 14;
+}
+
+.memory-primary-button {
+    -fx-background-color: -game-accent;
     -fx-border-color: -game-accent;
-    -fx-border-radius: 99;
-    -fx-border-width: 2;
-    -fx-min-height: 14;
-    -fx-min-width: 14;
-    -fx-pref-height: 14;
-    -fx-pref-width: 14;
+    -fx-text-fill: -sh-primary-foreground;
 }
 
-.turn-label {
-    -fx-font-size: 15px;
-    -fx-font-weight: 800;
+.memory-primary-button:hover {
+    -fx-background-color: -game-accent-hover;
+    -fx-border-color: -game-accent-hover;
+    -fx-text-fill: -sh-primary-foreground;
+}
+
+.memory-secondary-button {
+    -fx-background-color: -sh-card;
+    -fx-border-color: -sh-border;
+    -fx-text-fill: -sh-card-foreground;
+}
+
+.memory-secondary-button:hover {
+    -fx-background-color: -game-accent-hover-soft;
+    -fx-border-color: -game-accent;
     -fx-text-fill: -sh-accent-foreground;
 }
 
-.memory-scroll,
-.memory-scroll > .viewport {
+.memory-empty-list {
     -fx-background-color: transparent;
-    -fx-background: transparent;
-}
-
-.memory-scroll {
-    -fx-padding: 8 0 0 0;
-}
-
-.memory-card {
-    -fx-alignment: center;
     -fx-background-insets: 0;
-    -fx-background-radius: 2px;
-    -fx-border-radius: 2px;
+    -fx-background-radius: 14;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 14;
+    -fx-border-style: segments(6, 6);
     -fx-border-width: 1;
-    -fx-content-display: graphic-only;
-    -fx-cursor: hand;
-    -fx-font-weight: 900;
+    -fx-control-inner-background: transparent;
+    -fx-fixed-cell-size: 34;
     -fx-padding: 0;
-    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.10), 10, 0.14, 0, 3);
 }
 
-.memory-card-symbol {
-    -fx-font-family: "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "Segoe UI", sans-serif;
-    -fx-font-weight: 400;
-    -fx-text-fill: -game-on-accent-container;
+.memory-empty-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 6 8;
 }
 
-.memory-card-hidden {
-    -fx-background-color: -game-accent;
-    -fx-border-color: -game-accent;
+.memory-empty-title {
+    -fx-font-size: 16px;
+    -fx-text-fill: -sh-muted-foreground;
 }
 
-.memory-card-hidden:hover {
-    -fx-background-color: -game-accent-hover;
+.memory-network-footer {
+    -fx-border-color: -sh-border transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+    -fx-padding: 20 0 0 0;
 }
 
-.memory-card-face-up {
-    -fx-background-color: -sh-card;
-    -fx-border-color: -game-accent;
-    -fx-text-fill: -game-on-accent-container;
-}
-
-.memory-card-matched {
-    -fx-background-color: #DDEFE4;
-    -fx-border-color: rgba(45, 106, 76, 0.44);
-    -fx-effect: none;
-}
-
-.memory-card:disabled {
-    -fx-opacity: 1;
+.memory-footer-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -sh-card-foreground;
 }

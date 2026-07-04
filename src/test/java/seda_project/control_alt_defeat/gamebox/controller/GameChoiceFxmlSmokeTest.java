@@ -34,6 +34,14 @@ class GameChoiceFxmlSmokeTest {
         assertTrue(root.getStyleClass().contains("game-choice-root"));
     }
 
+    @Test
+    void memoryGameBoardFxmlLoads() throws Exception {
+        Parent root = loadOnFxThread("/memory/GameBoard.fxml");
+
+        assertNotNull(root);
+        assertTrue(root.getStyleClass().contains("memory-game-root"));
+    }
+
     private static Parent loadOnFxThread(String resource) throws Exception {
         CountDownLatch latch = new CountDownLatch(1);
         AtomicReference<Parent> rootRef = new AtomicReference<>();

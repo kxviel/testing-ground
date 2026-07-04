@@ -1,45 +1,46 @@
 .root {
-    -sh-background: #FFFFFF;
-    -sh-foreground: #0A0A0A;
+    -sh-background: #EFF6FF;
+    -sh-foreground: #0F172A;
     -sh-card: #FFFFFF;
-    -sh-card-foreground: #0A0A0A;
+    -sh-card-foreground: #0F172A;
     -sh-popover: #FFFFFF;
-    -sh-popover-foreground: #0A0A0A;
-    -sh-primary: #1447E6;
-    -sh-primary-foreground: #EFF6FF;
-    -sh-secondary: #F4F4F5;
-    -sh-secondary-foreground: #18181B;
-    -sh-muted: #F5F5F5;
-    -sh-muted-foreground: #737373;
-    -sh-accent: #F5F5F5;
-    -sh-accent-foreground: #171717;
-    -sh-destructive: #E7000B;
-    -sh-border: #E5E5E5;
-    -sh-input: #E5E5E5;
-    -sh-ring: #A1A1A1;
-    -sh-chart-1: #D4D4D4;
-    -sh-chart-2: #737373;
-    -sh-chart-3: #525252;
-    -sh-chart-4: #404040;
-    -sh-chart-5: #262626;
+    -sh-popover-foreground: #0F172A;
+    -sh-primary: #2563EB;
+    -sh-primary-foreground: #FFFFFF;
+    -sh-secondary: #DBEAFE;
+    -sh-secondary-foreground: #1E3A8A;
+    -sh-muted: #F1F5FD;
+    -sh-muted-foreground: #475569;
+    -sh-accent: #DBEAFE;
+    -sh-accent-foreground: #1E3A8A;
+    -sh-destructive: #DC2626;
+    -sh-border: #BFDBFE;
+    -sh-input: #BFDBFE;
+    -sh-ring: #2563EB;
+    -sh-chart-1: #2563EB;
+    -sh-chart-2: #7C3AED;
+    -sh-chart-3: #F59E0B;
+    -sh-chart-4: #0EA5E9;
+    -sh-chart-5: #14B8A6;
     -sh-radius: 2px;
-    -sh-sidebar: #FAFAFA;
-    -sh-sidebar-foreground: #0A0A0A;
-    -sh-sidebar-primary: #155DFC;
-    -sh-sidebar-primary-foreground: #EFF6FF;
-    -sh-sidebar-accent: #F5F5F5;
-    -sh-sidebar-accent-foreground: #171717;
-    -sh-sidebar-border: #E5E5E5;
-    -sh-sidebar-ring: #A1A1A1;
-    -game-accent: #1447E6;
-    -game-accent-hover: #155DFC;
-    -game-accent-pressed: #123ABD;
-    -game-accent-hover-soft: #EFF6FF;
-    -game-accent-container: #EFF6FF;
-    -game-on-accent: #EFF6FF;
-    -game-on-accent-container: #0A0A0A;
-    -game-soft-surface: #F5F5F5;
+    -sh-sidebar: #FFFFFF;
+    -sh-sidebar-foreground: #0F172A;
+    -sh-sidebar-primary: #2563EB;
+    -sh-sidebar-primary-foreground: #FFFFFF;
+    -sh-sidebar-accent: #DBEAFE;
+    -sh-sidebar-accent-foreground: #1E3A8A;
+    -sh-sidebar-border: #BFDBFE;
+    -sh-sidebar-ring: #2563EB;
+    -game-accent: #2563EB;
+    -game-accent-hover: #1D4ED8;
+    -game-accent-pressed: #1E40AF;
+    -game-accent-hover-soft: #DBEAFE;
+    -game-accent-container: #DBEAFE;
+    -game-on-accent: #FFFFFF;
+    -game-on-accent-container: #0F172A;
+    -game-soft-surface: #F1F5FD;
     -fx-font-family: "Inter Variable", "Inter", "Segoe UI", "Arial", sans-serif;
+    -fx-font-size: 14px;
 }
 
 .app-scroll,
@@ -77,10 +78,10 @@
     -fx-border-radius: 2px;
     -fx-border-width: 1;
     -fx-cursor: hand;
-    -fx-font-size: 14px;
+    -fx-font-size: 16px;
     -fx-font-weight: 600;
     -fx-min-height: 40;
-    -fx-padding: 9 16;
+    -fx-padding: 9 20;
     -fx-text-fill: -sh-foreground;
 }
 
@@ -204,7 +205,7 @@
 .radio-button,
 .check-box {
     -fx-cursor: hand;
-    -fx-font-size: 14px;
+    -fx-font-size: 16px;
     -fx-font-weight: 500;
     -fx-text-fill: -sh-foreground;
 }

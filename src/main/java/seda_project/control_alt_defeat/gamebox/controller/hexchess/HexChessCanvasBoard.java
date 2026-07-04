@@ -25,6 +25,7 @@ final class HexChessCanvasBoard {
 
     private static final int CORNER_COUNT = 6;
     private static final double CORNER_ANGLE_DEGREES = 60.0;
+    private static final double HEX_APOTHEM_RATIO = Math.sqrt(3.0) / 2.0;
     private static final Color WHITE_PIECE = Color.WHITE;
     private static final Color BLACK_PIECE = Color.web("#31111D");
     private static final Color WHITE_PIECE_STROKE = Color.web("#31111D");
@@ -36,6 +37,8 @@ final class HexChessCanvasBoard {
     private final double width;
     private final double height;
     private final double notationYOffset;
+    private final double boardOffsetX;
+    private final double boardOffsetY;
     private final Font notationFont;
     private final Font pieceFont;
     private final Font promotionFont;
@@ -51,9 +54,12 @@ final class HexChessCanvasBoard {
         this.width = width;
         this.height = height;
         this.notationYOffset = notationYOffset;
-        this.notationFont = Font.font("Inter Variable", FontWeight.BOLD, Math.max(9, hexSize * 0.41));
-        this.pieceFont = Font.font(PIECE_FONT_FAMILY, FontWeight.NORMAL, pieceFontSize);
-        this.promotionFont = Font.font("Inter Variable", FontWeight.BOLD, Math.max(16, hexSize * 0.73));
+        BoardBounds bounds = computeBoardBounds(hexSize);
+        this.boardOffsetX = (width - bounds.width()) / 2.0 - bounds.minX();
+        this.boardOffsetY = (height - bounds.height()) / 2.0 - bounds.minY();
+        this.notationFont = Font.font("Inter Variable", FontWeight.BOLD, Math.max(9, hexSize * 0.41) + 2);
+        this.pieceFont = Font.font(PIECE_FONT_FAMILY, FontWeight.NORMAL, pieceFontSize + 2);
+        this.promotionFont = Font.font("Inter Variable", FontWeight.BOLD, Math.max(16, hexSize * 0.73) + 2);
     }
 
     void attach(Canvas canvas, Consumer<HexCoordinate> onCellClicked) {
@@ -172,12 +178,47 @@ final class HexChessCanvasBoard {
     }
 
     private Point2D centerOf(HexCoordinate coordinate) {
-        double q = HexBoardGeometry.axialQ(coordinate);
-        double r = HexBoardGeometry.axialR(coordinate);
-        double x = (hexSize * 1.5 * q) + (width / 2.0);
-        double y = (-hexSize * Math.sqrt(3) * (r + q / 2.0)) + (height / 2.0);
+        double x = rawX(coordinate, hexSize) + boardOffsetX;
+        double y = rawY(coordinate, hexSize) + boardOffsetY;
 
         return new Point2D(x, y);
+    }
+
+    private static BoardBounds computeBoardBounds(double hexSize) {
+        double minX = Double.POSITIVE_INFINITY;
+        double maxX = Double.NEGATIVE_INFINITY;
+        double minY = Double.POSITIVE_INFINITY;
+        double maxY = Double.NEGATIVE_INFINITY;
+        double yRadius = hexSize * HEX_APOTHEM_RATIO;
+
+        for (HexCoordinate coordinate : HexBoardGeometry.displayOrder()) {
+            double x = rawX(coordinate, hexSize);
+            double y = rawY(coordinate, hexSize);
+            minX = Math.min(minX, x - hexSize);
+            maxX = Math.max(maxX, x + hexSize);
+            minY = Math.min(minY, y - yRadius);
+            maxY = Math.max(maxY, y + yRadius);
+        }
+
+        return new BoardBounds(minX, maxX, minY, maxY);
+    }
+
+    static double boardWidth(double hexSize) {
+        return computeBoardBounds(hexSize).width();
+    }
+
+    static double boardHeight(double hexSize) {
+        return computeBoardBounds(hexSize).height();
+    }
+
+    private static double rawX(HexCoordinate coordinate, double hexSize) {
+        return hexSize * 1.5 * HexBoardGeometry.axialQ(coordinate);
+    }
+
+    private static double rawY(HexCoordinate coordinate, double hexSize) {
+        double q = HexBoardGeometry.axialQ(coordinate);
+        double r = HexBoardGeometry.axialR(coordinate);
+        return -hexSize * Math.sqrt(3) * (r + q / 2.0);
     }
 
     private double[] xPoints(Point2D center) {
@@ -210,5 +251,15 @@ final class HexChessCanvasBoard {
     }
 
     private record CellShape(double[] xPoints, double[] yPoints) {
+    }
+
+    private record BoardBounds(double minX, double maxX, double minY, double maxY) {
+        double width() {
+            return maxX - minX;
+        }
+
+        double height() {
+            return maxY - minY;
+        }
     }
 }

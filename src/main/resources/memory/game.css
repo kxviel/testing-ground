@@ -1,0 +1,203 @@
+.memory-game-root {
+    -fx-background-color: -sh-background;
+}
+
+.memory-game-layout {
+    -fx-alignment: center;
+}
+
+.memory-board-header {
+    -fx-alignment: center;
+}
+
+.memory-board-icon-tile {
+    -fx-alignment: center;
+    -fx-background-color: -sh-muted;
+    -fx-background-radius: 12;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-max-height: 44;
+    -fx-max-width: 44;
+    -fx-min-height: 44;
+    -fx-min-width: 44;
+    -fx-pref-height: 44;
+    -fx-pref-width: 44;
+}
+
+.memory-board-icon {
+    -fx-font-size: 24px;
+    -fx-font-weight: 500;
+    -fx-text-fill: -sh-card-foreground;
+}
+
+.memory-game-title {
+    -fx-font-size: 26px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -sh-card-foreground;
+}
+
+.memory-game-muted {
+    -fx-font-size: 16px;
+    -fx-text-fill: -sh-muted-foreground;
+}
+
+.memory-grid-wrap {
+    -fx-alignment: center;
+}
+
+.memory-board-grid {
+    -fx-alignment: center;
+    -fx-hgap: 10;
+    -fx-vgap: 10;
+}
+
+.memory-card-button,
+.card,
+.card-flipped,
+.card-matched {
+    -fx-alignment: center;
+    -fx-background-insets: 0;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-cursor: hand;
+    -fx-font-family: "Inter Variable", "Inter", "Segoe UI", sans-serif;
+    -fx-font-weight: 800;
+    -fx-padding: 0;
+}
+
+.card {
+    -fx-background-color: -sh-muted;
+    -fx-border-color: -sh-border;
+    -fx-text-fill: rgba(10, 10, 10, 0.22);
+}
+
+.card:hover {
+    -fx-background-color: #f1f1f1;
+    -fx-border-color: #d4d4d4;
+}
+
+.card-flipped {
+    -fx-background-color: -sh-card;
+    -fx-border-color: -sh-card-foreground;
+}
+
+.card-matched {
+    -fx-background-color: -sh-muted;
+    -fx-border-color: transparent;
+    -fx-cursor: default;
+}
+
+.card:disabled,
+.card-flipped:disabled,
+.card-matched:disabled {
+    -fx-opacity: 1;
+}
+
+.card-symbol {
+    -fx-font-family: "Segoe UI Emoji", "Segoe UI Symbol", "Inter Variable", "Inter", "Segoe UI", sans-serif;
+    -fx-font-weight: 400;
+    -fx-text-fill: -sh-card-foreground;
+}
+
+.memory-sidebar-header {
+    -fx-padding: 0 0 20 0;
+}
+
+.memory-sidebar-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -sh-card-foreground;
+}
+
+.memory-section-separator {
+    -fx-padding: 0;
+}
+
+.memory-section-separator .line {
+    -fx-border-color: -sh-border transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+}
+
+.memory-sidebar-section {
+    -fx-padding: 20 0;
+}
+
+.memory-section-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -sh-muted-foreground;
+}
+
+.memory-score-row {
+    -fx-alignment: center-left;
+    -fx-background-color: -sh-card;
+    -fx-background-radius: 12;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-min-height: 54;
+    -fx-padding: 12 20;
+    -fx-spacing: 12;
+}
+
+.score-active {
+    -fx-border-color: -game-accent;
+}
+
+.memory-score-label {
+    -fx-font-size: 16px;
+}
+
+.memory-score-value {
+    -fx-font-size: 20px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -sh-card-foreground;
+}
+
+.memory-turn-pill {
+    -fx-alignment: center-left;
+    -fx-background-color: -sh-card;
+    -fx-background-radius: 12;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-min-height: 46;
+    -fx-padding: 12 20;
+    -fx-spacing: 8;
+}
+
+.memory-turn-dot {
+    -fx-background-color: -sh-card-foreground;
+    -fx-background-radius: 99;
+    -fx-min-height: 11;
+    -fx-min-width: 11;
+    -fx-pref-height: 11;
+    -fx-pref-width: 11;
+}
+
+.memory-turn-label {
+    -fx-font-size: 16px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -sh-card-foreground;
+}
+
+.memory-post-game-bar {
+    -fx-background-color: -sh-muted;
+    -fx-background-radius: 12;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-padding: 12;
+}
+
+.memory-post-result {
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -sh-card-foreground;
+}
+
+.memory-game-actions {
+    -fx-padding: 0;
+}

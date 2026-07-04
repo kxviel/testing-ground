@@ -1,0 +1,530 @@
+.game-menu-shell,
+.memory-menu-viewport {
+    -fx-background-color: transparent;
+    -fx-padding: 20;
+}
+
+.tetris-menu-main,
+.hex-menu-main {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.game-menu-cluster,
+.game-menu-layout,
+.memory-menu-layout {
+    -fx-alignment: center;
+}
+
+.game-menu-layout,
+.tetris-menu-main,
+.hex-menu-main {
+    -fx-hgap: 20;
+}
+
+.memory-menu-layout {
+    -fx-spacing: 20;
+}
+
+.menu-settings-card,
+.menu-network-card,
+.memory-setup-card,
+.memory-network-card,
+.tetris-setup,
+.tetris-options-panel,
+.hex-setup,
+.hex-network-panel {
+    -fx-background-color: -sh-card;
+    -fx-background-radius: 18;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 18;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(37, 99, 235, 0.16), 22, 0.12, 0, 5);
+}
+
+.menu-settings-card,
+.memory-setup-card,
+.tetris-setup,
+.hex-setup {
+    -fx-min-height: 688;
+    -fx-pref-height: 688;
+    -fx-padding: 20;
+}
+
+.menu-network-card,
+.memory-network-card,
+.tetris-options-panel,
+.hex-network-panel {
+    -fx-min-height: 688;
+    -fx-pref-height: 688;
+    -fx-padding: 20;
+}
+
+.menu-header,
+.memory-copy-block {
+    -fx-spacing: 8;
+}
+
+.text-muted-caps,
+.memory-eyebrow {
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -game-accent;
+}
+
+.text-title-large,
+.memory-menu-title,
+.title,
+.settings-title,
+.network-title {
+    -fx-font-size: 26px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -sh-card-foreground;
+}
+
+.text-subtitle,
+.text-caption,
+.memory-muted,
+.memory-caption,
+.row-subtitle,
+.settings-subtitle,
+.network-subtitle,
+.footer-line,
+.status-line,
+.option-hint,
+.empty-list-label {
+    -fx-text-fill: -sh-muted-foreground;
+}
+
+.text-subtitle,
+.memory-muted,
+.settings-subtitle,
+.network-subtitle {
+    -fx-font-size: 16px;
+}
+
+.text-label,
+.memory-label,
+.field-title,
+.section-title,
+.hex-form-grid .label,
+.menu-form-grid .label {
+    -fx-font-size: 16px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -sh-card-foreground;
+}
+
+.text-caption,
+.memory-caption,
+.footer-line,
+.option-hint {
+    -fx-font-size: 14px;
+}
+
+.parameter-box,
+.memory-parameter-panel,
+.tetris-mode-card,
+.side-section,
+.network-section,
+.menu-config-content {
+    -fx-background-color: -sh-muted;
+    -fx-background-radius: 14;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 14;
+    -fx-border-width: 1;
+    -fx-padding: 20;
+}
+
+.tetris-mode-card {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+.input-field,
+.memory-input,
+.text-field,
+.combo-box {
+    -fx-background-color: -sh-card;
+    -fx-background-insets: 0;
+    -fx-background-radius: 10;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-font-size: 16px;
+    -fx-min-height: 40;
+    -fx-padding: 8 12;
+    -fx-text-fill: -sh-card-foreground;
+}
+
+.parameter-box .slider .track,
+.config-slider .track,
+.memory-slider .track {
+    -fx-background-color: -sh-border;
+    -fx-background-radius: 99;
+    -fx-pref-height: 6;
+}
+
+.parameter-box .slider .thumb,
+.config-slider .thumb,
+.memory-slider .thumb {
+    -fx-background-color: -game-accent;
+    -fx-background-radius: 99;
+    -fx-pref-height: 12;
+    -fx-pref-width: 12;
+}
+
+.variant-section {
+    -fx-spacing: 12;
+}
+
+.variant-list,
+.memory-variant-list {
+    -fx-spacing: 8;
+}
+
+.variant-row,
+.memory-variant-row {
+    -fx-alignment: center-left;
+    -fx-background-color: -sh-card;
+    -fx-background-insets: 0;
+    -fx-background-radius: 14;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 14;
+    -fx-border-width: 1;
+    -fx-content-display: right;
+    -fx-cursor: hand;
+    -fx-min-height: 52;
+    -fx-padding: 0 20;
+    -fx-graphic-text-gap: 12;
+}
+
+.variant-row:hover,
+.variant-row:selected,
+.memory-variant-row:hover,
+.memory-variant-row:selected {
+    -fx-border-color: -game-accent;
+}
+
+.variant-row .radio,
+.memory-variant-row .radio {
+    -fx-background-color: -sh-card;
+    -fx-background-insets: 0;
+    -fx-background-radius: 99;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 99;
+    -fx-border-width: 1;
+    -fx-min-height: 20;
+    -fx-min-width: 20;
+    -fx-pref-height: 20;
+    -fx-pref-width: 20;
+}
+
+.variant-row .dot,
+.memory-variant-row .dot {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 99;
+    -fx-padding: 4;
+}
+
+.variant-content {
+    -fx-alignment: center-left;
+}
+
+.variant-indicator {
+    -fx-alignment: center;
+    -fx-background-color: -sh-card;
+    -fx-background-radius: 99;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 99;
+    -fx-border-width: 1;
+    -fx-min-height: 20;
+    -fx-min-width: 20;
+    -fx-pref-height: 20;
+    -fx-pref-width: 20;
+}
+
+.variant-check {
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+    -fx-opacity: 0;
+    -fx-text-fill: -sh-primary-foreground;
+}
+
+.variant-row:selected .variant-indicator {
+    -fx-background-color: -game-accent;
+    -fx-border-color: -game-accent;
+}
+
+.variant-row:selected .variant-check {
+    -fx-opacity: 1;
+}
+
+.memory-variant-row:selected .radio {
+    -fx-border-color: -game-accent;
+}
+
+.memory-variant-row:selected .dot {
+    -fx-background-color: -game-accent;
+}
+
+.variant-title,
+.memory-row-title,
+.row-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -sh-card-foreground;
+}
+
+.variant-meta,
+.memory-row-subtitle,
+.row-subtitle {
+    -fx-font-size: 14px;
+    -fx-text-fill: -sh-muted-foreground;
+}
+
+.menu-separator,
+.memory-divider,
+.menu-divider {
+    -fx-background-color: -sh-border;
+    -fx-min-height: 1;
+    -fx-pref-height: 1;
+    -fx-max-height: 1;
+}
+
+.action-list,
+.memory-action-list,
+.tetris-setup-list,
+.hex-setup-list,
+.menu-pane-content,
+.menu-config-column,
+.menu-config-content,
+.menu-config-section,
+.menu-config-checks,
+.menu-custom-editor,
+.button-row {
+    -fx-spacing: 10;
+}
+
+.action-row,
+.memory-action-row,
+.tetris-action-row,
+.hex-action-row,
+.mode-button {
+    -fx-alignment: center-left;
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 12;
+    -fx-border-color: transparent;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-content-display: graphic-only;
+    -fx-cursor: hand;
+    -fx-min-height: 54;
+    -fx-padding: 8 12;
+}
+
+.action-row:hover,
+.memory-action-row:hover,
+.tetris-action-row:hover,
+.hex-action-row:hover,
+.mode-button:hover {
+    -fx-background-color: -game-accent-hover-soft;
+    -fx-border-color: -sh-border;
+}
+
+.action-row:pressed,
+.memory-action-row:pressed,
+.tetris-action-row:pressed,
+.hex-action-row:pressed,
+.mode-button:pressed {
+    -fx-background-color: -sh-secondary;
+}
+
+.icon-surface,
+.memory-icon-box,
+.memory-danger-icon-box,
+.row-icon-chip,
+.row-icon-chip-danger {
+    -fx-alignment: center;
+    -fx-background-color: -sh-muted;
+    -fx-background-radius: 10;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-min-height: 40;
+    -fx-min-width: 40;
+    -fx-pref-height: 40;
+    -fx-pref-width: 40;
+}
+
+.svg-icon {
+    -fx-min-height: 24;
+    -fx-min-width: 24;
+    -fx-pref-height: 24;
+    -fx-pref-width: 24;
+    -fx-max-height: 24;
+    -fx-max-width: 24;
+}
+
+.svg-icon-shape {
+    -fx-fill: transparent;
+    -fx-stroke: -game-accent;
+}
+
+.svg-icon-primary .svg-icon-shape,
+.memory-icon-box .svg-icon-shape,
+.row-icon-chip .svg-icon-shape {
+    -fx-stroke: -game-accent;
+}
+
+.svg-icon-muted .svg-icon-shape,
+.row-arrow-chip .svg-icon-shape {
+    -fx-stroke: -sh-muted-foreground;
+}
+
+.svg-icon-danger .svg-icon-shape,
+.row-icon-chip-danger .svg-icon-shape,
+.memory-danger-icon-box .svg-icon-shape {
+    -fx-stroke: -sh-destructive;
+}
+
+.icon-text,
+.memory-icon,
+.row-icon-letter,
+.mode-icon,
+.mode-text {
+    -fx-font-size: 16px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -game-accent;
+}
+
+.icon-danger .icon-text,
+.memory-danger-icon-box .memory-icon {
+    -fx-text-fill: -sh-destructive;
+}
+
+.row-arrow-chip {
+    -fx-alignment: center;
+    -fx-background-color: transparent;
+    -fx-min-height: 38;
+    -fx-min-width: 38;
+    -fx-pref-height: 38;
+    -fx-pref-width: 38;
+}
+
+.row-chevron,
+.memory-chevron {
+    -fx-font-size: 24px;
+    -fx-font-weight: 500;
+    -fx-text-fill: -sh-muted-foreground;
+}
+
+.row-chevron-icon {
+    -fx-opacity: 0.65;
+}
+
+.action-row:hover .row-chevron-icon,
+.tetris-action-row:hover .row-chevron-icon,
+.hex-action-row:hover .row-chevron-icon {
+    -fx-opacity: 1;
+}
+
+.btn-primary,
+.memory-primary-button {
+    -fx-background-color: -game-accent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 12;
+    -fx-border-color: -game-accent;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-cursor: hand;
+    -fx-font-size: 16px;
+    -fx-font-weight: 800;
+    -fx-min-height: 40;
+    -fx-padding: 9 20;
+    -fx-text-fill: -sh-primary-foreground;
+}
+
+.btn-primary:hover,
+.memory-primary-button:hover {
+    -fx-background-color: -game-accent-hover;
+    -fx-border-color: -game-accent-hover;
+    -fx-text-fill: -sh-primary-foreground;
+}
+
+.btn-secondary,
+.btn-outline,
+.memory-secondary-button {
+    -fx-background-color: -sh-card;
+    -fx-background-insets: 0;
+    -fx-background-radius: 12;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-cursor: hand;
+    -fx-font-size: 16px;
+    -fx-font-weight: 800;
+    -fx-min-height: 40;
+    -fx-padding: 9 14;
+    -fx-text-fill: -sh-card-foreground;
+}
+
+.btn-secondary:hover,
+.btn-outline:hover,
+.memory-secondary-button:hover {
+    -fx-background-color: -game-accent-hover-soft;
+    -fx-border-color: -game-accent;
+    -fx-text-fill: -sh-accent-foreground;
+}
+
+.btn-selected {
+    -fx-background-color: -game-accent-hover-soft;
+    -fx-border-color: -game-accent;
+    -fx-text-fill: -sh-accent-foreground;
+}
+
+.empty-state-box,
+.memory-empty-list,
+.match-list {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 14;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 14;
+    -fx-border-style: segments(6, 6);
+    -fx-border-width: 1;
+    -fx-control-inner-background: transparent;
+    -fx-fixed-cell-size: 34;
+    -fx-padding: 10;
+}
+
+.empty-state-title,
+.memory-empty-title {
+    -fx-font-size: 16px;
+    -fx-text-fill: -sh-muted-foreground;
+}
+
+.match-list .list-cell,
+.memory-empty-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 6 8;
+}
+
+.menu-footer,
+.settings-footer,
+.network-footer,
+.memory-network-footer {
+    -fx-border-color: -sh-border transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+    -fx-padding: 20 0 0 0;
+    -fx-spacing: 2;
+}
+
+.footer-title,
+.memory-footer-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -sh-card-foreground;
+}

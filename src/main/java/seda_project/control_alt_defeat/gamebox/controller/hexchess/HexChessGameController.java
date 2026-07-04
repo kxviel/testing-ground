@@ -5,6 +5,7 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Alert;
@@ -38,10 +39,12 @@ import java.util.Optional;
 
 public class HexChessGameController implements RouteDataReceiver {
 
-    private static final double HEX_SIZE = 37.4;
-    private static final double BOARD_WIDTH = 1122.0;
-    private static final double BOARD_HEIGHT = 952.0;
-    private static final double BOARD_FIT_MARGIN = 24.0;
+    private static final double BASE_HEX_SIZE = 31.0;
+    private static final double FALLBACK_CANVAS_WIDTH = 720.0;
+    private static final double FALLBACK_CANVAS_HEIGHT = 620.0;
+    private static final double BOARD_CONTENT_PADDING = 16.0;
+    private static final double NOTATION_OFFSET_RATIO = 16.0 / BASE_HEX_SIZE;
+    private static final double PIECE_FONT_RATIO = 36.0 / BASE_HEX_SIZE;
     private static final Duration BOT_DELAY = Duration.millis(350);
     private static final Duration BOT_DRAW_DECLINE_DELAY = Duration.millis(800);
     private static final Color CELL_LIGHT = Color.web("#f7c895");
@@ -81,12 +84,10 @@ public class HexChessGameController implements RouteDataReceiver {
     @FXML
     private Button declineDrawButton;
 
-    private final HexChessCanvasBoard canvasBoard = new HexChessCanvasBoard(
-            HEX_SIZE,
-            BOARD_WIDTH,
-            BOARD_HEIGHT,
-            19,
-            43);
+    private HexChessCanvasBoard canvasBoard = createCanvasBoard(
+            BASE_HEX_SIZE,
+            FALLBACK_CANVAS_WIDTH,
+            FALLBACK_CANVAS_HEIGHT);
 
     private HexChessGameSetup setup = HexChessGameSetup.local();
     private HexGameState gameState = HexGameState.standard();
@@ -100,31 +101,66 @@ public class HexChessGameController implements RouteDataReceiver {
     public void initialize() {
         bindOptionalLabel(statusLabel);
         bindOptionalLabel(drawOfferLabel);
-        bindBoardScale();
+        bindBoardResize();
         startGame(setup);
     }
 
-    private void bindBoardScale() {
+    private void bindBoardResize() {
         if (boardCanvas == null || boardZone == null) {
             return;
         }
 
-        boardCanvas.scaleXProperty().bind(Bindings.createDoubleBinding(
-                this::boardScale,
-                boardZone.widthProperty(),
-                boardZone.heightProperty()));
-        boardCanvas.scaleYProperty().bind(boardCanvas.scaleXProperty());
+        boardZone.widthProperty().addListener((observable, oldValue, newValue) -> resizeBoardCanvas());
+        boardZone.heightProperty().addListener((observable, oldValue, newValue) -> resizeBoardCanvas());
+        Platform.runLater(this::resizeBoardCanvas);
     }
 
-    private double boardScale() {
-        double availableWidth = boardZone.getWidth() - BOARD_FIT_MARGIN;
-        double availableHeight = boardZone.getHeight() - BOARD_FIT_MARGIN;
-        if (availableWidth <= 0 || availableHeight <= 0) {
-            return 1.0;
+    private void resizeBoardCanvas() {
+        if (boardCanvas == null || boardZone == null) {
+            return;
         }
 
-        double fit = Math.min(availableWidth / BOARD_WIDTH, availableHeight / BOARD_HEIGHT);
-        return Math.min(1.0, Math.max(0.35, fit));
+        CanvasSize size = canvasSize();
+        double hexSize = fitHexSize(size.width(), size.height());
+        canvasBoard = createCanvasBoard(hexSize, size.width(), size.height());
+        canvasBoard.attach(boardCanvas, this::onCellClicked);
+        drawBoard();
+    }
+
+    private CanvasSize canvasSize() {
+        double zoneWidth = boardZone.getWidth();
+        double zoneHeight = boardZone.getHeight();
+
+        if (zoneWidth <= 0 || zoneHeight <= 0) {
+            return new CanvasSize(FALLBACK_CANVAS_WIDTH, FALLBACK_CANVAS_HEIGHT);
+        }
+
+        Insets insets = boardZone.getInsets();
+        double horizontalInset = insets == null || (insets.getLeft() + insets.getRight()) <= 0
+                ? BOARD_CONTENT_PADDING * 2
+                : insets.getLeft() + insets.getRight();
+        double verticalInset = insets == null || (insets.getTop() + insets.getBottom()) <= 0
+                ? BOARD_CONTENT_PADDING * 2
+                : insets.getTop() + insets.getBottom();
+
+        return new CanvasSize(
+                Math.max(1.0, zoneWidth - horizontalInset),
+                Math.max(1.0, zoneHeight - verticalInset));
+    }
+
+    private double fitHexSize(double width, double height) {
+        double widthFit = width / HexChessCanvasBoard.boardWidth(1.0);
+        double heightFit = height / HexChessCanvasBoard.boardHeight(1.0);
+        return Math.max(1.0, Math.min(widthFit, heightFit));
+    }
+
+    private static HexChessCanvasBoard createCanvasBoard(double hexSize, double width, double height) {
+        return new HexChessCanvasBoard(
+                hexSize,
+                width,
+                height,
+                Math.max(1.0, hexSize * NOTATION_OFFSET_RATIO),
+                Math.max(1.0, hexSize * PIECE_FONT_RATIO));
     }
 
     @Override
@@ -244,7 +280,7 @@ public class HexChessGameController implements RouteDataReceiver {
             return;
         }
 
-        canvasBoard.attach(boardCanvas, this::onCellClicked);
+        resizeBoardCanvas();
     }
 
     private void onCellClicked(HexCoordinate coordinate) {
@@ -686,6 +722,9 @@ public class HexChessGameController implements RouteDataReceiver {
         return score == Math.rint(score)
                 ? String.valueOf((int) score)
                 : String.valueOf(score);
+    }
+
+    private record CanvasSize(double width, double height) {
     }
 
     private record PromotionChoice(HexPieceType type) {

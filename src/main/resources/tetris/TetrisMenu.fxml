@@ -9,14 +9,13 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import seda_project.control_alt_defeat.gamebox.ui.SvgIcon?>
 
 <StackPane prefWidth="1080.0"
            prefHeight="720.0"
@@ -29,6 +28,7 @@
 
     <stylesheets>
         <URL value="@TetrisMenu.css"/>
+        <URL value="@../GameMenu.css"/>
     </stylesheets>
 
     <ScrollPane fitToHeight="true"
@@ -36,9 +36,15 @@
                 hbarPolicy="AS_NEEDED"
                 vbarPolicy="AS_NEEDED"
                 styleClass="app-scroll">
-        <GridPane alignment="TOP_CENTER"
-                  minHeight="680"
-                  minWidth="960"
+        <StackPane alignment="CENTER"
+                   minHeight="0"
+                   minWidth="0"
+                   maxHeight="Infinity"
+                   maxWidth="Infinity"
+                   styleClass="game-menu-shell">
+        <GridPane alignment="CENTER"
+                  minHeight="688"
+                  minWidth="0"
                   maxHeight="Infinity"
                   maxWidth="Infinity"
                   styleClass="tetris-menu-main">
@@ -55,29 +61,12 @@
               spacing="26"
               styleClass="tetris-setup">
 
-            <VBox spacing="8" styleClass="hero-copy">
-                <HBox alignment="CENTER_LEFT" spacing="18">
-                    <StackPane styleClass="menu-icon-frame">
-                        <ImageView fitHeight="42.0" fitWidth="42.0" preserveRatio="true">
-                            <image>
-                                <Image url="@../icons/tetris-icon.png"/>
-                            </image>
-                        </ImageView>
-                    </StackPane>
-
-                    <VBox spacing="6">
-                        <Label text="Zetris" styleClass="title"/>
-                        <Label text="Choose match type, options, and start a match."
-                               styleClass="subtitle"/>
-                    </VBox>
-                </HBox>
+            <VBox styleClass="menu-header">
+                <Label text="T E T R I S" styleClass="text-muted-caps"/>
+                <Label text="Zetris" styleClass="title"/>
+                <Label text="Choose match type, options, and start a match."
+                       styleClass="subtitle"/>
             </VBox>
-
-            <HBox alignment="CENTER" spacing="8" styleClass="title-divider">
-                <Region minWidth="84" prefWidth="84" styleClass="divider-line-active"/>
-                <Region styleClass="divider-seal"/>
-                <Region HBox.hgrow="ALWAYS" styleClass="divider-line"/>
-            </HBox>
 
             <VBox spacing="12" styleClass="tetris-setup-list">
                 <StackPane maxHeight="Infinity"
@@ -91,9 +80,9 @@
                                 onAction="#onLocalMode"
                                 styleClass="tetris-action-row">
                             <graphic>
-                                <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="18" styleClass="row-content">
+                                <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="20" styleClass="row-content">
                                     <StackPane styleClass="row-icon-chip">
-                                        <Label text="L" styleClass="row-icon-letter"/>
+                                        <SvgIcon icon="local" styleClass="svg-icon-primary"/>
                                     </StackPane>
 
                                     <VBox spacing="4" HBox.hgrow="ALWAYS">
@@ -102,37 +91,7 @@
                                     </VBox>
 
                                     <StackPane styleClass="row-arrow-chip">
-                                        <ImageView fitHeight="20.0" fitWidth="20.0" preserveRatio="true" styleClass="row-chevron-icon">
-                                            <image>
-                                                <Image url="@../icons/icons8-chevron-right-96.png"/>
-                                            </image>
-                                        </ImageView>
-                                    </StackPane>
-                                </HBox>
-                            </graphic>
-                        </Button>
-
-                        <Button fx:id="lanModeButton"
-                                maxWidth="Infinity"
-                                onAction="#onLanMode"
-                                styleClass="tetris-action-row">
-                            <graphic>
-                                <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="18" styleClass="row-content">
-                                    <StackPane styleClass="row-icon-chip">
-                                        <Label text="N" styleClass="row-icon-letter"/>
-                                    </StackPane>
-
-                                    <VBox spacing="4" HBox.hgrow="ALWAYS">
-                                        <Label text="LAN" styleClass="row-title"/>
-                                        <Label text="Host or join a network match" styleClass="row-subtitle"/>
-                                    </VBox>
-
-                                    <StackPane styleClass="row-arrow-chip">
-                                        <ImageView fitHeight="20.0" fitWidth="20.0" preserveRatio="true" styleClass="row-chevron-icon">
-                                            <image>
-                                                <Image url="@../icons/icons8-chevron-right-96.png"/>
-                                            </image>
-                                        </ImageView>
+                                        <SvgIcon icon="chevron-right" styleClass="svg-icon-muted"/>
                                     </StackPane>
                                 </HBox>
                             </graphic>
@@ -142,9 +101,9 @@
                                 onAction="#onBack"
                                 styleClass="tetris-action-row">
                             <graphic>
-                                <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="18" styleClass="row-content">
-                                    <StackPane styleClass="row-icon-chip">
-                                        <Label text="X" styleClass="row-icon-letter"/>
+                                <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="20" styleClass="row-content">
+                                    <StackPane styleClass="row-icon-chip-danger">
+                                        <SvgIcon icon="exit" styleClass="svg-icon-danger"/>
                                     </StackPane>
 
                                     <VBox spacing="4" HBox.hgrow="ALWAYS">
@@ -153,11 +112,7 @@
                                     </VBox>
 
                                     <StackPane styleClass="row-arrow-chip">
-                                        <ImageView fitHeight="20.0" fitWidth="20.0" preserveRatio="true" styleClass="row-chevron-icon">
-                                            <image>
-                                                <Image url="@../icons/icons8-chevron-right-96.png"/>
-                                            </image>
-                                        </ImageView>
+                                        <SvgIcon icon="chevron-right" styleClass="svg-icon-muted"/>
                                     </StackPane>
                                 </HBox>
                             </graphic>
@@ -207,10 +162,33 @@
               spacing="24"
               styleClass="tetris-options-panel">
 
-            <VBox spacing="8">
+            <VBox styleClass="menu-header">
+                <Label text="N E T W O R K" styleClass="text-muted-caps"/>
                 <Label fx:id="optionsTitleLabel" text="Game Options" styleClass="settings-title"/>
                 <Label fx:id="optionsSubtitleLabel" text="Pieces, speed, and board rules" styleClass="settings-subtitle"/>
             </VBox>
+
+            <Button fx:id="lanModeButton"
+                    maxWidth="Infinity"
+                    onAction="#onLanMode"
+                    styleClass="tetris-action-row">
+                <graphic>
+                    <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="20" styleClass="row-content">
+                        <StackPane styleClass="row-icon-chip">
+                            <SvgIcon icon="lan" styleClass="svg-icon-primary"/>
+                        </StackPane>
+
+                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                            <Label text="LAN" styleClass="row-title"/>
+                            <Label text="Host or join a network match" styleClass="row-subtitle"/>
+                        </VBox>
+
+                        <StackPane styleClass="row-arrow-chip">
+                            <SvgIcon icon="chevron-right" styleClass="svg-icon-muted"/>
+                        </StackPane>
+                    </HBox>
+                </graphic>
+            </Button>
 
             <VBox fx:id="lanPane" alignment="CENTER_LEFT" styleClass="menu-pane-content" visible="false" managed="false">
                 <Label text="LAN" styleClass="section-title"/>
@@ -218,8 +196,8 @@
                 <VBox alignment="CENTER_LEFT" spacing="10">
                     <Label text="Role" styleClass="field-title"/>
                     <HBox alignment="CENTER_LEFT" styleClass="button-row">
-                        <Button fx:id="hostRoleButton" text="Host LAN" onAction="#onHostRole" styleClass="btn-outline"/>
-                        <Button fx:id="joinRoleButton" text="Join LAN" onAction="#onJoinRole" styleClass="btn-outline"/>
+                        <Button fx:id="hostRoleButton" text="Host LAN" onAction="#onHostRole" styleClass="btn-secondary"/>
+                        <Button fx:id="joinRoleButton" text="Join LAN" onAction="#onJoinRole" styleClass="btn-secondary"/>
                     </HBox>
                 </VBox>
             </VBox>
@@ -267,12 +245,13 @@
                 <VBox alignment="TOP_LEFT" spacing="8" maxWidth="Infinity">
                     <Label text="Available Games" styleClass="field-title"/>
                     <ListView fx:id="availableGamesList" prefHeight="150" maxHeight="180" maxWidth="Infinity"
-                              onMouseClicked="#onGameSelected" VBox.vgrow="SOMETIMES"/>
+                              onMouseClicked="#onGameSelected" VBox.vgrow="SOMETIMES"
+                              styleClass="match-list"/>
                     <HBox alignment="CENTER_LEFT" styleClass="button-row">
                         <Button text="Refresh" onAction="#onRefreshGames" maxWidth="Infinity"
-                                styleClass="btn-outline" HBox.hgrow="ALWAYS"/>
+                                styleClass="btn-secondary" HBox.hgrow="ALWAYS"/>
                         <Button fx:id="joinSelectedGameButton" text="Join Selected" onAction="#onJoinSelectedLan"
-                                maxWidth="Infinity" styleClass="btn-outline" HBox.hgrow="ALWAYS"/>
+                                maxWidth="Infinity" styleClass="btn-secondary" HBox.hgrow="ALWAYS"/>
                     </HBox>
                 </VBox>
             </VBox>
@@ -325,12 +304,13 @@
             <Region VBox.vgrow="ALWAYS"/>
 
             <VBox spacing="8" styleClass="settings-footer">
-                <Label text="Zetris: Local or LAN" styleClass="footer-line"/>
+                <Label text="Zetris: Local or LAN" styleClass="footer-title"/>
                 <Label text="Configure variants, then start from the left panel."
                        wrapText="true"
                        styleClass="footer-line"/>
             </VBox>
         </VBox>
         </GridPane>
+        </StackPane>
     </ScrollPane>
 </StackPane>

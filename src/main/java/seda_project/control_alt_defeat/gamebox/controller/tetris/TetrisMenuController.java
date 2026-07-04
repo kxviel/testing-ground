@@ -344,11 +344,10 @@ public class TetrisMenuController implements RouteDataReceiver {
     }
 
     private void showOnly(MenuView view) {
-        boolean optionsShown = view != MenuView.MODE_CHOICE;
-        contentColumn.setPercentWidth(optionsShown ? 65 : 100);
-        optionsColumn.setPercentWidth(optionsShown ? 35 : 0);
-        setShown(optionsPanel, optionsShown);
-        setShown(actionButtonRow, optionsShown);
+        contentColumn.setPercentWidth(65);
+        optionsColumn.setPercentWidth(35);
+        setShown(optionsPanel, true);
+        setShown(actionButtonRow, true);
         updateSidebarTitle(view);
 
         setShown(modeChoicePane, view == MenuView.MODE_CHOICE || isLanView(view));
@@ -364,7 +363,7 @@ public class TetrisMenuController implements RouteDataReceiver {
             return;
         }
 
-        if (isLanView(view)) {
+        if (view == MenuView.MODE_CHOICE || isLanView(view)) {
             optionsTitleLabel.setText("Network");
             optionsSubtitleLabel.setText("Host or join LAN matches");
         } else {

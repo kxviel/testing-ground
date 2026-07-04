@@ -31,7 +31,7 @@
                     vbarPolicy="AS_NEEDED"
                     styleClass="app-scroll">
         <GridPane minHeight="640"
-                  minWidth="960"
+                  minWidth="0"
                   maxHeight="Infinity"
                   maxWidth="Infinity"
                   styleClass="tetris-game-main">

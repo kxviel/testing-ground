@@ -12,8 +12,12 @@
 
 .tetris-menu-main,
 .tetris-game-main {
-    -fx-hgap: 28;
-    -fx-padding: 42 52 42 52;
+    -fx-hgap: 20;
+    -fx-padding: 0;
+}
+
+.tetris-game-root {
+    -fx-padding: 20;
 }
 
 .tetris-setup,
@@ -29,18 +33,18 @@
 }
 
 .tetris-setup {
-    -fx-padding: 38 34 34 34;
+    -fx-padding: 20;
 }
 
 .tetris-options-panel,
 .tetris-game-info-panel {
-    -fx-padding: 36 30 30 30;
+    -fx-padding: 20;
     -fx-background-color: -sh-sidebar;
     -fx-border-color: -sh-sidebar-border;
 }
 
 .tetris-board-zone {
-    -fx-padding: 28;
+    -fx-padding: 20;
 }
 
 .title,
@@ -54,13 +58,13 @@
 }
 
 .title {
-    -fx-font-size: 40px;
+    -fx-font-size: 42px;
     -fx-font-weight: 800;
 }
 
 .settings-title,
 .game-side-title {
-    -fx-font-size: 28px;
+    -fx-font-size: 30px;
     -fx-font-weight: 800;
 }
 
@@ -104,7 +108,7 @@
 .menu-pane-content,
 .menu-config-content,
 .game-actions {
-    -fx-spacing: 16;
+    -fx-spacing: 20;
 }
 
 .tetris-mode-card {
@@ -124,7 +128,7 @@
     -fx-content-display: graphic-only;
     -fx-cursor: hand;
     -fx-min-height: 86;
-    -fx-padding: 16;
+    -fx-padding: 20;
 }
 
 .tetris-action-row:hover {
@@ -161,19 +165,19 @@
 }
 
 .row-icon-letter {
-    -fx-font-size: 28px;
+    -fx-font-size: 30px;
     -fx-font-weight: 800;
     -fx-text-fill: -game-accent;
 }
 
 .row-title {
-    -fx-font-size: 20px;
+    -fx-font-size: 22px;
     -fx-font-weight: 800;
 }
 
 .row-subtitle,
 .settings-subtitle {
-    -fx-font-size: 14px;
+    -fx-font-size: 16px;
 }
 
 .row-arrow-chip {
@@ -200,7 +204,7 @@
 
 .settings-footer {
     -fx-border-width: 1 0 0 0;
-    -fx-padding: 16 0 0 0;
+    -fx-padding: 20 0 0 0;
 }
 
 .menu-config-column,
@@ -251,11 +255,11 @@
 }
 
 .mode-icon {
-    -fx-font-size: 18px;
+    -fx-font-size: 20px;
 }
 
 .mode-text {
-    -fx-font-size: 13px;
+    -fx-font-size: 15px;
 }
 
 .custom-piece-grid {
@@ -301,7 +305,7 @@
 }
 
 .player-name {
-    -fx-font-size: 16px;
+    -fx-font-size: 18px;
     -fx-font-weight: 700;
 }
 
@@ -313,7 +317,7 @@
 }
 
 .keymap-label {
-    -fx-font-size: 12px;
+    -fx-font-size: 14px;
     -fx-line-spacing: 3px;
 }
 
@@ -336,7 +340,7 @@
     -fx-border-color: -game-accent;
     -fx-border-radius: 2px;
     -fx-border-width: 1;
-    -fx-font-size: 11px;
+    -fx-font-size: 13px;
     -fx-font-weight: 800;
     -fx-min-height: 22;
     -fx-min-width: 22;
@@ -386,7 +390,7 @@
 
 .board-cell-object {
     -fx-alignment: center;
-    -fx-font-size: 10px;
+    -fx-font-size: 12px;
     -fx-font-weight: 800;
     -fx-text-fill: -game-on-accent;
 }
@@ -394,16 +398,16 @@
 .board-game-over {
     -fx-alignment: center;
     -fx-background-color: rgba(255, 255, 255, 0.90);
-    -fx-font-size: 22px;
+    -fx-font-size: 24px;
     -fx-font-weight: 800;
-    -fx-padding: 16;
+    -fx-padding: 20;
     -fx-text-fill: -game-on-accent-container;
 }
 
 .tetris-game-horizontal .tetris-board-zone {
-    -fx-padding: 28;
+    -fx-padding: 20;
 }
 
 .tetris-game-horizontal .object-description {
-    -fx-font-size: 11px;
+    -fx-font-size: 13px;
 }

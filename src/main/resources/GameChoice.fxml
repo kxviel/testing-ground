@@ -10,6 +10,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import seda_project.control_alt_defeat.gamebox.ui.SvgIcon?>
 
 <StackPane fx:id="root"
            prefHeight="720.0"
@@ -67,11 +68,7 @@
                                         <Label maxWidth="Infinity" text="A memory matching challenge" styleClass="row-subtitle"/>
                                     </VBox>
                                     <StackPane styleClass="row-arrow-chip">
-                                        <ImageView fitHeight="20.0" fitWidth="20.0" preserveRatio="true" styleClass="row-chevron-icon">
-                                            <image>
-                                                <Image url="@icons/icons8-chevron-right-96.png"/>
-                                            </image>
-                                        </ImageView>
+                                        <SvgIcon icon="chevron-right" styleClass="svg-icon-muted"/>
                                     </StackPane>
                                 </HBox>
                             </graphic>
@@ -92,11 +89,7 @@
                                         <Label maxWidth="Infinity" text="Stack the falling blocks" styleClass="row-subtitle"/>
                                     </VBox>
                                     <StackPane styleClass="row-arrow-chip">
-                                        <ImageView fitHeight="20.0" fitWidth="20.0" preserveRatio="true" styleClass="row-chevron-icon">
-                                            <image>
-                                                <Image url="@icons/icons8-chevron-right-96.png"/>
-                                            </image>
-                                        </ImageView>
+                                        <SvgIcon icon="chevron-right" styleClass="svg-icon-muted"/>
                                     </StackPane>
                                 </HBox>
                             </graphic>
@@ -117,11 +110,7 @@
                                         <Label maxWidth="Infinity" text="Hex chess with a twist" styleClass="row-subtitle"/>
                                     </VBox>
                                     <StackPane styleClass="row-arrow-chip">
-                                        <ImageView fitHeight="20.0" fitWidth="20.0" preserveRatio="true" styleClass="row-chevron-icon">
-                                            <image>
-                                                <Image url="@icons/icons8-chevron-right-96.png"/>
-                                            </image>
-                                        </ImageView>
+                                        <SvgIcon icon="chevron-right" styleClass="svg-icon-muted"/>
                                     </StackPane>
                                 </HBox>
                             </graphic>
@@ -132,23 +121,15 @@
                         <Button id="exit-row" maxWidth="Infinity" onAction="#exit" styleClass="game-row">
                             <graphic>
                                 <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="19" styleClass="row-content">
-                                    <StackPane styleClass="icon-chip">
-                                        <ImageView fitHeight="34.0" fitWidth="34.0" preserveRatio="true" styleClass="game-icon">
-                                            <image>
-                                                <Image url="@icons/game-icon.png"/>
-                                            </image>
-                                        </ImageView>
+                                    <StackPane styleClass="icon-chip-danger">
+                                        <SvgIcon icon="exit" styleClass="svg-icon-danger"/>
                                     </StackPane>
                                     <VBox spacing="3" HBox.hgrow="ALWAYS">
                                         <Label maxWidth="Infinity" text="Exit" styleClass="row-title"/>
                                         <Label maxWidth="Infinity" text="Close GameBox" styleClass="row-subtitle"/>
                                     </VBox>
                                     <StackPane styleClass="row-arrow-chip">
-                                        <ImageView fitHeight="20.0" fitWidth="20.0" preserveRatio="true" styleClass="row-chevron-icon">
-                                            <image>
-                                                <Image url="@icons/icons8-chevron-right-96.png"/>
-                                            </image>
-                                        </ImageView>
+                                        <SvgIcon icon="chevron-right" styleClass="svg-icon-muted"/>
                                     </StackPane>
                                 </HBox>
                             </graphic>

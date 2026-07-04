@@ -6,14 +6,13 @@
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import seda_project.control_alt_defeat.gamebox.ui.SvgIcon?>
 
 <StackPane prefWidth="1080.0"
            prefHeight="720.0"
@@ -26,6 +25,7 @@
 
     <stylesheets>
         <URL value="@HexChess.css"/>
+        <URL value="@../GameMenu.css"/>
     </stylesheets>
 
     <ScrollPane fitToHeight="true"
@@ -33,9 +33,15 @@
                 hbarPolicy="AS_NEEDED"
                 vbarPolicy="AS_NEEDED"
                 styleClass="app-scroll">
-        <GridPane alignment="TOP_CENTER"
-                  minHeight="680"
-                  minWidth="960"
+        <StackPane alignment="CENTER"
+                   minHeight="0"
+                   minWidth="0"
+                   maxHeight="Infinity"
+                   maxWidth="Infinity"
+                   styleClass="game-menu-shell">
+        <GridPane alignment="CENTER"
+                  minHeight="688"
+                  minWidth="0"
                   maxHeight="Infinity"
                   maxWidth="Infinity"
                   styleClass="hex-menu-main">
@@ -52,38 +58,21 @@
               spacing="26"
               styleClass="hex-setup">
 
-            <VBox spacing="8" styleClass="hero-copy">
-                <HBox alignment="CENTER_LEFT" spacing="18">
-                    <StackPane styleClass="menu-icon-frame">
-                        <ImageView fitHeight="42.0" fitWidth="42.0" preserveRatio="true">
-                            <image>
-                                <Image url="@../icons/chess-icon.png"/>
-                            </image>
-                        </ImageView>
-                    </StackPane>
-
-                    <VBox spacing="6">
-                        <Label text="Chexsagon" styleClass="title"/>
-                        <Label text="Choose players, setup, and start a match."
-                               styleClass="subtitle"/>
-                    </VBox>
-                </HBox>
+            <VBox styleClass="menu-header">
+                <Label text="C H E S S" styleClass="text-muted-caps"/>
+                <Label text="Chexsagon" styleClass="title"/>
+                <Label text="Choose players, setup, and start a match."
+                       styleClass="subtitle"/>
             </VBox>
-
-            <HBox alignment="CENTER" spacing="8" styleClass="title-divider">
-                <Region minWidth="84" prefWidth="84" styleClass="divider-line-active"/>
-                <Region styleClass="divider-seal"/>
-                <Region HBox.hgrow="ALWAYS" styleClass="divider-line"/>
-            </HBox>
 
             <VBox spacing="12" styleClass="hex-setup-list">
                 <Button maxWidth="Infinity"
                         onAction="#onStartLocal"
                         styleClass="hex-action-row">
                     <graphic>
-                        <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="18" styleClass="row-content">
+                        <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="20" styleClass="row-content">
                             <StackPane styleClass="row-icon-chip">
-                                <Label text="L" styleClass="row-icon-letter"/>
+                                <SvgIcon icon="local" styleClass="svg-icon-primary"/>
                             </StackPane>
 
                             <VBox spacing="4" HBox.hgrow="ALWAYS">
@@ -92,11 +81,7 @@
                             </VBox>
 
                             <StackPane styleClass="row-arrow-chip">
-                                <ImageView fitHeight="20.0" fitWidth="20.0" preserveRatio="true" styleClass="row-chevron-icon">
-                                    <image>
-                                        <Image url="@../icons/icons8-chevron-right-96.png"/>
-                                    </image>
-                                </ImageView>
+                                <SvgIcon icon="chevron-right" styleClass="svg-icon-muted"/>
                             </StackPane>
                         </HBox>
                     </graphic>
@@ -106,9 +91,9 @@
                         onAction="#onStartBot"
                         styleClass="hex-action-row">
                     <graphic>
-                        <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="18" styleClass="row-content">
+                        <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="20" styleClass="row-content">
                             <StackPane styleClass="row-icon-chip">
-                                <Label text="B" styleClass="row-icon-letter"/>
+                                <SvgIcon icon="bot" styleClass="svg-icon-primary"/>
                             </StackPane>
 
                             <VBox spacing="4" HBox.hgrow="ALWAYS">
@@ -117,11 +102,7 @@
                             </VBox>
 
                             <StackPane styleClass="row-arrow-chip">
-                                <ImageView fitHeight="20.0" fitWidth="20.0" preserveRatio="true" styleClass="row-chevron-icon">
-                                    <image>
-                                        <Image url="@../icons/icons8-chevron-right-96.png"/>
-                                    </image>
-                                </ImageView>
+                                <SvgIcon icon="chevron-right" styleClass="svg-icon-muted"/>
                             </StackPane>
                         </HBox>
                     </graphic>
@@ -131,9 +112,9 @@
                         onAction="#onCustomSetup"
                         styleClass="hex-action-row">
                     <graphic>
-                        <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="18" styleClass="row-content">
+                        <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="20" styleClass="row-content">
                             <StackPane styleClass="row-icon-chip">
-                                <Label text="C" styleClass="row-icon-letter"/>
+                                <SvgIcon icon="custom" styleClass="svg-icon-primary"/>
                             </StackPane>
 
                             <VBox spacing="4" HBox.hgrow="ALWAYS">
@@ -142,11 +123,7 @@
                             </VBox>
 
                             <StackPane styleClass="row-arrow-chip">
-                                <ImageView fitHeight="20.0" fitWidth="20.0" preserveRatio="true" styleClass="row-chevron-icon">
-                                    <image>
-                                        <Image url="@../icons/icons8-chevron-right-96.png"/>
-                                    </image>
-                                </ImageView>
+                                <SvgIcon icon="chevron-right" styleClass="svg-icon-muted"/>
                             </StackPane>
                         </HBox>
                     </graphic>
@@ -158,9 +135,9 @@
                         onAction="#onBack"
                         styleClass="hex-action-row">
                     <graphic>
-                        <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="18" styleClass="row-content">
-                            <StackPane styleClass="row-icon-chip">
-                                <Label text="X" styleClass="row-icon-letter"/>
+                        <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="20" styleClass="row-content">
+                            <StackPane styleClass="row-icon-chip-danger">
+                                <SvgIcon icon="exit" styleClass="svg-icon-danger"/>
                             </StackPane>
 
                             <VBox spacing="4" HBox.hgrow="ALWAYS">
@@ -169,11 +146,7 @@
                             </VBox>
 
                             <StackPane styleClass="row-arrow-chip">
-                                <ImageView fitHeight="20.0" fitWidth="20.0" preserveRatio="true" styleClass="row-chevron-icon">
-                                    <image>
-                                        <Image url="@../icons/icons8-chevron-right-96.png"/>
-                                    </image>
-                                </ImageView>
+                                <SvgIcon icon="chevron-right" styleClass="svg-icon-muted"/>
                             </StackPane>
                         </HBox>
                     </graphic>
@@ -191,8 +164,8 @@
               spacing="14"
               styleClass="hex-network-panel">
 
-            <VBox spacing="8">
-                <Label text="Network" styleClass="network-title"/>
+            <VBox styleClass="menu-header">
+                <Label text="N E T W O R K" styleClass="text-muted-caps"/>
                 <Label text="Set players, host, or join LAN matches" styleClass="network-subtitle"/>
             </VBox>
 
@@ -219,7 +192,7 @@
                 <Button maxWidth="Infinity" onAction="#onHostLan" styleClass="mode-button">
                     <graphic>
                         <HBox alignment="CENTER_LEFT" spacing="12">
-                            <Label text="H" styleClass="mode-icon"/>
+                            <SvgIcon icon="lan" styleClass="svg-icon-primary"/>
                             <Label text="Host LAN Game" styleClass="mode-text"/>
                         </HBox>
                     </graphic>
@@ -227,16 +200,17 @@
 
                 <HBox alignment="CENTER_LEFT" spacing="10">
                     <Button text="Refresh" onAction="#onRefreshLan" maxWidth="Infinity"
-                            styleClass="btn-outline" HBox.hgrow="ALWAYS"/>
+                            styleClass="btn-secondary" HBox.hgrow="ALWAYS"/>
                     <Button fx:id="joinSelectedLanButton" text="Join Selected"
                             onAction="#onJoinSelectedLan" maxWidth="Infinity"
-                            styleClass="btn-outline" HBox.hgrow="ALWAYS"/>
+                            styleClass="btn-secondary" HBox.hgrow="ALWAYS"/>
                 </HBox>
             </VBox>
 
             <VBox spacing="8">
                 <Label text="Available Games" styleClass="field-title"/>
-                <ListView fx:id="lanGamesList" prefHeight="84" maxHeight="112" maxWidth="Infinity">
+                <ListView fx:id="lanGamesList" prefHeight="84" maxHeight="112" maxWidth="Infinity"
+                          styleClass="match-list">
                     <placeholder>
                         <Label text="No LAN games found" styleClass="empty-list-label"/>
                     </placeholder>
@@ -248,12 +222,13 @@
             <Region VBox.vgrow="ALWAYS"/>
 
             <VBox spacing="8" styleClass="network-footer">
-                <Label text="Chexsagon: Local, Bot, or LAN" styleClass="footer-line"/>
+                <Label text="Chexsagon: Local, Bot, or LAN" styleClass="footer-title"/>
                 <Label text="Glinski-style hex chess with synchronized network play."
                        wrapText="true"
                        styleClass="footer-line"/>
             </VBox>
         </VBox>
         </GridPane>
+        </StackPane>
     </ScrollPane>
 </StackPane>

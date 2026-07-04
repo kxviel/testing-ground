@@ -5,17 +5,14 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonBar;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.text.Font;
+import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -27,6 +24,7 @@ import seda_project.control_alt_defeat.gamebox.network.GameClient;
 import seda_project.control_alt_defeat.gamebox.network.GameServer;
 import seda_project.control_alt_defeat.gamebox.network.memory.MemoryProtocol;
 import seda_project.control_alt_defeat.gamebox.network.memory.MemoryStateSnapshot;
+import seda_project.control_alt_defeat.gamebox.ui.SvgIcon;
 import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
 import seda_project.control_alt_defeat.gamebox.util.Router;
 
@@ -40,18 +38,18 @@ public class GameController implements RouteDataReceiver {
     private static final String MENU_ROUTE = "/memory/MemoryMenu.fxml";
     private static final String PLAYER_ONE = "Player 1";
     private static final String PLAYER_TWO = "Player 2";
-    private static final String CARD_BACK_ICON = "/icons/icons8-question-100.png";
-    private static final String ACTIVE_PLAYER_CLASS = "active-player";
-    private static final String CARD_HIDDEN_CLASS = "memory-card-hidden";
-    private static final String CARD_FACE_UP_CLASS = "memory-card-face-up";
-    private static final String CARD_MATCHED_CLASS = "memory-card-matched";
-    private static final String CARD_SYMBOL_CLASS = "memory-card-symbol";
-    private static final double FALLBACK_GRID_WIDTH = 1350;
-    private static final double FALLBACK_GRID_HEIGHT = 608;
-    private static final double MAX_CARD_SIZE = 171;
-    private static final double MIN_CARD_SIZE = 34;
-    private static final double GRID_INSET = 12;
-    private static final double MIN_GAP = 8;
+    private static final String ACTIVE_PLAYER_CLASS = "score-active";
+    private static final String CARD_BASE_CLASS = "memory-card-button";
+    private static final String CARD_HIDDEN_CLASS = "card";
+    private static final String CARD_FACE_UP_CLASS = "card-flipped";
+    private static final String CARD_MATCHED_CLASS = "card-matched";
+    private static final double FALLBACK_GRID_WIDTH = 804;
+    private static final double FALLBACK_GRID_HEIGHT = 286;
+    private static final double MAX_CARD_SIZE = 128;
+    private static final double MIN_CARD_SIZE = 44;
+    private static final double CARD_FACE_SCALE = 0.72;
+    private static final double GRID_INSET = 0;
+    private static final double MIN_GAP = 10;
     private static final Duration MISMATCH_DELAY = Duration.millis(800);
     private static final int STATUS_SECONDS = 10;
 
@@ -74,7 +72,7 @@ public class GameController implements RouteDataReceiver {
     @FXML
     private GridPane cardGrid;
     @FXML
-    private ScrollPane memoryScroll;
+    private StackPane boardGridWrapper;
     @FXML
     private HBox p1Chip;
     @FXML
@@ -90,8 +88,7 @@ public class GameController implements RouteDataReceiver {
     private GameClient client;
 
     private Button[] cardButtons;
-    private Image cardBackImage;
-    private CardLayout cardLayout = new CardLayout(MAX_CARD_SIZE, 18, 48);
+    private CardLayout cardLayout = new CardLayout(MAX_CARD_SIZE, MIN_GAP, 32);
     private boolean inputLocked = false;
     private boolean gameEnded = false;
     private PauseTransition mismatchPause;
@@ -99,7 +96,7 @@ public class GameController implements RouteDataReceiver {
 
     @FXML
     private void initialize() {
-        memoryScroll.viewportBoundsProperty().addListener((obs, oldBounds, newBounds) -> resizeBoard());
+        boardGridWrapper.layoutBoundsProperty().addListener((obs, oldBounds, newBounds) -> resizeBoard());
     }
 
     @Override
@@ -292,7 +289,7 @@ public class GameController implements RouteDataReceiver {
     private void addCardButton(int idx) {
         Button btn = new Button();
         btn.setId("card_" + idx);
-        btn.getStyleClass().add("memory-card");
+        btn.getStyleClass().add(CARD_BASE_CLASS);
         setCardSize(btn, cardLayout.size());
         btn.setFocusTraversable(false);
         showCardBack(btn, cardLayout.fontSize());
@@ -438,7 +435,7 @@ public class GameController implements RouteDataReceiver {
         p2ScoreLabel.setText(String.valueOf(model.getScore(1)));
         setActivePlayer(p1Chip, cur == 0);
         setActivePlayer(p2Chip, cur == 1);
-        turnLabel.setText((cur == 0 ? PLAYER_ONE : PLAYER_TWO) + "'s Turn");
+        turnLabel.setText((cur == 0 ? PLAYER_ONE : PLAYER_TWO) + "'s turn");
     }
 
     private void refreshAll() {
@@ -458,10 +455,10 @@ public class GameController implements RouteDataReceiver {
         Card card = model.getCard(idx);
         Button btn = cardButtons[idx];
         if (card.isMatched()) {
-            showCardFace(btn, card.getSymbol(), CARD_MATCHED_CLASS, layout.fontSize());
+            showCardFace(btn, card.getSymbol(), CARD_MATCHED_CLASS, layout);
             btn.setDisable(true);
         } else if (card.isFaceUp()) {
-            showCardFace(btn, card.getSymbol(), CARD_FACE_UP_CLASS, layout.fontSize());
+            showCardFace(btn, card.getSymbol(), CARD_FACE_UP_CLASS, layout);
             btn.setDisable(false);
         } else {
             showCardBack(btn, layout.fontSize());
@@ -470,46 +467,26 @@ public class GameController implements RouteDataReceiver {
     }
 
     private void showCardBack(Button button, int fontSize) {
-        button.setText("");
-        button.setGraphic(cardBackGraphic(button));
-        button.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+        button.setText("?");
+        button.setGraphic(null);
+        button.setContentDisplay(ContentDisplay.TEXT_ONLY);
         setCardState(button, CARD_HIDDEN_CLASS, fontSize);
     }
 
-    private void showCardFace(Button button, String text, String stateClass, int fontSize) {
-        Label symbol = new Label(text);
-        symbol.getStyleClass().add(CARD_SYMBOL_CLASS);
-        symbol.setFont(Font.font("Segoe UI Emoji", fontSize));
-        symbol.setStyle("-fx-font-size:" + fontSize + "px;");
+    private void showCardFace(Button button, String faceId, String stateClass, CardLayout layout) {
+        SvgIcon face = new SvgIcon();
+        face.getStyleClass().add("memory-card-face");
+        face.setThemed(false);
+        face.setFitSize(Math.max(24.0, layout.size() * CARD_FACE_SCALE));
+        face.setIcon(faceId);
         button.setText("");
-        button.setGraphic(symbol);
+        button.setGraphic(face);
         button.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-        setCardState(button, stateClass, fontSize);
-    }
-
-    private ImageView cardBackGraphic(Button button) {
-        ImageView imageView = new ImageView(cardBackImage());
-        double imageSize = Math.max(8, Math.min(button.getPrefWidth(), button.getPrefHeight()) * 0.58);
-        imageView.setFitWidth(imageSize);
-        imageView.setFitHeight(imageSize);
-        imageView.setPreserveRatio(true);
-        imageView.setSmooth(true);
-        return imageView;
-    }
-
-    private Image cardBackImage() {
-        if (cardBackImage == null) {
-            var iconUrl = GameController.class.getResource(CARD_BACK_ICON);
-            if (iconUrl == null) {
-                throw new IllegalStateException("Missing card back icon: " + CARD_BACK_ICON);
-            }
-            cardBackImage = new Image(iconUrl.toExternalForm());
-        }
-        return cardBackImage;
+        setCardState(button, stateClass, layout.fontSize());
     }
 
     private CardLayout computeCardLayout() {
-        Bounds bounds = memoryScroll.getViewportBounds();
+        Bounds bounds = boardGridWrapper.getLayoutBounds();
         return cardLayout(model.getRows(), model.getCols(), bounds.getWidth(), bounds.getHeight());
     }
 
@@ -527,12 +504,12 @@ public class GameController implements RouteDataReceiver {
         }
 
         double size = Math.min(MAX_CARD_SIZE, fit < MIN_CARD_SIZE ? Math.max(1, fit) : fit);
-        int fontSize = (int) Math.round(Math.max(10, Math.min(54, size * 0.48)));
+        int fontSize = (int) Math.round(Math.max(10, Math.min(54, size * 0.48))) + 2;
         return new CardLayout(size, gap, fontSize);
     }
 
     private static double targetGap(int total) {
-        return total > 30 ? 18 : (total > 16 ? 22 : 26);
+        return MIN_GAP;
     }
 
     private static double available(double value, double fallback) {

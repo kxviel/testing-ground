@@ -12,8 +12,12 @@
 
 .hex-menu-main,
 .hex-game-main {
-    -fx-hgap: 28;
-    -fx-padding: 42 52 42 52;
+    -fx-hgap: 20;
+    -fx-padding: 0;
+}
+
+.hex-game-root {
+    -fx-padding: 20;
 }
 
 .hex-setup,
@@ -31,20 +35,23 @@
 }
 
 .hex-setup {
-    -fx-padding: 38 34 34 34;
+    -fx-padding: 20;
 }
 
 .hex-network-panel,
 .hex-game-info-panel,
 .hex-side-panel {
-    -fx-padding: 36 30 30 30;
+    -fx-padding: 20;
     -fx-background-color: -sh-sidebar;
     -fx-border-color: -sh-sidebar-border;
 }
 
-.hex-board-zone,
+.hex-board-zone {
+    -fx-padding: 16;
+}
+
 .canvas-frame {
-    -fx-padding: 28;
+    -fx-padding: 20;
 }
 
 .hex-board-zone,
@@ -73,13 +80,13 @@
 }
 
 .title {
-    -fx-font-size: 40px;
+    -fx-font-size: 42px;
     -fx-font-weight: 800;
 }
 
 .network-title,
 .hex-game-info-panel .title {
-    -fx-font-size: 28px;
+    -fx-font-size: 30px;
     -fx-font-weight: 800;
 }
 
@@ -147,7 +154,7 @@
 }
 
 .row-icon-letter {
-    -fx-font-size: 28px;
+    -fx-font-size: 30px;
     -fx-font-weight: 800;
     -fx-text-fill: -game-accent;
 }
@@ -172,7 +179,7 @@
     -fx-content-display: graphic-only;
     -fx-cursor: hand;
     -fx-min-height: 86;
-    -fx-padding: 16;
+    -fx-padding: 20;
 }
 
 .hex-action-row:hover {
@@ -185,13 +192,13 @@
 }
 
 .row-title {
-    -fx-font-size: 20px;
+    -fx-font-size: 22px;
     -fx-font-weight: 800;
 }
 
 .row-subtitle,
 .network-subtitle {
-    -fx-font-size: 14px;
+    -fx-font-size: 16px;
 }
 
 .row-arrow-chip {
@@ -218,7 +225,7 @@
 
 .network-footer {
     -fx-border-width: 1 0 0 0;
-    -fx-padding: 16 0 0 0;
+    -fx-padding: 20 0 0 0;
 }
 
 .hex-form-grid {
@@ -240,6 +247,43 @@
     -fx-padding: 10 14;
 }
 
+.hex-match-actions {
+    -fx-spacing: 12;
+}
+
+.hex-control-button {
+    -fx-background-color: -sh-card;
+    -fx-background-insets: 0;
+    -fx-background-radius: 2px;
+    -fx-border-color: -sh-input;
+    -fx-border-radius: 2px;
+    -fx-border-width: 1;
+    -fx-font-size: 16px;
+    -fx-font-weight: 600;
+    -fx-min-height: 40;
+    -fx-padding: 9 14;
+    -fx-text-fill: -sh-foreground;
+}
+
+.hex-control-button:hover {
+    -fx-background-color: -sh-card;
+    -fx-border-color: -sh-border;
+    -fx-text-fill: -sh-foreground;
+}
+
+.hex-control-button:pressed {
+    -fx-background-color: -sh-muted;
+}
+
+.hex-control-danger {
+    -fx-text-fill: -sh-destructive;
+}
+
+.hex-control-danger:hover {
+    -fx-border-color: -sh-destructive;
+    -fx-text-fill: -sh-destructive;
+}
+
 .mode-icon,
 .mode-text {
     -fx-text-fill: -sh-foreground;
@@ -251,11 +295,11 @@
 }
 
 .mode-icon {
-    -fx-font-size: 18px;
+    -fx-font-size: 20px;
 }
 
 .mode-text {
-    -fx-font-size: 13px;
+    -fx-font-size: 15px;
 }
 
 .status-box {
@@ -284,7 +328,7 @@
 }
 
 .turn-display {
-    -fx-font-size: 24px;
+    -fx-font-size: 26px;
     -fx-font-weight: 800;
 }
 
