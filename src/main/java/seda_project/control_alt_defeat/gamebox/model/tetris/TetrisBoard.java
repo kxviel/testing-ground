@@ -284,14 +284,7 @@ public class TetrisBoard {
             return this;
         }
 
-        int newRows = rows + n;
-        TetrisCell[][] newCells = createEmptyCells(newRows, columns);
-        int[][] newColors = createEmptyColors(newRows, columns);
-        for (int row = 0; row < rows; row++) {
-            System.arraycopy(cells[row], 0, newCells[row + n], 0, columns);
-            System.arraycopy(colorIndexes[row], 0, newColors[row + n], 0, columns);
-        }
-        return new TetrisBoard(newRows, columns, newCells, newColors);
+        return resizeRows(rows + n, 0, n);
     }
 
     public TetrisBoard addRowsAtBottom(int count) {
@@ -300,14 +293,7 @@ public class TetrisBoard {
             return this;
         }
 
-        int newRows = rows + n;
-        TetrisCell[][] newCells = createEmptyCells(newRows, columns);
-        int[][] newColors = createEmptyColors(newRows, columns);
-        for (int row = 0; row < rows; row++) {
-            System.arraycopy(cells[row], 0, newCells[row], 0, columns);
-            System.arraycopy(colorIndexes[row], 0, newColors[row], 0, columns);
-        }
-        return new TetrisBoard(newRows, columns, newCells, newColors);
+        return resizeRows(rows + n, 0, 0);
     }
 
     public TetrisBoard removeRowsFromTop(int count) {
@@ -316,14 +302,7 @@ public class TetrisBoard {
             return this;
         }
 
-        int newRows = rows - n;
-        TetrisCell[][] newCells = createEmptyCells(newRows, columns);
-        int[][] newColors = createEmptyColors(newRows, columns);
-        for (int row = 0; row < newRows; row++) {
-            System.arraycopy(cells[row + n], 0, newCells[row], 0, columns);
-            System.arraycopy(colorIndexes[row + n], 0, newColors[row], 0, columns);
-        }
-        return new TetrisBoard(newRows, columns, newCells, newColors);
+        return resizeRows(rows - n, n, 0);
     }
 
     public TetrisBoard removeRowsFromBottom(int count) {
@@ -332,14 +311,7 @@ public class TetrisBoard {
             return this;
         }
 
-        int newRows = rows - n;
-        TetrisCell[][] newCells = createEmptyCells(newRows, columns);
-        int[][] newColors = createEmptyColors(newRows, columns);
-        for (int row = 0; row < newRows; row++) {
-            System.arraycopy(cells[row], 0, newCells[row], 0, columns);
-            System.arraycopy(colorIndexes[row], 0, newColors[row], 0, columns);
-        }
-        return new TetrisBoard(newRows, columns, newCells, newColors);
+        return resizeRows(rows - n, 0, 0);
     }
 
     public TetrisBoard addColumnsAtLeft(int count) {
@@ -348,16 +320,7 @@ public class TetrisBoard {
             return this;
         }
 
-        int newColumns = columns + n;
-        TetrisCell[][] newCells = createEmptyCells(rows, newColumns);
-        int[][] newColors = createEmptyColors(rows, newColumns);
-        for (int row = 0; row < rows; row++) {
-            for (int col = 0; col < columns; col++) {
-                newCells[row][col + n] = cells[row][col];
-                newColors[row][col + n] = colorIndexes[row][col];
-            }
-        }
-        return new TetrisBoard(rows, newColumns, newCells, newColors);
+        return resizeColumns(columns + n, 0, n);
     }
 
     public TetrisBoard addColumnsAtRight(int count) {
@@ -366,16 +329,7 @@ public class TetrisBoard {
             return this;
         }
 
-        int newColumns = columns + n;
-        TetrisCell[][] newCells = createEmptyCells(rows, newColumns);
-        int[][] newColors = createEmptyColors(rows, newColumns);
-        for (int row = 0; row < rows; row++) {
-            for (int col = 0; col < columns; col++) {
-                newCells[row][col] = cells[row][col];
-                newColors[row][col] = colorIndexes[row][col];
-            }
-        }
-        return new TetrisBoard(rows, newColumns, newCells, newColors);
+        return resizeColumns(columns + n, 0, 0);
     }
 
     public TetrisBoard removeColumnsFromLeft(int count) {
@@ -384,16 +338,7 @@ public class TetrisBoard {
             return this;
         }
 
-        int newColumns = columns - n;
-        TetrisCell[][] newCells = createEmptyCells(rows, newColumns);
-        int[][] newColors = createEmptyColors(rows, newColumns);
-        for (int row = 0; row < rows; row++) {
-            for (int col = 0; col < newColumns; col++) {
-                newCells[row][col] = cells[row][col + n];
-                newColors[row][col] = colorIndexes[row][col + n];
-            }
-        }
-        return new TetrisBoard(rows, newColumns, newCells, newColors);
+        return resizeColumns(columns - n, n, 0);
     }
 
     public TetrisBoard removeColumnsFromRight(int count) {
@@ -402,15 +347,34 @@ public class TetrisBoard {
             return this;
         }
 
-        int newColumns = columns - n;
+        return resizeColumns(columns - n, 0, 0);
+    }
+
+    private TetrisBoard resizeRows(int newRows, int sourceStartRow, int targetStartRow) {
+        TetrisCell[][] newCells = createEmptyCells(newRows, columns);
+        int[][] newColors = createEmptyColors(newRows, columns);
+        int rowsToCopy = Math.min(rows - sourceStartRow, newRows - targetStartRow);
+
+        for (int row = 0; row < rowsToCopy; row++) {
+            System.arraycopy(cells[sourceStartRow + row], 0, newCells[targetStartRow + row], 0, columns);
+            System.arraycopy(colorIndexes[sourceStartRow + row], 0, newColors[targetStartRow + row], 0, columns);
+        }
+
+        return new TetrisBoard(newRows, columns, newCells, newColors);
+    }
+
+    private TetrisBoard resizeColumns(int newColumns, int sourceStartColumn, int targetStartColumn) {
         TetrisCell[][] newCells = createEmptyCells(rows, newColumns);
         int[][] newColors = createEmptyColors(rows, newColumns);
+        int columnsToCopy = Math.min(columns - sourceStartColumn, newColumns - targetStartColumn);
+
         for (int row = 0; row < rows; row++) {
-            for (int col = 0; col < newColumns; col++) {
-                newCells[row][col] = cells[row][col];
-                newColors[row][col] = colorIndexes[row][col];
+            for (int column = 0; column < columnsToCopy; column++) {
+                newCells[row][targetStartColumn + column] = cells[row][sourceStartColumn + column];
+                newColors[row][targetStartColumn + column] = colorIndexes[row][sourceStartColumn + column];
             }
         }
+
         return new TetrisBoard(rows, newColumns, newCells, newColors);
     }
 

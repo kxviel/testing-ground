@@ -1,12 +1,8 @@
 package seda_project.control_alt_defeat.gamebox.controller.tetris;
 
-import javafx.animation.Animation;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
@@ -19,7 +15,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 import seda_project.control_alt_defeat.gamebox.model.tetris.BoardPosition;
 import seda_project.control_alt_defeat.gamebox.model.tetris.CustomPieceBuilder;
 import seda_project.control_alt_defeat.gamebox.model.tetris.PieceShape;
@@ -29,10 +24,12 @@ import seda_project.control_alt_defeat.gamebox.network.GameClient;
 import seda_project.control_alt_defeat.gamebox.network.GameServer;
 import seda_project.control_alt_defeat.gamebox.network.LanDiscoveryService;
 import seda_project.control_alt_defeat.gamebox.network.tetris.TetrisProtocol;
+import seda_project.control_alt_defeat.gamebox.util.DiscoveredGameListController;
 import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
 import seda_project.control_alt_defeat.gamebox.util.Router;
 import seda_project.control_alt_defeat.gamebox.util.SafeText;
 import seda_project.control_alt_defeat.gamebox.util.UiInputGuards;
+import seda_project.control_alt_defeat.gamebox.util.UiVisibility;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -127,13 +124,15 @@ public class TetrisMenuController implements RouteDataReceiver {
 
     private static final int CUSTOM_EDITOR_SIZE = 5;
     private static final int LAN_GAME_STALE_MS = 4_000;
+    private static final int CONTENT_COLUMN_PERCENT = 60;
+    private static final int SIDEBAR_COLUMN_PERCENT = 40;
 
     private MenuView currentView = MenuView.MODE_CHOICE;
     private final LanDiscoveryService udpDiscovery = LanDiscoveryService.tetris();
     private final Button[][] customPieceButtons = new Button[CUSTOM_EDITOR_SIZE][CUSTOM_EDITOR_SIZE];
     private final boolean[][] customPieceCells = new boolean[CUSTOM_EDITOR_SIZE][CUSTOM_EDITOR_SIZE];
     private final List<PieceShape> customPieces = new ArrayList<>();
-    private Timeline staleGameTimer;
+    private DiscoveredGameListController discoveredGameList;
     private volatile GameServer hostServer;
     private volatile GameClient joinClient;
     private String hostName;
@@ -150,6 +149,7 @@ public class TetrisMenuController implements RouteDataReceiver {
                 hostPlayerNameField,
                 joinPlayerNameField);
         buildCustomPieceGrid();
+        discoveredGameList = new DiscoveredGameListController(availableGamesList);
         speedChoiceBox.getItems().setAll("Slow", "Normal", "Fast");
         speedChoiceBox.getSelectionModel().select("Normal");
         availableGamesList.setPlaceholder(new Label("No LAN games found yet."));
@@ -297,7 +297,7 @@ public class TetrisMenuController implements RouteDataReceiver {
         if (view != MenuView.JOIN) {
             udpDiscovery.stopListening();
             stopStaleGameTimer();
-            availableGamesList.getItems().clear();
+            discoveredGameList.clear();
             closeJoinClient();
         } else {
             availableGamesList.setDisable(false);
@@ -310,8 +310,7 @@ public class TetrisMenuController implements RouteDataReceiver {
         } else {
             hostInfoLabel.setText("Not advertising.");
             joinedPlayerLabel.setText("Joined: none");
-            hostStartGameButton.setVisible(false);
-            hostStartGameButton.setManaged(false);
+            UiVisibility.setVisibleManaged(hostStartGameButton, false);
             hostStartGameButton.setDisable(true);
             hostPlayerNameField.setDisable(false);
         }
@@ -344,18 +343,18 @@ public class TetrisMenuController implements RouteDataReceiver {
     }
 
     private void showOnly(MenuView view) {
-        contentColumn.setPercentWidth(65);
-        optionsColumn.setPercentWidth(35);
-        setShown(optionsPanel, true);
-        setShown(actionButtonRow, true);
+        contentColumn.setPercentWidth(CONTENT_COLUMN_PERCENT);
+        optionsColumn.setPercentWidth(SIDEBAR_COLUMN_PERCENT);
+        UiVisibility.setVisibleManaged(optionsPanel, true);
+        UiVisibility.setVisibleManaged(actionButtonRow, true);
         updateSidebarTitle(view);
 
-        setShown(modeChoicePane, view == MenuView.MODE_CHOICE || isLanView(view));
-        setShown(localPane, view == MenuView.LOCAL);
-        setShown(lanPane, view == MenuView.LAN);
-        setShown(hostPane, view == MenuView.HOST);
-        setShown(joinPane, view == MenuView.JOIN);
-        setShown(configBox, view == MenuView.LOCAL || view == MenuView.HOST);
+        UiVisibility.setVisibleManaged(modeChoicePane, view == MenuView.MODE_CHOICE || isLanView(view));
+        UiVisibility.setVisibleManaged(localPane, view == MenuView.LOCAL);
+        UiVisibility.setVisibleManaged(lanPane, view == MenuView.LAN);
+        UiVisibility.setVisibleManaged(hostPane, view == MenuView.HOST);
+        UiVisibility.setVisibleManaged(joinPane, view == MenuView.JOIN);
+        UiVisibility.setVisibleManaged(configBox, view == MenuView.LOCAL || view == MenuView.HOST);
     }
 
     private void updateSidebarTitle(MenuView view) {
@@ -434,7 +433,7 @@ public class TetrisMenuController implements RouteDataReceiver {
         boolean shown = (currentView == MenuView.LOCAL || currentView == MenuView.HOST)
                 && customPieceCheckBox.isSelected();
 
-        setShown(customEditorBox, shown);
+        UiVisibility.setVisibleManaged(customEditorBox, shown);
 
         if (!shown) {
             customPieceStatusLabel.setText("");
@@ -449,11 +448,6 @@ public class TetrisMenuController implements RouteDataReceiver {
             case HOST, JOIN -> MenuView.LAN;
             case MODE_CHOICE -> MenuView.MODE_CHOICE;
         };
-    }
-
-    private void setShown(Node node, boolean shown) {
-        node.setVisible(shown);
-        node.setManaged(shown);
     }
 
     private void setSelected(Button button, boolean selected) {
@@ -530,8 +524,7 @@ public class TetrisMenuController implements RouteDataReceiver {
         hostInfoLabel.setText("Advertising as " + hostName + ".");
         joinedPlayerLabel.setText("Joined: none");
         hostPlayerNameField.setDisable(true);
-        hostStartGameButton.setVisible(true);
-        hostStartGameButton.setManaged(true);
+        UiVisibility.setVisibleManaged(hostStartGameButton, true);
         hostStartGameButton.setDisable(true);
         startButton.setText("Host Started");
         startButton.setDisable(true);
@@ -635,48 +628,23 @@ public class TetrisMenuController implements RouteDataReceiver {
     }
 
     private void startDiscovery() {
-        availableGamesList.getItems().clear();
+        discoveredGameList.clear();
         udpDiscovery.startListening(
                 game -> Platform.runLater(() -> addOrUpdateGame(game)),
                 error -> Platform.runLater(() -> statusLabel.setText(error)));
     }
 
     private void addOrUpdateGame(LanDiscoveryService.DiscoveredGame game) {
-        int existingIndex = IntStream.range(0, availableGamesList.getItems().size())
-                .filter(index -> availableGamesList.getItems().get(index).sessionId().equals(game.sessionId()))
-                .findFirst()
-                .orElse(-1);
-
-        if (existingIndex >= 0) {
-            availableGamesList.getItems().set(existingIndex, game);
-            return;
-        }
-
-        availableGamesList.getItems().add(game);
-        if (availableGamesList.getSelectionModel().isEmpty()) {
-            availableGamesList.getSelectionModel().selectFirst();
-        }
+        discoveredGameList.upsert(game);
         updateJoinSelectedButton();
     }
 
     private void startStaleGameTimer() {
-        stopStaleGameTimer();
-        staleGameTimer = new Timeline(new KeyFrame(Duration.millis(1_000), event -> removeStaleGames()));
-        staleGameTimer.setCycleCount(Animation.INDEFINITE);
-        staleGameTimer.play();
+        discoveredGameList.startStaleTimer(LAN_GAME_STALE_MS);
     }
 
     private void stopStaleGameTimer() {
-        if (staleGameTimer != null) {
-            staleGameTimer.stop();
-            staleGameTimer = null;
-        }
-    }
-
-    private void removeStaleGames() {
-        long cutoff = System.currentTimeMillis() - LAN_GAME_STALE_MS;
-        availableGamesList.getItems().removeIf(game -> game.timestamp() < cutoff);
-        updateJoinSelectedButton();
+        discoveredGameList.stop();
     }
 
     private void updateJoinSelectedButton() {

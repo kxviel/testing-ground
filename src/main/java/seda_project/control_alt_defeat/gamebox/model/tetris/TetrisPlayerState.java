@@ -121,17 +121,7 @@ public record TetrisPlayerState(
         }
 
         List<PieceShape> nextQueue = queuedShapes.isEmpty() ? queuedShapes : queuedShapes.subList(1, queuedShapes.size());
-        return new TetrisPlayerState(
-                playerName,
-                side,
-                board,
-                piece,
-                score,
-                status,
-                finalScore,
-                boardObject,
-                effects,
-                nextQueue);
+        return copy(board, piece, score, status, finalScore, boardObject, effects, nextQueue);
     }
 
     public TetrisPlayerState moveLeft() {
@@ -191,45 +181,15 @@ public record TetrisPlayerState(
     }
 
     public TetrisPlayerState withBoard(TetrisBoard nextBoard) {
-        return new TetrisPlayerState(
-                playerName,
-                side,
-                nextBoard,
-                activePiece,
-                score,
-                status,
-                finalScore,
-                boardObject,
-                effects,
-                queuedShapes);
+        return copy(nextBoard, activePiece, score, status, finalScore, boardObject, effects, queuedShapes);
     }
 
     public TetrisPlayerState withActivePiece(TetrisPiece nextPiece) {
-        return new TetrisPlayerState(
-                playerName,
-                side,
-                board,
-                nextPiece,
-                score,
-                status,
-                finalScore,
-                boardObject,
-                effects,
-                queuedShapes);
+        return copy(board, nextPiece, score, status, finalScore, boardObject, effects, queuedShapes);
     }
 
     public TetrisPlayerState withScore(int nextScore) {
-        return new TetrisPlayerState(
-                playerName,
-                side,
-                board,
-                activePiece,
-                nextScore,
-                status,
-                finalScore,
-                boardObject,
-                effects,
-                queuedShapes);
+        return copy(board, activePiece, nextScore, status, finalScore, boardObject, effects, queuedShapes);
     }
 
     public TetrisPlayerState withBoardObject(TetrisBoardObject nextBoardObject) {
@@ -240,17 +200,7 @@ public record TetrisPlayerState(
             return this;
         }
 
-        return new TetrisPlayerState(
-                playerName,
-                side,
-                board,
-                activePiece,
-                score,
-                status,
-                finalScore,
-                nextBoardObject,
-                effects,
-                queuedShapes);
+        return copy(board, activePiece, score, status, finalScore, nextBoardObject, effects, queuedShapes);
     }
 
     public TetrisPlayerState withBugPosition(BoardPosition nextBugPosition) {
@@ -260,17 +210,7 @@ public record TetrisPlayerState(
     }
 
     public TetrisPlayerState clearBoardObject() {
-        return new TetrisPlayerState(
-                playerName,
-                side,
-                board,
-                activePiece,
-                score,
-                status,
-                finalScore,
-                null,
-                effects,
-                queuedShapes);
+        return copy(board, activePiece, score, status, finalScore, null, effects, queuedShapes);
     }
 
     public TetrisPlayerState clearBug() {
@@ -307,25 +247,13 @@ public record TetrisPlayerState(
     }
 
     public TetrisPlayerState withEffects(TetrisEffectState nextEffects) {
-        return new TetrisPlayerState(
-                playerName,
-                side,
-                board,
-                activePiece,
-                score,
-                status,
-                finalScore,
-                boardObject,
-                nextEffects,
-                queuedShapes);
+        return copy(board, activePiece, score, status, finalScore, boardObject, nextEffects, queuedShapes);
     }
 
     public TetrisPlayerState tickEffects() {
         TetrisEffectState previousEffects = effects;
         TetrisEffectState nextEffects = effects.tick();
-        TetrisPlayerState next = new TetrisPlayerState(
-                playerName,
-                side,
+        TetrisPlayerState next = copy(
                 board,
                 activePiece,
                 score,
@@ -347,9 +275,7 @@ public record TetrisPlayerState(
             return this;
         }
 
-        return new TetrisPlayerState(
-                playerName,
-                side,
+        return copy(
                 board,
                 activePiece,
                 score,
@@ -366,9 +292,7 @@ public record TetrisPlayerState(
             return this;
         }
 
-        return new TetrisPlayerState(
-                playerName,
-                side,
+        return copy(
                 board,
                 activePiece,
                 score,
@@ -403,9 +327,7 @@ public record TetrisPlayerState(
             clearedLines = fullRows.size();
         }
 
-        return new TetrisPlayerState(
-                playerName,
-                side,
+        return copy(
                 clearedBoard,
                 null,
                 score + clearedLines,
@@ -418,7 +340,9 @@ public record TetrisPlayerState(
 
     public TetrisPlayerState addTopRows(int count) {
         int n = Math.max(0, count);
-        if (n == 0) return this;
+        if (n == 0) {
+            return this;
+        }
         TetrisBoard newBoard = board.addRowsAtTop(n);
         TetrisPiece newPiece = activePiece == null ? null
                 : activePiece.withPosition(new BoardPosition(
@@ -429,19 +353,23 @@ public record TetrisPlayerState(
                         boardObject.type(),
                         new BoardPosition(boardObject.position().row() + n, boardObject.position().column()),
                         boardObject.lifetimeTicks());
-        return new TetrisPlayerState(playerName, side, newBoard, newPiece, score, status, finalScore, newObject, effects, queuedShapes);
+        return copy(newBoard, newPiece, score, status, finalScore, newObject, effects, queuedShapes);
     }
 
     public TetrisPlayerState addBottomRows(int count) {
         int n = Math.max(0, count);
-        if (n == 0) return this;
+        if (n == 0) {
+            return this;
+        }
         TetrisBoard newBoard = board.addRowsAtBottom(n);
-        return new TetrisPlayerState(playerName, side, newBoard, activePiece, score, status, finalScore, boardObject, effects, queuedShapes);
+        return copy(newBoard, activePiece, score, status, finalScore, boardObject, effects, queuedShapes);
     }
 
     public TetrisPlayerState removeTopRows(int count) {
         int n = Math.min(count, board.rows() - TetrisBoard.MIN_ROWS);
-        if (n <= 0) return this;
+        if (n <= 0) {
+            return this;
+        }
         TetrisBoard newBoard = board.removeRowsFromTop(n);
         TetrisPiece newPiece = null;
         if (activePiece != null) {
@@ -460,12 +388,14 @@ public record TetrisPlayerState(
                 newObject = new TetrisBoardObject(boardObject.type(), newPos, boardObject.lifetimeTicks());
             }
         }
-        return new TetrisPlayerState(playerName, side, newBoard, newPiece, score, status, finalScore, newObject, effects, queuedShapes);
+        return copy(newBoard, newPiece, score, status, finalScore, newObject, effects, queuedShapes);
     }
 
     public TetrisPlayerState removeBottomRows(int count) {
         int n = Math.min(count, board.rows() - TetrisBoard.MIN_ROWS);
-        if (n <= 0) return this;
+        if (n <= 0) {
+            return this;
+        }
         TetrisBoard newBoard = board.removeRowsFromBottom(n);
         TetrisPiece newPiece = null;
         if (activePiece != null) {
@@ -475,7 +405,7 @@ public record TetrisPlayerState(
         if (boardObject != null && newBoard.isInside(boardObject.position())) {
             newObject = boardObject;
         }
-        return new TetrisPlayerState(playerName, side, newBoard, newPiece, score, status, finalScore, newObject, effects, queuedShapes);
+        return copy(newBoard, newPiece, score, status, finalScore, newObject, effects, queuedShapes);
     }
 
     public TetrisPlayerState addLeftColumns(int count) {
@@ -483,9 +413,7 @@ public record TetrisPlayerState(
     }
 
     public TetrisPlayerState addRightColumns(int count) {
-        return new TetrisPlayerState(
-                playerName,
-                side,
+        return copy(
                 board.addColumnsAtRight(count),
                 activePiece,
                 score,
@@ -515,17 +443,7 @@ public record TetrisPlayerState(
         TetrisBoardObject newObject = boardObject != null && newBoard.isInside(boardObject.position())
                 ? boardObject
                 : null;
-        return new TetrisPlayerState(
-                playerName,
-                side,
-                newBoard,
-                newPiece,
-                score,
-                status,
-                finalScore,
-                newObject,
-                effects,
-                queuedShapes);
+        return copy(newBoard, newPiece, score, status, finalScore, newObject, effects, queuedShapes);
     }
 
     private TetrisPlayerState shiftForColumnChange(TetrisBoard newBoard, int columnDelta) {
@@ -555,31 +473,11 @@ public record TetrisPlayerState(
             }
         }
 
-        return new TetrisPlayerState(
-                playerName,
-                side,
-                newBoard,
-                newPiece,
-                score,
-                status,
-                finalScore,
-                newObject,
-                effects,
-                queuedShapes);
+        return copy(newBoard, newPiece, score, status, finalScore, newObject, effects, queuedShapes);
     }
 
     public TetrisPlayerState lost() {
-        return new TetrisPlayerState(
-                playerName,
-                side,
-                board,
-                null,
-                score,
-                PlayerStatus.LOST,
-                score,
-                null,
-                effects,
-                queuedShapes);
+        return copy(board, null, score, PlayerStatus.LOST, score, null, effects, queuedShapes);
     }
 
     private TetrisPlayerState move(int rowDelta, int columnDelta) {
@@ -593,6 +491,28 @@ public record TetrisPlayerState(
                 position.column() + columnDelta));
 
         return board.canPlace(moved) ? withActivePiece(moved) : this;
+    }
+
+    private TetrisPlayerState copy(
+            TetrisBoard board,
+            TetrisPiece activePiece,
+            int score,
+            PlayerStatus status,
+            Integer finalScore,
+            TetrisBoardObject boardObject,
+            TetrisEffectState effects,
+            List<PieceShape> queuedShapes) {
+        return new TetrisPlayerState(
+                playerName,
+                side,
+                board,
+                activePiece,
+                score,
+                status,
+                finalScore,
+                boardObject,
+                effects,
+                queuedShapes);
     }
 
     private static BoardPosition spawnPosition(

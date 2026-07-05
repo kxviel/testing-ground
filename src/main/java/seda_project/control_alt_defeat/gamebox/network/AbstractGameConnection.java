@@ -22,7 +22,7 @@ abstract class AbstractGameConnection implements Closeable {
     private static final Runnable NO_OP_DISCONNECT_LISTENER = () -> {
     };
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    protected final Logger log = LoggerFactory.getLogger(getClass());
 
     protected Socket socket;
     protected BufferedReader reader;

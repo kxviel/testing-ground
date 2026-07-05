@@ -1,7 +1,6 @@
 package seda_project.control_alt_defeat.gamebox.model.hexchess;
 
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -121,7 +120,7 @@ public record HexGameState(
         }
 
         HexPieceColor offerBy = player == null ? turn : player;
-        return new HexGameState(
+        return copy(
                 board,
                 turn,
                 status,
@@ -167,7 +166,7 @@ public record HexGameState(
             return withMessage("Only the opponent can decline a draw offer.");
         }
 
-        return new HexGameState(
+        return copy(
                 board,
                 turn,
                 status,
@@ -193,7 +192,7 @@ public record HexGameState(
 
         HexPieceColor loser = player == null ? turn : player;
         HexPieceColor winner = loser.opponent();
-        return new HexGameState(
+        return copy(
                 board,
                 turn,
                 HexGameStatus.RESIGNED,
@@ -276,7 +275,7 @@ public record HexGameState(
                 : resolution.message();
 
         if (resolution.terminal()) {
-            return new HexGameState(
+            return copy(
                     nextBoard,
                     nextTurn,
                     resolution.status(),
@@ -291,7 +290,7 @@ public record HexGameState(
                     resolution.blackScore());
         }
 
-        return new HexGameState(
+        return copy(
                 nextBoard,
                 nextTurn,
                 resolution.status(),
@@ -307,43 +306,23 @@ public record HexGameState(
     }
 
     private HexGameState drawn(String message) {
-        return drawn(
+        return copy(
                 board,
                 turn,
+                HexGameStatus.DRAW,
+                message,
                 lastMove,
                 enPassantTarget,
+                null,
                 halfMoveClock,
                 repetitionCounts,
                 doubleMoveEligibleSquares,
-                message);
-    }
-
-    private HexGameState drawn(
-            HexBoard nextBoard,
-            HexPieceColor nextTurn,
-            HexMoveRecord nextLastMove,
-            HexCoordinate nextEnPassantTarget,
-            int nextHalfMoveClock,
-            Map<String, Integer> nextRepetitions,
-            Set<HexCoordinate> nextDoubleMoveEligibleSquares,
-            String message) {
-        return new HexGameState(
-                nextBoard,
-                nextTurn,
-                HexGameStatus.DRAW,
-                message,
-                nextLastMove,
-                nextEnPassantTarget,
-                null,
-                nextHalfMoveClock,
-                nextRepetitions,
-                nextDoubleMoveEligibleSquares,
                 0.5,
                 0.5);
     }
 
     public HexGameState withStatusMessage(String message) {
-        return new HexGameState(
+        return copy(
                 board,
                 turn,
                 status,
@@ -367,7 +346,7 @@ public record HexGameState(
     }
 
     private HexGameState terminal(HexGameStatus nextStatus, String message) {
-        return new HexGameState(
+        return copy(
                 board,
                 turn,
                 nextStatus,
@@ -386,6 +365,34 @@ public record HexGameState(
         return withStatusMessage(message);
     }
 
+    private HexGameState copy(
+            HexBoard board,
+            HexPieceColor turn,
+            HexGameStatus status,
+            String statusMessage,
+            HexMoveRecord lastMove,
+            HexCoordinate enPassantTarget,
+            HexPieceColor drawOfferBy,
+            int halfMoveClock,
+            Map<String, Integer> repetitionCounts,
+            Set<HexCoordinate> doubleMoveEligibleSquares,
+            double whiteScore,
+            double blackScore) {
+        return new HexGameState(
+                board,
+                turn,
+                status,
+                statusMessage,
+                lastMove,
+                enPassantTarget,
+                drawOfferBy,
+                halfMoveClock,
+                repetitionCounts,
+                doubleMoveEligibleSquares,
+                whiteScore,
+                blackScore);
+    }
+
     private static Map<String, Integer> incrementRepetition(Map<String, Integer> counts, String key) {
         Map<String, Integer> next = new LinkedHashMap<>(counts);
         next.merge(key, 1, Integer::sum);
@@ -393,17 +400,7 @@ public record HexGameState(
     }
 
     private Set<HexCoordinate> updateDoubleMoveEligibility(HexMove move, HexCoordinate capturedAt) {
-        if (HexMoveRules.usesStandardDoubleMoveRules(doubleMoveEligibleSquares)) {
-            return doubleMoveEligibleSquares;
-        }
-
-        Set<HexCoordinate> next = new LinkedHashSet<>(doubleMoveEligibleSquares);
-        next.remove(move.from());
-        next.remove(move.to());
-        if (capturedAt != null) {
-            next.remove(capturedAt);
-        }
-        return Set.copyOf(next);
+        return HexMoveRules.updateDoubleMoveEligibility(doubleMoveEligibleSquares, move, capturedAt);
     }
 
     private static Set<HexCoordinate> initialDoubleMoveEligibleSquares(boolean allowStandardDoubleMoves) {

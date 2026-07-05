@@ -26,6 +26,12 @@ final class HexChessCanvasBoard {
     private static final int CORNER_COUNT = 6;
     private static final double CORNER_ANGLE_DEGREES = 60.0;
     private static final double HEX_APOTHEM_RATIO = Math.sqrt(3.0) / 2.0;
+    public static final Color CELL_LIGHT = Color.web("#f7c895");
+    public static final Color CELL_MID = Color.web("#e5aa68");
+    public static final Color CELL_DARK = Color.web("#cf873d");
+    public static final Color STROKE_BASE = Color.web("#6b4a28");
+    public static final Color STROKE_SELECTED = Color.web("#0f62fe");
+    public static final Color NOTATION_COLOR = Color.rgb(23, 23, 23, 0.45);
     private static final Color WHITE_PIECE = Color.WHITE;
     private static final Color BLACK_PIECE = Color.web("#31111D");
     private static final Color WHITE_PIECE_STROKE = Color.web("#31111D");
@@ -105,6 +111,14 @@ final class HexChessCanvasBoard {
             graphics.setLineWidth(lineWidth);
             graphics.strokePolygon(shape.xPoints(), shape.yPoints(), CORNER_COUNT);
         });
+    }
+
+    static Color baseFill(HexCoordinate coordinate) {
+        return switch (HexBoardGeometry.tone(coordinate)) {
+            case LIGHT -> CELL_LIGHT;
+            case MID -> CELL_MID;
+            case DARK -> CELL_DARK;
+        };
     }
 
     void drawNotation(GraphicsContext graphics, HexCoordinate coordinate, boolean occupied, Color notationColor) {

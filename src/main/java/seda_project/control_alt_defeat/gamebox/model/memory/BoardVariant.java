@@ -28,10 +28,10 @@ public class BoardVariant {
         this.cols = dims[1];
     }
 
-    public static int[] bestDimensions(int N) {
-        List<int[]> candidates = IntStream.rangeClosed(1, (int) Math.sqrt(N))
-                .filter(r -> N % r == 0)
-                .mapToObj(r -> new int[] { r, N / r })
+    public static int[] bestDimensions(int total) {
+        List<int[]> candidates = IntStream.rangeClosed(1, (int) Math.sqrt(total))
+                .filter(rows -> total % rows == 0)
+                .mapToObj(rows -> new int[] { rows, total / rows })
                 .toList();
 
         return candidates.stream()
@@ -39,16 +39,18 @@ public class BoardVariant {
                 .max(Comparator.comparingInt(pair -> pair[0]))
                 .orElseGet(() -> candidates.stream()
                         .min(Comparator.comparingDouble(BoardVariant::aspectRatio))
-                        .orElse(new int[] { 1, N }));
+                        .orElse(new int[] { 1, total }));
     }
 
     public static List<BoardVariant> computeVariants(int k) {
-        if (k < 1 || k > 45)
+        if (k < 1 || k > MAX_CARDS) {
             return List.of();
+        }
 
         int maxN = MAX_CARDS / k;
-        if (maxN == 0)
+        if (maxN == 0) {
             return List.of();
+        }
 
         Map<Integer, String> sizes = new LinkedHashMap<>();
         sizes.put(maxN, "Large Board");

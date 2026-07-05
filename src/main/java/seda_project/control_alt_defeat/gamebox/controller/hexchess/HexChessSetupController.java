@@ -12,7 +12,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexBoard;
-import seda_project.control_alt_defeat.gamebox.model.hexchess.HexBoardGeometry;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexChessGameSetup;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexCoordinate;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexGameMode;
@@ -32,12 +31,6 @@ public class HexChessSetupController implements RouteDataReceiver {
     private static final double HEX_SIZE = 24.0;
     private static final double BOARD_WIDTH = 720.0;
     private static final double BOARD_HEIGHT = 590.0;
-    private static final Color CELL_LIGHT = Color.web("#f7c895");
-    private static final Color CELL_MID = Color.web("#e5aa68");
-    private static final Color CELL_DARK = Color.web("#cf873d");
-    private static final Color STROKE_BASE = Color.web("#6b4a28");
-    private static final Color STROKE_SELECTED = Color.web("#0f62fe");
-    private static final Color NOTATION_COLOR = Color.rgb(23, 23, 23, 0.45);
 
     @FXML
     private Canvas boardCanvas;
@@ -224,19 +217,19 @@ public class HexChessSetupController implements RouteDataReceiver {
 
     private void drawCell(GraphicsContext graphics, HexCoordinate coordinate) {
         canvasBoard.fillCell(graphics, coordinate, cellFill(coordinate));
-        canvasBoard.strokeCell(graphics, coordinate, STROKE_BASE, 1);
+        canvasBoard.strokeCell(graphics, coordinate, HexChessCanvasBoard.STROKE_BASE, 1);
         if (coordinate.equals(selectedCoordinate)) {
-            canvasBoard.strokeCell(graphics, coordinate, STROKE_SELECTED, 3);
+            canvasBoard.strokeCell(graphics, coordinate, HexChessCanvasBoard.STROKE_SELECTED, 3);
         }
-        canvasBoard.drawNotation(graphics, coordinate, board.pieceAt(coordinate).isPresent(), NOTATION_COLOR);
+        canvasBoard.drawNotation(
+                graphics,
+                coordinate,
+                board.pieceAt(coordinate).isPresent(),
+                HexChessCanvasBoard.NOTATION_COLOR);
     }
 
     private Color cellFill(HexCoordinate coordinate) {
-        return switch (HexBoardGeometry.tone(coordinate)) {
-            case LIGHT -> CELL_LIGHT;
-            case MID -> CELL_MID;
-            case DARK -> CELL_DARK;
-        };
+        return HexChessCanvasBoard.baseFill(coordinate);
     }
 
     private void drawPiece(GraphicsContext graphics, HexCoordinate coordinate) {

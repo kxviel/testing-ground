@@ -95,7 +95,26 @@ public class GameModel {
             boolean gameOver,
             List<Boolean> faceUp,
             List<Boolean> matched) {
-        if (orderedSymbols.size() != faceUp.size() || orderedSymbols.size() != matched.size()) {
+        this(k, n, rows, cols, orderedSymbols, currentPlayer, score0, score1, gameOver, faceUp, matched,
+                Collections.nCopies(orderedSymbols.size(), -1));
+    }
+
+    public GameModel(
+            int k,
+            int n,
+            int rows,
+            int cols,
+            List<String> orderedSymbols,
+            int currentPlayer,
+            int score0,
+            int score1,
+            boolean gameOver,
+            List<Boolean> faceUp,
+            List<Boolean> matched,
+            List<Integer> matchedBy) {
+        if (orderedSymbols.size() != faceUp.size()
+                || orderedSymbols.size() != matched.size()
+                || orderedSymbols.size() != matchedBy.size()) {
             throw new IllegalArgumentException("Card state size must match symbol count.");
         }
 
@@ -111,7 +130,9 @@ public class GameModel {
 
         IntStream.range(0, cards.size()).forEach(i -> {
             Card card = cards.get(i);
-            card.setMatched(matched.get(i));
+            if (matched.get(i)) {
+                card.setMatchedBy(matchedBy.get(i));
+            }
             card.setFaceUp(faceUp.get(i) || matched.get(i));
             if (card.isFaceUp() && !card.isMatched()) {
                 openedThisTurn.add(i);
@@ -185,7 +206,7 @@ public class GameModel {
                 .allMatch(sym::equals);
 
         if (match) {
-            openedThisTurn.forEach(id -> cards.get(id).setMatched(true));
+            openedThisTurn.forEach(id -> cards.get(id).setMatchedBy(currentPlayer));
             scores[currentPlayer]++;
             remainingCards -= k;
             openedThisTurn.clear();

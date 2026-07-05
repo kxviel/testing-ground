@@ -36,6 +36,7 @@ import seda_project.control_alt_defeat.gamebox.network.tetris.TetrisProtocol;
 import seda_project.control_alt_defeat.gamebox.network.tetris.TetrisStateSnapshot;
 import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
 import seda_project.control_alt_defeat.gamebox.util.Router;
+import seda_project.control_alt_defeat.gamebox.util.UiVisibility;
 
 import java.util.HashSet;
 import java.util.List;
@@ -293,8 +294,7 @@ public class TetrisGameController implements RouteDataReceiver {
     private void renderResult() {
         boolean finished = gameState.isFinished();
 
-        restartButton.setVisible(finished);
-        restartButton.setManaged(finished);
+        UiVisibility.setVisibleManaged(restartButton, finished);
         restartButton.setDisable(!setup.isLocal() && networkClosed);
 
         if (!setup.isLocal() && networkClosed) {
@@ -598,7 +598,7 @@ public class TetrisGameController implements RouteDataReceiver {
     }
 
     private TetrisGameState spawnObject(TetrisGameState state, PlayerSide side) {
-        TetrisPlayerState player = side == PlayerSide.BOTTOM ? state.bottomPlayer() : state.topPlayer();
+        TetrisPlayerState player = state.player(side);
         if (!player.isPlaying() || player.boardObject() != null) {
             return state;
         }
@@ -621,13 +621,13 @@ public class TetrisGameController implements RouteDataReceiver {
             return Set.of();
         }
 
-        TetrisPlayerState player = side == PlayerSide.BOTTOM ? state.bottomPlayer() : state.topPlayer();
+        TetrisPlayerState player = state.player(side);
         if (player == null || !player.isPlaying()) {
             return Set.of();
         }
 
-        PlayerSide opponentSide = side == PlayerSide.BOTTOM ? PlayerSide.TOP : PlayerSide.BOTTOM;
-        TetrisPlayerState opponent = opponentSide == PlayerSide.BOTTOM ? state.bottomPlayer() : state.topPlayer();
+        PlayerSide opponentSide = side.opponent();
+        TetrisPlayerState opponent = state.player(opponentSide);
         return TetrisItemType.eligibleForOpponentState(opponent != null && opponent.isPlaying());
     }
 
@@ -707,9 +707,7 @@ public class TetrisGameController implements RouteDataReceiver {
             label.setRotate(180);
         }
 
-        TetrisPlayerState player = side == PlayerSide.BOTTOM
-                ? gameState.bottomPlayer()
-                : gameState.topPlayer();
+        TetrisPlayerState player = gameState.player(side);
         int columnSpan = gameState.config().horizontalMode() ? player.board().rows() : player.board().columns();
         int rowSpan = gameState.config().horizontalMode() ? player.board().columns() : player.board().rows();
         grid.add(label, 0, 0, columnSpan, rowSpan);

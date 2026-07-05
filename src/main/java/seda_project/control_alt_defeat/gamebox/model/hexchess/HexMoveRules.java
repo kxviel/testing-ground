@@ -1,5 +1,6 @@
 package seda_project.control_alt_defeat.gamebox.model.hexchess;
 
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -48,6 +49,23 @@ public final class HexMoveRules {
 
     static boolean usesStandardDoubleMoveRules(Set<HexCoordinate> doubleMoveEligibleSquares) {
         return standardDoubleMoveEligibleSquares().equals(doubleMoveEligibleSquares);
+    }
+
+    static Set<HexCoordinate> updateDoubleMoveEligibility(
+            Set<HexCoordinate> current,
+            HexMove move,
+            HexCoordinate capturedAt) {
+        if (usesStandardDoubleMoveRules(current)) {
+            return current;
+        }
+
+        Set<HexCoordinate> next = new LinkedHashSet<>(current);
+        next.remove(move.from());
+        next.remove(move.to());
+        if (capturedAt != null) {
+            next.remove(capturedAt);
+        }
+        return Set.copyOf(next);
     }
 
     static boolean allowsPawnDoubleMoveFrom(

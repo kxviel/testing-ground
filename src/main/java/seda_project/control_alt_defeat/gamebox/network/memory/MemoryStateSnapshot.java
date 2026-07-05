@@ -15,7 +15,8 @@ import static seda_project.control_alt_defeat.gamebox.network.SnapshotCodec.pars
 public final class MemoryStateSnapshot {
 
     private static final int FIELD_COUNT = 9;
-    private static final int CARD_FIELD_COUNT = 4;
+    private static final int LEGACY_CARD_FIELD_COUNT = 4;
+    private static final int CARD_FIELD_COUNT = 5;
 
     private MemoryStateSnapshot() {
     }
@@ -60,8 +61,10 @@ public final class MemoryStateSnapshot {
         List<String> symbols = cards.stream().map(CardState::symbol).toList();
         List<Boolean> faceUp = cards.stream().map(CardState::faceUp).toList();
         List<Boolean> matched = cards.stream().map(CardState::matched).toList();
+        List<Integer> matchedBy = cards.stream().map(CardState::matchedBy).toList();
 
-        return new GameModel(k, n, rows, cols, symbols, currentPlayer, score0, score1, gameOver, faceUp, matched);
+        return new GameModel(k, n, rows, cols, symbols, currentPlayer, score0, score1, gameOver, faceUp, matched,
+                matchedBy);
     }
 
     private static String serializeCards(GameModel model) {
@@ -69,7 +72,8 @@ public final class MemoryStateSnapshot {
                 .map(card -> card.getId()
                         + "," + encode(card.getSymbol())
                         + "," + card.isFaceUp()
-                        + "," + card.isMatched())
+                        + "," + card.isMatched()
+                        + "," + card.getMatchedBy())
                 .collect(Collectors.joining(";"));
     }
 
@@ -94,7 +98,7 @@ public final class MemoryStateSnapshot {
 
     private static CardState deserializeCard(String value) {
         String[] fields = value.split(",", -1);
-        if (fields.length != CARD_FIELD_COUNT) {
+        if (fields.length != CARD_FIELD_COUNT && fields.length != LEGACY_CARD_FIELD_COUNT) {
             throw new IllegalArgumentException("Invalid card entry: " + value);
         }
 
@@ -107,7 +111,8 @@ public final class MemoryStateSnapshot {
                 id,
                 decode(fields[1]),
                 parseBoolean(fields[2]),
-                parseBoolean(fields[3]));
+                parseBoolean(fields[3]),
+                fields.length == CARD_FIELD_COUNT ? parseInt(fields[4]) : -1);
     }
 
     private static int parsePlayer(String value) {
@@ -118,6 +123,6 @@ public final class MemoryStateSnapshot {
         return player;
     }
 
-    private record CardState(int id, String symbol, boolean faceUp, boolean matched) {
+    private record CardState(int id, String symbol, boolean faceUp, boolean matched, int matchedBy) {
     }
 }

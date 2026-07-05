@@ -80,7 +80,7 @@ public final class TetrisStateSnapshot {
 
     private static TetrisPlayerState deserializePlayer(String value, PlayerSide side) {
         String[] parts = value.split(";", -1);
-        if (parts.length < 6) {
+        if (parts.length < 10) {
             return TetrisPlayerState.create("Player", side);
         }
 
@@ -88,32 +88,11 @@ public final class TetrisStateSnapshot {
         int score = parseInt(parts[1], 0);
         PlayerStatus status = parsePlayerStatus(parts[2]);
         Integer finalScore = "-".equals(parts[3]) ? null : parseInt(parts[3], score);
-        String boardValue = parts[4];
-        String colorValue = "";
-        String pieceValue = parts[5];
-        String objectValue = null;
-        String effectsValue = null;
-        String queueValue = null;
-
-        if (parts.length >= 10) {
-            colorValue = parts[5];
-            pieceValue = parts[6];
-            objectValue = parts[7];
-            effectsValue = parts[8];
-            queueValue = parts[9];
-        } else if (parts.length >= 8) {
-            colorValue = parts[5];
-            pieceValue = parts[6];
-            objectValue = parts[7];
-        } else if (parts.length == 7) {
-            objectValue = parts[6];
-        }
-
-        TetrisBoard board = deserializeBoard(boardValue, colorValue);
-        TetrisPiece activePiece = deserializePiece(decode(pieceValue));
-        TetrisBoardObject boardObject = deserializeObject(objectValue);
-        TetrisEffectState effects = deserializeEffects(effectsValue);
-        List<PieceShape> queuedShapes = deserializeQueue(queueValue);
+        TetrisBoard board = deserializeBoard(parts[4], parts[5]);
+        TetrisPiece activePiece = deserializePiece(decode(parts[6]));
+        TetrisBoardObject boardObject = deserializeObject(parts[7]);
+        TetrisEffectState effects = deserializeEffects(parts[8]);
+        List<PieceShape> queuedShapes = deserializeQueue(parts[9]);
 
         return new TetrisPlayerState(
                 name,

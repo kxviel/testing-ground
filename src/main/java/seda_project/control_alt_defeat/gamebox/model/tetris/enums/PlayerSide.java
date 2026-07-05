@@ -13,4 +13,8 @@ public enum PlayerSide {
     public GravityDirection gravityDirection() {
         return gravityDirection;
     }
+
+    public PlayerSide opponent() {
+        return this == BOTTOM ? TOP : BOTTOM;
+    }
 }

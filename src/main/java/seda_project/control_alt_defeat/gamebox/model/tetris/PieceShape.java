@@ -7,6 +7,43 @@ import java.util.Objects;
 
 public record PieceShape(PieceType type, String name, List<BoardPosition> cells) {
 
+    private static final List<PieceShape> STANDARD_SHAPES = List.of(
+            new PieceShape(PieceType.I, "I", List.of(
+                    new BoardPosition(0, 0),
+                    new BoardPosition(0, 1),
+                    new BoardPosition(0, 2),
+                    new BoardPosition(0, 3))),
+            new PieceShape(PieceType.O, "O", List.of(
+                    new BoardPosition(0, 0),
+                    new BoardPosition(0, 1),
+                    new BoardPosition(1, 0),
+                    new BoardPosition(1, 1))),
+            new PieceShape(PieceType.T, "T", List.of(
+                    new BoardPosition(0, 0),
+                    new BoardPosition(0, 1),
+                    new BoardPosition(0, 2),
+                    new BoardPosition(1, 1))),
+            new PieceShape(PieceType.S, "S", List.of(
+                    new BoardPosition(0, 1),
+                    new BoardPosition(0, 2),
+                    new BoardPosition(1, 0),
+                    new BoardPosition(1, 1))),
+            new PieceShape(PieceType.Z, "Z", List.of(
+                    new BoardPosition(0, 0),
+                    new BoardPosition(0, 1),
+                    new BoardPosition(1, 1),
+                    new BoardPosition(1, 2))),
+            new PieceShape(PieceType.J, "J", List.of(
+                    new BoardPosition(0, 0),
+                    new BoardPosition(1, 0),
+                    new BoardPosition(1, 1),
+                    new BoardPosition(1, 2))),
+            new PieceShape(PieceType.L, "L", List.of(
+                    new BoardPosition(0, 2),
+                    new BoardPosition(1, 0),
+                    new BoardPosition(1, 1),
+                    new BoardPosition(1, 2))));
+
     public PieceShape {
         Objects.requireNonNull(type, "type");
         name = name == null || name.isBlank() ? type.name() : name.trim();
@@ -55,41 +92,6 @@ public record PieceShape(PieceType type, String name, List<BoardPosition> cells)
     }
 
     public static List<PieceShape> standardShapes() {
-        return List.of(
-                new PieceShape(PieceType.I, "I", List.of(
-                        new BoardPosition(0, 0),
-                        new BoardPosition(0, 1),
-                        new BoardPosition(0, 2),
-                        new BoardPosition(0, 3))),
-                new PieceShape(PieceType.O, "O", List.of(
-                        new BoardPosition(0, 0),
-                        new BoardPosition(0, 1),
-                        new BoardPosition(1, 0),
-                        new BoardPosition(1, 1))),
-                new PieceShape(PieceType.T, "T", List.of(
-                        new BoardPosition(0, 0),
-                        new BoardPosition(0, 1),
-                        new BoardPosition(0, 2),
-                        new BoardPosition(1, 1))),
-                new PieceShape(PieceType.S, "S", List.of(
-                        new BoardPosition(0, 1),
-                        new BoardPosition(0, 2),
-                        new BoardPosition(1, 0),
-                        new BoardPosition(1, 1))),
-                new PieceShape(PieceType.Z, "Z", List.of(
-                        new BoardPosition(0, 0),
-                        new BoardPosition(0, 1),
-                        new BoardPosition(1, 1),
-                        new BoardPosition(1, 2))),
-                new PieceShape(PieceType.J, "J", List.of(
-                        new BoardPosition(0, 0),
-                        new BoardPosition(1, 0),
-                        new BoardPosition(1, 1),
-                        new BoardPosition(1, 2))),
-                new PieceShape(PieceType.L, "L", List.of(
-                        new BoardPosition(0, 2),
-                        new BoardPosition(1, 0),
-                        new BoardPosition(1, 1),
-                        new BoardPosition(1, 2))));
+        return STANDARD_SHAPES;
     }
 }

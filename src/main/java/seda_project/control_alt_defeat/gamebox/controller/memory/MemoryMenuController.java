@@ -1,34 +1,27 @@
 package seda_project.control_alt_defeat.gamebox.controller.memory;
 
-import javafx.animation.Animation;
-import javafx.animation.KeyFrame;
-import javafx.animation.PauseTransition;
-import javafx.animation.Timeline;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
-import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.control.ToggleGroup;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import seda_project.control_alt_defeat.gamebox.model.memory.BoardVariant;
 import seda_project.control_alt_defeat.gamebox.network.GameClient;
 import seda_project.control_alt_defeat.gamebox.network.GameServer;
 import seda_project.control_alt_defeat.gamebox.network.LanDiscoveryService;
+import seda_project.control_alt_defeat.gamebox.ui.TimedStatus;
+import seda_project.control_alt_defeat.gamebox.util.DiscoveredGameListController;
 import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
 import seda_project.control_alt_defeat.gamebox.util.Router;
 import seda_project.control_alt_defeat.gamebox.util.UiInputGuards;
+import seda_project.control_alt_defeat.gamebox.util.UiVisibility;
 
 import java.io.IOException;
 import java.util.List;
@@ -51,10 +44,6 @@ public class MemoryMenuController implements RouteDataReceiver {
     private Label kErrorLabel;
     @FXML
     private Label statusLabel;
-    @FXML
-    private Slider kSlider;
-    @FXML
-    private Rectangle kSliderClip;
 
     @FXML
     private RadioButton variant1Radio;
@@ -94,16 +83,14 @@ public class MemoryMenuController implements RouteDataReceiver {
     private volatile GameClient pendingClient;
 
     private final LanDiscoveryService discoveryService = LanDiscoveryService.memory();
-    private final ObservableList<LanDiscoveryService.DiscoveredGame> discoveredGames =
-            FXCollections.observableArrayList();
     private final ToggleGroup variantGroup = new ToggleGroup();
     private List<BoardVariant> currentVariants = List.of();
-    private Timeline staleGameTimer;
-    private PauseTransition statusTimer;
+    private List<VariantRow> variantRows = List.of();
+    private DiscoveredGameListController discoveredGameList;
+    private TimedStatus timedStatus;
     private boolean networkPending;
     private boolean variantsApplied;
     private boolean navigationPending;
-    private boolean syncingKInput;
 
     @Override
     public void setRouteData(Object data) {
@@ -114,61 +101,23 @@ public class MemoryMenuController implements RouteDataReceiver {
 
     @FXML
     public void initialize() {
+        timedStatus = new TimedStatus(statusLabel);
+        discoveredGameList = new DiscoveredGameListController(availableGamesList);
         UiInputGuards.limitWholeNumber(kField, 2);
-        configureKSlider();
-        variantRadios().forEach(radio -> radio.setToggleGroup(variantGroup));
-        availableGamesList.setItems(discoveredGames);
-        bindVisibleWhenTextPresent(kErrorLabel);
-        bindVisibleWhenTextPresent(statusLabel);
+        variantRows = List.of(
+                new VariantRow(variant1Radio, variant1TitleLabel, variant1MetaLabel),
+                new VariantRow(variant2Radio, variant2TitleLabel, variant2MetaLabel),
+                new VariantRow(variant3Radio, variant3TitleLabel, variant3MetaLabel));
+        variantRows.forEach(row -> row.radio().setToggleGroup(variantGroup));
+        UiVisibility.bindVisibleWhenTextPresent(kErrorLabel);
+        UiVisibility.bindVisibleWhenTextPresent(statusLabel);
         availableGamesList.getSelectionModel().selectedItemProperty()
                 .addListener((observable, oldGame, newGame) -> updateJoinSelectedButton());
-        kField.textProperty().addListener((observable, oldValue, newValue) -> {
-            variantsApplied = false;
-            syncSliderFromField(newValue);
-        });
+        kField.textProperty().addListener((observable, oldValue, newValue) -> variantsApplied = false);
         onApplyK();
         startListeningForLanGames();
         startStaleGameTimer();
         updateJoinSelectedButton();
-    }
-
-    private void configureKSlider() {
-        if (kSlider == null) {
-            return;
-        }
-        kSlider.setMin(1);
-        kSlider.setMax(BoardVariant.MAX_CARDS);
-        kSlider.setBlockIncrement(1);
-        if (kSliderClip != null) {
-            kSliderClip.widthProperty().bind(kSlider.widthProperty());
-        }
-        kSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if (syncingKInput) {
-                return;
-            }
-            int rounded = Math.max(1, Math.min(BoardVariant.MAX_CARDS, (int) Math.round(newValue.doubleValue())));
-            syncingKInput = true;
-            kSlider.setValue(rounded);
-            kField.setText(Integer.toString(rounded));
-            syncingKInput = false;
-            variantsApplied = false;
-        });
-    }
-
-    private void syncSliderFromField(String value) {
-        if (syncingKInput || kSlider == null || value == null || value.isBlank()) {
-            return;
-        }
-        try {
-            int k = Integer.parseInt(value.trim());
-            if (k >= 1 && k <= BoardVariant.MAX_CARDS) {
-                syncingKInput = true;
-                kSlider.setValue(k);
-                syncingKInput = false;
-            }
-        } catch (NumberFormatException ignored) {
-            // Invalid text is handled by Apply; keep the slider at its last valid value.
-        }
     }
 
     @FXML
@@ -182,7 +131,6 @@ public class MemoryMenuController implements RouteDataReceiver {
             return;
         }
 
-        syncSliderFromField(Integer.toString(k));
         currentVariants = BoardVariant.computeVariants(k);
         updateVariantRadios();
         variantsApplied = true;
@@ -204,27 +152,27 @@ public class MemoryMenuController implements RouteDataReceiver {
     private void disableVariants() {
         currentVariants = List.of();
         variantGroup.selectToggle(null);
-        variantRadios().forEach(radio -> setVisibleManaged(radio, false));
+        variantRows.forEach(row -> UiVisibility.setVisibleManaged(row.radio(), false));
     }
 
     private void updateVariantRadios() {
-        List<RadioButton> radios = variantRadios();
-        int selectedIndex = selectedVariantIndex(radios);
-        IntStream.range(0, radios.size())
-                .forEach(i -> updateVariantRadio(radios.get(i), i));
+        int selectedIndex = selectedVariantIndex();
+        IntStream.range(0, variantRows.size())
+                .forEach(this::updateVariantRadio);
 
         if (!currentVariants.isEmpty() && (selectedIndex < 0 || selectedIndex >= currentVariants.size())) {
             variant1Radio.setSelected(true);
         }
     }
 
-    private void updateVariantRadio(RadioButton radio, int index) {
+    private void updateVariantRadio(int index) {
+        VariantRow row = variantRows.get(index);
         boolean visible = index < currentVariants.size();
-        setVisibleManaged(radio, visible);
+        UiVisibility.setVisibleManaged(row.radio(), visible);
         if (visible) {
             BoardVariant variant = currentVariants.get(index);
-            variantTitleLabels().get(index).setText(variant.difficulty);
-            variantMetaLabels().get(index).setText(variant.totalCards + " cards · "
+            row.title().setText(variant.difficulty);
+            row.meta().setText(variant.totalCards + " cards · "
                     + variant.rows + "×" + variant.cols);
         }
     }
@@ -233,17 +181,16 @@ public class MemoryMenuController implements RouteDataReceiver {
         if (currentVariants.isEmpty())
             return null;
 
-        List<RadioButton> radios = variantRadios();
         return IntStream.range(0, currentVariants.size())
-                .filter(i -> radios.get(i).isSelected())
+                .filter(i -> variantRows.get(i).radio().isSelected())
                 .mapToObj(currentVariants::get)
                 .findFirst()
                 .orElse(currentVariants.get(0));
     }
 
-    private int selectedVariantIndex(List<RadioButton> radios) {
-        return IntStream.range(0, radios.size())
-                .filter(i -> radios.get(i).isSelected())
+    private int selectedVariantIndex() {
+        return IntStream.range(0, variantRows.size())
+                .filter(i -> variantRows.get(i).radio().isSelected())
                 .findFirst()
                 .orElse(-1);
     }
@@ -285,7 +232,7 @@ public class MemoryMenuController implements RouteDataReceiver {
         if (v == null)
             return;
 
-        Stage stage = stageFrom(event);
+        Stage stage = Router.stageFrom(event);
         setNetworkPending(true, "Cancel Hosting");
         discoveryService.stopListening();
         closePendingNetwork();
@@ -316,7 +263,7 @@ public class MemoryMenuController implements RouteDataReceiver {
                     discoveryService.stopAdvertising();
                     discoveryService.close();
                     stopStaleGameTimer();
-                    setVisibleManaged(btnCancelHost, false);
+                    UiVisibility.setVisibleManaged(btnCancelHost, false);
                     if (!beginNavigation()) {
                         server.close();
                         return;
@@ -363,7 +310,7 @@ public class MemoryMenuController implements RouteDataReceiver {
             return;
         }
 
-        discoveredGames.clear();
+        discoveredGameList.clear();
         startListeningForLanGames();
         statusLabel.setText("Looking for Memory LAN games...");
         updateJoinSelectedButton();
@@ -375,13 +322,13 @@ public class MemoryMenuController implements RouteDataReceiver {
             return;
         }
 
-        LanDiscoveryService.DiscoveredGame selectedGame = availableGamesList.getSelectionModel().getSelectedItem();
+        LanDiscoveryService.DiscoveredGame selectedGame = discoveredGameList.selectedGame();
         if (selectedGame == null) {
             statusLabel.setText("Select a discovered LAN game first.");
             return;
         }
 
-        Stage stage = stageFrom(event);
+        Stage stage = Router.stageFrom(event);
         setNetworkPending(true, "Cancel Connecting");
         discoveryService.stopListening();
         statusLabel.setText("Connecting to " + selectedGame.playerName() + "...");
@@ -433,15 +380,11 @@ public class MemoryMenuController implements RouteDataReceiver {
         Router.goTo(event, "/GameChoice.fxml", null);
     }
 
-    private static Stage stageFrom(ActionEvent event) {
-        return (Stage) ((Node) event.getSource()).getScene().getWindow();
-    }
-
     private void setNetworkPending(boolean pending, String cancelText) {
         networkPending = pending;
         setMenuButtonsDisabled(pending);
         btnCancelHost.setText(cancelText);
-        setVisibleManaged(btnCancelHost, pending);
+        UiVisibility.setVisibleManaged(btnCancelHost, pending);
         updateJoinSelectedButton();
     }
 
@@ -469,61 +412,17 @@ public class MemoryMenuController implements RouteDataReceiver {
     }
 
     private void rememberDiscoveredGame(LanDiscoveryService.DiscoveredGame game) {
-        String selectedSessionId = selectedLanSessionId();
-        removeStaleDiscoveredGames();
-
-        int existingIndex = IntStream.range(0, discoveredGames.size())
-                .filter(index -> discoveredGames.get(index).sessionId().equals(game.sessionId()))
-                .findFirst()
-                .orElse(-1);
-
-        if (existingIndex >= 0) {
-            discoveredGames.set(existingIndex, game);
-        } else {
-            discoveredGames.add(game);
-        }
-
-        restoreLanSelection(selectedSessionId);
-        if (availableGamesList.getSelectionModel().isEmpty()) {
-            availableGamesList.getSelectionModel().selectFirst();
-        }
+        discoveredGameList.removeStale(DISCOVERED_GAME_TTL_MS);
+        discoveredGameList.upsert(game);
         updateJoinSelectedButton();
-    }
-
-    private void removeStaleDiscoveredGames() {
-        long cutoff = System.currentTimeMillis() - DISCOVERED_GAME_TTL_MS;
-        discoveredGames.removeIf(game -> game.timestamp() < cutoff);
-        updateJoinSelectedButton();
-    }
-
-    private String selectedLanSessionId() {
-        LanDiscoveryService.DiscoveredGame selected = availableGamesList.getSelectionModel().getSelectedItem();
-        return selected == null ? null : selected.sessionId();
-    }
-
-    private void restoreLanSelection(String sessionId) {
-        if (sessionId == null) {
-            return;
-        }
-
-        IntStream.range(0, discoveredGames.size())
-                .filter(index -> discoveredGames.get(index).sessionId().equals(sessionId))
-                .findFirst()
-                .ifPresent(index -> availableGamesList.getSelectionModel().select(index));
     }
 
     private void startStaleGameTimer() {
-        stopStaleGameTimer();
-        staleGameTimer = new Timeline(new KeyFrame(Duration.seconds(1), event -> removeStaleDiscoveredGames()));
-        staleGameTimer.setCycleCount(Animation.INDEFINITE);
-        staleGameTimer.play();
+        discoveredGameList.startStaleTimer(DISCOVERED_GAME_TTL_MS);
     }
 
     private void stopStaleGameTimer() {
-        if (staleGameTimer != null) {
-            staleGameTimer.stop();
-            staleGameTimer = null;
-        }
+        discoveredGameList.stop();
     }
 
     private void updateJoinSelectedButton() {
@@ -540,29 +439,6 @@ public class MemoryMenuController implements RouteDataReceiver {
         return true;
     }
 
-    private List<RadioButton> variantRadios() {
-        return List.of(variant1Radio, variant2Radio, variant3Radio);
-    }
-
-    private List<Label> variantTitleLabels() {
-        return List.of(variant1TitleLabel, variant2TitleLabel, variant3TitleLabel);
-    }
-
-    private List<Label> variantMetaLabels() {
-        return List.of(variant1MetaLabel, variant2MetaLabel, variant3MetaLabel);
-    }
-
-    private static void setVisibleManaged(Node node, boolean visible) {
-        node.setVisible(visible);
-        node.setManaged(visible);
-    }
-
-    private static void bindVisibleWhenTextPresent(Label label) {
-        setVisibleManaged(label, label.getText() != null && !label.getText().isBlank());
-        label.textProperty().addListener((observable, oldValue, newValue) ->
-                setVisibleManaged(label, newValue != null && !newValue.isBlank()));
-    }
-
     private static void startDaemon(Runnable task, String name) {
         Thread thread = new Thread(task, name);
         thread.setDaemon(true);
@@ -570,18 +446,9 @@ public class MemoryMenuController implements RouteDataReceiver {
     }
 
     public void showTimedStatus(String message, int seconds) {
-        statusLabel.setText(message);
-        if (statusTimer != null) {
-            statusTimer.stop();
-        }
+        timedStatus.show(message, seconds);
+    }
 
-        statusTimer = new PauseTransition(Duration.seconds(seconds));
-        statusTimer.setOnFinished(e -> {
-            if (message.equals(statusLabel.getText())) {
-                statusLabel.setText("");
-            }
-            statusTimer = null;
-        });
-        statusTimer.play();
+    private record VariantRow(RadioButton radio, Label title, Label meta) {
     }
 }

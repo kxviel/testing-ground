@@ -151,7 +151,7 @@ public record TetrisGameState(
             return this;
         }
 
-        PlayerSide opponentSide = opponent(side);
+        PlayerSide opponentSide = side.opponent();
         TetrisPlayerState actor = player(side).clearBoardObject();
         TetrisPlayerState opponent = player(opponentSide);
         TetrisGameState next = withPlayer(side, actor);
@@ -198,7 +198,7 @@ public record TetrisGameState(
             return this;
         }
 
-        PlayerSide opponentSide = opponent(side);
+        PlayerSide opponentSide = side.opponent();
         GravityDirection actorGravity = config.gravityDirection(side);
         GravityDirection opponentGravity = config.gravityDirection(opponentSide);
 
@@ -252,7 +252,7 @@ public record TetrisGameState(
     }
 
     private TetrisGameState swapBoards(PlayerSide triggeringSide) {
-        PlayerSide otherSide = opponent(triggeringSide);
+        PlayerSide otherSide = triggeringSide.opponent();
         TetrisPlayerState triggeringPlayer = player(triggeringSide).clearBoardObject();
         TetrisPlayerState otherPlayer = player(otherSide).clearBoardObject();
         TetrisBoard triggeringBoard = boardForBoardSwap(otherPlayer.board());
@@ -271,17 +271,7 @@ public record TetrisGameState(
                 ? target.activePiece()
                 : null;
 
-        return new TetrisPlayerState(
-                target.playerName(),
-                target.side(),
-                board,
-                activePiece,
-                target.score(),
-                target.status(),
-                target.finalScore(),
-                null,
-                target.effects(),
-                target.queuedShapes());
+        return target.withBoard(board).withActivePiece(activePiece);
     }
 
     private TetrisBoard mirrorBoardAcrossColumns(TetrisBoard sourceBoard) {
@@ -306,7 +296,7 @@ public record TetrisGameState(
     }
 
     private TetrisGameState swapActivePieces(TetrisGameState base, PlayerSide triggeringSide) {
-        PlayerSide otherSide = opponent(triggeringSide);
+        PlayerSide otherSide = triggeringSide.opponent();
         TetrisPlayerState actor = base.player(triggeringSide);
         TetrisPlayerState other = base.player(otherSide);
 
@@ -392,15 +382,11 @@ public record TetrisGameState(
         return this;
     }
 
-    private TetrisPlayerState player(PlayerSide side) {
+    public TetrisPlayerState player(PlayerSide side) {
         return switch (side) {
             case BOTTOM -> bottomPlayer;
             case TOP -> topPlayer;
         };
-    }
-
-    private static PlayerSide opponent(PlayerSide side) {
-        return side == PlayerSide.TOP ? PlayerSide.BOTTOM : PlayerSide.TOP;
     }
 
     private TetrisGameState finishIfNeeded() {

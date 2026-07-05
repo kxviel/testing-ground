@@ -5,6 +5,7 @@ public class Card {
     private final String symbol;
     private boolean faceUp;
     private boolean matched;
+    private int matchedBy = -1;
 
     public Card(int id, String symbol) {
         this.id = id;
@@ -29,14 +30,26 @@ public class Card {
         return matched;
     }
 
+    public int getMatchedBy() {
+        return matchedBy;
+    }
+
     public void setFaceUp(boolean faceUp) {
         this.faceUp = faceUp;
     }
 
     public void setMatched(boolean matched) {
         this.matched = matched;
-        if (matched)
+        if (!matched) {
+            matchedBy = -1;
+        } else {
             this.faceUp = true;
+        }
+    }
+
+    public void setMatchedBy(int player) {
+        matchedBy = player;
+        setMatched(true);
     }
 
     public boolean isSelectable() {
@@ -45,6 +58,7 @@ public class Card {
 
     @Override
     public String toString() {
-        return "Card{id=" + id + ", sym=" + symbol + ", up=" + faceUp + ", matched=" + matched + "}";
+        return "Card{id=" + id + ", sym=" + symbol + ", up=" + faceUp
+                + ", matched=" + matched + ", matchedBy=" + matchedBy + "}";
     }
 }

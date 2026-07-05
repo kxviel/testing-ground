@@ -25,8 +25,10 @@ import seda_project.control_alt_defeat.gamebox.network.GameServer;
 import seda_project.control_alt_defeat.gamebox.network.memory.MemoryProtocol;
 import seda_project.control_alt_defeat.gamebox.network.memory.MemoryStateSnapshot;
 import seda_project.control_alt_defeat.gamebox.ui.SvgIcon;
+import seda_project.control_alt_defeat.gamebox.ui.TimedStatus;
 import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
 import seda_project.control_alt_defeat.gamebox.util.Router;
+import seda_project.control_alt_defeat.gamebox.util.UiVisibility;
 
 import java.util.List;
 import java.util.Queue;
@@ -43,12 +45,13 @@ public class GameController implements RouteDataReceiver {
     private static final String CARD_HIDDEN_CLASS = "card";
     private static final String CARD_FACE_UP_CLASS = "card-flipped";
     private static final String CARD_MATCHED_CLASS = "card-matched";
+    private static final String CARD_MATCHED_PLAYER_ONE_CLASS = "card-matched-player-one";
+    private static final String CARD_MATCHED_PLAYER_TWO_CLASS = "card-matched-player-two";
     private static final double FALLBACK_GRID_WIDTH = 804;
     private static final double FALLBACK_GRID_HEIGHT = 286;
     private static final double MAX_CARD_SIZE = 128;
     private static final double MIN_CARD_SIZE = 44;
     private static final double CARD_FACE_SCALE = 0.72;
-    private static final double GRID_INSET = 0;
     private static final double MIN_GAP = 10;
     private static final Duration MISMATCH_DELAY = Duration.millis(800);
     private static final int STATUS_SECONDS = 10;
@@ -92,10 +95,11 @@ public class GameController implements RouteDataReceiver {
     private boolean inputLocked = false;
     private boolean gameEnded = false;
     private PauseTransition mismatchPause;
-    private PauseTransition statusTimer;
+    private TimedStatus timedStatus;
 
     @FXML
     private void initialize() {
+        timedStatus = new TimedStatus(statusLabel);
         boardGridWrapper.layoutBoundsProperty().addListener((obs, oldBounds, newBounds) -> resizeBoard());
     }
 
@@ -456,6 +460,7 @@ public class GameController implements RouteDataReceiver {
         Button btn = cardButtons[idx];
         if (card.isMatched()) {
             showCardFace(btn, card.getSymbol(), CARD_MATCHED_CLASS, layout);
+            setMatchedOwnerClass(btn, card.getMatchedBy());
             btn.setDisable(true);
         } else if (card.isFaceUp()) {
             showCardFace(btn, card.getSymbol(), CARD_FACE_UP_CLASS, layout);
@@ -491,29 +496,18 @@ public class GameController implements RouteDataReceiver {
     }
 
     private static CardLayout cardLayout(int rows, int cols, double width, double height) {
-        double gap = targetGap(rows * cols);
+        double gap = MIN_GAP;
         double widthFit = sizeFit(available(width, FALLBACK_GRID_WIDTH), cols, gap);
         double heightFit = sizeFit(available(height, FALLBACK_GRID_HEIGHT), rows, gap);
         double fit = Math.min(widthFit, heightFit);
-
-        if (fit < MIN_CARD_SIZE) {
-            gap = MIN_GAP;
-            widthFit = sizeFit(available(width, FALLBACK_GRID_WIDTH), cols, gap);
-            heightFit = sizeFit(available(height, FALLBACK_GRID_HEIGHT), rows, gap);
-            fit = Math.min(widthFit, heightFit);
-        }
 
         double size = Math.min(MAX_CARD_SIZE, fit < MIN_CARD_SIZE ? Math.max(1, fit) : fit);
         int fontSize = (int) Math.round(Math.max(10, Math.min(54, size * 0.48))) + 2;
         return new CardLayout(size, gap, fontSize);
     }
 
-    private static double targetGap(int total) {
-        return MIN_GAP;
-    }
-
     private static double available(double value, double fallback) {
-        return Math.max(1, (value > 0 ? value : fallback) - GRID_INSET * 2);
+        return Math.max(1, value > 0 ? value : fallback);
     }
 
     private static double sizeFit(double available, int count, double gap) {
@@ -524,9 +518,22 @@ public class GameController implements RouteDataReceiver {
     }
 
     private void setCardState(Button button, String stateClass, int fontSize) {
-        button.getStyleClass().removeAll(CARD_HIDDEN_CLASS, CARD_FACE_UP_CLASS, CARD_MATCHED_CLASS);
+        button.getStyleClass().removeAll(
+                CARD_HIDDEN_CLASS,
+                CARD_FACE_UP_CLASS,
+                CARD_MATCHED_CLASS,
+                CARD_MATCHED_PLAYER_ONE_CLASS,
+                CARD_MATCHED_PLAYER_TWO_CLASS);
         button.getStyleClass().add(stateClass);
         button.setStyle("-fx-font-size:" + fontSize + "px;");
+    }
+
+    private void setMatchedOwnerClass(Button button, int matchedBy) {
+        if (matchedBy == 0) {
+            button.getStyleClass().add(CARD_MATCHED_PLAYER_ONE_CLASS);
+        } else if (matchedBy == 1) {
+            button.getStyleClass().add(CARD_MATCHED_PLAYER_TWO_CLASS);
+        }
     }
 
     private void setActivePlayer(HBox chip, boolean active) {
@@ -550,8 +557,7 @@ public class GameController implements RouteDataReceiver {
             showLocalGameOver(resultText, scores);
         } else {
             resultLabel.setText(resultText + "   " + scores);
-            postGameBar.setVisible(true);
-            postGameBar.setManaged(true);
+            UiVisibility.setVisibleManaged(postGameBar, true);
         }
     }
 
@@ -603,26 +609,11 @@ public class GameController implements RouteDataReceiver {
     }
 
     private void showTimedStatus(String message, int seconds) {
-        statusLabel.setText(message);
-        if (statusTimer != null) {
-            statusTimer.stop();
-        }
-
-        statusTimer = new PauseTransition(Duration.seconds(seconds));
-        statusTimer.setOnFinished(e -> {
-            if (message.equals(statusLabel.getText())) {
-                statusLabel.setText("");
-            }
-            statusTimer = null;
-        });
-        statusTimer.play();
+        timedStatus.show(message, seconds);
     }
 
     private void hidePostGameBar() {
-        if (postGameBar != null) {
-            postGameBar.setVisible(false);
-            postGameBar.setManaged(false);
-        }
+        UiVisibility.setVisibleManaged(postGameBar, false);
     }
 
     private void restartGame() {

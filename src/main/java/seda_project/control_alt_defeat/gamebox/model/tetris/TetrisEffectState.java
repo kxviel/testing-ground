@@ -16,11 +16,6 @@ public record TetrisEffectState(
         rotationLagTicks = Math.max(0, rotationLagTicks);
     }
 
-    /** Backward-compatible accessor for serialized snapshots and tests. */
-    public int rotationDelayTicks() {
-        return rotationEffectTicks;
-    }
-
     public static TetrisEffectState none() {
         return new TetrisEffectState(NORMAL_GRAVITY_PERCENT, 0, 0, 0);
     }

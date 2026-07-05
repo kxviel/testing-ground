@@ -119,7 +119,9 @@ public class LanDiscoveryService implements Closeable {
     }
 
     private void advertise(String playerName, int tcpPort, Consumer<String> onError) {
-        try (DatagramSocket socket = new DatagramSocket()) {
+        DatagramSocket socket = null;
+        try {
+            socket = new DatagramSocket();
             advertisingSocket = socket;
             socket.setReuseAddress(true);
             socket.setBroadcast(true);
@@ -134,8 +136,15 @@ public class LanDiscoveryService implements Closeable {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         } catch (IOException e) {
-            if (advertising) {
+            if (advertising && advertisingSocket == socket) {
                 onError.accept("Could not advertise " + displayName + " LAN game: " + e.getMessage());
+            }
+        } finally {
+            if (socket != null) {
+                socket.close();
+            }
+            if (advertisingSocket == socket) {
+                advertisingSocket = null;
             }
         }
     }

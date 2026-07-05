@@ -1,8 +1,5 @@
 package seda_project.control_alt_defeat.gamebox.network;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Inet4Address;
@@ -18,7 +15,6 @@ import java.util.function.Consumer;
 // TCP server used by the host player in a network game.
 public class GameServer extends AbstractGameConnection {
 
-    private static final Logger log = LoggerFactory.getLogger(GameServer.class);
     public static final int DEFAULT_PORT = 54321;
 
     private ServerSocket serverSocket;

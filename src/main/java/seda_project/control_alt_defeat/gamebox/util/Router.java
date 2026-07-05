@@ -6,7 +6,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public final class Router {
@@ -16,11 +15,7 @@ public final class Router {
 
     public static void goTo(ActionEvent event, String route, Object data) {
         try {
-            Node source = (Node) event.getSource();
-            Scene currentScene = source.getScene();
-            Stage stage = (Stage) currentScene.getWindow();
-
-            loadRoute(stage, route, data);
+            loadRoute(stageFrom(event), route, data);
 
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -34,6 +29,10 @@ public final class Router {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static Stage stageFrom(ActionEvent event) {
+        return (Stage) ((Node) event.getSource()).getScene().getWindow();
     }
 
     private static void loadRoute(Stage stage, String route, Object data) throws IOException {

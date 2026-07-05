@@ -40,11 +40,11 @@ public record TetrisGameConfig(
     }
 
     public static TetrisGameConfig defaultConfig() {
-        return new TetrisGameConfig(List.of("Standard"), List.of(), DEFAULT_GRAVITY_MILLIS, false, false);
+        return new TetrisGameConfig(List.of("Standard"));
     }
 
     public boolean hasPieces() {
-        return pieces != null && !pieces.isEmpty();
+        return !pieces.isEmpty();
     }
 
     public String displayText() {

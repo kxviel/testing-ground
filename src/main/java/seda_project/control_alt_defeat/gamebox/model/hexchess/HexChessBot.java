@@ -1,7 +1,6 @@
 package seda_project.control_alt_defeat.gamebox.model.hexchess;
 
 import java.util.Comparator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -99,7 +98,7 @@ public final class HexChessBot {
                     nextBoard,
                     turn.opponent(),
                     HexMoveRules.nextEnPassantTarget(move, movingPiece).orElse(null),
-                    updateDoubleMoveEligibility(move, capturedAt));
+                    HexMoveRules.updateDoubleMoveEligibility(doubleMoveEligibleSquares, move, capturedAt));
         }
 
         private boolean isCheckmate() {
@@ -111,19 +110,6 @@ public final class HexChessBot {
                             doubleMoveEligibleSquares).isEmpty();
         }
 
-        private Set<HexCoordinate> updateDoubleMoveEligibility(HexMove move, HexCoordinate capturedAt) {
-            if (HexMoveRules.usesStandardDoubleMoveRules(doubleMoveEligibleSquares)) {
-                return doubleMoveEligibleSquares;
-            }
-
-            Set<HexCoordinate> next = new LinkedHashSet<>(doubleMoveEligibleSquares);
-            next.remove(move.from());
-            next.remove(move.to());
-            if (capturedAt != null) {
-                next.remove(capturedAt);
-            }
-            return Set.copyOf(next);
-        }
     }
 
     private record MoveCandidate(

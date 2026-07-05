@@ -1,8 +1,5 @@
 package seda_project.control_alt_defeat.gamebox.network;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -10,8 +7,6 @@ import java.util.function.Consumer;
 
 // TCP client used by the joining player in a network game.
 public class GameClient extends AbstractGameConnection {
-
-    private static final Logger log = LoggerFactory.getLogger(GameClient.class);
 
     /**
      * Connects to a host and starts the background read loop.

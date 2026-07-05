@@ -1,32 +1,25 @@
 package seda_project.control_alt_defeat.gamebox.controller.hexchess;
 
-import javafx.animation.Animation;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexChessGameSetup;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexGameMode;
 import seda_project.control_alt_defeat.gamebox.network.GameClient;
 import seda_project.control_alt_defeat.gamebox.network.GameServer;
 import seda_project.control_alt_defeat.gamebox.network.LanDiscoveryService;
+import seda_project.control_alt_defeat.gamebox.util.DiscoveredGameListController;
 import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
 import seda_project.control_alt_defeat.gamebox.util.Router;
 import seda_project.control_alt_defeat.gamebox.util.UiInputGuards;
+import seda_project.control_alt_defeat.gamebox.util.UiVisibility;
 
 import java.io.IOException;
-import java.util.stream.IntStream;
 
 public class HexChessMenuController implements RouteDataReceiver {
 
@@ -44,20 +37,16 @@ public class HexChessMenuController implements RouteDataReceiver {
     private Button joinSelectedLanButton;
 
     private final LanDiscoveryService discoveryService = LanDiscoveryService.hexChess();
-    private final ObservableList<LanDiscoveryService.DiscoveredGame> discoveredGames =
-            FXCollections.observableArrayList();
     private GameServer pendingHostServer;
     private GameClient pendingJoinClient;
-    private Timeline staleGameTimer;
+    private DiscoveredGameListController discoveredGameList;
     private boolean navigationPending;
 
     @FXML
     private void initialize() {
         UiInputGuards.limitPlayerNames(whiteNameField, blackNameField);
-        if (lanGamesList != null) {
-            lanGamesList.setItems(discoveredGames);
-        }
-        bindOptionalLabel(statusLabel);
+        discoveredGameList = new DiscoveredGameListController(lanGamesList);
+        UiVisibility.bindVisibleWhenTextPresent(statusLabel);
         if (lanGamesList != null && joinSelectedLanButton != null) {
             joinSelectedLanButton.disableProperty()
                     .bind(lanGamesList.getSelectionModel().selectedItemProperty().isNull());
@@ -109,7 +98,7 @@ public class HexChessMenuController implements RouteDataReceiver {
             return;
         }
 
-        Stage stage = stageFrom(event);
+        Stage stage = Router.stageFrom(event);
         closePendingJoinClient();
         closePendingHostServer();
 
@@ -172,15 +161,13 @@ public class HexChessMenuController implements RouteDataReceiver {
             return;
         }
 
-        LanDiscoveryService.DiscoveredGame selected = lanGamesList == null
-                ? null
-                : lanGamesList.getSelectionModel().getSelectedItem();
+        LanDiscoveryService.DiscoveredGame selected = discoveredGameList.selectedGame();
         if (selected == null) {
             statusLabel.setText("Select a discovered LAN game first.");
             return;
         }
 
-        joinHost(stageFrom(event), selected.hostAddress(), selected.tcpPort());
+        joinHost(Router.stageFrom(event), selected.hostAddress(), selected.tcpPort());
     }
 
     @FXML
@@ -189,7 +176,7 @@ public class HexChessMenuController implements RouteDataReceiver {
             return;
         }
 
-        discoveredGames.clear();
+        discoveredGameList.clear();
         startListeningForLanGames();
         startStaleGameTimer();
         statusLabel.setText("Looking for Hex Chess LAN games...");
@@ -292,61 +279,16 @@ public class HexChessMenuController implements RouteDataReceiver {
     }
 
     private void rememberDiscoveredGame(LanDiscoveryService.DiscoveredGame game) {
-        String selectedSessionId = selectedLanSessionId();
-
-        removeStaleDiscoveredGames();
-
-        int existingIndex = IntStream.range(0, discoveredGames.size())
-                .filter(index -> discoveredGames.get(index).sessionId().equals(game.sessionId()))
-                .findFirst()
-                .orElse(-1);
-        if (existingIndex >= 0) {
-            discoveredGames.set(existingIndex, game);
-            restoreLanSelection(selectedSessionId);
-            return;
-        }
-
-        discoveredGames.add(game);
-        restoreLanSelection(selectedSessionId);
-    }
-
-    private void removeStaleDiscoveredGames() {
-        long cutoff = System.currentTimeMillis() - DISCOVERED_GAME_TTL_MS;
-        discoveredGames.removeIf(game -> game.timestamp() < cutoff);
+        discoveredGameList.removeStale(DISCOVERED_GAME_TTL_MS);
+        discoveredGameList.upsert(game);
     }
 
     private void startStaleGameTimer() {
-        stopStaleGameTimer();
-        staleGameTimer = new Timeline(new KeyFrame(Duration.seconds(1), event -> removeStaleDiscoveredGames()));
-        staleGameTimer.setCycleCount(Animation.INDEFINITE);
-        staleGameTimer.play();
+        discoveredGameList.startStaleTimer(DISCOVERED_GAME_TTL_MS);
     }
 
     private void stopStaleGameTimer() {
-        if (staleGameTimer != null) {
-            staleGameTimer.stop();
-            staleGameTimer = null;
-        }
-    }
-
-    private String selectedLanSessionId() {
-        if (lanGamesList == null) {
-            return null;
-        }
-
-        LanDiscoveryService.DiscoveredGame selected = lanGamesList.getSelectionModel().getSelectedItem();
-        return selected == null ? null : selected.sessionId();
-    }
-
-    private void restoreLanSelection(String sessionId) {
-        if (lanGamesList == null || sessionId == null) {
-            return;
-        }
-
-        IntStream.range(0, discoveredGames.size())
-                .filter(index -> discoveredGames.get(index).sessionId().equals(sessionId))
-                .findFirst()
-                .ifPresent(index -> lanGamesList.getSelectionModel().select(index));
+        discoveredGameList.stop();
     }
 
     private void closeDiscovery() {
@@ -392,18 +334,4 @@ public class HexChessMenuController implements RouteDataReceiver {
         return true;
     }
 
-    private void bindOptionalLabel(Label label) {
-        if (label == null) {
-            return;
-        }
-
-        label.visibleProperty().bind(Bindings.createBooleanBinding(
-                () -> !label.getText().isBlank(),
-                label.textProperty()));
-        label.managedProperty().bind(label.visibleProperty());
-    }
-
-    private Stage stageFrom(ActionEvent event) {
-        return (Stage) ((Node) event.getSource()).getScene().getWindow();
-    }
 }

@@ -2,7 +2,6 @@ package seda_project.control_alt_defeat.gamebox.controller.hexchess;
 
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -16,7 +15,6 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
-import seda_project.control_alt_defeat.gamebox.model.hexchess.HexBoardGeometry;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexChessBot;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexChessGameSetup;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexCoordinate;
@@ -33,6 +31,7 @@ import seda_project.control_alt_defeat.gamebox.network.hexchess.HexChessProtocol
 import seda_project.control_alt_defeat.gamebox.network.hexchess.HexChessStateSnapshot;
 import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
 import seda_project.control_alt_defeat.gamebox.util.Router;
+import seda_project.control_alt_defeat.gamebox.util.UiVisibility;
 
 import java.util.List;
 import java.util.Optional;
@@ -47,15 +46,9 @@ public class HexChessGameController implements RouteDataReceiver {
     private static final double PIECE_FONT_RATIO = 36.0 / BASE_HEX_SIZE;
     private static final Duration BOT_DELAY = Duration.millis(350);
     private static final Duration BOT_DRAW_DECLINE_DELAY = Duration.millis(800);
-    private static final Color CELL_LIGHT = Color.web("#f7c895");
-    private static final Color CELL_MID = Color.web("#e5aa68");
-    private static final Color CELL_DARK = Color.web("#cf873d");
     private static final Color CELL_LEGAL = Color.web("#9fd3b5");
     private static final Color CELL_CHECK = Color.web("#f87171");
-    private static final Color STROKE_BASE = Color.web("#6b4a28");
-    private static final Color STROKE_SELECTED = Color.web("#0f62fe");
     private static final Color STROKE_LAST = Color.web("#7c3aed");
-    private static final Color NOTATION_COLOR = Color.rgb(23, 23, 23, 0.45);
 
     @FXML
     private StackPane boardZone;
@@ -99,8 +92,8 @@ public class HexChessGameController implements RouteDataReceiver {
 
     @FXML
     public void initialize() {
-        bindOptionalLabel(statusLabel);
-        bindOptionalLabel(drawOfferLabel);
+        UiVisibility.bindVisibleWhenTextPresent(statusLabel);
+        UiVisibility.bindVisibleWhenTextPresent(drawOfferLabel);
         bindBoardResize();
         startGame(setup);
     }
@@ -563,8 +556,8 @@ public class HexChessGameController implements RouteDataReceiver {
         drawOfferLabel.setText(drawOfferVisible
                 ? gameState.drawOfferBy().displayName() + " offered a draw."
                 : "");
-        setVisibleManaged(acceptDrawButton, canAnswerDrawOffer);
-        setVisibleManaged(declineDrawButton, canAnswerDrawOffer);
+        UiVisibility.setVisibleManaged(acceptDrawButton, canAnswerDrawOffer);
+        UiVisibility.setVisibleManaged(declineDrawButton, canAnswerDrawOffer);
 
         if (offerDrawButton != null) {
             offerDrawButton.setDisable(!gameState.isActive() || gameState.drawOfferBy() != null);
@@ -573,7 +566,7 @@ public class HexChessGameController implements RouteDataReceiver {
             resignButton.setDisable(!gameState.isActive());
         }
         if (restartButton != null) {
-            setVisibleManaged(restartButton, true);
+            UiVisibility.setVisibleManaged(restartButton, true);
             restartButton.setDisable(gameState.status() == HexGameStatus.DISCONNECTED
                     || gameState.status() == HexGameStatus.ERROR);
         }
@@ -591,16 +584,16 @@ public class HexChessGameController implements RouteDataReceiver {
                 graphics,
                 coordinate,
                 gameState.board().pieceAt(coordinate).isPresent(),
-                NOTATION_COLOR);
+                HexChessCanvasBoard.NOTATION_COLOR);
     }
 
     private void drawCellStroke(GraphicsContext graphics, HexCoordinate coordinate) {
-        canvasBoard.strokeCell(graphics, coordinate, STROKE_BASE, 1);
+        canvasBoard.strokeCell(graphics, coordinate, HexChessCanvasBoard.STROKE_BASE, 1);
         if (isLastMoveCell(coordinate)) {
             canvasBoard.strokeCell(graphics, coordinate, STROKE_LAST, 3);
         }
         if (coordinate.equals(selectedCoordinate)) {
-            canvasBoard.strokeCell(graphics, coordinate, STROKE_SELECTED, 3);
+            canvasBoard.strokeCell(graphics, coordinate, HexChessCanvasBoard.STROKE_SELECTED, 3);
         }
     }
 
@@ -612,11 +605,7 @@ public class HexChessGameController implements RouteDataReceiver {
             return CELL_LEGAL;
         }
 
-        return switch (HexBoardGeometry.tone(coordinate)) {
-            case LIGHT -> CELL_LIGHT;
-            case MID -> CELL_MID;
-            case DARK -> CELL_DARK;
-        };
+        return HexChessCanvasBoard.baseFill(coordinate);
     }
 
     private void drawPiece(GraphicsContext graphics, HexCoordinate coordinate) {
@@ -687,26 +676,6 @@ public class HexChessGameController implements RouteDataReceiver {
             joinClient.close();
             joinClient = null;
         }
-    }
-
-    private void bindOptionalLabel(Label label) {
-        if (label == null) {
-            return;
-        }
-
-        label.visibleProperty().bind(Bindings.createBooleanBinding(
-                () -> !label.getText().isBlank(),
-                label.textProperty()));
-        label.managedProperty().bind(label.visibleProperty());
-    }
-
-    private void setVisibleManaged(Button button, boolean visible) {
-        if (button == null) {
-            return;
-        }
-
-        button.setVisible(visible);
-        button.setManaged(visible);
     }
 
     private String modeText() {
