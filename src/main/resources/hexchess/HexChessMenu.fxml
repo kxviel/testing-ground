@@ -46,8 +46,8 @@
                   maxWidth="Infinity"
                   styleClass="hex-menu-main">
         <columnConstraints>
-            <ColumnConstraints hgrow="ALWAYS" percentWidth="65"/>
-            <ColumnConstraints hgrow="ALWAYS" percentWidth="35"/>
+            <ColumnConstraints hgrow="ALWAYS" percentWidth="60"/>
+            <ColumnConstraints hgrow="ALWAYS" percentWidth="40"/>
         </columnConstraints>
 
         <VBox GridPane.columnIndex="0"

@@ -35,8 +35,8 @@
                   maxWidth="Infinity"
                   styleClass="hex-game-main">
             <columnConstraints>
-                <ColumnConstraints hgrow="ALWAYS" percentWidth="70"/>
-                <ColumnConstraints hgrow="ALWAYS" percentWidth="30"/>
+                <ColumnConstraints hgrow="ALWAYS" percentWidth="60"/>
+                <ColumnConstraints hgrow="ALWAYS" percentWidth="40"/>
             </columnConstraints>
 
             <StackPane fx:id="boardZone"

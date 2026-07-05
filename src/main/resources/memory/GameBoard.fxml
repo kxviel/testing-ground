@@ -5,6 +5,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
@@ -28,24 +29,29 @@
         <Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/>
     </padding>
 
-    <HBox alignment="CENTER"
-          minWidth="0.0"
-          maxWidth="Infinity"
-          minHeight="480.0"
-          prefHeight="544.0"
-          maxHeight="Infinity"
-          spacing="20.0"
-          styleClass="memory-game-layout">
-
-        <VBox alignment="TOP_CENTER"
+    <GridPane alignment="CENTER"
+              hgap="20.0"
               minWidth="0.0"
-              prefWidth="858.0"
+              maxWidth="Infinity"
+              minHeight="480.0"
+              prefHeight="544.0"
+              maxHeight="Infinity"
+              styleClass="memory-game-layout">
+        <columnConstraints>
+            <ColumnConstraints hgrow="ALWAYS" percentWidth="60.0"/>
+            <ColumnConstraints hgrow="ALWAYS" percentWidth="40.0"/>
+        </columnConstraints>
+
+        <VBox GridPane.columnIndex="0"
+              GridPane.hgrow="ALWAYS"
+              GridPane.vgrow="ALWAYS"
+              alignment="TOP_CENTER"
+              minWidth="0.0"
               maxWidth="Infinity"
               minHeight="480.0"
               prefHeight="544.0"
               maxHeight="Infinity"
               spacing="20.0"
-              HBox.hgrow="ALWAYS"
               styleClass="memory-board-panel">
             <padding>
                 <Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/>
@@ -71,10 +77,12 @@
             </StackPane>
         </VBox>
 
-        <VBox alignment="TOP_LEFT"
-              prefWidth="320.0"
-              minWidth="320.0"
-              maxWidth="320.0"
+        <VBox GridPane.columnIndex="1"
+              GridPane.hgrow="ALWAYS"
+              GridPane.vgrow="ALWAYS"
+              alignment="TOP_LEFT"
+              minWidth="0.0"
+              maxWidth="Infinity"
               minHeight="480.0"
               prefHeight="544.0"
               maxHeight="Infinity"
@@ -138,5 +146,5 @@
                         styleClass="memory-primary-button"/>
             </VBox>
         </VBox>
-    </HBox>
+    </GridPane>
 </StackPane>

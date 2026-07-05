@@ -89,6 +89,22 @@
     -fx-cursor: default;
 }
 
+.card-matched .memory-card-face {
+    -fx-opacity: 0.56;
+}
+
+.card-matched-player-one {
+    -fx-background-color: #f3f8f5;
+    -fx-border-color: #8fb89c;
+    -fx-border-width: 2;
+}
+
+.card-matched-player-two {
+    -fx-background-color: #f3f6fb;
+    -fx-border-color: #8faad2;
+    -fx-border-width: 2;
+}
+
 .card:disabled,
 .card-flipped:disabled,
 .card-matched:disabled {

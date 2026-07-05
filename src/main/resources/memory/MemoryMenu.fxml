@@ -7,13 +7,13 @@
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.shape.Rectangle?>
 <?import seda_project.control_alt_defeat.gamebox.ui.SvgIcon?>
 
 <StackPane prefWidth="1080.0"
@@ -38,22 +38,28 @@
                    minWidth="0.0"
                    minHeight="0.0"
                    styleClass="memory-menu-viewport">
-            <HBox alignment="CENTER"
-                  minWidth="0.0"
-                  minHeight="688.0"
-                  maxWidth="Infinity"
-                  prefHeight="688.0"
-                  maxHeight="Infinity"
-                  spacing="20.0"
-                  styleClass="memory-menu-layout">
+            <GridPane alignment="CENTER"
+                      hgap="20.0"
+                      minWidth="0.0"
+                      minHeight="688.0"
+                      maxWidth="Infinity"
+                      prefHeight="688.0"
+                      maxHeight="Infinity"
+                      styleClass="memory-menu-layout">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="60.0"/>
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="40.0"/>
+                </columnConstraints>
 
-                <VBox minWidth="0.0"
+                <VBox GridPane.columnIndex="0"
+                      GridPane.hgrow="ALWAYS"
+                      GridPane.vgrow="ALWAYS"
+                      minWidth="0.0"
                       maxWidth="Infinity"
                       minHeight="688.0"
                       prefHeight="688.0"
                       maxHeight="Infinity"
                       spacing="20.0"
-                      HBox.hgrow="ALWAYS"
                       styleClass="memory-setup-card">
                     <padding>
                         <Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/>
@@ -65,10 +71,9 @@
                         <Label text="Choose tuple size, board size, and start a match." styleClass="memory-muted"/>
                     </VBox>
 
-                    <VBox spacing="8.0" styleClass="memory-parameter-panel">
-                        <HBox alignment="CENTER_LEFT" spacing="12.0">
-                            <Label text="Tuple size (k = 1-45)" styleClass="memory-label"/>
-                            <Region HBox.hgrow="ALWAYS"/>
+                    <VBox spacing="10.0" styleClass="memory-parameter-panel">
+                        <Label text="Tuple size (k = 1-45)" styleClass="memory-label"/>
+                        <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="memory-k-controls">
                             <TextField fx:id="kField"
                                        text="2"
                                        promptText="2"
@@ -80,17 +85,6 @@
                                     prefWidth="104.0"
                                     styleClass="memory-primary-button"/>
                         </HBox>
-                        <Slider fx:id="kSlider"
-                                min="1.0"
-                                max="45.0"
-                                value="2.0"
-                                blockIncrement="1.0"
-                                maxWidth="Infinity"
-                                styleClass="memory-slider">
-                            <clip>
-                                <Rectangle fx:id="kSliderClip" height="18.0"/>
-                            </clip>
-                        </Slider>
                         <Label text="Match groups of k identical cards." styleClass="memory-caption"/>
                         <Label fx:id="kErrorLabel"
                                text=""
@@ -107,7 +101,9 @@
                                          maxWidth="Infinity"
                                          styleClass="memory-variant-row">
                                 <graphic>
-                                    <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="12.0">
+                                    <HBox alignment="CENTER_LEFT"
+                                          maxWidth="Infinity"
+                                          styleClass="memory-variant-content">
                                         <VBox spacing="2.0" HBox.hgrow="ALWAYS">
                                             <Label fx:id="variant1TitleLabel" styleClass="memory-row-title"/>
                                             <Label fx:id="variant1MetaLabel" styleClass="memory-row-subtitle"/>
@@ -120,7 +116,9 @@
                                          maxWidth="Infinity"
                                          styleClass="memory-variant-row">
                                 <graphic>
-                                    <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="12.0">
+                                    <HBox alignment="CENTER_LEFT"
+                                          maxWidth="Infinity"
+                                          styleClass="memory-variant-content">
                                         <VBox spacing="2.0" HBox.hgrow="ALWAYS">
                                             <Label fx:id="variant2TitleLabel" styleClass="memory-row-title"/>
                                             <Label fx:id="variant2MetaLabel" styleClass="memory-row-subtitle"/>
@@ -133,7 +131,9 @@
                                          maxWidth="Infinity"
                                          styleClass="memory-variant-row">
                                 <graphic>
-                                    <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="12.0">
+                                    <HBox alignment="CENTER_LEFT"
+                                          maxWidth="Infinity"
+                                          styleClass="memory-variant-content">
                                         <VBox spacing="2.0" HBox.hgrow="ALWAYS">
                                             <Label fx:id="variant3TitleLabel" styleClass="memory-row-title"/>
                                             <Label fx:id="variant3MetaLabel" styleClass="memory-row-subtitle"/>
@@ -184,8 +184,10 @@
                     </VBox>
                 </VBox>
 
-                <VBox prefWidth="320.0"
-                      minWidth="320.0"
+                <VBox GridPane.columnIndex="1"
+                      GridPane.hgrow="ALWAYS"
+                      GridPane.vgrow="ALWAYS"
+                      minWidth="0.0"
                       maxWidth="Infinity"
                       minHeight="688.0"
                       prefHeight="688.0"
@@ -275,7 +277,7 @@
                                styleClass="memory-caption"/>
                     </VBox>
                 </VBox>
-            </HBox>
+            </GridPane>
         </StackPane>
     </ScrollPane>
 </StackPane>

@@ -49,8 +49,8 @@
                   maxWidth="Infinity"
                   styleClass="tetris-menu-main">
         <columnConstraints>
-            <ColumnConstraints fx:id="contentColumn" hgrow="ALWAYS" percentWidth="65"/>
-            <ColumnConstraints fx:id="optionsColumn" hgrow="ALWAYS" percentWidth="35"/>
+            <ColumnConstraints fx:id="contentColumn" hgrow="ALWAYS" percentWidth="60"/>
+            <ColumnConstraints fx:id="optionsColumn" hgrow="ALWAYS" percentWidth="40"/>
         </columnConstraints>
 
         <VBox GridPane.columnIndex="0"

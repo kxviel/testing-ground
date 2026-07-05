@@ -41,14 +41,21 @@
                     vbarPolicy="AS_NEEDED"
                     styleClass="app-scroll"
                     BorderPane.alignment="CENTER">
-            <HBox alignment="TOP_CENTER"
-                  minHeight="620"
-                  minWidth="1080"
-                  spacing="18"
-                  styleClass="hex-stage">
-            <VBox minWidth="752"
-                  prefWidth="752"
-                  maxWidth="752">
+            <GridPane alignment="TOP_CENTER"
+                      hgap="18"
+                      minHeight="620"
+                      minWidth="1080"
+                      styleClass="hex-stage">
+            <columnConstraints>
+                <ColumnConstraints hgrow="ALWAYS" percentWidth="60"/>
+                <ColumnConstraints hgrow="ALWAYS" percentWidth="40"/>
+            </columnConstraints>
+
+            <VBox GridPane.columnIndex="0"
+                  GridPane.hgrow="ALWAYS"
+                  GridPane.vgrow="ALWAYS"
+                  minWidth="0"
+                  maxWidth="Infinity">
                 <styleClass>
                     <String fx:value="hex-board-panel"/>
                     <String fx:value="board-surface"/>
@@ -68,7 +75,12 @@
                 </StackPane>
             </VBox>
 
-            <VBox minWidth="300" prefWidth="316" maxWidth="330" styleClass="hex-side-panel">
+            <VBox GridPane.columnIndex="1"
+                  GridPane.hgrow="ALWAYS"
+                  GridPane.vgrow="ALWAYS"
+                  minWidth="0"
+                  maxWidth="Infinity"
+                  styleClass="hex-side-panel">
                 <VBox styleClass="sidebar-section">
                     <Label text="Players" styleClass="panel-label"/>
                     <GridPane styleClass="hex-form-grid">
@@ -116,7 +128,7 @@
                             styleClass="btn-primary" HBox.hgrow="ALWAYS"/>
                 </HBox>
             </VBox>
-            </HBox>
+            </GridPane>
         </ScrollPane>
     </center>
 

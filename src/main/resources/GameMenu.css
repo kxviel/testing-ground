@@ -157,23 +157,6 @@
     -fx-text-fill: -sh-card-foreground;
 }
 
-.parameter-box .slider .track,
-.config-slider .track,
-.memory-slider .track {
-    -fx-background-color: -sh-border;
-    -fx-background-radius: 99;
-    -fx-pref-height: 6;
-}
-
-.parameter-box .slider .thumb,
-.config-slider .thumb,
-.memory-slider .thumb {
-    -fx-background-color: -game-accent;
-    -fx-background-radius: 99;
-    -fx-pref-height: 12;
-    -fx-pref-width: 12;
-}
-
 .variant-section {
     -fx-spacing: 12;
 }
@@ -196,7 +179,9 @@
     -fx-cursor: hand;
     -fx-min-height: 52;
     -fx-padding: 0 20;
-    -fx-graphic-text-gap: 12;
+    -fx-content-display: graphic-only;
+    -fx-graphic-text-gap: 0;
+    -fx-label-padding: 0;
 }
 
 .variant-row:hover,
@@ -230,6 +215,10 @@
 
 .variant-content {
     -fx-alignment: center-left;
+}
+
+.memory-variant-content {
+    -fx-padding: 0 0 0 16;
 }
 
 .variant-indicator {

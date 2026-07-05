@@ -112,19 +112,6 @@
     -fx-text-fill: -sh-card-foreground;
 }
 
-.memory-slider .track {
-    -fx-background-color: -sh-border;
-    -fx-background-radius: 99;
-    -fx-pref-height: 6;
-}
-
-.memory-slider .thumb {
-    -fx-background-color: -sh-card-foreground;
-    -fx-background-radius: 99;
-    -fx-pref-height: 12;
-    -fx-pref-width: 12;
-}
-
 .memory-error {
     -fx-font-size: 14px;
     -fx-font-weight: 600;
@@ -143,12 +130,18 @@
     -fx-cursor: hand;
     -fx-min-height: 60;
     -fx-padding: 0 20;
-    -fx-graphic-text-gap: 12;
+    -fx-content-display: graphic-only;
+    -fx-graphic-text-gap: 0;
+    -fx-label-padding: 0;
 }
 
 .memory-variant-row:hover,
 .memory-variant-row:selected {
     -fx-border-color: -game-accent;
+}
+
+.memory-variant-content {
+    -fx-padding: 0 0 0 16;
 }
 
 .memory-variant-row .radio {
