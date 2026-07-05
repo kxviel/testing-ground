@@ -103,11 +103,11 @@
             <VBox spacing="8.0" styleClass="memory-sidebar-section">
                 <Label text="SCORE" styleClass="memory-section-label"/>
                 <HBox fx:id="p1Chip" alignment="CENTER_LEFT" styleClass="memory-score-row">
-                    <Label fx:id="p1Label" text="Player 1" styleClass="memory-score-label" HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="p1Label" text="The Old Monk" styleClass="memory-score-label player-one-name" HBox.hgrow="ALWAYS"/>
                     <Label fx:id="p1ScoreLabel" text="0" styleClass="memory-score-value"/>
                 </HBox>
                 <HBox fx:id="p2Chip" alignment="CENTER_LEFT" styleClass="memory-score-row">
-                    <Label fx:id="p2Label" text="Player 2" styleClass="memory-score-label" HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="p2Label" text="The Outer God" styleClass="memory-score-label player-two-name" HBox.hgrow="ALWAYS"/>
                     <Label fx:id="p2ScoreLabel" text="0" styleClass="memory-score-value"/>
                 </HBox>
             </VBox>
@@ -118,7 +118,7 @@
                 <Label text="TURN" styleClass="memory-section-label"/>
                 <HBox alignment="CENTER_LEFT" styleClass="memory-turn-pill">
                     <Region styleClass="memory-turn-dot"/>
-                    <Label fx:id="turnLabel" text="Player 1's turn" styleClass="memory-turn-label"/>
+                    <Label fx:id="turnLabel" text="The Old Monk's turn" styleClass="memory-turn-label"/>
                 </HBox>
             </VBox>
 

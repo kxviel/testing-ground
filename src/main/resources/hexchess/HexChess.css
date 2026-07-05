@@ -116,9 +116,6 @@
     -fx-border-color: -sh-border;
     -fx-border-radius: 2px;
     -fx-border-width: 1;
-}
-
-.row-icon-chip {
     -fx-min-height: 54;
     -fx-min-width: 54;
     -fx-pref-height: 54;
@@ -199,12 +196,6 @@
     -fx-font-weight: 800;
 }
 
-.mode-button {
-    -fx-content-display: graphic-only;
-    -fx-min-height: 48;
-    -fx-padding: 10 14;
-}
-
 .hex-match-actions {
     -fx-spacing: 12;
 }
@@ -244,13 +235,7 @@
 
 .mode-text {
     -fx-text-fill: -sh-foreground;
-}
-
-.mode-text {
     -fx-font-weight: 800;
-}
-
-.mode-text {
     -fx-font-size: 15px;
 }
 

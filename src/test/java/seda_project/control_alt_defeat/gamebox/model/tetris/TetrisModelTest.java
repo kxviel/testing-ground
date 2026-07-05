@@ -9,6 +9,7 @@ import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerSide;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerStatus;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.Rotation;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisCell;
+import seda_project.control_alt_defeat.gamebox.util.SafeText;
 
 class TetrisModelTest {
 
@@ -19,7 +20,7 @@ class TetrisModelTest {
                 new BoardPosition(18, 0),
                 Rotation.SPAWN);
         TetrisPlayerState player = new TetrisPlayerState(
-                "Player 1",
+                SafeText.PLAYER_ONE_NAME,
                 PlayerSide.BOTTOM,
                 new TetrisBoard(),
                 piece,

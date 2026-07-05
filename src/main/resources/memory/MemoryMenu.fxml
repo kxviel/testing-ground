@@ -201,53 +201,74 @@
 
                     <VBox spacing="8.0" styleClass="memory-copy-block">
                         <Label text="N E T W O R K" styleClass="memory-eyebrow"/>
-                        <Label text="Host or join LAN matches." styleClass="memory-muted"/>
+                        <Label text="Set players, host, or join LAN matches." styleClass="memory-muted"/>
                     </VBox>
 
-                    <Button fx:id="btnHostGame"
-                            onAction="#onHostGame"
-                            maxWidth="Infinity"
-                            styleClass="memory-action-row">
-                        <graphic>
-                            <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="20.0">
-                                <StackPane styleClass="memory-icon-box">
-                                    <SvgIcon icon="lan" styleClass="svg-icon-primary"/>
-                                </StackPane>
-                                <VBox spacing="2.0" HBox.hgrow="ALWAYS">
-                                    <Label text="Host LAN Game" styleClass="memory-row-title"/>
-                                    <Label text="Make your match discover..." styleClass="memory-row-subtitle"/>
-                                </VBox>
-                                <SvgIcon icon="chevron-right" styleClass="svg-icon-muted"/>
-                            </HBox>
-                        </graphic>
-                    </Button>
+                    <VBox spacing="12.0" styleClass="side-section">
+                        <Label text="Players" styleClass="memory-label"/>
+                        <GridPane styleClass="network-player-grid">
+                            <columnConstraints>
+                                <ColumnConstraints halignment="RIGHT" minWidth="78.0" prefWidth="78.0"/>
+                                <ColumnConstraints hgrow="ALWAYS" minWidth="170.0"/>
+                            </columnConstraints>
 
-                    <HBox alignment="CENTER_LEFT" spacing="10.0">
-                        <Button fx:id="btnRefreshGames"
-                                text="↻  Refresh"
-                                onAction="#onRefreshLan"
+                            <Label text="Player 1" styleClass="player-one-name" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                            <TextField fx:id="playerOneNameField"
+                                       text="The Old Monk"
+                                       promptText="The Old Monk"
+                                       styleClass="player-name-field player-one-name"
+                                       GridPane.columnIndex="1"
+                                       GridPane.rowIndex="0"/>
+
+                            <Label text="Player 2" styleClass="player-two-name" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                            <TextField fx:id="playerTwoNameField"
+                                       text="The Outer God"
+                                       promptText="The Outer God"
+                                       styleClass="player-name-field player-two-name"
+                                       GridPane.columnIndex="1"
+                                       GridPane.rowIndex="1"/>
+                        </GridPane>
+                    </VBox>
+
+                    <VBox spacing="12.0" styleClass="network-section">
+                        <Button fx:id="btnHostGame"
+                                onAction="#onHostGame"
                                 maxWidth="Infinity"
-                                HBox.hgrow="ALWAYS"
-                                styleClass="memory-secondary-button"/>
-                        <Button fx:id="btnJoinSelectedGame"
-                                text="↪  Join"
-                                onAction="#onJoinSelectedLan"
-                                maxWidth="Infinity"
-                                HBox.hgrow="ALWAYS"
-                                styleClass="memory-secondary-button"/>
-                    </HBox>
+                                styleClass="network-host-button">
+                            <graphic>
+                                <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="12.0">
+                                    <SvgIcon icon="lan" styleClass="svg-icon-primary"/>
+                                    <Label text="Host LAN Game" styleClass="mode-text"/>
+                                </HBox>
+                            </graphic>
+                        </Button>
+
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                            <Button fx:id="btnRefreshGames"
+                                    text="Refresh"
+                                    onAction="#onRefreshLan"
+                                    maxWidth="Infinity"
+                                    HBox.hgrow="ALWAYS"
+                                    styleClass="memory-secondary-button"/>
+                            <Button fx:id="btnJoinSelectedGame"
+                                    text="Join Selected"
+                                    onAction="#onJoinSelectedLan"
+                                    maxWidth="Infinity"
+                                    HBox.hgrow="ALWAYS"
+                                    styleClass="memory-secondary-button"/>
+                        </HBox>
+                    </VBox>
 
                     <VBox spacing="10.0">
-                        <Label text="Available games" styleClass="memory-label"/>
+                        <Label text="Available Games" styleClass="memory-label"/>
                         <ListView fx:id="availableGamesList"
                                   prefHeight="128.0"
-                                  maxHeight="128.0"
+                                  maxHeight="160.0"
                                   maxWidth="Infinity"
                                   styleClass="memory-empty-list">
                             <placeholder>
                                 <VBox alignment="CENTER" spacing="6.0">
-                                    <Label text="No games found" styleClass="memory-empty-title"/>
-                                    <Label text="Refresh to scan your LAN." styleClass="memory-caption"/>
+                                    <Label text="No LAN games found" styleClass="memory-empty-title"/>
                                 </VBox>
                             </placeholder>
                         </ListView>

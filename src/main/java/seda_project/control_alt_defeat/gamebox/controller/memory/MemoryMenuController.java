@@ -16,10 +16,12 @@ import seda_project.control_alt_defeat.gamebox.model.memory.BoardVariant;
 import seda_project.control_alt_defeat.gamebox.network.GameClient;
 import seda_project.control_alt_defeat.gamebox.network.GameServer;
 import seda_project.control_alt_defeat.gamebox.network.LanDiscoveryService;
+import seda_project.control_alt_defeat.gamebox.network.memory.MemoryProtocol;
 import seda_project.control_alt_defeat.gamebox.ui.TimedStatus;
 import seda_project.control_alt_defeat.gamebox.util.DiscoveredGameListController;
 import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
 import seda_project.control_alt_defeat.gamebox.util.Router;
+import seda_project.control_alt_defeat.gamebox.util.SafeText;
 import seda_project.control_alt_defeat.gamebox.util.UiInputGuards;
 import seda_project.control_alt_defeat.gamebox.util.UiVisibility;
 
@@ -34,12 +36,17 @@ public class MemoryMenuController implements RouteDataReceiver {
 
     private static final Logger log = LoggerFactory.getLogger(MemoryMenuController.class);
     private static final String GAME_BOARD_ROUTE = "/memory/GameBoard.fxml";
-    private static final String PLAYER_ONE = "Player 1";
+    private static final String PLAYER_ONE = SafeText.PLAYER_ONE_NAME;
+    private static final String PLAYER_TWO = SafeText.PLAYER_TWO_NAME;
     private static final int STATUS_SECONDS = 10;
     private static final long DISCOVERED_GAME_TTL_MS = 5_000;
 
     @FXML
     private TextField kField;
+    @FXML
+    private TextField playerOneNameField;
+    @FXML
+    private TextField playerTwoNameField;
     @FXML
     private Label kErrorLabel;
     @FXML
@@ -104,6 +111,7 @@ public class MemoryMenuController implements RouteDataReceiver {
         timedStatus = new TimedStatus(statusLabel);
         discoveredGameList = new DiscoveredGameListController(availableGamesList);
         UiInputGuards.limitWholeNumber(kField, 2);
+        UiInputGuards.limitPlayerNames(playerOneNameField, playerTwoNameField);
         variantRows = List.of(
                 new VariantRow(variant1Radio, variant1TitleLabel, variant1MetaLabel),
                 new VariantRow(variant2Radio, variant2TitleLabel, variant2MetaLabel),
@@ -219,7 +227,7 @@ public class MemoryMenuController implements RouteDataReceiver {
             return;
         }
         closeMenuNetwork();
-        Router.goTo(event, GAME_BOARD_ROUTE, MemoryGameRouteData.local(v));
+        Router.goTo(event, GAME_BOARD_ROUTE, MemoryGameRouteData.local(v, playerOneName(), playerTwoName()));
     }
 
     @FXML
@@ -238,21 +246,22 @@ public class MemoryMenuController implements RouteDataReceiver {
         closePendingNetwork();
 
         GameServer server = new GameServer();
+        Queue<String> pendingMessages = new ConcurrentLinkedQueue<>();
+        String hostName = playerOneName();
         pendingServer = server;
         statusLabel.setText("Starting server...");
 
         startDaemon(() -> {
             try {
-                server.listen(GameServer.DEFAULT_PORT, msg -> {
-                }, () -> {
+                server.listen(GameServer.DEFAULT_PORT, pendingMessages::add, () -> {
                 });
                 discoveryService.startAdvertising(
-                        PLAYER_ONE,
+                        hostName,
                         GameServer.DEFAULT_PORT,
                         message -> Platform.runLater(() -> statusLabel.setText(message)));
                 String ip = GameServer.getLocalAddress();
                 Platform.runLater(() -> statusLabel.setText(
-                        "Hosting on " + ip + ":" + GameServer.DEFAULT_PORT + ". Waiting for Player 2..."));
+                        "Hosting on " + ip + ":" + GameServer.DEFAULT_PORT + ". Waiting for " + PLAYER_TWO + "..."));
                 server.waitForClient();
                 Platform.runLater(() -> {
                     if (pendingServer != server) {
@@ -268,7 +277,7 @@ public class MemoryMenuController implements RouteDataReceiver {
                         server.close();
                         return;
                     }
-                    Router.goTo(stage, GAME_BOARD_ROUTE, MemoryGameRouteData.host(v, server));
+                    Router.goTo(stage, GAME_BOARD_ROUTE, MemoryGameRouteData.host(v, server, pendingMessages, hostName));
                 });
             } catch (IOException e) {
                 if (server.isConnected() || pendingServer == null)
@@ -299,6 +308,7 @@ public class MemoryMenuController implements RouteDataReceiver {
 
     private void setMenuButtonsDisabled(boolean disabled) {
         Stream.of(btnLocalGame, btnHostGame, kField, btnApplyK,
+                playerOneNameField, playerTwoNameField,
                 variant1Radio, variant2Radio, variant3Radio, btnRefreshGames, availableGamesList)
                 .forEach(control -> control.setDisable(disabled));
         updateJoinSelectedButton();
@@ -332,6 +342,7 @@ public class MemoryMenuController implements RouteDataReceiver {
         setNetworkPending(true, "Cancel Connecting");
         discoveryService.stopListening();
         statusLabel.setText("Connecting to " + selectedGame.playerName() + "...");
+        String joinerName = playerTwoName();
 
         GameClient client = new GameClient();
         pendingClient = client;
@@ -341,6 +352,7 @@ public class MemoryMenuController implements RouteDataReceiver {
             try {
                 client.connect(selectedGame.hostAddress(), selectedGame.tcpPort(), pendingMessages::add, () -> {
                 });
+                client.send(MemoryProtocol.join(joinerName));
                 Platform.runLater(() -> {
                     if (pendingClient != client) {
                         client.close();
@@ -353,7 +365,7 @@ public class MemoryMenuController implements RouteDataReceiver {
                         client.close();
                         return;
                     }
-                    Router.goTo(stage, GAME_BOARD_ROUTE, MemoryGameRouteData.join(client, pendingMessages));
+                    Router.goTo(stage, GAME_BOARD_ROUTE, MemoryGameRouteData.join(client, pendingMessages, joinerName));
                 });
             } catch (IOException e) {
                 log.error("Join failed: {}", e.getMessage());
@@ -447,6 +459,18 @@ public class MemoryMenuController implements RouteDataReceiver {
 
     public void showTimedStatus(String message, int seconds) {
         timedStatus.show(message, seconds);
+    }
+
+    private String playerOneName() {
+        return SafeText.playerName(text(playerOneNameField), PLAYER_ONE);
+    }
+
+    private String playerTwoName() {
+        return SafeText.playerName(text(playerTwoNameField), PLAYER_TWO);
+    }
+
+    private static String text(TextField field) {
+        return field == null ? "" : field.getText();
     }
 
     private record VariantRow(RadioButton radio, Label title, Label meta) {

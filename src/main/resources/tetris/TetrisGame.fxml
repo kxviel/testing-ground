@@ -79,16 +79,22 @@
                     <Label text="Points" styleClass="field-title"/>
 
                     <HBox alignment="CENTER_LEFT" spacing="12">
-                        <VBox maxWidth="Infinity" styleClass="player-score-card" HBox.hgrow="ALWAYS">
-                            <Label text="Top" styleClass="field-title"/>
-                            <Label fx:id="topNameLabel" text="Player 2" styleClass="player-name"/>
-                            <Label fx:id="topScoreLabel" text="Score: 0" styleClass="score-label"/>
+                        <VBox maxWidth="Infinity" spacing="6" styleClass="player-score-card" HBox.hgrow="ALWAYS">
+                            <Label fx:id="topScoreLabel"
+                                   text="The Outer God: 0"
+                                   minHeight="24"
+                                   maxWidth="Infinity"
+                                   styleClass="score-label"
+                                   style="-fx-text-fill: #7A4A00; -fx-font-weight: 900;"/>
                         </VBox>
 
-                        <VBox maxWidth="Infinity" styleClass="player-score-card" HBox.hgrow="ALWAYS">
-                            <Label text="Bottom" styleClass="field-title"/>
-                            <Label fx:id="bottomNameLabel" text="Player 1" styleClass="player-name"/>
-                            <Label fx:id="bottomScoreLabel" text="Score: 0" styleClass="score-label"/>
+                        <VBox maxWidth="Infinity" spacing="6" styleClass="player-score-card" HBox.hgrow="ALWAYS">
+                            <Label fx:id="bottomScoreLabel"
+                                   text="The Old Monk: 0"
+                                   minHeight="24"
+                                   maxWidth="Infinity"
+                                   styleClass="score-label"
+                                   style="-fx-text-fill: #0A235A; -fx-font-weight: 900;"/>
                         </VBox>
                     </HBox>
                 </VBox>

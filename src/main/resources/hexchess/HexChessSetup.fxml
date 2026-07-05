@@ -88,10 +88,20 @@
                             <ColumnConstraints halignment="RIGHT" minWidth="58" prefWidth="58"/>
                             <ColumnConstraints hgrow="ALWAYS" minWidth="170" prefWidth="186"/>
                         </columnConstraints>
-                        <Label text="White" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-                        <TextField fx:id="whiteNameField" text="Player 1" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-                        <Label text="Black" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-                        <TextField fx:id="blackNameField" text="Player 2" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                        <Label text="White" styleClass="player-one-name" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                        <TextField fx:id="playerOneNameField"
+                                   text="The Old Monk"
+                                   promptText="The Old Monk"
+                                   styleClass="player-name-field player-one-name"
+                                   GridPane.columnIndex="1"
+                                   GridPane.rowIndex="0"/>
+                        <Label text="Black" styleClass="player-two-name" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                        <TextField fx:id="playerTwoNameField"
+                                   text="The Outer God"
+                                   promptText="The Outer God"
+                                   styleClass="player-name-field player-two-name"
+                                   GridPane.columnIndex="1"
+                                   GridPane.rowIndex="1"/>
                     </GridPane>
                 </VBox>
 

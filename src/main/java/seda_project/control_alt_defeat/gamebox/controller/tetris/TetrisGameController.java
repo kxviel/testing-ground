@@ -36,6 +36,7 @@ import seda_project.control_alt_defeat.gamebox.network.tetris.TetrisProtocol;
 import seda_project.control_alt_defeat.gamebox.network.tetris.TetrisStateSnapshot;
 import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
 import seda_project.control_alt_defeat.gamebox.util.Router;
+import seda_project.control_alt_defeat.gamebox.util.SafeText;
 import seda_project.control_alt_defeat.gamebox.util.UiVisibility;
 
 import java.util.HashSet;
@@ -59,10 +60,6 @@ public class TetrisGameController implements RouteDataReceiver {
     @FXML
     private BorderPane gameRoot;
     @FXML
-    private Label topNameLabel;
-    @FXML
-    private Label bottomNameLabel;
-    @FXML
     private Label topScoreLabel;
     @FXML
     private Label bottomScoreLabel;
@@ -81,7 +78,10 @@ public class TetrisGameController implements RouteDataReceiver {
     @FXML
     private GridPane bottomBoardGrid;
 
-    private TetrisGameSetup setup = new TetrisGameSetup("Player 1", "Player 2", TetrisGameConfig.defaultConfig());
+    private TetrisGameSetup setup = new TetrisGameSetup(
+            SafeText.PLAYER_ONE_NAME,
+            SafeText.PLAYER_TWO_NAME,
+            TetrisGameConfig.defaultConfig());
     private TetrisGameState gameState = TetrisGameState.create(setup);
     private Timeline gameLoop;
     private Timeline objectLoop;
@@ -264,13 +264,15 @@ public class TetrisGameController implements RouteDataReceiver {
 
 
     private void renderLabels() {
-        bottomNameLabel.setText(gameState.bottomPlayer().playerName());
-        topNameLabel.setText(gameState.topPlayer().playerName());
-        bottomScoreLabel.setText("Score: " + gameState.bottomPlayer().score());
-        topScoreLabel.setText("Score: " + gameState.topPlayer().score());
+        bottomScoreLabel.setText(scoreText(gameState.bottomPlayer()));
+        topScoreLabel.setText(scoreText(gameState.topPlayer()));
         configLabel.setText("Pieces: " + gameState.config().displayText());
         renderKeymap();
         renderResult();
+    }
+
+    private static String scoreText(TetrisPlayerState player) {
+        return player.playerName() + ": " + player.score();
     }
 
     private void renderKeymap() {

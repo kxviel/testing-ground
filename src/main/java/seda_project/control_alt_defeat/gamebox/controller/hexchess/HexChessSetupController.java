@@ -22,6 +22,7 @@ import seda_project.control_alt_defeat.gamebox.model.hexchess.HexPositionValidat
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexPositionValidator;
 import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
 import seda_project.control_alt_defeat.gamebox.util.Router;
+import seda_project.control_alt_defeat.gamebox.util.SafeText;
 import seda_project.control_alt_defeat.gamebox.util.UiInputGuards;
 
 import java.util.Map;
@@ -35,9 +36,9 @@ public class HexChessSetupController implements RouteDataReceiver {
     @FXML
     private Canvas boardCanvas;
     @FXML
-    private TextField whiteNameField;
+    private TextField playerOneNameField;
     @FXML
-    private TextField blackNameField;
+    private TextField playerTwoNameField;
     @FXML
     private ComboBox<HexPieceColor> colorChoiceBox;
     @FXML
@@ -64,7 +65,7 @@ public class HexChessSetupController implements RouteDataReceiver {
 
     @FXML
     public void initialize() {
-        UiInputGuards.limitPlayerNames(whiteNameField, blackNameField);
+        UiInputGuards.limitPlayerNames(playerOneNameField, playerTwoNameField);
         colorChoiceBox.getItems().setAll(HexPieceColor.values());
         colorChoiceBox.getSelectionModel().select(HexPieceColor.WHITE);
         typeChoiceBox.getItems().setAll(HexPieceType.KING, HexPieceType.QUEEN, HexPieceType.ROOK,
@@ -83,8 +84,8 @@ public class HexChessSetupController implements RouteDataReceiver {
         if (data instanceof HexChessGameSetup nextSetup) {
             setup = nextSetup;
             board = nextSetup.initialBoard();
-            whiteNameField.setText(nextSetup.whiteName());
-            blackNameField.setText(nextSetup.blackName());
+            playerOneNameField.setText(nextSetup.whiteName());
+            playerTwoNameField.setText(nextSetup.blackName());
             turnChoiceBox.getSelectionModel().select(nextSetup.startingTurn());
             render();
         }
@@ -122,8 +123,8 @@ public class HexChessSetupController implements RouteDataReceiver {
 
         startButton.setDisable(true);
         Router.goTo(event, "/hexchess/HexChessGame.fxml", new HexChessGameSetup(
-                whiteNameField.getText(),
-                blackNameField.getText(),
+                playerOneName(),
+                playerTwoName(),
                 HexGameMode.LOCAL,
                 board,
                 startingTurn,
@@ -132,7 +133,29 @@ public class HexChessSetupController implements RouteDataReceiver {
 
     @FXML
     private void onBack(ActionEvent event) {
-        Router.goTo(event, "/hexchess/HexChessMenu.fxml", setup);
+        Router.goTo(event, "/hexchess/HexChessMenu.fxml", setupWithNames());
+    }
+
+    private HexChessGameSetup setupWithNames() {
+        return new HexChessGameSetup(
+                playerOneName(),
+                playerTwoName(),
+                setup.mode(),
+                board,
+                turnChoiceBox.getSelectionModel().getSelectedItem(),
+                setup.customPosition());
+    }
+
+    private String playerOneName() {
+        return SafeText.playerName(text(playerOneNameField), SafeText.PLAYER_ONE_NAME);
+    }
+
+    private String playerTwoName() {
+        return SafeText.playerName(text(playerTwoNameField), SafeText.PLAYER_TWO_NAME);
+    }
+
+    private static String text(TextField field) {
+        return field == null ? "" : field.getText();
     }
 
     private void buildBoard() {

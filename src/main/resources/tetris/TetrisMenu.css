@@ -48,12 +48,10 @@
 }
 
 .title,
-.settings-title,
 .row-title,
 .section-title,
 .field-title,
-.game-side-title,
-.player-name {
+.game-side-title {
     -fx-text-fill: -sh-card-foreground;
 }
 
@@ -62,7 +60,6 @@
     -fx-font-weight: 800;
 }
 
-.settings-title,
 .game-side-title {
     -fx-font-size: 30px;
     -fx-font-weight: 800;
@@ -72,7 +69,6 @@
 .settings-subtitle,
 .row-subtitle,
 .footer-line,
-.option-hint,
 .status-line,
 .score-label,
 .keymap-label,
@@ -129,9 +125,6 @@
     -fx-border-color: -sh-border;
     -fx-border-radius: 2px;
     -fx-border-width: 1;
-}
-
-.row-icon-chip {
     -fx-min-height: 54;
     -fx-min-width: 54;
     -fx-pref-height: 54;
@@ -175,17 +168,6 @@
 .keymap-block,
 .boards-stack {
     -fx-spacing: 10;
-}
-
-.menu-form-grid {
-    -fx-alignment: center;
-    -fx-hgap: 12;
-    -fx-padding: 4 0 0 0;
-    -fx-vgap: 10;
-}
-
-.menu-form-grid .text-field {
-    -fx-pref-width: 220;
 }
 
 .menu-config-content .combo-box {
@@ -238,11 +220,6 @@
     -fx-border-radius: 2px;
     -fx-border-width: 1;
     -fx-padding: 12 14;
-}
-
-.player-name {
-    -fx-font-size: 18px;
-    -fx-font-weight: 700;
 }
 
 .score-label,

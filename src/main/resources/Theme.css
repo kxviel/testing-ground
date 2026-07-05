@@ -39,6 +39,8 @@
     -game-on-accent: #FFFFFF;
     -game-on-accent-container: #0F172A;
     -game-soft-surface: #F1F5FD;
+    -player-one-color: #0A235A;
+    -player-two-color: #7A4A00;
     -fx-font-family: "Inter Variable", "Inter", "Segoe UI", "Arial", sans-serif;
     -fx-font-size: 14px;
 }
@@ -127,15 +129,13 @@
     -fx-text-fill: -sh-primary-foreground;
 }
 
-.btn-outline,
-.mode-button {
+.btn-outline {
     -fx-background-color: -sh-card;
     -fx-border-color: -sh-input;
     -fx-text-fill: -sh-foreground;
 }
 
-.btn-outline:hover,
-.mode-button:hover {
+.btn-outline:hover {
     -fx-background-color: -sh-accent;
     -fx-border-color: -sh-ring;
     -fx-text-fill: -sh-accent-foreground;
@@ -250,4 +250,19 @@
 
 .check-box:selected .mark {
     -fx-background-color: -sh-primary-foreground;
+}
+
+.player-name-field {
+    -fx-font-size: 16px;
+    -fx-font-weight: 900;
+}
+
+.player-one-name {
+    -fx-font-weight: 900;
+    -fx-text-fill: -player-one-color;
+}
+
+.player-two-name {
+    -fx-font-weight: 900;
+    -fx-text-fill: -player-two-color;
 }

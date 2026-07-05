@@ -62,8 +62,7 @@
 }
 
 .memory-menu-title,
-.title,
-.settings-title {
+.title {
     -fx-font-size: 26px;
     -fx-font-weight: 800;
     -fx-text-fill: -sh-card-foreground;
@@ -76,7 +75,6 @@
 .network-subtitle,
 .footer-line,
 .status-line,
-.option-hint,
 .empty-list-label {
     -fx-text-fill: -sh-muted-foreground;
 }
@@ -90,16 +88,15 @@
 .memory-label,
 .field-title,
 .section-title,
-.hex-form-grid .label,
-.menu-form-grid .label {
+.network-player-grid .label,
+.hex-form-grid .label {
     -fx-font-size: 16px;
     -fx-font-weight: 800;
     -fx-text-fill: -sh-card-foreground;
 }
 
 .memory-caption,
-.footer-line,
-.option-hint {
+.footer-line {
     -fx-font-size: 14px;
 }
 
@@ -231,7 +228,7 @@
 .memory-action-row,
 .tetris-action-row,
 .hex-action-row,
-.mode-button {
+.network-host-button {
     -fx-alignment: center-left;
     -fx-background-color: transparent;
     -fx-background-insets: 0;
@@ -248,7 +245,7 @@
 .memory-action-row:hover,
 .tetris-action-row:hover,
 .hex-action-row:hover,
-.mode-button:hover {
+.network-host-button:hover {
     -fx-background-color: -game-accent-hover-soft;
     -fx-border-color: -sh-border;
 }
@@ -256,7 +253,7 @@
 .memory-action-row:pressed,
 .tetris-action-row:pressed,
 .hex-action-row:pressed,
-.mode-button:pressed {
+.network-host-button:pressed {
     -fx-background-color: -sh-secondary;
 }
 
@@ -311,6 +308,12 @@
     -fx-font-size: 16px;
     -fx-font-weight: 800;
     -fx-text-fill: -game-accent;
+}
+
+.network-player-grid {
+    -fx-alignment: center-left;
+    -fx-hgap: 12;
+    -fx-vgap: 10;
 }
 
 .row-arrow-chip {

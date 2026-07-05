@@ -3,6 +3,8 @@ package seda_project.control_alt_defeat.gamebox.util;
 public final class SafeText {
 
     public static final int MAX_PLAYER_NAME_CHARS = 32;
+    public static final String PLAYER_ONE_NAME = "The Old Monk";
+    public static final String PLAYER_TWO_NAME = "The Outer God";
 
     private SafeText() {
     }

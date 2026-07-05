@@ -42,275 +42,221 @@
                    maxHeight="Infinity"
                    maxWidth="Infinity"
                    styleClass="game-menu-shell">
-        <GridPane alignment="CENTER"
-                  minHeight="688"
-                  minWidth="0"
-                  maxHeight="Infinity"
-                  maxWidth="Infinity"
-                  styleClass="tetris-menu-main">
-        <columnConstraints>
-            <ColumnConstraints hgrow="ALWAYS" percentWidth="60"/>
-            <ColumnConstraints hgrow="ALWAYS" percentWidth="40"/>
-        </columnConstraints>
+            <GridPane alignment="CENTER"
+                      minHeight="688"
+                      minWidth="0"
+                      maxHeight="Infinity"
+                      maxWidth="Infinity"
+                      styleClass="tetris-menu-main">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="60"/>
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="40"/>
+                </columnConstraints>
 
-        <VBox GridPane.columnIndex="0"
-              GridPane.hgrow="ALWAYS"
-              GridPane.vgrow="ALWAYS"
-              maxHeight="Infinity"
-              maxWidth="Infinity"
-              spacing="26"
-              styleClass="tetris-setup">
+                <VBox GridPane.columnIndex="0"
+                      GridPane.hgrow="ALWAYS"
+                      GridPane.vgrow="ALWAYS"
+                      maxHeight="Infinity"
+                      maxWidth="Infinity"
+                      spacing="26"
+                      styleClass="tetris-setup">
 
-            <VBox styleClass="menu-header">
-                <Label text="T E T R I S" styleClass="text-muted-caps"/>
-                <Label text="Zetris" styleClass="title"/>
-                <Label text="Choose match type, options, and start a match."
-                       styleClass="subtitle"/>
-            </VBox>
-
-            <VBox spacing="12" styleClass="tetris-setup-list">
-                <StackPane maxHeight="Infinity"
-                           maxWidth="Infinity"
-                           minHeight="260"
-                           styleClass="tetris-mode-card"
-                           VBox.vgrow="ALWAYS">
-                    <VBox fx:id="modeChoicePane" alignment="CENTER_LEFT" spacing="12" styleClass="menu-pane-content">
-                        <Button fx:id="localModeButton"
-                                maxWidth="Infinity"
-                                onAction="#onLocalMode"
-                                styleClass="tetris-action-row">
-                            <graphic>
-                                <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="20" styleClass="row-content">
-                                    <StackPane styleClass="row-icon-chip">
-                                        <SvgIcon icon="local" styleClass="svg-icon-primary"/>
-                                    </StackPane>
-
-                                    <VBox spacing="4" HBox.hgrow="ALWAYS">
-                                        <Label text="Local" styleClass="row-title"/>
-                                        <Label text="Start a two-player local match" styleClass="row-subtitle"/>
-                                    </VBox>
-
-                                    <StackPane styleClass="row-arrow-chip">
-                                        <SvgIcon icon="chevron-right" styleClass="svg-icon-muted"/>
-                                    </StackPane>
-                                </HBox>
-                            </graphic>
-                        </Button>
-
-                        <Button maxWidth="Infinity"
-                                onAction="#onBack"
-                                styleClass="tetris-action-row">
-                            <graphic>
-                                <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="20" styleClass="row-content">
-                                    <StackPane styleClass="row-icon-chip-danger">
-                                        <SvgIcon icon="exit" styleClass="svg-icon-danger"/>
-                                    </StackPane>
-
-                                    <VBox spacing="4" HBox.hgrow="ALWAYS">
-                                        <Label text="Exit Game" styleClass="row-title"/>
-                                        <Label text="Return to GameBox" styleClass="row-subtitle"/>
-                                    </VBox>
-
-                                    <StackPane styleClass="row-arrow-chip">
-                                        <SvgIcon icon="chevron-right" styleClass="svg-icon-muted"/>
-                                    </StackPane>
-                                </HBox>
-                            </graphic>
-                        </Button>
+                    <VBox styleClass="menu-header">
+                        <Label text="T E T R I S" styleClass="text-muted-caps"/>
+                        <Label text="Zetris" styleClass="title"/>
+                        <Label text="Choose match type, options, and start a match."
+                               styleClass="subtitle"/>
                     </VBox>
 
-                    <VBox fx:id="localPane" alignment="TOP_LEFT" styleClass="menu-pane-content" visible="false" managed="false">
-                        <Label text="Local" styleClass="section-title"/>
+                    <VBox spacing="12" styleClass="tetris-setup-list">
+                        <VBox alignment="CENTER_LEFT"
+                              spacing="12"
+                              maxHeight="Infinity"
+                              maxWidth="Infinity"
+                              minHeight="160"
+                              styleClass="tetris-mode-card"
+                              VBox.vgrow="ALWAYS">
+                            <Button fx:id="localModeButton"
+                                    maxWidth="Infinity"
+                                    onAction="#onLocalMode"
+                                    styleClass="tetris-action-row">
+                                <graphic>
+                                    <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="20" styleClass="row-content">
+                                        <StackPane styleClass="row-icon-chip">
+                                            <SvgIcon icon="local" styleClass="svg-icon-primary"/>
+                                        </StackPane>
 
-                        <GridPane styleClass="menu-form-grid">
+                                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                            <Label text="Local" styleClass="row-title"/>
+                                            <Label text="Start a two-player local match" styleClass="row-subtitle"/>
+                                        </VBox>
+
+                                        <StackPane styleClass="row-arrow-chip">
+                                            <SvgIcon icon="chevron-right" styleClass="svg-icon-muted"/>
+                                        </StackPane>
+                                    </HBox>
+                                </graphic>
+                            </Button>
+
+                            <Button maxWidth="Infinity"
+                                    onAction="#onBack"
+                                    styleClass="tetris-action-row">
+                                <graphic>
+                                    <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="20" styleClass="row-content">
+                                        <StackPane styleClass="row-icon-chip-danger">
+                                            <SvgIcon icon="exit" styleClass="svg-icon-danger"/>
+                                        </StackPane>
+
+                                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                            <Label text="Exit Game" styleClass="row-title"/>
+                                            <Label text="Return to GameBox" styleClass="row-subtitle"/>
+                                        </VBox>
+
+                                        <StackPane styleClass="row-arrow-chip">
+                                            <SvgIcon icon="chevron-right" styleClass="svg-icon-muted"/>
+                                        </StackPane>
+                                    </HBox>
+                                </graphic>
+                            </Button>
+                        </VBox>
+
+                        <VBox alignment="TOP_LEFT"
+                              maxWidth="Infinity"
+                              styleClass="menu-config-column">
+                            <VBox styleClass="menu-config-content">
+                                <VBox styleClass="menu-config-section">
+                                    <Label text="Pieces" styleClass="field-title"/>
+                                    <VBox styleClass="menu-config-checks">
+                                        <CheckBox fx:id="standardPieceCheckBox" text="Standard" selected="true"/>
+                                        <CheckBox fx:id="customPieceCheckBox" text="Custom" onAction="#onCustomPieceToggle"/>
+                                    </VBox>
+                                </VBox>
+
+                                <VBox styleClass="menu-config-section">
+                                    <Label text="Speed" styleClass="field-title"/>
+                                    <ComboBox fx:id="speedChoiceBox" maxWidth="Infinity"/>
+                                </VBox>
+
+                                <VBox styleClass="menu-config-checks">
+                                    <CheckBox fx:id="dualPieceCheckBox" text="Dual blocks"/>
+                                    <CheckBox fx:id="horizontalModeCheckBox" text="Horizontal"/>
+                                </VBox>
+
+                                <VBox fx:id="customEditorBox"
+                                      visible="false"
+                                      managed="false"
+                                      styleClass="menu-custom-editor">
+                                    <Separator/>
+                                    <Label text="Custom Piece" styleClass="field-title"/>
+                                    <GridPane fx:id="customPieceGrid" alignment="CENTER_LEFT" styleClass="custom-piece-grid"/>
+                                    <HBox styleClass="button-row">
+                                        <Button text="Clear" onAction="#onClearCustomPiece" styleClass="btn-outline"/>
+                                        <Button text="Save" onAction="#onSaveCustomPiece" styleClass="btn-primary"/>
+                                    </HBox>
+                                    <Label fx:id="customPieceStatusLabel" text="" wrapText="true" styleClass="status-line"/>
+                                </VBox>
+                            </VBox>
+                        </VBox>
+
+                        <Region minHeight="1" styleClass="menu-divider"/>
+
+                        <Label fx:id="statusLabel" text="" wrapText="true" styleClass="status-line"/>
+
+                        <HBox alignment="CENTER_LEFT" styleClass="button-row">
+                            <Button text="Back" onAction="#onBack" styleClass="btn-outline"/>
+                            <Button fx:id="startButton" text="Start" onAction="#onStart" styleClass="btn-primary"/>
+                        </HBox>
+                    </VBox>
+
+                    <Region VBox.vgrow="ALWAYS"/>
+                </VBox>
+
+                <VBox GridPane.columnIndex="1"
+                      GridPane.hgrow="ALWAYS"
+                      GridPane.vgrow="ALWAYS"
+                      maxHeight="Infinity"
+                      maxWidth="Infinity"
+                      spacing="24"
+                      styleClass="tetris-options-panel">
+
+                    <VBox styleClass="menu-header">
+                        <Label text="N E T W O R K" styleClass="text-muted-caps"/>
+                        <Label text="Set players, host, or join LAN matches." styleClass="settings-subtitle"/>
+                    </VBox>
+
+                    <VBox spacing="12" styleClass="side-section">
+                        <Label text="Players" styleClass="field-title"/>
+                        <GridPane styleClass="network-player-grid">
                             <columnConstraints>
-                                <ColumnConstraints halignment="RIGHT" minWidth="72" prefWidth="72"/>
-                                <ColumnConstraints hgrow="ALWAYS" minWidth="168" prefWidth="220"/>
+                                <ColumnConstraints halignment="RIGHT" minWidth="78" prefWidth="78"/>
+                                <ColumnConstraints hgrow="ALWAYS" minWidth="170"/>
                             </columnConstraints>
 
-                            <Label text="Player 1" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-                            <TextField fx:id="localPlayerOneField" text="Player 1" promptText="Player 1"
-                                       GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                            <Label text="Player 1" styleClass="player-one-name" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                            <TextField fx:id="playerOneNameField"
+                                       text="The Old Monk"
+                                       promptText="The Old Monk"
+                                       styleClass="player-name-field player-one-name"
+                                       GridPane.columnIndex="1"
+                                       GridPane.rowIndex="0"/>
 
-                            <Label text="Player 2" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-                            <TextField fx:id="localPlayerTwoField" text="Player 2" promptText="Player 2"
-                                       GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                            <Label text="Player 2" styleClass="player-two-name" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                            <TextField fx:id="playerTwoNameField"
+                                       text="The Outer God"
+                                       promptText="The Outer God"
+                                       styleClass="player-name-field player-two-name"
+                                       GridPane.columnIndex="1"
+                                       GridPane.rowIndex="1"/>
                         </GridPane>
                     </VBox>
 
-                </StackPane>
+                    <VBox spacing="12" styleClass="network-section">
+                        <Button maxWidth="Infinity"
+                                onAction="#onHostLan"
+                                styleClass="network-host-button">
+                            <graphic>
+                                <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="12">
+                                    <SvgIcon icon="lan" styleClass="svg-icon-primary"/>
+                                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                                        <Label fx:id="hostLanTitleLabel" text="Host LAN Game" styleClass="mode-text"/>
+                                        <Label fx:id="hostLanSubtitleLabel" text="Make your match discoverable" styleClass="row-subtitle"/>
+                                    </VBox>
+                                </HBox>
+                            </graphic>
+                        </Button>
 
-                <Region minHeight="1" styleClass="menu-divider"/>
-
-                <Label fx:id="statusLabel" text="" wrapText="true" styleClass="status-line"/>
-
-                <HBox fx:id="actionButtonRow" alignment="CENTER_LEFT" styleClass="button-row">
-                    <Button text="Back" onAction="#onBack" styleClass="btn-outline"/>
-                    <Button fx:id="startButton" text="Start" onAction="#onStart" styleClass="btn-primary"/>
-                </HBox>
-            </VBox>
-
-            <Region VBox.vgrow="ALWAYS"/>
-        </VBox>
-
-        <VBox fx:id="optionsPanel"
-              GridPane.columnIndex="1"
-              GridPane.hgrow="ALWAYS"
-              GridPane.vgrow="ALWAYS"
-              maxHeight="Infinity"
-              maxWidth="Infinity"
-              spacing="24"
-              styleClass="tetris-options-panel">
-
-            <VBox styleClass="menu-header">
-                <Label text="N E T W O R K" styleClass="text-muted-caps"/>
-                <Label fx:id="optionsTitleLabel" text="Game Options" styleClass="settings-title"/>
-                <Label fx:id="optionsSubtitleLabel" text="Pieces, speed, and board rules" styleClass="settings-subtitle"/>
-            </VBox>
-
-            <Button fx:id="lanModeButton"
-                    maxWidth="Infinity"
-                    onAction="#onLanMode"
-                    styleClass="tetris-action-row">
-                <graphic>
-                    <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="20" styleClass="row-content">
-                        <StackPane styleClass="row-icon-chip">
-                            <SvgIcon icon="lan" styleClass="svg-icon-primary"/>
-                        </StackPane>
-
-                        <VBox spacing="4" HBox.hgrow="ALWAYS">
-                            <Label text="LAN" styleClass="row-title"/>
-                            <Label text="Host or join a network match" styleClass="row-subtitle"/>
-                        </VBox>
-
-                        <StackPane styleClass="row-arrow-chip">
-                            <SvgIcon icon="chevron-right" styleClass="svg-icon-muted"/>
-                        </StackPane>
-                    </HBox>
-                </graphic>
-            </Button>
-
-            <VBox fx:id="lanPane" alignment="CENTER_LEFT" styleClass="menu-pane-content" visible="false" managed="false">
-                <Label text="LAN" styleClass="section-title"/>
-
-                <VBox alignment="CENTER_LEFT" spacing="10">
-                    <Label text="Role" styleClass="field-title"/>
-                    <HBox alignment="CENTER_LEFT" styleClass="button-row">
-                        <Button fx:id="hostRoleButton" text="Host LAN" onAction="#onHostRole" styleClass="btn-secondary"/>
-                        <Button fx:id="joinRoleButton" text="Join LAN" onAction="#onJoinRole" styleClass="btn-secondary"/>
-                    </HBox>
-                </VBox>
-            </VBox>
-
-            <VBox fx:id="hostPane" alignment="TOP_LEFT" styleClass="menu-pane-content" visible="false" managed="false">
-                <Label text="Host LAN" styleClass="section-title"/>
-
-                <GridPane styleClass="menu-form-grid">
-                    <columnConstraints>
-                        <ColumnConstraints halignment="RIGHT" minWidth="56" prefWidth="56"/>
-                        <ColumnConstraints hgrow="ALWAYS" minWidth="168" prefWidth="220"/>
-                    </columnConstraints>
-
-                    <Label text="Name" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-                    <TextField fx:id="hostPlayerNameField" text="Player 1" promptText="Player 1"
-                               GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-                </GridPane>
-
-                <Separator/>
-
-                <VBox alignment="CENTER_LEFT" spacing="8">
-                    <Label fx:id="hostInfoLabel" text="Not advertising." styleClass="status-line" wrapText="true" maxWidth="Infinity"/>
-                    <Label fx:id="joinedPlayerLabel" text="Joined: none" styleClass="status-line"/>
-                    <Button fx:id="hostStartGameButton" text="Start Game" onAction="#onHostStartGame"
-                            disable="true" visible="false" managed="false" styleClass="btn-primary"/>
-                </VBox>
-            </VBox>
-
-            <VBox fx:id="joinPane" alignment="TOP_LEFT" styleClass="menu-pane-content" visible="false" managed="false">
-                <Label text="Join LAN" styleClass="section-title"/>
-
-                <GridPane styleClass="menu-form-grid">
-                    <columnConstraints>
-                        <ColumnConstraints halignment="RIGHT" minWidth="56" prefWidth="56"/>
-                        <ColumnConstraints hgrow="ALWAYS" minWidth="168" prefWidth="220"/>
-                    </columnConstraints>
-
-                    <Label text="Name" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-                    <TextField fx:id="joinPlayerNameField" text="Player 2" promptText="Player 2"
-                               GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-                </GridPane>
-
-                <Separator/>
-
-                <VBox alignment="TOP_LEFT" spacing="8" maxWidth="Infinity">
-                    <Label text="Available Games" styleClass="field-title"/>
-                    <ListView fx:id="availableGamesList" prefHeight="150" maxHeight="180" maxWidth="Infinity"
-                              onMouseClicked="#onGameSelected" VBox.vgrow="SOMETIMES"
-                              styleClass="match-list"/>
-                    <HBox alignment="CENTER_LEFT" styleClass="button-row">
-                        <Button text="Refresh" onAction="#onRefreshGames" maxWidth="Infinity"
-                                styleClass="btn-secondary" HBox.hgrow="ALWAYS"/>
-                        <Button fx:id="joinSelectedGameButton" text="Join Selected" onAction="#onJoinSelectedLan"
-                                maxWidth="Infinity" styleClass="btn-secondary" HBox.hgrow="ALWAYS"/>
-                    </HBox>
-                </VBox>
-            </VBox>
-
-            <VBox fx:id="configBox"
-                  alignment="TOP_LEFT"
-                  visible="false"
-                  managed="false"
-                  maxWidth="Infinity"
-                  styleClass="menu-config-column">
-                <VBox styleClass="menu-config-content">
-                    <VBox styleClass="menu-config-section">
-                        <Label text="Pieces" styleClass="field-title"/>
-                        <VBox styleClass="menu-config-checks">
-                            <CheckBox fx:id="standardPieceCheckBox" text="Standard" selected="true"/>
-                            <CheckBox fx:id="customPieceCheckBox" text="Custom" onAction="#onCustomPieceToggle"/>
-                        </VBox>
-                    </VBox>
-
-                    <VBox styleClass="menu-config-section">
-                        <Label text="Speed" styleClass="field-title"/>
-                        <ComboBox fx:id="speedChoiceBox" maxWidth="Infinity"/>
-                    </VBox>
-
-                    <VBox styleClass="menu-config-checks">
-                        <CheckBox fx:id="dualPieceCheckBox" text="Dual blocks"/>
-                        <CheckBox fx:id="horizontalModeCheckBox" text="Horizontal"/>
-                    </VBox>
-
-                    <VBox fx:id="customEditorBox"
-                          visible="false"
-                          managed="false"
-                          styleClass="menu-custom-editor">
-                        <Separator/>
-                        <Label text="Custom Piece" styleClass="field-title"/>
-                        <GridPane fx:id="customPieceGrid" alignment="CENTER_LEFT" styleClass="custom-piece-grid"/>
-                        <HBox styleClass="button-row">
-                            <Button text="Clear" onAction="#onClearCustomPiece" styleClass="btn-outline"/>
-                            <Button text="Save" onAction="#onSaveCustomPiece" styleClass="btn-primary"/>
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Button text="Refresh" onAction="#onRefreshGames" maxWidth="Infinity"
+                                    styleClass="btn-secondary" HBox.hgrow="ALWAYS"/>
+                            <Button fx:id="joinSelectedGameButton" text="Join Selected" onAction="#onJoinSelectedLan"
+                                    maxWidth="Infinity" styleClass="btn-secondary" HBox.hgrow="ALWAYS"/>
                         </HBox>
-                        <Label fx:id="customPieceStatusLabel" text="" wrapText="true" styleClass="status-line"/>
+                    </VBox>
+
+                    <VBox spacing="8">
+                        <Label text="Available Games" styleClass="field-title"/>
+                        <ListView fx:id="availableGamesList"
+                                  prefHeight="128"
+                                  maxHeight="160"
+                                  maxWidth="Infinity"
+                                  onMouseClicked="#onGameSelected"
+                                  styleClass="match-list">
+                            <placeholder>
+                                <Label text="No LAN games found" styleClass="empty-list-label"/>
+                            </placeholder>
+                        </ListView>
+                    </VBox>
+
+                    <Region VBox.vgrow="ALWAYS"/>
+
+                    <VBox spacing="8" styleClass="settings-footer">
+                        <Label text="Zetris: Local or LAN" styleClass="footer-title"/>
+                        <Label text="Configure variants, then start from the left panel."
+                               wrapText="true"
+                               styleClass="footer-line"/>
                     </VBox>
                 </VBox>
-            </VBox>
-
-            <Label text="Options are available for Local and Host matches."
-                   wrapText="true"
-                   styleClass="option-hint"/>
-
-            <Region VBox.vgrow="ALWAYS"/>
-
-            <VBox spacing="8" styleClass="settings-footer">
-                <Label text="Zetris: Local or LAN" styleClass="footer-title"/>
-                <Label text="Configure variants, then start from the left panel."
-                       wrapText="true"
-                       styleClass="footer-line"/>
-            </VBox>
-        </VBox>
-        </GridPane>
+            </GridPane>
         </StackPane>
     </ScrollPane>
 </StackPane>

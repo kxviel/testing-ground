@@ -16,6 +16,7 @@ import seda_project.control_alt_defeat.gamebox.network.LanDiscoveryService;
 import seda_project.control_alt_defeat.gamebox.util.DiscoveredGameListController;
 import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
 import seda_project.control_alt_defeat.gamebox.util.Router;
+import seda_project.control_alt_defeat.gamebox.util.SafeText;
 import seda_project.control_alt_defeat.gamebox.util.UiInputGuards;
 import seda_project.control_alt_defeat.gamebox.util.UiVisibility;
 
@@ -26,9 +27,9 @@ public class HexChessMenuController implements RouteDataReceiver {
     private static final long DISCOVERED_GAME_TTL_MS = 5_000;
 
     @FXML
-    private TextField whiteNameField;
+    private TextField playerOneNameField;
     @FXML
-    private TextField blackNameField;
+    private TextField playerTwoNameField;
     @FXML
     private Label statusLabel;
     @FXML
@@ -44,7 +45,7 @@ public class HexChessMenuController implements RouteDataReceiver {
 
     @FXML
     private void initialize() {
-        UiInputGuards.limitPlayerNames(whiteNameField, blackNameField);
+        UiInputGuards.limitPlayerNames(playerOneNameField, playerTwoNameField);
         discoveredGameList = new DiscoveredGameListController(lanGamesList);
         UiVisibility.bindVisibleWhenTextPresent(statusLabel);
         if (lanGamesList != null && joinSelectedLanButton != null) {
@@ -57,9 +58,9 @@ public class HexChessMenuController implements RouteDataReceiver {
 
     @Override
     public void setRouteData(Object data) {
-        if (data instanceof HexChessGameSetup nextSetup) {
-            whiteNameField.setText(nextSetup.whiteName());
-            blackNameField.setText(nextSetup.blackName());
+        if (data instanceof HexChessGameSetup setup) {
+            playerOneNameField.setText(setup.whiteName());
+            playerTwoNameField.setText(setup.blackName());
         } else if (data instanceof String message && !message.isBlank()) {
             statusLabel.setText(message);
         }
@@ -111,6 +112,7 @@ public class HexChessMenuController implements RouteDataReceiver {
         }
 
         pendingHostServer = server;
+        setPlayerFieldsDisabled(true);
         int tcpPort = server.localPort();
         discoveryService.startAdvertising(
                 hostPlayerName(),
@@ -143,6 +145,7 @@ public class HexChessMenuController implements RouteDataReceiver {
                     if (pendingHostServer == server) {
                         pendingHostServer = null;
                         server.close();
+                        setPlayerFieldsDisabled(false);
                         statusLabel.setText("LAN host failed: " + e.getMessage());
                         closeDiscovery();
                         startListeningForLanGames();
@@ -191,6 +194,7 @@ public class HexChessMenuController implements RouteDataReceiver {
         statusLabel.setText("Connecting to " + host + ":" + port + "...");
         GameClient client = new GameClient();
         pendingJoinClient = client;
+        setPlayerFieldsDisabled(true);
 
         Thread connectThread = new Thread(() -> {
             try {
@@ -218,6 +222,7 @@ public class HexChessMenuController implements RouteDataReceiver {
                 Platform.runLater(() -> {
                     if (pendingJoinClient == client) {
                         pendingJoinClient = null;
+                        setPlayerFieldsDisabled(false);
                         statusLabel.setText("Could not join LAN game: " + e.getMessage());
                     }
                 });
@@ -237,12 +242,16 @@ public class HexChessMenuController implements RouteDataReceiver {
     }
 
     private HexChessGameSetup setup(HexGameMode mode) {
-        String whiteName = whiteNameField == null ? "Player 1" : whiteNameField.getText();
+        String whiteName = SafeText.playerName(text(playerOneNameField), SafeText.PLAYER_ONE_NAME);
         String blackName = mode == HexGameMode.BOT
                 ? "Bot"
-                : blackNameField == null ? "Player 2" : blackNameField.getText();
+                : SafeText.playerName(text(playerTwoNameField), SafeText.PLAYER_TWO_NAME);
 
         return new HexChessGameSetup(whiteName, blackName, mode);
+    }
+
+    private static String text(TextField field) {
+        return field == null ? "" : field.getText();
     }
 
     private GameServer createListeningServer() throws IOException {
@@ -320,6 +329,11 @@ public class HexChessMenuController implements RouteDataReceiver {
         if (pendingHostServer == server) {
             pendingHostServer = null;
         }
+    }
+
+    private void setPlayerFieldsDisabled(boolean disabled) {
+        playerOneNameField.setDisable(disabled);
+        playerTwoNameField.setDisable(disabled);
     }
 
     private boolean hasPendingNetwork() {

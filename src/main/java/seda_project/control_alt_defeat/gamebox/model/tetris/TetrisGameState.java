@@ -5,6 +5,7 @@ import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerSide;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.Rotation;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisGameStatus;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisCell;
+import seda_project.control_alt_defeat.gamebox.util.SafeText;
 
 import java.util.function.Function;
 
@@ -21,10 +22,10 @@ public record TetrisGameState(
 
     public TetrisGameState {
         bottomPlayer = bottomPlayer == null
-                ? TetrisPlayerState.create("Player 1", PlayerSide.BOTTOM)
+                ? TetrisPlayerState.create(SafeText.PLAYER_ONE_NAME, PlayerSide.BOTTOM)
                 : bottomPlayer;
         topPlayer = topPlayer == null
-                ? TetrisPlayerState.create("Player 2", PlayerSide.TOP)
+                ? TetrisPlayerState.create(SafeText.PLAYER_TWO_NAME, PlayerSide.TOP)
                 : topPlayer;
         config = config == null ? TetrisGameConfig.defaultConfig() : config;
         status = status == null ? TetrisGameStatus.READY : status;
@@ -32,7 +33,7 @@ public record TetrisGameState(
 
     public static TetrisGameState create(TetrisGameSetup setup) {
         TetrisGameSetup safeSetup = setup == null
-                ? new TetrisGameSetup("Player 1", "Player 2", TetrisGameConfig.defaultConfig())
+                ? new TetrisGameSetup(SafeText.PLAYER_ONE_NAME, SafeText.PLAYER_TWO_NAME, TetrisGameConfig.defaultConfig())
                 : setup;
 
         boolean horizontalMode = safeSetup.config().horizontalMode();

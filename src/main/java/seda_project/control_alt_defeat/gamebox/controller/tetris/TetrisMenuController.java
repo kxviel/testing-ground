@@ -11,7 +11,6 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import seda_project.control_alt_defeat.gamebox.model.tetris.BoardPosition;
@@ -37,58 +36,22 @@ import java.util.stream.IntStream;
 
 public class TetrisMenuController implements RouteDataReceiver {
 
-    private enum MenuView {
-        MODE_CHOICE,
-        LOCAL,
-        LAN,
-        HOST,
-        JOIN
-    }
-
-    @FXML
-    private VBox modeChoicePane;
-    @FXML
-    private VBox localPane;
-    @FXML
-    private VBox lanPane;
-    @FXML
-    private VBox hostPane;
-    @FXML
-    private VBox joinPane;
-    @FXML
-    private VBox optionsPanel;
-    @FXML
-    private VBox configBox;
-    @FXML
-    private VBox customEditorBox;
-    @FXML
-    private GridPane customPieceGrid;
-    @FXML
-    private HBox actionButtonRow;
+    private static final int CUSTOM_EDITOR_SIZE = 5;
+    private static final int LAN_GAME_STALE_MS = 4_000;
+    private static final String PLAYER_ONE = SafeText.PLAYER_ONE_NAME;
+    private static final String PLAYER_TWO = SafeText.PLAYER_TWO_NAME;
 
     @FXML
     private Button localModeButton;
     @FXML
-    private Button lanModeButton;
-    @FXML
-    private Button hostRoleButton;
-    @FXML
-    private Button joinRoleButton;
-    @FXML
     private Button startButton;
-    @FXML
-    private Button hostStartGameButton;
     @FXML
     private Button joinSelectedGameButton;
 
     @FXML
-    private TextField localPlayerOneField;
+    private TextField playerOneNameField;
     @FXML
-    private TextField localPlayerTwoField;
-    @FXML
-    private TextField hostPlayerNameField;
-    @FXML
-    private TextField joinPlayerNameField;
+    private TextField playerTwoNameField;
 
     @FXML
     private CheckBox standardPieceCheckBox;
@@ -102,25 +65,22 @@ public class TetrisMenuController implements RouteDataReceiver {
     private ComboBox<String> speedChoiceBox;
 
     @FXML
-    private Label hostInfoLabel;
+    private Label hostLanTitleLabel;
     @FXML
-    private Label joinedPlayerLabel;
-    @FXML
-    private Label optionsTitleLabel;
-    @FXML
-    private Label optionsSubtitleLabel;
+    private Label hostLanSubtitleLabel;
     @FXML
     private Label statusLabel;
     @FXML
     private Label customPieceStatusLabel;
 
     @FXML
+    private VBox customEditorBox;
+    @FXML
+    private GridPane customPieceGrid;
+    @FXML
     private ListView<LanDiscoveryService.DiscoveredGame> availableGamesList;
 
-    private static final int CUSTOM_EDITOR_SIZE = 5;
-    private static final int LAN_GAME_STALE_MS = 4_000;
-
-    private MenuView currentView = MenuView.MODE_CHOICE;
+    private boolean localSelected;
     private final LanDiscoveryService udpDiscovery = LanDiscoveryService.tetris();
     private final Button[][] customPieceButtons = new Button[CUSTOM_EDITOR_SIZE][CUSTOM_EDITOR_SIZE];
     private final boolean[][] customPieceCells = new boolean[CUSTOM_EDITOR_SIZE][CUSTOM_EDITOR_SIZE];
@@ -136,19 +96,15 @@ public class TetrisMenuController implements RouteDataReceiver {
 
     @FXML
     public void initialize() {
-        UiInputGuards.limitPlayerNames(
-                localPlayerOneField,
-                localPlayerTwoField,
-                hostPlayerNameField,
-                joinPlayerNameField);
+        UiInputGuards.limitPlayerNames(playerOneNameField, playerTwoNameField);
         buildCustomPieceGrid();
         discoveredGameList = new DiscoveredGameListController(availableGamesList);
         speedChoiceBox.getItems().setAll("Slow", "Normal", "Fast");
         speedChoiceBox.getSelectionModel().select("Normal");
-        availableGamesList.setPlaceholder(new Label("No LAN games found yet."));
         availableGamesList.getSelectionModel().selectedItemProperty()
                 .addListener((observable, oldGame, newGame) -> updateJoinSelectedButton());
-        selectView(MenuView.MODE_CHOICE);
+        setLocalSelected(false);
+        startDiscovery();
     }
 
     @Override
@@ -160,29 +116,12 @@ public class TetrisMenuController implements RouteDataReceiver {
 
     @FXML
     private void onLocalMode() {
-        selectView(MenuView.LOCAL);
-    }
-
-    @FXML
-    private void onLanMode() {
-        selectView(MenuView.LAN);
-    }
-
-    @FXML
-    private void onHostRole() {
-        udpDiscovery.stopListening();
-        selectView(MenuView.HOST);
-    }
-
-    @FXML
-    private void onJoinRole() {
-        selectView(MenuView.JOIN);
-        startDiscovery();
+        setLocalSelected(true);
     }
 
     @FXML
     private void onRefreshGames() {
-        if (joinClient != null || gameStarted) {
+        if (lanBusy()) {
             return;
         }
 
@@ -222,148 +161,69 @@ public class TetrisMenuController implements RouteDataReceiver {
 
     @FXML
     private void onGameSelected(MouseEvent event) {
-        if (currentView == MenuView.JOIN && event.getClickCount() == 2) {
+        if (event.getClickCount() == 2) {
             joinGame();
         }
     }
 
     @FXML
-    private void onJoinSelectedLan(ActionEvent event) {
+    private void onJoinSelectedLan() {
         joinGame();
     }
 
     @FXML
-    private void onStart(ActionEvent event) {
-        switch (currentView) {
-            case MODE_CHOICE -> statusLabel.setText("Choose Local or LAN before starting.");
-            case LOCAL -> startLocalGame(event);
-            case LAN -> statusLabel.setText("Choose Host or Join before starting a LAN game.");
-            case HOST -> startHost();
-            case JOIN -> joinGame();
-        }
-    }
-
-    @FXML
-    private void onHostStartGame(ActionEvent event) {
+    private void onHostLan(ActionEvent event) {
         if (gameStarted) {
             return;
         }
 
-        if (joinedPlayerName == null || joinedPlayerName.isBlank()) {
-            statusLabel.setText("Wait for a player to join first.");
+        if (hostServer == null) {
+            startHost();
             return;
         }
 
-        GameServer gameServer = hostServer;
-        if (gameServer == null || !gameServer.isConnected()) {
-            statusLabel.setText("Wait for a player to join first.");
+        if (joinedPlayerName == null || joinedPlayerName.isBlank()) {
+            statusLabel.setText("Waiting for " + PLAYER_TWO + " to join.");
+            return;
+        }
+
+        startHostGame(event);
+    }
+
+    @FXML
+    private void onStart(ActionEvent event) {
+        if (!localSelected) {
+            statusLabel.setText("Choose Local before starting a local match.");
+            return;
+        }
+
+        startLocalGame(event);
+    }
+
+    @FXML
+    private void onBack(ActionEvent event) {
+        if (localSelected && !lanBusy()) {
+            setLocalSelected(false);
             return;
         }
 
         if (!beginNavigation()) {
             return;
         }
-        gameStarted = true;
-        gameServer.send(TetrisProtocol.start(hostName, joinedPlayerName, hostConfig));
-        hostServer = null;
-        udpDiscovery.close();
-        Router.goTo(event,
-                "/tetris/TetrisGame.fxml",
-                TetrisGameRouteData.host(TetrisGameSetup.host(hostName, joinedPlayerName, hostConfig), gameServer));
+        closeLan();
+        Router.goTo(event, "/GameChoice.fxml", null);
     }
 
-    @FXML
-    private void onBack(ActionEvent event) {
-        if (currentView == MenuView.MODE_CHOICE) {
-            if (!beginNavigation()) {
-                return;
-            }
-            closeLan();
-            Router.goTo(event, "/GameChoice.fxml", null);
-            return;
-        }
-
-        selectView(parentView(currentView));
-    }
-
-    private void selectView(MenuView view) {
-        if (view != MenuView.JOIN) {
-            udpDiscovery.stopListening();
-            stopStaleGameTimer();
-            discoveredGameList.clear();
-            closeJoinClient();
-        } else {
-            availableGamesList.setDisable(false);
-            joinPlayerNameField.setDisable(false);
-            startStaleGameTimer();
-        }
-        if (view != MenuView.HOST) {
-            udpDiscovery.stopAdvertising();
-            closeHostServer();
-        } else {
-            hostInfoLabel.setText("Not advertising.");
-            joinedPlayerLabel.setText("Joined: none");
-            UiVisibility.setVisibleManaged(hostStartGameButton, false);
-            hostStartGameButton.setDisable(true);
-            hostPlayerNameField.setDisable(false);
-        }
-
-        currentView = view;
-        showOnly(view);
+    private void setLocalSelected(boolean selected) {
+        localSelected = selected;
+        setSelected(localModeButton, selected);
+        startButton.setDisable(!selected || lanBusy());
+        startButton.setText(selected ? "Start Local" : "Start");
+        statusLabel.setText(selected
+                ? "Local match ready."
+                : "Choose Local or use the network panel.");
         updateCustomEditorVisibility();
-        setSelected(localModeButton, view == MenuView.LOCAL);
-        setSelected(lanModeButton, view == MenuView.LAN || view == MenuView.HOST || view == MenuView.JOIN);
-        setSelected(hostRoleButton, view == MenuView.HOST);
-        setSelected(joinRoleButton, view == MenuView.JOIN);
-
-        startButton.setDisable(view == MenuView.MODE_CHOICE || view == MenuView.LAN);
-        startButton.setText(switch (view) {
-            case MODE_CHOICE -> "Start";
-            case LOCAL -> "Start Local";
-            case LAN -> "Start";
-            case HOST -> "Start Host";
-            case JOIN -> "Join Game";
-        });
-
-        statusLabel.setText(switch (view) {
-            case MODE_CHOICE -> "Choose Local or LAN to configure the match.";
-            case LOCAL -> "Local preview ready.";
-            case LAN -> "Choose whether this player will host or join.";
-            case HOST -> "Enter your name and start hosting.";
-            case JOIN -> "Searching for LAN games.";
-        });
         updateJoinSelectedButton();
-    }
-
-    private void showOnly(MenuView view) {
-        UiVisibility.setVisibleManaged(optionsPanel, true);
-        UiVisibility.setVisibleManaged(actionButtonRow, true);
-        updateSidebarTitle(view);
-
-        UiVisibility.setVisibleManaged(modeChoicePane, view == MenuView.MODE_CHOICE || isLanView(view));
-        UiVisibility.setVisibleManaged(localPane, view == MenuView.LOCAL);
-        UiVisibility.setVisibleManaged(lanPane, view == MenuView.LAN);
-        UiVisibility.setVisibleManaged(hostPane, view == MenuView.HOST);
-        UiVisibility.setVisibleManaged(joinPane, view == MenuView.JOIN);
-        UiVisibility.setVisibleManaged(configBox, view == MenuView.LOCAL || view == MenuView.HOST);
-    }
-
-    private void updateSidebarTitle(MenuView view) {
-        if (optionsTitleLabel == null || optionsSubtitleLabel == null) {
-            return;
-        }
-
-        if (view == MenuView.MODE_CHOICE || isLanView(view)) {
-            optionsTitleLabel.setText("Network");
-            optionsSubtitleLabel.setText("Host or join LAN matches");
-        } else {
-            optionsTitleLabel.setText("Game Options");
-            optionsSubtitleLabel.setText("Pieces, speed, and board rules");
-        }
-    }
-
-    private boolean isLanView(MenuView view) {
-        return view == MenuView.LAN || view == MenuView.HOST || view == MenuView.JOIN;
     }
 
     private void buildCustomPieceGrid() {
@@ -421,9 +281,7 @@ public class TetrisMenuController implements RouteDataReceiver {
     }
 
     private void updateCustomEditorVisibility() {
-        boolean shown = (currentView == MenuView.LOCAL || currentView == MenuView.HOST)
-                && customPieceCheckBox.isSelected();
-
+        boolean shown = customPieceCheckBox.isSelected();
         UiVisibility.setVisibleManaged(customEditorBox, shown);
 
         if (!shown) {
@@ -431,14 +289,6 @@ public class TetrisMenuController implements RouteDataReceiver {
         } else if (customPieces.isEmpty()) {
             customPieceStatusLabel.setText("Draw a connected piece and save it.");
         }
-    }
-
-    private MenuView parentView(MenuView view) {
-        return switch (view) {
-            case LOCAL, LAN -> MenuView.MODE_CHOICE;
-            case HOST, JOIN -> MenuView.LAN;
-            case MODE_CHOICE -> MenuView.MODE_CHOICE;
-        };
     }
 
     private void setSelected(Button button, boolean selected) {
@@ -454,40 +304,36 @@ public class TetrisMenuController implements RouteDataReceiver {
     }
 
     private void startLocalGame(ActionEvent event) {
-        String playerOne = defaultIfBlank(trimmed(localPlayerOneField), "Player 1");
-        String playerTwo = defaultIfBlank(trimmed(localPlayerTwoField), "Player 2");
-
         TetrisGameConfig config = buildConfig();
-        if (config == null) {
-            return;
-        }
-        if (!beginNavigation()) {
+        if (config == null || !beginNavigation()) {
             return;
         }
 
-        TetrisGameSetup setup = TetrisGameSetup.local(playerOne, playerTwo, config);
+        TetrisGameSetup setup = TetrisGameSetup.local(playerOneName(), playerTwoName(), config);
         Router.goTo(event, "/tetris/TetrisGame.fxml", TetrisGameRouteData.local(setup));
     }
 
     private void startHost() {
-        if (hostServer != null || gameStarted) {
+        if (lanBusy()) {
             return;
         }
 
-        String hostName = defaultIfBlank(trimmed(hostPlayerNameField), "Player 1");
-
-        this.hostName = hostName;
-        joinedPlayerName = null;
         TetrisGameConfig config = buildConfig();
         if (config == null) {
             return;
         }
+
+        hostName = playerOneName();
+        joinedPlayerName = null;
         hostConfig = config;
         gameStarted = false;
-
         closeHostServer();
-        GameServer server = new GameServer();
+        closeJoinClient();
+        udpDiscovery.stopListening();
+        stopStaleGameTimer();
+        discoveredGameList.clear();
 
+        GameServer server = new GameServer();
         try {
             server.listen(GameServer.DEFAULT_PORT,
                     message -> {
@@ -503,6 +349,7 @@ public class TetrisMenuController implements RouteDataReceiver {
             hostServer = server;
         } catch (IOException e) {
             server.close();
+            startDiscovery();
             statusLabel.setText("Could not start host: " + e.getMessage());
             return;
         }
@@ -512,13 +359,8 @@ public class TetrisMenuController implements RouteDataReceiver {
                 GameServer.DEFAULT_PORT,
                 error -> Platform.runLater(() -> statusLabel.setText(error)));
 
-        hostInfoLabel.setText("Advertising as " + hostName + ".");
-        joinedPlayerLabel.setText("Joined: none");
-        hostPlayerNameField.setDisable(true);
-        UiVisibility.setVisibleManaged(hostStartGameButton, true);
-        hostStartGameButton.setDisable(true);
-        startButton.setText("Host Started");
-        startButton.setDisable(true);
+        setNetworkControlsDisabled(true);
+        updateHostLanButton();
         statusLabel.setText("Host is visible on LAN.");
 
         Thread thread = new Thread(() -> {
@@ -532,6 +374,12 @@ public class TetrisMenuController implements RouteDataReceiver {
             } catch (IOException e) {
                 Platform.runLater(() -> {
                     if (hostServer == server && !gameStarted) {
+                        hostServer = null;
+                        server.close();
+                        udpDiscovery.stopAdvertising();
+                        setNetworkControlsDisabled(false);
+                        updateHostLanButton();
+                        startDiscovery();
                         statusLabel.setText("Host stopped: " + e.getMessage());
                     }
                 });
@@ -542,15 +390,35 @@ public class TetrisMenuController implements RouteDataReceiver {
         thread.start();
     }
 
-    private void joinGame() {
-        if (joinClient != null || gameStarted) {
+    private void startHostGame(ActionEvent event) {
+        if (gameStarted) {
             return;
         }
 
-        String playerName = defaultIfBlank(trimmed(joinPlayerNameField), "Player 2");
-        LanDiscoveryService.DiscoveredGame selectedGame = availableGamesList.getSelectionModel()
-                .getSelectedItem();
+        GameServer gameServer = hostServer;
+        if (gameServer == null || !gameServer.isConnected()) {
+            statusLabel.setText("Wait for " + PLAYER_TWO + " to join first.");
+            return;
+        }
 
+        if (!beginNavigation()) {
+            return;
+        }
+        gameStarted = true;
+        gameServer.send(TetrisProtocol.start(hostName, joinedPlayerName, hostConfig));
+        hostServer = null;
+        udpDiscovery.close();
+        Router.goTo(event,
+                "/tetris/TetrisGame.fxml",
+                TetrisGameRouteData.host(TetrisGameSetup.host(hostName, joinedPlayerName, hostConfig), gameServer));
+    }
+
+    private void joinGame() {
+        if (lanBusy()) {
+            return;
+        }
+
+        LanDiscoveryService.DiscoveredGame selectedGame = availableGamesList.getSelectionModel().getSelectedItem();
         if (selectedGame == null) {
             statusLabel.setText("Select an available game before joining.");
             return;
@@ -563,11 +431,9 @@ public class TetrisMenuController implements RouteDataReceiver {
         joinClient = client;
         gameStarted = false;
 
-        startButton.setDisable(true);
-        availableGamesList.setDisable(true);
-        updateJoinSelectedButton();
-        joinPlayerNameField.setDisable(true);
+        setNetworkControlsDisabled(true);
         statusLabel.setText("Joining " + selectedGame.playerName() + "...");
+        String playerName = playerTwoName();
 
         Thread thread = new Thread(() -> {
             try {
@@ -590,11 +456,6 @@ public class TetrisMenuController implements RouteDataReceiver {
                         return;
                     }
 
-                    startButton.setText("Joined");
-                    startButton.setDisable(true);
-                    availableGamesList.setDisable(true);
-                    updateJoinSelectedButton();
-                    joinPlayerNameField.setDisable(true);
                     statusLabel.setText("Joined " + selectedGame.playerName() + ". Waiting for host.");
                 });
             } catch (IOException e) {
@@ -605,10 +466,8 @@ public class TetrisMenuController implements RouteDataReceiver {
                     }
 
                     joinClient = null;
-                    startButton.setDisable(false);
-                    availableGamesList.setDisable(false);
-                    updateJoinSelectedButton();
-                    joinPlayerNameField.setDisable(false);
+                    setNetworkControlsDisabled(false);
+                    startDiscovery();
                     statusLabel.setText("Could not join game: " + e.getMessage());
                 });
             }
@@ -619,13 +478,20 @@ public class TetrisMenuController implements RouteDataReceiver {
     }
 
     private void startDiscovery() {
+        if (lanBusy()) {
+            return;
+        }
+
         discoveredGameList.clear();
         udpDiscovery.startListening(
                 game -> Platform.runLater(() -> addOrUpdateGame(game)),
                 error -> Platform.runLater(() -> statusLabel.setText(error)));
+        startStaleGameTimer();
+        updateJoinSelectedButton();
     }
 
     private void addOrUpdateGame(LanDiscoveryService.DiscoveredGame game) {
+        discoveredGameList.removeStale(LAN_GAME_STALE_MS);
         discoveredGameList.upsert(game);
         updateJoinSelectedButton();
     }
@@ -641,10 +507,40 @@ public class TetrisMenuController implements RouteDataReceiver {
     private void updateJoinSelectedButton() {
         if (joinSelectedGameButton != null && availableGamesList != null) {
             joinSelectedGameButton.setDisable(
-                    currentView != MenuView.JOIN
+                    lanBusy()
                             || availableGamesList.isDisabled()
                             || availableGamesList.getSelectionModel().isEmpty());
         }
+    }
+
+    private void updateHostLanButton() {
+        if (hostLanTitleLabel == null || hostLanSubtitleLabel == null) {
+            return;
+        }
+
+        if (hostServer == null) {
+            hostLanTitleLabel.setText("Host LAN Game");
+            hostLanSubtitleLabel.setText("Make your match discoverable");
+        } else if (joinedPlayerName == null || joinedPlayerName.isBlank()) {
+            hostLanTitleLabel.setText("Waiting for " + PLAYER_TWO);
+            hostLanSubtitleLabel.setText("Host is visible on LAN");
+        } else {
+            hostLanTitleLabel.setText("Start Game");
+            hostLanSubtitleLabel.setText(joinedPlayerName + " joined");
+        }
+    }
+
+    private void setNetworkControlsDisabled(boolean disabled) {
+        availableGamesList.setDisable(disabled);
+        setPlayerFieldsDisabled(disabled);
+        localModeButton.setDisable(disabled);
+        startButton.setDisable(disabled || !localSelected);
+        updateJoinSelectedButton();
+    }
+
+    private void setPlayerFieldsDisabled(boolean disabled) {
+        playerOneNameField.setDisable(disabled);
+        playerTwoNameField.setDisable(disabled);
     }
 
     private void onHostMessage(String message) {
@@ -658,15 +554,14 @@ public class TetrisMenuController implements RouteDataReceiver {
                 return;
             }
 
-            joinedPlayerName = defaultIfBlank(fields.get(0), "Player 2");
+            joinedPlayerName = defaultIfBlank(fields.getFirst(), PLAYER_TWO);
             if (joinedPlayerName.isBlank()) {
                 return;
             }
 
-            joinedPlayerLabel.setText("Joined: " + joinedPlayerName);
-            hostStartGameButton.setDisable(false);
             udpDiscovery.stopAdvertising();
-            statusLabel.setText(joinedPlayerName + " joined. You can start the game.");
+            updateHostLanButton();
+            statusLabel.setText(joinedPlayerName + " joined. Press Start Game.");
         });
     }
 
@@ -707,13 +602,15 @@ public class TetrisMenuController implements RouteDataReceiver {
         }
 
         joinedPlayerName = null;
-        joinedPlayerLabel.setText("Joined: none");
-        hostStartGameButton.setDisable(true);
+        updateHostLanButton();
         statusLabel.setText("Player left.");
     }
 
     private void onJoinDisconnect() {
         if (!gameStarted) {
+            joinClient = null;
+            setNetworkControlsDisabled(false);
+            startDiscovery();
             statusLabel.setText("Host disconnected.");
         }
     }
@@ -778,12 +675,24 @@ public class TetrisMenuController implements RouteDataReceiver {
         };
     }
 
-    private String trimmed(TextField field) {
-        return field.getText() == null ? "" : field.getText().trim();
+    private String playerOneName() {
+        return defaultIfBlank(text(playerOneNameField), PLAYER_ONE);
+    }
+
+    private String playerTwoName() {
+        return defaultIfBlank(text(playerTwoNameField), PLAYER_TWO);
+    }
+
+    private static String text(TextField field) {
+        return field == null ? "" : field.getText();
     }
 
     static String defaultIfBlank(String value, String fallback) {
         return SafeText.playerName(value, fallback);
+    }
+
+    private boolean lanBusy() {
+        return hostServer != null || joinClient != null || gameStarted;
     }
 
     private boolean beginNavigation() {

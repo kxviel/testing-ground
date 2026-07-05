@@ -166,32 +166,40 @@
 
             <VBox styleClass="menu-header">
                 <Label text="N E T W O R K" styleClass="text-muted-caps"/>
-                <Label text="Set players, host, or join LAN matches" styleClass="network-subtitle"/>
+                <Label text="Set players, host, or join LAN matches." styleClass="network-subtitle"/>
             </VBox>
 
             <VBox spacing="12" styleClass="side-section">
                 <Label text="Players" styleClass="field-title"/>
 
-                <GridPane styleClass="hex-form-grid">
+                <GridPane styleClass="network-player-grid">
                     <columnConstraints>
-                        <ColumnConstraints halignment="RIGHT" minWidth="62" prefWidth="62"/>
-                        <ColumnConstraints hgrow="ALWAYS" minWidth="170" prefWidth="230"/>
+                        <ColumnConstraints halignment="RIGHT" minWidth="78" prefWidth="78"/>
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="170"/>
                     </columnConstraints>
 
-                    <Label text="White" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-                    <TextField fx:id="whiteNameField" text="Player 1" promptText="Player 1"
-                               GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                    <Label text="White" styleClass="player-one-name" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                    <TextField fx:id="playerOneNameField"
+                               text="The Old Monk"
+                               promptText="The Old Monk"
+                               styleClass="player-name-field player-one-name"
+                               GridPane.columnIndex="1"
+                               GridPane.rowIndex="0"/>
 
-                    <Label text="Black" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-                    <TextField fx:id="blackNameField" text="Player 2" promptText="Player 2"
-                               GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                    <Label text="Black" styleClass="player-two-name" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                    <TextField fx:id="playerTwoNameField"
+                               text="The Outer God"
+                               promptText="The Outer God"
+                               styleClass="player-name-field player-two-name"
+                               GridPane.columnIndex="1"
+                               GridPane.rowIndex="1"/>
                 </GridPane>
             </VBox>
 
             <VBox spacing="12" styleClass="network-section">
-                <Button maxWidth="Infinity" onAction="#onHostLan" styleClass="mode-button">
+                <Button maxWidth="Infinity" onAction="#onHostLan" styleClass="network-host-button">
                     <graphic>
-                        <HBox alignment="CENTER_LEFT" spacing="12">
+                        <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="12">
                             <SvgIcon icon="lan" styleClass="svg-icon-primary"/>
                             <Label text="Host LAN Game" styleClass="mode-text"/>
                         </HBox>
@@ -209,7 +217,7 @@
 
             <VBox spacing="8">
                 <Label text="Available Games" styleClass="field-title"/>
-                <ListView fx:id="lanGamesList" prefHeight="84" maxHeight="112" maxWidth="Infinity"
+                <ListView fx:id="lanGamesList" prefHeight="128" maxHeight="160" maxWidth="Infinity"
                           styleClass="match-list">
                     <placeholder>
                         <Label text="No LAN games found" styleClass="empty-list-label"/>

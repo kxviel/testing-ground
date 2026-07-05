@@ -16,8 +16,8 @@ public record TetrisGameSetup(
     }
 
     public TetrisGameSetup {
-        playerOneName = SafeText.playerName(playerOneName, "Player 1");
-        playerTwoName = SafeText.playerName(playerTwoName, "Player 2");
+        playerOneName = SafeText.playerName(playerOneName, SafeText.PLAYER_ONE_NAME);
+        playerTwoName = SafeText.playerName(playerTwoName, SafeText.PLAYER_TWO_NAME);
         config = config == null ? TetrisGameConfig.defaultConfig() : config;
         mode = mode == null ? TetrisGameMode.LOCAL : mode;
     }

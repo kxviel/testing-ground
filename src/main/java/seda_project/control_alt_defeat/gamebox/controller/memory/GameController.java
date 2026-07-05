@@ -28,18 +28,20 @@ import seda_project.control_alt_defeat.gamebox.ui.SvgIcon;
 import seda_project.control_alt_defeat.gamebox.ui.TimedStatus;
 import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
 import seda_project.control_alt_defeat.gamebox.util.Router;
+import seda_project.control_alt_defeat.gamebox.util.SafeText;
 import seda_project.control_alt_defeat.gamebox.util.UiVisibility;
 
 import java.util.List;
 import java.util.Queue;
+import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
 public class GameController implements RouteDataReceiver {
 
     private static final Logger log = LoggerFactory.getLogger(GameController.class);
     private static final String MENU_ROUTE = "/memory/MemoryMenu.fxml";
-    private static final String PLAYER_ONE = "Player 1";
-    private static final String PLAYER_TWO = "Player 2";
+    private static final String PLAYER_ONE = SafeText.PLAYER_ONE_NAME;
+    private static final String PLAYER_TWO = SafeText.PLAYER_TWO_NAME;
     private static final String ACTIVE_PLAYER_CLASS = "score-active";
     private static final String CARD_BASE_CLASS = "memory-card-button";
     private static final String CARD_HIDDEN_CLASS = "card";
@@ -89,6 +91,8 @@ public class GameController implements RouteDataReceiver {
     private Mode mode;
     private GameServer server;
     private GameClient client;
+    private String playerOneName = PLAYER_ONE;
+    private String playerTwoName = PLAYER_TWO;
 
     private Button[] cardButtons;
     private CardLayout cardLayout = new CardLayout(MAX_CARD_SIZE, MIN_GAP, 32);
@@ -106,32 +110,34 @@ public class GameController implements RouteDataReceiver {
     @Override
     public void setRouteData(Object data) {
         if (data instanceof MemoryGameRouteData routeData) {
-            init(routeData.variant(), routeData.mode(), routeData.server(), routeData.client());
-            replayPendingMessages(routeData.pendingMessages());
+            init(routeData);
         }
     }
 
-    private void init(BoardVariant variant, Mode mode,
-            GameServer server, GameClient client) {
-        this.mode = mode;
-        this.server = server;
-        this.client = client;
+    private void init(MemoryGameRouteData routeData) {
+        mode = routeData.mode();
+        server = routeData.server();
+        client = routeData.client();
+        playerOneName = SafeText.playerName(routeData.playerOneName(), PLAYER_ONE);
+        playerTwoName = SafeText.playerName(routeData.playerTwoName(), PLAYER_TWO);
 
         if (isNetworkClient()) {
             configureClient();
             statusLabel.setText("Connected! Waiting for host to start the game...");
+            replayPendingMessages(routeData.pendingMessages(), this::processMessage);
             return;
         }
 
-        this.model = new GameModel(variant);
-
-        if (isNetworkHost()) {
-            configureHost();
-            sendStartToClient();
-        }
+        model = new GameModel(routeData.variant());
 
         buildBoard();
         refreshUI();
+
+        if (isNetworkHost()) {
+            configureHost();
+            statusLabel.setText("Connected. Waiting for " + playerTwoName + "'s name...");
+            replayPendingMessages(routeData.pendingMessages(), this::processClientMessage);
+        }
     }
 
     private void configureHost() {
@@ -144,18 +150,18 @@ public class GameController implements RouteDataReceiver {
         client.setDisconnectListener(() -> Platform.runLater(this::handleDisconnect));
     }
 
-    private void replayPendingMessages(Queue<String> pendingMessages) {
+    private void replayPendingMessages(Queue<String> pendingMessages, Consumer<String> handler) {
         if (pendingMessages == null) {
             return;
         }
         String message;
         while ((message = pendingMessages.poll()) != null) {
-            processMessage(message);
+            handler.accept(message);
         }
     }
 
     private void sendStartToClient() {
-        server.send(MemoryProtocol.start(PLAYER_ONE, PLAYER_TWO, snapshot()));
+        server.send(MemoryProtocol.start(playerOneName, playerTwoName, snapshot()));
     }
 
     private void processClientMessage(String msg) {
@@ -164,7 +170,12 @@ public class GameController implements RouteDataReceiver {
 
         List<String> fields = MemoryProtocol.fields(msg);
         switch (MemoryProtocol.type(msg)) {
-            case MemoryProtocol.JOIN -> sendStartToClient();
+            case MemoryProtocol.JOIN -> {
+                playerTwoName = fieldOrDefault(fields, 0, PLAYER_TWO);
+                refreshUI();
+                sendStartToClient();
+                showTimedStatus(playerTwoName + " joined. Game started!", STATUS_SECONDS);
+            }
             case MemoryProtocol.FLIP -> {
                 Integer idx = parseCardIndex(fields, "FLIP from client");
                 if (idx == null) {
@@ -205,8 +216,10 @@ public class GameController implements RouteDataReceiver {
             return;
         }
 
+        playerOneName = fieldOrDefault(fields, 0, PLAYER_ONE);
+        playerTwoName = fieldOrDefault(fields, 1, PLAYER_TWO);
         if (applySnapshot(fields.get(2))) {
-            showTimedStatus("Game started! " + PLAYER_ONE + " (Host) goes first.", STATUS_SECONDS);
+            showTimedStatus("Game started! " + playerOneName + " (Host) goes first.", STATUS_SECONDS);
         }
     }
 
@@ -326,11 +339,11 @@ public class GameController implements RouteDataReceiver {
             return;
 
         if (isNetworkHost() && model.getCurrentPlayer() != 0) {
-            statusLabel.setText("It's " + PLAYER_TWO + "'s turn. Please wait.");
+            statusLabel.setText("It's " + playerTwoName + "'s turn. Please wait.");
             return;
         }
         if (isNetworkClient() && model.getCurrentPlayer() != 1) {
-            statusLabel.setText("It's " + PLAYER_ONE + "'s turn. Please wait.");
+            statusLabel.setText("It's " + playerOneName + "'s turn. Please wait.");
             return;
         }
 
@@ -433,13 +446,13 @@ public class GameController implements RouteDataReceiver {
 
     private void refreshUI() {
         int cur = model.getCurrentPlayer();
-        p1Label.setText(PLAYER_ONE);
-        p2Label.setText(PLAYER_TWO);
+        p1Label.setText(playerOneName);
+        p2Label.setText(playerTwoName);
         p1ScoreLabel.setText(String.valueOf(model.getScore(0)));
         p2ScoreLabel.setText(String.valueOf(model.getScore(1)));
         setActivePlayer(p1Chip, cur == 0);
         setActivePlayer(p2Chip, cur == 1);
-        turnLabel.setText((cur == 0 ? PLAYER_ONE : PLAYER_TWO) + "'s turn");
+        turnLabel.setText(playerName(cur) + "'s turn");
     }
 
     private void refreshAll() {
@@ -549,9 +562,9 @@ public class GameController implements RouteDataReceiver {
         inputLocked = true;
         int winner = model.getWinner();
         String resultText = winner < 0 ? "It's a Draw! 🤝"
-                : "Player " + (winner + 1) + " Wins! 🎉";
-        String scores = PLAYER_ONE + ": " + model.getScore(0)
-                + "  |  " + PLAYER_TWO + ": " + model.getScore(1);
+                : playerName(winner) + " Wins! 🎉";
+        String scores = playerOneName + ": " + model.getScore(0)
+                + "  |  " + playerTwoName + ": " + model.getScore(1);
 
         if (mode == Mode.LOCAL) {
             showLocalGameOver(resultText, scores);
@@ -656,14 +669,13 @@ public class GameController implements RouteDataReceiver {
             return;
         }
         Router.goTo(stage, MENU_ROUTE, statusMessage);
-        stage.setTitle("Multi Match Memory Game");
     }
 
     private void sendQuit() {
         if (isNetworkHost() && server != null)
-            server.send(MemoryProtocol.quit(PLAYER_ONE));
+            server.send(MemoryProtocol.quit(playerOneName));
         if (isNetworkClient() && client != null)
-            client.send(MemoryProtocol.quit(PLAYER_TWO));
+            client.send(MemoryProtocol.quit(playerTwoName));
     }
 
     private void closeNetwork() {
@@ -685,11 +697,15 @@ public class GameController implements RouteDataReceiver {
     }
 
     private String playerName() {
-        return isNetworkHost() ? PLAYER_ONE : PLAYER_TWO;
+        return isNetworkHost() ? playerOneName : playerTwoName;
     }
 
     private String opponentName() {
-        return isNetworkHost() ? PLAYER_TWO : PLAYER_ONE;
+        return isNetworkHost() ? playerTwoName : playerOneName;
+    }
+
+    private String playerName(int player) {
+        return player == 0 ? playerOneName : playerTwoName;
     }
 
     private boolean isNetworkHost() {
@@ -721,8 +737,6 @@ public class GameController implements RouteDataReceiver {
     }
 
     private static String fieldOrDefault(List<String> fields, int index, String fallback) {
-        return fields != null && fields.size() > index && !fields.get(index).isBlank()
-                ? fields.get(index)
-                : fallback;
+        return SafeText.playerName(fields != null && fields.size() > index ? fields.get(index) : null, fallback);
     }
 }
