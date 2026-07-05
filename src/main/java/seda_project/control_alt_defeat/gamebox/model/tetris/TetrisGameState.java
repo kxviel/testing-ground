@@ -5,7 +5,6 @@ import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerSide;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.Rotation;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisGameStatus;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisCell;
-import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisItemType;
 
 import java.util.function.Function;
 
@@ -66,10 +65,6 @@ public record TetrisGameState(
 
     public TetrisGameState spawnObject(PlayerSide side, TetrisBoardObject object) {
         return updatePlayer(side, player -> player.withBoardObject(object), false, false);
-    }
-
-    public TetrisGameState spawnBug(PlayerSide side, BoardPosition position) {
-        return spawnObject(side, new TetrisBoardObject(TetrisItemType.TELEPORT_SWAP, position));
     }
 
     public TetrisGameState moveLeft(PlayerSide side) {

@@ -211,10 +211,6 @@ public record HexGameState(
         return HexLegalMoveValidator.isInCheck(board, color);
     }
 
-    public boolean hasDrawOfferForTurn() {
-        return hasDrawOfferFor(turn);
-    }
-
     public boolean hasDrawOfferFor(HexPieceColor player) {
         return drawOfferBy != null && drawOfferBy != player;
     }

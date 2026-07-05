@@ -4,7 +4,6 @@ import seda_project.control_alt_defeat.gamebox.model.tetris.enums.GravityDirecti
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerSide;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerStatus;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.Rotation;
-import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisItemType;
 
 import java.util.List;
 import java.util.Objects;
@@ -46,28 +45,6 @@ public record TetrisPlayerState(
             PlayerStatus status,
             Integer finalScore) {
         this(playerName, side, board, activePiece, score, status, finalScore, null, null, List.of());
-    }
-
-    public TetrisPlayerState(
-            String playerName,
-            PlayerSide side,
-            TetrisBoard board,
-            TetrisPiece activePiece,
-            int score,
-            PlayerStatus status,
-            Integer finalScore,
-            BoardPosition bugPosition) {
-        this(
-                playerName,
-                side,
-                board,
-                activePiece,
-                score,
-                status,
-                finalScore,
-                bugPosition == null ? null : new TetrisBoardObject(TetrisItemType.TELEPORT_SWAP, bugPosition),
-                null,
-                List.of());
     }
 
     public static TetrisPlayerState create(String playerName, PlayerSide side) {
@@ -188,10 +165,6 @@ public record TetrisPlayerState(
         return copy(board, nextPiece, score, status, finalScore, boardObject, effects, queuedShapes);
     }
 
-    public TetrisPlayerState withScore(int nextScore) {
-        return copy(board, activePiece, nextScore, status, finalScore, boardObject, effects, queuedShapes);
-    }
-
     public TetrisPlayerState withBoardObject(TetrisBoardObject nextBoardObject) {
         if (nextBoardObject == null || nextBoardObject.isExpired()) {
             return clearBoardObject();
@@ -203,18 +176,8 @@ public record TetrisPlayerState(
         return copy(board, activePiece, score, status, finalScore, nextBoardObject, effects, queuedShapes);
     }
 
-    public TetrisPlayerState withBugPosition(BoardPosition nextBugPosition) {
-        return withBoardObject(nextBugPosition == null
-                ? null
-                : new TetrisBoardObject(TetrisItemType.TELEPORT_SWAP, nextBugPosition));
-    }
-
     public TetrisPlayerState clearBoardObject() {
         return copy(board, activePiece, score, status, finalScore, null, effects, queuedShapes);
-    }
-
-    public TetrisPlayerState clearBug() {
-        return clearBoardObject();
     }
 
     public boolean canPlaceObject(TetrisBoardObject object) {
@@ -228,22 +191,10 @@ public record TetrisPlayerState(
                 && hasClearObjectApproach(object.position(), gravityDirection);
     }
 
-    public boolean canPlaceBug(BoardPosition position) {
-        return canPlaceObject(new TetrisBoardObject(TetrisItemType.TELEPORT_SWAP, position));
-    }
-
     public boolean isTouchingObject() {
         return boardObject != null
                 && activePiece != null
                 && activePiece.boardCells().contains(boardObject.position());
-    }
-
-    public boolean isTouchingBug() {
-        return isTouchingObject();
-    }
-
-    public BoardPosition bugPosition() {
-        return boardObject == null ? null : boardObject.position();
     }
 
     public TetrisPlayerState withEffects(TetrisEffectState nextEffects) {
@@ -270,23 +221,6 @@ public record TetrisPlayerState(
         return next;
     }
 
-    public TetrisPlayerState queueShape(PieceShape shape) {
-        if (shape == null) {
-            return this;
-        }
-
-        return copy(
-                board,
-                activePiece,
-                score,
-                status,
-                finalScore,
-                boardObject,
-                effects,
-                Stream.concat(queuedShapes.stream(), Stream.of(shape)).toList());
-    }
-
-    /** Prepends {@code shape} to the front of the spawn queue so it is the very next piece. */
     public TetrisPlayerState queueShapeFirst(PieceShape shape) {
         if (shape == null) {
             return this;

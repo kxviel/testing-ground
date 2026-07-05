@@ -18,16 +18,6 @@ public class TetrisBoard {
     public static final int MIN_ROWS = 4;
     public static final int MIN_COLUMNS = 4;
 
-    /** @deprecated use {@link #DEFAULT_COLUMNS} or {@link #columns()} */
-    @Deprecated
-    public static final int COLUMNS = DEFAULT_COLUMNS;
-
-    /**
-     * Kept for backwards-compatibility so existing call-sites that reference
-     * TetrisBoard.ROWS still compile. New code should call board.rows() instead.
-     */
-    public static final int ROWS = DEFAULT_ROWS;
-
     private final int rows;
     private final int columns;
     private final TetrisCell[][] cells;
@@ -218,10 +208,6 @@ public class TetrisBoard {
         return clearPositions(positions);
     }
 
-    public TetrisBoard destroyBelow(BoardPosition impact) {
-        return destroyAlongGravity(impact, GravityDirection.DOWN);
-    }
-
     public TetrisBoard destroyAlongGravity(BoardPosition impact, GravityDirection gravityDirection) {
         if (impact == null) {
             return this;
@@ -248,34 +234,6 @@ public class TetrisBoard {
         };
 
         return clearPositions(positions);
-    }
-
-    public TetrisBoard addGarbageLines(int count, int holeColumn) {
-        int lines = Math.min(rows, Math.max(0, count));
-        if (lines == 0) {
-            return this;
-        }
-
-        int safeHoleColumn = Math.floorMod(holeColumn, columns);
-        TetrisCell[][] nextCells = createEmptyCells(rows, columns);
-        int[][] nextColors = createEmptyColors(rows, columns);
-
-        for (int row = 0; row < rows - lines; row++) {
-            System.arraycopy(cells[row + lines], 0, nextCells[row], 0, columns);
-            System.arraycopy(colorIndexes[row + lines], 0, nextColors[row], 0, columns);
-        }
-
-        for (int row = rows - lines; row < rows; row++) {
-            for (int column = 0; column < columns; column++) {
-                if (column == safeHoleColumn) {
-                    continue;
-                }
-                nextCells[row][column] = TetrisCell.FILLED;
-                nextColors[row][column] = 0;
-            }
-        }
-
-        return new TetrisBoard(rows, columns, nextCells, nextColors);
     }
 
     public TetrisBoard addRowsAtTop(int count) {
@@ -376,20 +334,6 @@ public class TetrisBoard {
         }
 
         return new TetrisBoard(rows, newColumns, newCells, newColors);
-    }
-
-    public TetrisBoard withCell(BoardPosition position, TetrisCell cell) {
-        if (!isInside(position)) {
-            throw new IllegalArgumentException("Position outside board: " + position);
-        }
-
-        TetrisCell[][] nextCells = copyCells(cells, rows, columns);
-        int[][] nextColors = copyColors(colorIndexes, nextCells, rows, columns);
-        nextCells[position.row()][position.column()] = cell == null ? TetrisCell.EMPTY : cell;
-        nextColors[position.row()][position.column()] = nextCells[position.row()][position.column()] == TetrisCell.EMPTY
-                ? -1
-                : 0;
-        return new TetrisBoard(rows, columns, nextCells, nextColors);
     }
 
     public TetrisCell[][] cells() {

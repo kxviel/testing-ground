@@ -10,7 +10,4 @@ public enum Rotation {
         return values()[(ordinal() + 1) % values().length];
     }
 
-    public Rotation counterClockwise() {
-        return values()[(ordinal() + values().length - 1) % values().length];
-    }
 }

@@ -237,12 +237,6 @@ public class GameModel {
         return -1;
     }
 
-    public List<String> getSymbolOrder() {
-        return cards.stream()
-                .map(Card::getSymbol)
-                .toList();
-    }
-
     private static List<Card> cardsFromSymbols(List<String> symbols) {
         return IntStream.range(0, symbols.size())
                 .mapToObj(i -> new Card(i, symbols.get(i)))

@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
@@ -24,14 +25,14 @@ class GameNetworkEndToEndTest {
         BlockingQueue<String> serverMessages = new LinkedBlockingQueue<>();
         BlockingQueue<String> clientMessages = new LinkedBlockingQueue<>();
         CountDownLatch serverAccepted = new CountDownLatch(1);
-        AtomicReference<Exception> serverError = new AtomicReference<>();
+        AtomicReference<IOException> serverError = new AtomicReference<>();
 
         server.listen(0, serverMessages::add, () -> {
         });
         Thread acceptThread = new Thread(() -> {
             try {
                 server.waitForClient();
-            } catch (Exception e) {
+            } catch (IOException e) {
                 serverError.set(e);
             } finally {
                 serverAccepted.countDown();

@@ -14,8 +14,11 @@ import javafx.scene.shape.StrokeLineJoin;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
 import java.util.Map;
@@ -100,7 +103,7 @@ public class SvgIcon extends StackPane {
             group.setScaleY(scale);
 
             getChildren().setAll(group);
-        } catch (Exception e) {
+        } catch (IllegalArgumentException | IOException | ParserConfigurationException | SAXException e) {
             throw new IllegalStateException("Unable to load SVG icon: " + icon, e);
         }
     }

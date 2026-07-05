@@ -262,28 +262,18 @@ public final class TetrisStateSnapshot {
             return null;
         }
 
-        if (!value.contains("@")) {
-            BoardPosition legacyBugPosition = deserializePosition(value);
-            return legacyBugPosition == null
-                    ? null
-                    : new TetrisBoardObject(TetrisItemType.TELEPORT_SWAP, legacyBugPosition);
-        }
-
         String[] parts = value.split("@", 3);
-        BoardPosition position = deserializePosition(parts.length >= 2 ? parts[1] : "-");
+        if (parts.length != 3) {
+            throw new IllegalArgumentException("Invalid board object entry: " + value);
+        }
+
+        BoardPosition position = deserializePosition(parts[1]);
         if (position == null) {
-            return null;
+            throw new IllegalArgumentException("Invalid board object position: " + value);
         }
 
-        int lifetimeTicks = parts.length >= 3
-                ? parseInt(parts[2], TetrisBoardObject.DEFAULT_LIFETIME_TICKS)
-                : TetrisBoardObject.DEFAULT_LIFETIME_TICKS;
-
-        try {
-            return new TetrisBoardObject(TetrisItemType.valueOf(parts[0]), position, lifetimeTicks);
-        } catch (IllegalArgumentException e) {
-            return new TetrisBoardObject(TetrisItemType.TELEPORT_SWAP, position, lifetimeTicks);
-        }
+        int lifetimeTicks = parseInt(parts[2], TetrisBoardObject.DEFAULT_LIFETIME_TICKS);
+        return new TetrisBoardObject(TetrisItemType.valueOf(parts[0]), position, lifetimeTicks);
     }
 
     private static String serializeEffects(TetrisEffectState effects) {

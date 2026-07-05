@@ -15,7 +15,6 @@ import static seda_project.control_alt_defeat.gamebox.network.SnapshotCodec.pars
 public final class MemoryStateSnapshot {
 
     private static final int FIELD_COUNT = 9;
-    private static final int LEGACY_CARD_FIELD_COUNT = 4;
     private static final int CARD_FIELD_COUNT = 5;
 
     private MemoryStateSnapshot() {
@@ -98,7 +97,7 @@ public final class MemoryStateSnapshot {
 
     private static CardState deserializeCard(String value) {
         String[] fields = value.split(",", -1);
-        if (fields.length != CARD_FIELD_COUNT && fields.length != LEGACY_CARD_FIELD_COUNT) {
+        if (fields.length != CARD_FIELD_COUNT) {
             throw new IllegalArgumentException("Invalid card entry: " + value);
         }
 
@@ -112,7 +111,7 @@ public final class MemoryStateSnapshot {
                 decode(fields[1]),
                 parseBoolean(fields[2]),
                 parseBoolean(fields[3]),
-                fields.length == CARD_FIELD_COUNT ? parseInt(fields[4]) : -1);
+                parseInt(fields[4]));
     }
 
     private static int parsePlayer(String value) {

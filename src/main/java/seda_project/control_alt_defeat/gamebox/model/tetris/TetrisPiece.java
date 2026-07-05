@@ -26,10 +26,6 @@ public record TetrisPiece(PieceShape shape, BoardPosition position, Rotation rot
         return new TetrisPiece(shape, position, nextRotation, colorIndex);
     }
 
-    public TetrisPiece withColorIndex(int nextColorIndex) {
-        return new TetrisPiece(shape, position, rotation, nextColorIndex);
-    }
-
     public List<BoardPosition> boardCells() {
         return shape.cells().stream()
                 .map(this::rotate)

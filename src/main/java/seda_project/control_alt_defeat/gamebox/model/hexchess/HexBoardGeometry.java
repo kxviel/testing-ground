@@ -84,12 +84,6 @@ public final class HexBoardGeometry {
         return coordinateAt(new AxialCoordinate(axial.q() + qDelta, axial.r() + rDelta));
     }
 
-    public static HexCoordinate opposite(HexCoordinate coordinate) {
-        AxialCoordinate axial = axial(coordinate);
-        return coordinateAt(new AxialCoordinate(-axial.q(), -axial.r()))
-                .orElseThrow(() -> new IllegalStateException("Opposite coordinate is outside the board."));
-    }
-
     public static int axialQ(HexCoordinate coordinate) {
         return axial(coordinate).q();
     }
