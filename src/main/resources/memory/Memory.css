@@ -1,5 +1,30 @@
 .memory-menu-root,
 .memory-game-root {
+    -sh-background: #f2f7f4;
+    -sh-foreground: #101e19;
+    -sh-card-foreground: #101e19;
+    -sh-primary: #43765e;
+    -sh-secondary: #dfece4;
+    -sh-secondary-foreground: #1e362c;
+    -sh-muted: #f2f7f4;
+    -sh-muted-foreground: #366550;
+    -sh-accent: #dfece4;
+    -sh-accent-foreground: #1e362c;
+    -sh-border: #c1d9cb;
+    -sh-input: #97bea9;
+    -sh-ring: #43765e;
+    -sh-sidebar-border: #c1d9cb;
+    -game-accent: #43765e;
+    -game-accent-hover: #366550;
+    -game-accent-pressed: #2b5141;
+    -game-accent-hover-soft: #dfece4;
+    -game-accent-container: #c1d9cb;
+    -game-on-accent-container: #101e19;
+    -game-soft-surface: #f2f7f4;
+}
+
+.memory-menu-root,
+.memory-game-root {
     -fx-background-color: -sh-background;
 }
 

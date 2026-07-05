@@ -51,8 +51,8 @@ public class GameController implements RouteDataReceiver {
     private static final String CARD_MATCHED_PLAYER_TWO_CLASS = "card-matched-player-two";
     private static final double FALLBACK_GRID_WIDTH = 804;
     private static final double FALLBACK_GRID_HEIGHT = 286;
-    private static final double MAX_CARD_SIZE = 128;
-    private static final double MIN_CARD_SIZE = 44;
+    private static final double MAX_CARD_SIZE = 192;
+    private static final double MIN_CARD_SIZE = 66;
     private static final double CARD_FACE_SCALE = 0.72;
     private static final double MIN_GAP = 10;
     private static final Duration MISMATCH_DELAY = Duration.millis(800);

@@ -52,9 +52,9 @@ public class TetrisGameController implements RouteDataReceiver {
     private static final int MENU_RETURN_SECONDS = 2;
     private static final String OPPONENT_LEFT_MESSAGE = "Your opponent has left the game.";
     private static final String[] BLOCK_COLORS = {
-            "#EA7B7B",
-            "#BDA6CE",
-            "#A1BC98"
+            "#7873B8",
+            "#8B8BC9",
+            "#A3A7D6"
     };
 
     @FXML

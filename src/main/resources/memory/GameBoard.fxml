@@ -38,8 +38,8 @@
               maxHeight="Infinity"
               styleClass="memory-game-layout">
         <columnConstraints>
-            <ColumnConstraints hgrow="ALWAYS" percentWidth="60.0"/>
-            <ColumnConstraints hgrow="ALWAYS" percentWidth="40.0"/>
+            <ColumnConstraints hgrow="ALWAYS" percentWidth="70.0"/>
+            <ColumnConstraints hgrow="ALWAYS" percentWidth="30.0"/>
         </columnConstraints>
 
         <VBox GridPane.columnIndex="0"

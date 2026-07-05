@@ -9,7 +9,6 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
@@ -35,8 +34,8 @@
                   maxWidth="Infinity"
                   styleClass="hex-game-main">
             <columnConstraints>
-                <ColumnConstraints hgrow="ALWAYS" percentWidth="60"/>
-                <ColumnConstraints hgrow="ALWAYS" percentWidth="40"/>
+                <ColumnConstraints hgrow="ALWAYS" percentWidth="70"/>
+                <ColumnConstraints hgrow="ALWAYS" percentWidth="30"/>
             </columnConstraints>
 
             <StackPane fx:id="boardZone"
@@ -93,28 +92,20 @@
 
                 <VBox styleClass="sidebar-section hex-match-actions">
                     <Label text="Actions" styleClass="panel-label"/>
-                    <HBox styleClass="button-row">
-                        <Button fx:id="offerDrawButton" text="Offer Draw" onAction="#onOfferDraw" maxWidth="Infinity"
-                                styleClass="hex-control-button" HBox.hgrow="ALWAYS"/>
-                        <Button fx:id="resignButton" text="Resign" onAction="#onResign" maxWidth="Infinity"
-                                styleClass="hex-control-button hex-control-danger" HBox.hgrow="ALWAYS"/>
-                    </HBox>
-
-                    <HBox styleClass="button-row">
-                        <Button fx:id="acceptDrawButton" text="Accept" onAction="#onAcceptDraw"
-                                visible="false" managed="false" maxWidth="Infinity"
-                                styleClass="hex-control-button" HBox.hgrow="ALWAYS"/>
-                        <Button fx:id="declineDrawButton" text="Decline" onAction="#onDeclineDraw"
-                                visible="false" managed="false" maxWidth="Infinity"
-                                styleClass="hex-control-button" HBox.hgrow="ALWAYS"/>
-                    </HBox>
-
-                    <HBox styleClass="button-row">
-                        <Button fx:id="restartButton" text="Restart" onAction="#onRestart" maxWidth="Infinity"
-                                styleClass="hex-control-button" HBox.hgrow="ALWAYS"/>
-                        <Button text="Back to Menu" onAction="#onBackToMenu" maxWidth="Infinity"
-                                styleClass="hex-control-button" HBox.hgrow="ALWAYS"/>
-                    </HBox>
+                    <Button fx:id="offerDrawButton" text="Offer Draw" onAction="#onOfferDraw" maxWidth="Infinity"
+                            styleClass="hex-control-button"/>
+                    <Button fx:id="resignButton" text="Resign" onAction="#onResign" maxWidth="Infinity"
+                            styleClass="hex-control-button hex-control-danger"/>
+                    <Button fx:id="acceptDrawButton" text="Accept" onAction="#onAcceptDraw"
+                            visible="false" managed="false" maxWidth="Infinity"
+                            styleClass="hex-control-button"/>
+                    <Button fx:id="declineDrawButton" text="Decline" onAction="#onDeclineDraw"
+                            visible="false" managed="false" maxWidth="Infinity"
+                            styleClass="hex-control-button"/>
+                    <Button fx:id="restartButton" text="Restart" onAction="#onRestart" maxWidth="Infinity"
+                            styleClass="hex-control-button"/>
+                    <Button text="Back to Menu" onAction="#onBackToMenu" maxWidth="Infinity"
+                            styleClass="hex-control-button"/>
                 </VBox>
                 </VBox>
             </ScrollPane>

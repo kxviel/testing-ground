@@ -1,4 +1,29 @@
 .hex-menu-root,
+.hex-game-root {
+    -sh-background: #f9f4f1;
+    -sh-foreground: #331516;
+    -sh-card-foreground: #331516;
+    -sh-primary: #b76d54;
+    -sh-secondary: #efe1d6;
+    -sh-secondary-foreground: #5b2c2d;
+    -sh-muted: #f9f4f1;
+    -sh-muted-foreground: #843d39;
+    -sh-accent: #efe1d6;
+    -sh-accent-foreground: #5b2c2d;
+    -sh-border: #ddc0aa;
+    -sh-input: #cb9c7e;
+    -sh-ring: #b76d54;
+    -sh-sidebar-border: #ddc0aa;
+    -game-accent: #b76d54;
+    -game-accent-hover: #9e5041;
+    -game-accent-pressed: #843d39;
+    -game-accent-hover-soft: #efe1d6;
+    -game-accent-container: #ddc0aa;
+    -game-on-accent-container: #331516;
+    -game-soft-surface: #f9f4f1;
+}
+
+.hex-menu-root,
 .hex-menu-main,
 .hex-game-root,
 .hex-game-main {

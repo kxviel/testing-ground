@@ -1,4 +1,29 @@
 .tetris-menu-root,
+.tetris-game-root {
+    -sh-background: #f3f5fa;
+    -sh-foreground: #2b293d;
+    -sh-card-foreground: #2b293d;
+    -sh-primary: #6761a1;
+    -sh-secondary: #e9ecf6;
+    -sh-secondary-foreground: #484669;
+    -sh-muted: #f3f5fa;
+    -sh-muted-foreground: #555182;
+    -sh-accent: #e9ecf6;
+    -sh-accent-foreground: #484669;
+    -sh-border: #d7dbee;
+    -sh-input: #bdc3e3;
+    -sh-ring: #7873b8;
+    -sh-sidebar-border: #d7dbee;
+    -game-accent: #6761a1;
+    -game-accent-hover: #555182;
+    -game-accent-pressed: #484669;
+    -game-accent-hover-soft: #e9ecf6;
+    -game-accent-container: #d7dbee;
+    -game-on-accent-container: #2b293d;
+    -game-soft-surface: #f3f5fa;
+}
+
+.tetris-menu-root,
 .tetris-menu-main,
 .tetris-game-root,
 .tetris-game-main {
@@ -286,12 +311,12 @@
 }
 
 .board-cell-vertical {
-    -fx-max-height: 16;
-    -fx-max-width: 16;
-    -fx-min-height: 16;
-    -fx-min-width: 16;
-    -fx-pref-height: 16;
-    -fx-pref-width: 16;
+    -fx-max-height: 28;
+    -fx-max-width: 28;
+    -fx-min-height: 28;
+    -fx-min-width: 28;
+    -fx-pref-height: 28;
+    -fx-pref-width: 28;
 }
 
 .board-cell-filled,
