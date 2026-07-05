@@ -80,28 +80,10 @@
     -fx-text-fill: -sh-muted-foreground;
 }
 
-.title-divider {
-    -fx-padding: 8 0 4 0;
-}
-
-.divider-line,
 .menu-divider {
     -fx-background-color: -sh-border;
     -fx-background-radius: 99;
     -fx-pref-height: 1;
-}
-
-.divider-line-active {
-    -fx-background-color: -game-accent;
-    -fx-background-radius: 99;
-    -fx-pref-height: 7;
-}
-
-.divider-seal {
-    -fx-background-color: -game-accent;
-    -fx-background-radius: 99;
-    -fx-pref-height: 11;
-    -fx-pref-width: 11;
 }
 
 .tetris-setup-list,
@@ -140,7 +122,6 @@
     -fx-background-color: -sh-muted;
 }
 
-.menu-icon-frame,
 .row-icon-chip {
     -fx-alignment: center;
     -fx-background-color: -sh-muted;
@@ -150,24 +131,11 @@
     -fx-border-width: 1;
 }
 
-.menu-icon-frame {
-    -fx-min-height: 58;
-    -fx-min-width: 58;
-    -fx-pref-height: 58;
-    -fx-pref-width: 58;
-}
-
 .row-icon-chip {
     -fx-min-height: 54;
     -fx-min-width: 54;
     -fx-pref-height: 54;
     -fx-pref-width: 54;
-}
-
-.row-icon-letter {
-    -fx-font-size: 30px;
-    -fx-font-weight: 800;
-    -fx-text-fill: -game-accent;
 }
 
 .row-title {
@@ -187,14 +155,6 @@
     -fx-min-width: 38;
     -fx-pref-height: 38;
     -fx-pref-width: 38;
-}
-
-.row-chevron-icon {
-    -fx-opacity: 0.65;
-}
-
-.tetris-action-row:hover .row-chevron-icon {
-    -fx-opacity: 1;
 }
 
 .settings-footer,
@@ -236,30 +196,6 @@
     -fx-background-color: -sh-accent;
     -fx-border-color: -game-accent;
     -fx-text-fill: -sh-accent-foreground;
-}
-
-.mode-button {
-    -fx-content-display: graphic-only;
-    -fx-min-height: 48;
-    -fx-padding: 10 14;
-}
-
-.mode-icon,
-.mode-text {
-    -fx-text-fill: -sh-foreground;
-}
-
-.mode-icon,
-.mode-text {
-    -fx-font-weight: 800;
-}
-
-.mode-icon {
-    -fx-font-size: 20px;
-}
-
-.mode-text {
-    -fx-font-size: 15px;
 }
 
 .custom-piece-grid {

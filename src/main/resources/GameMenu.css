@@ -10,24 +10,15 @@
     -fx-padding: 0;
 }
 
-.game-menu-cluster,
-.game-menu-layout,
 .memory-menu-layout {
     -fx-alignment: center;
 }
 
-.game-menu-layout,
 .tetris-menu-main,
 .hex-menu-main {
     -fx-hgap: 20;
 }
 
-.memory-menu-layout {
-    -fx-spacing: 20;
-}
-
-.menu-settings-card,
-.menu-network-card,
 .memory-setup-card,
 .memory-network-card,
 .tetris-setup,
@@ -42,7 +33,6 @@
     -fx-effect: dropshadow(gaussian, rgba(37, 99, 235, 0.16), 22, 0.12, 0, 5);
 }
 
-.menu-settings-card,
 .memory-setup-card,
 .tetris-setup,
 .hex-setup {
@@ -51,7 +41,6 @@
     -fx-padding: 20;
 }
 
-.menu-network-card,
 .memory-network-card,
 .tetris-options-panel,
 .hex-network-panel {
@@ -72,18 +61,14 @@
     -fx-text-fill: -game-accent;
 }
 
-.text-title-large,
 .memory-menu-title,
 .title,
-.settings-title,
-.network-title {
+.settings-title {
     -fx-font-size: 26px;
     -fx-font-weight: 800;
     -fx-text-fill: -sh-card-foreground;
 }
 
-.text-subtitle,
-.text-caption,
 .memory-muted,
 .memory-caption,
 .row-subtitle,
@@ -96,14 +81,12 @@
     -fx-text-fill: -sh-muted-foreground;
 }
 
-.text-subtitle,
 .memory-muted,
 .settings-subtitle,
 .network-subtitle {
     -fx-font-size: 16px;
 }
 
-.text-label,
 .memory-label,
 .field-title,
 .section-title,
@@ -114,14 +97,12 @@
     -fx-text-fill: -sh-card-foreground;
 }
 
-.text-caption,
 .memory-caption,
 .footer-line,
 .option-hint {
     -fx-font-size: 14px;
 }
 
-.parameter-box,
 .memory-parameter-panel,
 .tetris-mode-card,
 .side-section,
@@ -141,7 +122,6 @@
     -fx-padding: 0;
 }
 
-.input-field,
 .memory-input,
 .text-field,
 .combo-box {
@@ -157,16 +137,10 @@
     -fx-text-fill: -sh-card-foreground;
 }
 
-.variant-section {
-    -fx-spacing: 12;
-}
-
-.variant-list,
 .memory-variant-list {
     -fx-spacing: 8;
 }
 
-.variant-row,
 .memory-variant-row {
     -fx-alignment: center-left;
     -fx-background-color: -sh-card;
@@ -175,7 +149,6 @@
     -fx-border-color: -sh-border;
     -fx-border-radius: 14;
     -fx-border-width: 1;
-    -fx-content-display: right;
     -fx-cursor: hand;
     -fx-min-height: 52;
     -fx-padding: 0 20;
@@ -184,14 +157,11 @@
     -fx-label-padding: 0;
 }
 
-.variant-row:hover,
-.variant-row:selected,
 .memory-variant-row:hover,
 .memory-variant-row:selected {
     -fx-border-color: -game-accent;
 }
 
-.variant-row .radio,
 .memory-variant-row .radio {
     -fx-background-color: -sh-card;
     -fx-background-insets: 0;
@@ -205,7 +175,6 @@
     -fx-pref-width: 20;
 }
 
-.variant-row .dot,
 .memory-variant-row .dot {
     -fx-background-color: transparent;
     -fx-background-insets: 0;
@@ -213,41 +182,8 @@
     -fx-padding: 4;
 }
 
-.variant-content {
-    -fx-alignment: center-left;
-}
-
 .memory-variant-content {
     -fx-padding: 0 0 0 16;
-}
-
-.variant-indicator {
-    -fx-alignment: center;
-    -fx-background-color: -sh-card;
-    -fx-background-radius: 99;
-    -fx-border-color: -sh-border;
-    -fx-border-radius: 99;
-    -fx-border-width: 1;
-    -fx-min-height: 20;
-    -fx-min-width: 20;
-    -fx-pref-height: 20;
-    -fx-pref-width: 20;
-}
-
-.variant-check {
-    -fx-font-size: 13px;
-    -fx-font-weight: 800;
-    -fx-opacity: 0;
-    -fx-text-fill: -sh-primary-foreground;
-}
-
-.variant-row:selected .variant-indicator {
-    -fx-background-color: -game-accent;
-    -fx-border-color: -game-accent;
-}
-
-.variant-row:selected .variant-check {
-    -fx-opacity: 1;
 }
 
 .memory-variant-row:selected .radio {
@@ -258,7 +194,6 @@
     -fx-background-color: -game-accent;
 }
 
-.variant-title,
 .memory-row-title,
 .row-title {
     -fx-font-size: 16px;
@@ -266,14 +201,12 @@
     -fx-text-fill: -sh-card-foreground;
 }
 
-.variant-meta,
 .memory-row-subtitle,
 .row-subtitle {
     -fx-font-size: 14px;
     -fx-text-fill: -sh-muted-foreground;
 }
 
-.menu-separator,
 .memory-divider,
 .menu-divider {
     -fx-background-color: -sh-border;
@@ -282,7 +215,6 @@
     -fx-max-height: 1;
 }
 
-.action-list,
 .memory-action-list,
 .tetris-setup-list,
 .hex-setup-list,
@@ -296,7 +228,6 @@
     -fx-spacing: 10;
 }
 
-.action-row,
 .memory-action-row,
 .tetris-action-row,
 .hex-action-row,
@@ -314,7 +245,6 @@
     -fx-padding: 8 12;
 }
 
-.action-row:hover,
 .memory-action-row:hover,
 .tetris-action-row:hover,
 .hex-action-row:hover,
@@ -323,7 +253,6 @@
     -fx-border-color: -sh-border;
 }
 
-.action-row:pressed,
 .memory-action-row:pressed,
 .tetris-action-row:pressed,
 .hex-action-row:pressed,
@@ -331,7 +260,6 @@
     -fx-background-color: -sh-secondary;
 }
 
-.icon-surface,
 .memory-icon-box,
 .memory-danger-icon-box,
 .row-icon-chip,
@@ -379,19 +307,10 @@
     -fx-stroke: -sh-destructive;
 }
 
-.icon-text,
-.memory-icon,
-.row-icon-letter,
-.mode-icon,
 .mode-text {
     -fx-font-size: 16px;
     -fx-font-weight: 800;
     -fx-text-fill: -game-accent;
-}
-
-.icon-danger .icon-text,
-.memory-danger-icon-box .memory-icon {
-    -fx-text-fill: -sh-destructive;
 }
 
 .row-arrow-chip {
@@ -401,23 +320,6 @@
     -fx-min-width: 38;
     -fx-pref-height: 38;
     -fx-pref-width: 38;
-}
-
-.row-chevron,
-.memory-chevron {
-    -fx-font-size: 24px;
-    -fx-font-weight: 500;
-    -fx-text-fill: -sh-muted-foreground;
-}
-
-.row-chevron-icon {
-    -fx-opacity: 0.65;
-}
-
-.action-row:hover .row-chevron-icon,
-.tetris-action-row:hover .row-chevron-icon,
-.hex-action-row:hover .row-chevron-icon {
-    -fx-opacity: 1;
 }
 
 .btn-primary,
@@ -474,7 +376,6 @@
     -fx-text-fill: -sh-accent-foreground;
 }
 
-.empty-state-box,
 .memory-empty-list,
 .match-list {
     -fx-background-color: transparent;
@@ -489,7 +390,6 @@
     -fx-padding: 10;
 }
 
-.empty-state-title,
 .memory-empty-title {
     -fx-font-size: 16px;
     -fx-text-fill: -sh-muted-foreground;
@@ -501,7 +401,6 @@
     -fx-padding: 6 8;
 }
 
-.menu-footer,
 .settings-footer,
 .network-footer,
 .memory-network-footer {

@@ -144,11 +144,3 @@
     -fx-pref-height: 34;
     -fx-pref-width: 34;
 }
-
-.row-chevron-icon {
-    -fx-opacity: 0.65;
-}
-
-.game-row:hover .row-chevron-icon {
-    -fx-opacity: 1;
-}

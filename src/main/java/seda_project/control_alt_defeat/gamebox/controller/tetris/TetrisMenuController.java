@@ -10,7 +10,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -64,10 +63,6 @@ public class TetrisMenuController implements RouteDataReceiver {
     private VBox customEditorBox;
     @FXML
     private GridPane customPieceGrid;
-    @FXML
-    private ColumnConstraints contentColumn;
-    @FXML
-    private ColumnConstraints optionsColumn;
     @FXML
     private HBox actionButtonRow;
 
@@ -124,8 +119,6 @@ public class TetrisMenuController implements RouteDataReceiver {
 
     private static final int CUSTOM_EDITOR_SIZE = 5;
     private static final int LAN_GAME_STALE_MS = 4_000;
-    private static final int CONTENT_COLUMN_PERCENT = 60;
-    private static final int SIDEBAR_COLUMN_PERCENT = 40;
 
     private MenuView currentView = MenuView.MODE_CHOICE;
     private final LanDiscoveryService udpDiscovery = LanDiscoveryService.tetris();
@@ -343,8 +336,6 @@ public class TetrisMenuController implements RouteDataReceiver {
     }
 
     private void showOnly(MenuView view) {
-        contentColumn.setPercentWidth(CONTENT_COLUMN_PERCENT);
-        optionsColumn.setPercentWidth(SIDEBAR_COLUMN_PERCENT);
         UiVisibility.setVisibleManaged(optionsPanel, true);
         UiVisibility.setVisibleManaged(actionButtonRow, true);
         updateSidebarTitle(view);

@@ -34,10 +34,6 @@
     -fx-background-color: -sh-background;
 }
 
-.memory-menu-layout {
-    -fx-alignment: top-center;
-}
-
 .memory-setup-card,
 .memory-network-card,
 .memory-board-panel,
@@ -126,7 +122,6 @@
     -fx-border-color: -sh-border;
     -fx-border-radius: 14;
     -fx-border-width: 1;
-    -fx-content-display: right;
     -fx-cursor: hand;
     -fx-min-height: 60;
     -fx-padding: 0 20;
@@ -221,22 +216,6 @@
     -fx-min-width: 40;
     -fx-pref-height: 40;
     -fx-pref-width: 40;
-}
-
-.memory-icon {
-    -fx-font-size: 19px;
-    -fx-font-weight: 800;
-    -fx-text-fill: -sh-card-foreground;
-}
-
-.memory-danger-icon-box .memory-icon {
-    -fx-text-fill: -sh-destructive;
-}
-
-.memory-chevron {
-    -fx-font-size: 27px;
-    -fx-font-weight: 400;
-    -fx-text-fill: -sh-muted-foreground;
 }
 
 .memory-primary-button,

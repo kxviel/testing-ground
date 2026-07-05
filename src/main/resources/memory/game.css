@@ -111,12 +111,6 @@
     -fx-opacity: 1;
 }
 
-.card-symbol {
-    -fx-font-family: "Segoe UI Emoji", "Segoe UI Symbol", "Inter Variable", "Inter", "Segoe UI", sans-serif;
-    -fx-font-weight: 400;
-    -fx-text-fill: -sh-card-foreground;
-}
-
 .memory-sidebar-header {
     -fx-padding: 0 0 20 0;
 }
