@@ -14,9 +14,9 @@
 .memory-board-icon-tile {
     -fx-alignment: center;
     -fx-background-color: -sh-muted;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 4px;
+    -fx-border-radius: 6px;
     -fx-border-width: 1;
     -fx-max-height: 44;
     -fx-max-width: 44;
@@ -53,8 +53,8 @@
 .card-matched {
     -fx-alignment: center;
     -fx-background-insets: 0;
-    -fx-background-radius: 4px;
-    -fx-border-radius: 4px;
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
     -fx-border-width: 1;
     -fx-cursor: hand;
     -fx-font-family: "Inter Variable", "Inter", "Segoe UI", sans-serif;
@@ -138,9 +138,9 @@
 .memory-score-row {
     -fx-alignment: center-left;
     -fx-background-color: -sh-card;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 4px;
+    -fx-border-radius: 6px;
     -fx-border-width: 1;
     -fx-min-height: 54;
     -fx-padding: 12 20;
@@ -164,9 +164,9 @@
 .memory-turn-pill {
     -fx-alignment: center-left;
     -fx-background-color: -sh-card;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 4px;
+    -fx-border-radius: 6px;
     -fx-border-width: 1;
     -fx-min-height: 46;
     -fx-padding: 12 20;
@@ -175,7 +175,7 @@
 
 .memory-turn-dot {
     -fx-background-color: -sh-card-foreground;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-min-height: 11;
     -fx-min-width: 11;
     -fx-pref-height: 11;
@@ -190,9 +190,9 @@
 
 .memory-post-game-bar {
     -fx-background-color: -sh-muted;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 4px;
+    -fx-border-radius: 6px;
     -fx-border-width: 1;
     -fx-padding: 12;
 }

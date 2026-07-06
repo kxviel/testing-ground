@@ -22,8 +22,6 @@
     -sh-chart-3: #F59E0B;
     -sh-chart-4: #0EA5E9;
     -sh-chart-5: #14B8A6;
-    -global-border-radius: 4px;
-    -sh-radius: 4px;
     -sh-sidebar: #FFFFFF;
     -sh-sidebar-foreground: #0F172A;
     -sh-sidebar-primary: #2563EB;
@@ -64,7 +62,7 @@
 
 .app-scroll .scroll-bar .thumb {
     -fx-background-color: rgba(9, 11, 12, 0.20);
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
 }
 
 .app-scroll .scroll-bar .track,
@@ -76,9 +74,9 @@
 .button {
     -fx-background-color: -sh-card;
     -fx-background-insets: 0;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-border-color: -sh-input;
-    -fx-border-radius: 4px;
+    -fx-border-radius: 6px;
     -fx-border-width: 1;
     -fx-cursor: hand;
     -fx-font-size: 16px;
@@ -159,9 +157,9 @@
 .list-view {
     -fx-background-color: -sh-card;
     -fx-background-insets: 0;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-border-color: -sh-input;
-    -fx-border-radius: 4px;
+    -fx-border-radius: 6px;
     -fx-border-width: 1;
     -fx-min-height: 40;
     -fx-text-fill: -sh-foreground;
@@ -199,7 +197,7 @@
 .list-cell:filled:selected,
 .list-cell:filled:selected:hover {
     -fx-background-color: -sh-accent;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-text-fill: -sh-accent-foreground;
 }
 
@@ -220,8 +218,8 @@
 }
 
 .radio-button .radio {
-    -fx-background-radius: 4px;
-    -fx-border-radius: 4px;
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
     -fx-padding: 4;
 }
 
@@ -230,7 +228,7 @@
 }
 
 .radio-button .dot {
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-padding: 4;
 }
 
@@ -239,8 +237,8 @@
 }
 
 .check-box .box {
-    -fx-background-radius: 4px;
-    -fx-border-radius: 4px;
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
     -fx-padding: 3;
 }
 

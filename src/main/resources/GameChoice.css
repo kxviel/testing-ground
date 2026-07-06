@@ -9,9 +9,9 @@
 
 .game-choice-frame {
     -fx-background-color: -sh-card;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 4px;
+    -fx-border-radius: 6px;
     -fx-border-width: 1;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.10), 12, 0, 0, 2);
     -fx-padding: 38 42 46 42;
@@ -45,9 +45,9 @@
     -fx-alignment: center-left;
     -fx-background-color: transparent;
     -fx-background-insets: 0;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-border-color: transparent;
-    -fx-border-radius: 4px;
+    -fx-border-radius: 6px;
     -fx-border-width: 1;
     -fx-content-display: graphic-only;
     -fx-cursor: hand;
@@ -73,9 +73,9 @@
 .icon-chip-danger {
     -fx-alignment: center;
     -fx-background-color: -sh-muted;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 4px;
+    -fx-border-radius: 6px;
     -fx-border-width: 1;
     -fx-min-height: 48;
     -fx-min-width: 48;

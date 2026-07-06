@@ -50,9 +50,9 @@
 .hex-side-panel,
 .canvas-frame {
     -fx-background-color: -sh-card;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 4px;
+    -fx-border-radius: 6px;
     -fx-border-width: 1;
     -fx-effect: null;
 }
@@ -123,16 +123,16 @@
 
 .menu-divider {
     -fx-background-color: -sh-border;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-pref-height: 1;
 }
 
 .row-icon-chip {
     -fx-alignment: center;
     -fx-background-color: -sh-muted;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 4px;
+    -fx-border-radius: 6px;
     -fx-border-width: 1;
     -fx-min-height: 54;
     -fx-min-width: 54;
@@ -153,9 +153,9 @@
     -fx-alignment: center-left;
     -fx-background-color: -sh-card;
     -fx-background-insets: 0;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 4px;
+    -fx-border-radius: 6px;
     -fx-border-width: 1;
     -fx-content-display: graphic-only;
     -fx-cursor: hand;
@@ -221,9 +221,9 @@
 .hex-control-button {
     -fx-background-color: -sh-card;
     -fx-background-insets: 0;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-border-color: -sh-input;
-    -fx-border-radius: 4px;
+    -fx-border-radius: 6px;
     -fx-border-width: 1;
     -fx-font-size: 16px;
     -fx-font-weight: 600;
@@ -259,9 +259,9 @@
 
 .status-box {
     -fx-background-color: -sh-accent;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 4px;
+    -fx-border-radius: 6px;
     -fx-border-width: 1;
     -fx-font-weight: 700;
     -fx-padding: 10 12;

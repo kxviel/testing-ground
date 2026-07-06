@@ -46,7 +46,7 @@
 
 .memory-screen-scroll .scroll-bar .thumb {
     -fx-background-color: rgba(10, 10, 10, 0.18);
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
 }
 
 .memory-screen-scroll .scroll-bar .track,
@@ -62,9 +62,9 @@
 .memory-board-panel,
 .memory-game-sidebar {
     -fx-background-color: -sh-card;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 4px;
+    -fx-border-radius: 6px;
     -fx-border-width: 1;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.10), 14, 0.08, 0, 2);
 }
@@ -110,9 +110,9 @@
 
 .memory-parameter-panel {
     -fx-background-color: -sh-muted;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 4px;
+    -fx-border-radius: 6px;
     -fx-border-width: 1;
     -fx-padding: 20;
 }
@@ -120,9 +120,9 @@
 .memory-input {
     -fx-background-color: -sh-card;
     -fx-background-insets: 0;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 4px;
+    -fx-border-radius: 6px;
     -fx-border-width: 1;
     -fx-font-size: 16px;
     -fx-min-height: 36;
@@ -141,9 +141,9 @@
     -fx-alignment: center-left;
     -fx-background-color: -sh-card;
     -fx-background-insets: 0;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 4px;
+    -fx-border-radius: 6px;
     -fx-border-width: 1;
     -fx-cursor: hand;
     -fx-min-height: 60;
@@ -165,9 +165,9 @@
 .memory-variant-row .radio {
     -fx-background-color: -sh-card;
     -fx-background-insets: 0;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 4px;
+    -fx-border-radius: 6px;
     -fx-border-width: 1;
     -fx-min-height: 20;
     -fx-min-width: 20;
@@ -178,7 +178,7 @@
 .memory-variant-row .dot {
     -fx-background-color: transparent;
     -fx-background-insets: 0;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-padding: 4;
 }
 
@@ -208,9 +208,9 @@
     -fx-alignment: center-left;
     -fx-background-color: transparent;
     -fx-background-insets: 0;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-border-color: transparent;
-    -fx-border-radius: 4px;
+    -fx-border-radius: 6px;
     -fx-border-width: 1;
     -fx-content-display: graphic-only;
     -fx-cursor: hand;
@@ -231,9 +231,9 @@
 .memory-danger-icon-box {
     -fx-alignment: center;
     -fx-background-color: -sh-muted;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 4px;
+    -fx-border-radius: 6px;
     -fx-border-width: 1;
     -fx-min-height: 40;
     -fx-min-width: 40;
@@ -244,8 +244,8 @@
 .memory-primary-button,
 .memory-secondary-button {
     -fx-background-insets: 0;
-    -fx-background-radius: 4px;
-    -fx-border-radius: 4px;
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
     -fx-border-width: 1;
     -fx-cursor: hand;
     -fx-font-size: 16px;
@@ -281,9 +281,9 @@
 .memory-empty-list {
     -fx-background-color: transparent;
     -fx-background-insets: 0;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 4px;
+    -fx-border-radius: 6px;
     -fx-border-style: segments(6, 6);
     -fx-border-width: 1;
     -fx-control-inner-background: transparent;

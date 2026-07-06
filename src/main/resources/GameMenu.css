@@ -20,9 +20,9 @@
 .hex-setup,
 .hex-network-panel {
     -fx-background-color: -sh-card;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 4px;
+    -fx-border-radius: 6px;
     -fx-border-width: 1;
     -fx-effect: dropshadow(gaussian, rgba(37, 99, 235, 0.16), 22, 0.12, 0, 5);
 }
@@ -96,9 +96,9 @@
 .network-section,
 .menu-config-content {
     -fx-background-color: -sh-muted;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 4px;
+    -fx-border-radius: 6px;
     -fx-border-width: 1;
     -fx-padding: 20;
 }
@@ -114,9 +114,9 @@
 .combo-box {
     -fx-background-color: -sh-card;
     -fx-background-insets: 0;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 4px;
+    -fx-border-radius: 6px;
     -fx-border-width: 1;
     -fx-font-size: 16px;
     -fx-min-height: 40;
@@ -132,9 +132,9 @@
     -fx-alignment: center-left;
     -fx-background-color: -sh-card;
     -fx-background-insets: 0;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 4px;
+    -fx-border-radius: 6px;
     -fx-border-width: 1;
     -fx-cursor: hand;
     -fx-min-height: 52;
@@ -152,9 +152,9 @@
 .memory-variant-row .radio {
     -fx-background-color: -sh-card;
     -fx-background-insets: 0;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 4px;
+    -fx-border-radius: 6px;
     -fx-border-width: 1;
     -fx-min-height: 20;
     -fx-min-width: 20;
@@ -165,7 +165,7 @@
 .memory-variant-row .dot {
     -fx-background-color: transparent;
     -fx-background-insets: 0;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-padding: 4;
 }
 
@@ -221,9 +221,9 @@
     -fx-alignment: center-left;
     -fx-background-color: transparent;
     -fx-background-insets: 0;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-border-color: transparent;
-    -fx-border-radius: 4px;
+    -fx-border-radius: 6px;
     -fx-border-width: 1;
     -fx-content-display: graphic-only;
     -fx-cursor: hand;
@@ -248,9 +248,9 @@
     -fx-alignment: center-left;
     -fx-background-color: -game-accent;
     -fx-background-insets: 0;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-border-color: -game-accent;
-    -fx-border-radius: 4px;
+    -fx-border-radius: 6px;
     -fx-border-width: 1;
     -fx-content-display: graphic-only;
     -fx-cursor: hand;
@@ -283,9 +283,9 @@
 .row-icon-chip-danger {
     -fx-alignment: center;
     -fx-background-color: -sh-muted;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 4px;
+    -fx-border-radius: 6px;
     -fx-border-width: 1;
     -fx-min-height: 40;
     -fx-min-width: 40;
@@ -349,9 +349,9 @@
 .memory-primary-button {
     -fx-background-color: -game-accent;
     -fx-background-insets: 0;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-border-color: -game-accent;
-    -fx-border-radius: 4px;
+    -fx-border-radius: 6px;
     -fx-border-width: 1;
     -fx-cursor: hand;
     -fx-font-size: 16px;
@@ -373,9 +373,9 @@
 .memory-secondary-button {
     -fx-background-color: -sh-card;
     -fx-background-insets: 0;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 4px;
+    -fx-border-radius: 6px;
     -fx-border-width: 1;
     -fx-cursor: hand;
     -fx-font-size: 16px;
@@ -403,9 +403,9 @@
 .match-list {
     -fx-background-color: transparent;
     -fx-background-insets: 0;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 4px;
+    -fx-border-radius: 6px;
     -fx-border-style: segments(6, 6);
     -fx-border-width: 1;
     -fx-control-inner-background: transparent;
@@ -421,9 +421,9 @@
 .match-list .list-cell,
 .memory-empty-list .list-cell {
     -fx-background-color: transparent;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
     -fx-border-color: transparent;
-    -fx-border-radius: 4px;
+    -fx-border-radius: 6px;
     -fx-border-width: 1;
     -fx-padding: 6 8;
 }
