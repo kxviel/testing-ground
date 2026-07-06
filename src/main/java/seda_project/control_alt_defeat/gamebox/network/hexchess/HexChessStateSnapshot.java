@@ -194,7 +194,11 @@ public final class HexChessStateSnapshot {
         }
 
         try {
-            return Double.parseDouble(value);
+            double score = Double.parseDouble(value);
+            if (!Double.isFinite(score)) {
+                throw new IllegalArgumentException("Invalid score value: " + value);
+            }
+            return score;
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Invalid score value: " + value, e);
         }

@@ -53,6 +53,12 @@ public final class MemoryStateSnapshot {
         boolean gameOver = parseBoolean(fields[7]);
         List<CardState> cards = deserializeCards(fields[8]);
 
+        if (k < 1 || n < 1 || rows < 1 || cols < 1) {
+            throw new IllegalArgumentException("Snapshot dimensions must be positive.");
+        }
+        if (score0 < 0 || score1 < 0) {
+            throw new IllegalArgumentException("Snapshot scores must be non-negative.");
+        }
         if (cards.size() != k * n || cards.size() != rows * cols) {
             throw new IllegalArgumentException("Snapshot dimensions do not match cards.");
         }

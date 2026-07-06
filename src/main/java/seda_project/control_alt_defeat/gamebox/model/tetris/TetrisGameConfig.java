@@ -7,6 +7,7 @@ import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerSide;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -116,22 +117,29 @@ public record TetrisGameConfig(
             return defaultConfig();
         }
 
-        String[] sections = value.split("~", -1);
-        List<String> pieces = normalizePieces(Arrays.stream(sections[0].split(","))
-                .map(String::trim)
-                .filter(piece -> !piece.isEmpty())
-                .toList());
-        List<PieceShape> customPieces = sections.length >= 2 ? parseCustomPieces(sections[1]) : List.of();
-        ConfigOptions options = sections.length >= 3 ? parseOptions(sections[2]) : ConfigOptions.defaults();
+        try {
+            String[] sections = value.split("~", -1);
+            List<String> pieces = normalizePieces(Arrays.stream(sections[0].split(","))
+                    .map(String::trim)
+                    .filter(piece -> !piece.isEmpty())
+                    .toList());
+            List<PieceShape> customPieces = sections.length >= 2 ? parseCustomPieces(sections[1]) : List.of();
+            List<String> effectivePieces = customPieces.isEmpty()
+                    ? pieces.stream().filter(piece -> !"Custom".equals(piece)).toList()
+                    : pieces;
+            ConfigOptions options = sections.length >= 3 ? parseOptions(sections[2]) : ConfigOptions.defaults();
 
-        return pieces.isEmpty()
-                ? defaultConfig()
-                : new TetrisGameConfig(
-                        pieces,
-                        customPieces,
-                        options.gravityMillis(),
-                        options.dualPieces(),
-                        options.horizontalMode());
+            return effectivePieces.isEmpty()
+                    ? defaultConfig()
+                    : new TetrisGameConfig(
+                            effectivePieces,
+                            customPieces,
+                            options.gravityMillis(),
+                            options.dualPieces(),
+                            options.horizontalMode());
+        } catch (RuntimeException e) {
+            return defaultConfig();
+        }
     }
 
     private static List<String> normalizePieces(List<String> pieces) {
@@ -196,8 +204,17 @@ public record TetrisGameConfig(
                 .toList();
 
         return IntStream.range(0, shapes.size())
-                .mapToObj(index -> CustomPieceBuilder.build("Custom " + (index + 1), shapes.get(index)))
+                .mapToObj(index -> parseCustomPiece(index, shapes.get(index)))
+                .flatMap(Optional::stream)
                 .toList();
+    }
+
+    private static Optional<PieceShape> parseCustomPiece(int index, List<BoardPosition> cells) {
+        try {
+            return Optional.of(CustomPieceBuilder.build("Custom " + (index + 1), cells));
+        } catch (IllegalArgumentException e) {
+            return Optional.empty();
+        }
     }
 
     private static List<BoardPosition> parseCells(String value) {

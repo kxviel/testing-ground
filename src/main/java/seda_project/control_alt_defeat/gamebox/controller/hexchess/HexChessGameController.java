@@ -490,7 +490,7 @@ public class HexChessGameController implements RouteDataReceiver {
             gameState = HexChessStateSnapshot.deserialize(snapshot);
             clearSelection();
             render();
-        } catch (IllegalArgumentException e) {
+        } catch (RuntimeException e) {
             failNetworkState();
         }
     }

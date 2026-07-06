@@ -182,6 +182,9 @@ public class GameModel {
     public SelectResult selectCard(int cardIdx) {
         if (gameOver)
             return SelectResult.IGNORED;
+        if (cardIdx < 0 || cardIdx >= cards.size())
+            return SelectResult.IGNORED;
+
         Card card = cards.get(cardIdx);
 
         if (!card.isSelectable() || openedThisTurn.contains(cardIdx)) {

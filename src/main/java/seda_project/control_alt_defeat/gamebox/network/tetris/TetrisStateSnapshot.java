@@ -27,6 +27,9 @@ import static seda_project.control_alt_defeat.gamebox.network.SnapshotCodec.pars
 
 public final class TetrisStateSnapshot {
 
+    private static final int MAX_SNAPSHOT_ROWS = 64;
+    private static final int MAX_SNAPSHOT_COLUMNS = 64;
+
     private TetrisStateSnapshot() {
     }
 
@@ -59,7 +62,7 @@ public final class TetrisStateSnapshot {
             TetrisGameStatus status = parseStatus(parts[1]);
 
             return new TetrisGameState(bottom, top, config, status);
-        } catch (IllegalArgumentException e) {
+        } catch (RuntimeException e) {
             return fallbackState(fallbackConfig);
         }
     }
@@ -139,6 +142,9 @@ public final class TetrisStateSnapshot {
                 rows = parseInt(dimensionPrefix, TetrisBoard.DEFAULT_ROWS);
             }
         }
+
+        rows = clamp(rows, TetrisBoard.MIN_ROWS, MAX_SNAPSHOT_ROWS);
+        columns = clamp(columns, TetrisBoard.MIN_COLUMNS, MAX_SNAPSHOT_COLUMNS);
 
         TetrisCell[][] cells = new TetrisCell[rows][columns];
         int[][] colors = new int[rows][columns];
@@ -343,6 +349,10 @@ public final class TetrisStateSnapshot {
 
         char color = value.charAt(index);
         return color == '.' ? -1 : Character.digit(color, 36);
+    }
+
+    private static int clamp(int value, int min, int max) {
+        return Math.min(max, Math.max(min, value));
     }
 
     private static TetrisGameStatus parseStatus(String value) {
