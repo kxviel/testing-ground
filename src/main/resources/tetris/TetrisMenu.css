@@ -48,9 +48,9 @@
 .tetris-board-zone,
 .tetris-game-info-panel {
     -fx-background-color: -sh-card;
-    -fx-background-radius: 2px;
+    -fx-background-radius: 4px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 2px;
+    -fx-border-radius: 4px;
     -fx-border-width: 1;
     -fx-effect: null;
 }
@@ -96,7 +96,7 @@
 
 .menu-divider {
     -fx-background-color: -sh-border;
-    -fx-background-radius: 2px;
+    -fx-background-radius: 4px;
     -fx-pref-height: 1;
 }
 
@@ -117,9 +117,9 @@
     -fx-alignment: center-left;
     -fx-background-color: -sh-card;
     -fx-background-insets: 0;
-    -fx-background-radius: 2px;
+    -fx-background-radius: 4px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 2px;
+    -fx-border-radius: 4px;
     -fx-border-width: 1;
     -fx-content-display: graphic-only;
     -fx-cursor: hand;
@@ -139,9 +139,9 @@
 .row-icon-chip {
     -fx-alignment: center;
     -fx-background-color: -sh-muted;
-    -fx-background-radius: 2px;
+    -fx-background-radius: 4px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 2px;
+    -fx-border-radius: 4px;
     -fx-border-width: 1;
     -fx-min-height: 54;
     -fx-min-width: 54;
@@ -206,9 +206,9 @@
 
 .custom-cell {
     -fx-background-color: -sh-card;
-    -fx-background-radius: 2px;
+    -fx-background-radius: 4px;
     -fx-border-color: -sh-input;
-    -fx-border-radius: 2px;
+    -fx-border-radius: 4px;
     -fx-min-height: 24;
     -fx-min-width: 24;
     -fx-pref-height: 24;
@@ -233,9 +233,9 @@
 
 .player-score-card {
     -fx-background-color: -sh-card;
-    -fx-background-radius: 2px;
+    -fx-background-radius: 4px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 2px;
+    -fx-border-radius: 4px;
     -fx-border-width: 1;
     -fx-padding: 12 14;
 }
@@ -267,9 +267,9 @@
 .object-symbol {
     -fx-alignment: center;
     -fx-background-color: -game-accent;
-    -fx-background-radius: 2px;
+    -fx-background-radius: 4px;
     -fx-border-color: -game-accent;
-    -fx-border-radius: 2px;
+    -fx-border-radius: 4px;
     -fx-border-width: 1;
     -fx-font-size: 13px;
     -fx-font-weight: 800;
@@ -288,9 +288,9 @@
 
 .tetris-board {
     -fx-background-color: -game-on-accent-container;
-    -fx-background-radius: 2px;
+    -fx-background-radius: 4px;
     -fx-border-color: -game-on-accent-container;
-    -fx-border-radius: 2px;
+    -fx-border-radius: 4px;
     -fx-border-width: 2;
     -fx-hgap: 1;
     -fx-padding: 3;
