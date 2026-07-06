@@ -63,7 +63,7 @@
 
 .app-scroll .scroll-bar .thumb {
     -fx-background-color: rgba(9, 11, 12, 0.20);
-    -fx-background-radius: 99;
+    -fx-background-radius: 2px;
 }
 
 .app-scroll .scroll-bar .track,
@@ -219,8 +219,8 @@
 }
 
 .radio-button .radio {
-    -fx-background-radius: 99;
-    -fx-border-radius: 99;
+    -fx-background-radius: 2px;
+    -fx-border-radius: 2px;
     -fx-padding: 4;
 }
 
@@ -229,7 +229,7 @@
 }
 
 .radio-button .dot {
-    -fx-background-radius: 99;
+    -fx-background-radius: 2px;
     -fx-padding: 4;
 }
 

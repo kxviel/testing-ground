@@ -35,18 +35,16 @@
     -fx-padding: 0;
 }
 
-.tetris-menu-main,
-.tetris-game-main {
+.tetris-menu-main {
     -fx-hgap: 20;
     -fx-padding: 0;
 }
 
-.tetris-game-root {
-    -fx-padding: 20;
+.tetris-game-main {
+    -fx-hgap: 20;
+    -fx-padding: 40;
 }
 
-.tetris-setup,
-.tetris-options-panel,
 .tetris-board-zone,
 .tetris-game-info-panel {
     -fx-background-color: -sh-card;
@@ -57,11 +55,6 @@
     -fx-effect: null;
 }
 
-.tetris-setup {
-    -fx-padding: 20;
-}
-
-.tetris-options-panel,
 .tetris-game-info-panel {
     -fx-padding: 20;
     -fx-background-color: -sh-sidebar;
@@ -103,7 +96,7 @@
 
 .menu-divider {
     -fx-background-color: -sh-border;
-    -fx-background-radius: 99;
+    -fx-background-radius: 2px;
     -fx-pref-height: 1;
 }
 

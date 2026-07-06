@@ -35,18 +35,16 @@
     -fx-padding: 0;
 }
 
-.hex-menu-main,
-.hex-game-main {
+.hex-menu-main {
     -fx-hgap: 20;
     -fx-padding: 0;
 }
 
-.hex-game-root {
-    -fx-padding: 20;
+.hex-game-main {
+    -fx-hgap: 20;
+    -fx-padding: 40;
 }
 
-.hex-setup,
-.hex-network-panel,
 .hex-board-zone,
 .hex-game-info-panel,
 .hex-side-panel,
@@ -59,11 +57,6 @@
     -fx-effect: null;
 }
 
-.hex-setup {
-    -fx-padding: 20;
-}
-
-.hex-network-panel,
 .hex-game-info-panel,
 .hex-side-panel {
     -fx-padding: 20;
@@ -130,7 +123,7 @@
 
 .menu-divider {
     -fx-background-color: -sh-border;
-    -fx-background-radius: 99;
+    -fx-background-radius: 2px;
     -fx-pref-height: 1;
 }
 

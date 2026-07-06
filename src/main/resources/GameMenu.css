@@ -1,22 +1,16 @@
 .game-menu-shell,
 .memory-menu-viewport {
     -fx-background-color: transparent;
-    -fx-padding: 20;
+    -fx-padding: 40;
 }
 
+.memory-menu-layout,
 .tetris-menu-main,
 .hex-menu-main {
-    -fx-background-color: transparent;
-    -fx-padding: 0;
-}
-
-.memory-menu-layout {
     -fx-alignment: center;
-}
-
-.tetris-menu-main,
-.hex-menu-main {
+    -fx-background-color: transparent;
     -fx-hgap: 20;
+    -fx-padding: 0;
 }
 
 .memory-setup-card,
@@ -26,9 +20,9 @@
 .hex-setup,
 .hex-network-panel {
     -fx-background-color: -sh-card;
-    -fx-background-radius: 18;
+    -fx-background-radius: 2px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 18;
+    -fx-border-radius: 2px;
     -fx-border-width: 1;
     -fx-effect: dropshadow(gaussian, rgba(37, 99, 235, 0.16), 22, 0.12, 0, 5);
 }
@@ -36,16 +30,12 @@
 .memory-setup-card,
 .tetris-setup,
 .hex-setup {
-    -fx-min-height: 688;
-    -fx-pref-height: 688;
     -fx-padding: 20;
 }
 
 .memory-network-card,
 .tetris-options-panel,
 .hex-network-panel {
-    -fx-min-height: 688;
-    -fx-pref-height: 688;
     -fx-padding: 20;
 }
 
@@ -106,9 +96,9 @@
 .network-section,
 .menu-config-content {
     -fx-background-color: -sh-muted;
-    -fx-background-radius: 14;
+    -fx-background-radius: 2px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 14;
+    -fx-border-radius: 2px;
     -fx-border-width: 1;
     -fx-padding: 20;
 }
@@ -124,9 +114,9 @@
 .combo-box {
     -fx-background-color: -sh-card;
     -fx-background-insets: 0;
-    -fx-background-radius: 10;
+    -fx-background-radius: 2px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 10;
+    -fx-border-radius: 2px;
     -fx-border-width: 1;
     -fx-font-size: 16px;
     -fx-min-height: 40;
@@ -142,9 +132,9 @@
     -fx-alignment: center-left;
     -fx-background-color: -sh-card;
     -fx-background-insets: 0;
-    -fx-background-radius: 14;
+    -fx-background-radius: 2px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 14;
+    -fx-border-radius: 2px;
     -fx-border-width: 1;
     -fx-cursor: hand;
     -fx-min-height: 52;
@@ -162,9 +152,9 @@
 .memory-variant-row .radio {
     -fx-background-color: -sh-card;
     -fx-background-insets: 0;
-    -fx-background-radius: 99;
+    -fx-background-radius: 2px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 99;
+    -fx-border-radius: 2px;
     -fx-border-width: 1;
     -fx-min-height: 20;
     -fx-min-width: 20;
@@ -175,7 +165,7 @@
 .memory-variant-row .dot {
     -fx-background-color: transparent;
     -fx-background-insets: 0;
-    -fx-background-radius: 99;
+    -fx-background-radius: 2px;
     -fx-padding: 4;
 }
 
@@ -227,14 +217,13 @@
 
 .memory-action-row,
 .tetris-action-row,
-.hex-action-row,
-.network-host-button {
+.hex-action-row {
     -fx-alignment: center-left;
     -fx-background-color: transparent;
     -fx-background-insets: 0;
-    -fx-background-radius: 12;
+    -fx-background-radius: 2px;
     -fx-border-color: transparent;
-    -fx-border-radius: 12;
+    -fx-border-radius: 2px;
     -fx-border-width: 1;
     -fx-content-display: graphic-only;
     -fx-cursor: hand;
@@ -244,17 +233,48 @@
 
 .memory-action-row:hover,
 .tetris-action-row:hover,
-.hex-action-row:hover,
-.network-host-button:hover {
+.hex-action-row:hover {
     -fx-background-color: -game-accent-hover-soft;
     -fx-border-color: -sh-border;
 }
 
 .memory-action-row:pressed,
 .tetris-action-row:pressed,
-.hex-action-row:pressed,
-.network-host-button:pressed {
+.hex-action-row:pressed {
     -fx-background-color: -sh-secondary;
+}
+
+.network-host-button {
+    -fx-alignment: center-left;
+    -fx-background-color: -game-accent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 2px;
+    -fx-border-color: -game-accent;
+    -fx-border-radius: 2px;
+    -fx-border-width: 1;
+    -fx-content-display: graphic-only;
+    -fx-cursor: hand;
+    -fx-min-height: 40;
+    -fx-padding: 9 20;
+}
+
+.network-host-button:hover {
+    -fx-background-color: -game-accent-hover;
+    -fx-border-color: -game-accent-hover;
+}
+
+.network-host-button:pressed {
+    -fx-background-color: -game-accent-pressed;
+    -fx-border-color: -game-accent-pressed;
+}
+
+.network-host-button .mode-text,
+.network-host-button .row-subtitle {
+    -fx-text-fill: -sh-primary-foreground;
+}
+
+.network-host-button .svg-icon-shape {
+    -fx-stroke: -sh-primary-foreground;
 }
 
 .memory-icon-box,
@@ -263,9 +283,9 @@
 .row-icon-chip-danger {
     -fx-alignment: center;
     -fx-background-color: -sh-muted;
-    -fx-background-radius: 10;
+    -fx-background-radius: 2px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 10;
+    -fx-border-radius: 2px;
     -fx-border-width: 1;
     -fx-min-height: 40;
     -fx-min-width: 40;
@@ -329,9 +349,9 @@
 .memory-primary-button {
     -fx-background-color: -game-accent;
     -fx-background-insets: 0;
-    -fx-background-radius: 12;
+    -fx-background-radius: 2px;
     -fx-border-color: -game-accent;
-    -fx-border-radius: 12;
+    -fx-border-radius: 2px;
     -fx-border-width: 1;
     -fx-cursor: hand;
     -fx-font-size: 16px;
@@ -353,9 +373,9 @@
 .memory-secondary-button {
     -fx-background-color: -sh-card;
     -fx-background-insets: 0;
-    -fx-background-radius: 12;
+    -fx-background-radius: 2px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 12;
+    -fx-border-radius: 2px;
     -fx-border-width: 1;
     -fx-cursor: hand;
     -fx-font-size: 16px;
@@ -383,9 +403,9 @@
 .match-list {
     -fx-background-color: transparent;
     -fx-background-insets: 0;
-    -fx-background-radius: 14;
+    -fx-background-radius: 2px;
     -fx-border-color: -sh-border;
-    -fx-border-radius: 14;
+    -fx-border-radius: 2px;
     -fx-border-style: segments(6, 6);
     -fx-border-width: 1;
     -fx-control-inner-background: transparent;
@@ -401,7 +421,28 @@
 .match-list .list-cell,
 .memory-empty-list .list-cell {
     -fx-background-color: transparent;
+    -fx-background-radius: 2px;
+    -fx-border-color: transparent;
+    -fx-border-radius: 2px;
+    -fx-border-width: 1;
     -fx-padding: 6 8;
+}
+
+.match-list .list-cell:filled:hover,
+.memory-empty-list .list-cell:filled:hover {
+    -fx-background-color: -game-accent-hover-soft;
+    -fx-border-color: -game-accent-container;
+    -fx-text-fill: -sh-accent-foreground;
+}
+
+.match-list .list-cell:filled:selected,
+.memory-empty-list .list-cell:filled:selected,
+.match-list .list-cell:filled:selected:hover,
+.memory-empty-list .list-cell:filled:selected:hover {
+    -fx-background-color: -game-accent;
+    -fx-border-color: -game-accent-pressed;
+    -fx-font-weight: 800;
+    -fx-text-fill: -sh-primary-foreground;
 }
 
 .settings-footer,

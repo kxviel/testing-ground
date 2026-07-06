@@ -43,7 +43,6 @@
                    maxWidth="Infinity"
                    styleClass="game-menu-shell">
             <GridPane alignment="CENTER"
-                      minHeight="688"
                       minWidth="0"
                       maxHeight="Infinity"
                       maxWidth="Infinity"
