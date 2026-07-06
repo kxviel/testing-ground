@@ -252,10 +252,28 @@
     -fx-border-color: -game-accent;
     -fx-border-radius: 6px;
     -fx-border-width: 1;
+    -fx-cursor: hand;
+    -fx-font-size: 16px;
+    -fx-font-weight: 600;
+    -fx-min-height: 40;
+    -fx-padding: 9 20;
+    -fx-text-fill: -sh-primary-foreground;
+}
+
+.network-host-icon-button {
+    -fx-alignment: center;
+    -fx-background-color: -sh-card;
+    -fx-background-insets: 0;
+    -fx-background-radius: 6px;
+    -fx-border-color: -game-accent;
+    -fx-border-radius: 6px;
+    -fx-border-width: 1;
     -fx-content-display: graphic-only;
     -fx-cursor: hand;
     -fx-min-height: 40;
-    -fx-padding: 9 20;
+    -fx-min-width: 52;
+    -fx-padding: 9 14;
+    -fx-pref-width: 52;
 }
 
 .network-host-button:hover {
@@ -263,8 +281,18 @@
     -fx-border-color: -game-accent-hover;
 }
 
+.network-host-icon-button:hover {
+    -fx-background-color: -game-accent-hover-soft;
+    -fx-border-color: -game-accent-hover;
+}
+
 .network-host-button:pressed {
     -fx-background-color: -game-accent-pressed;
+    -fx-border-color: -game-accent-pressed;
+}
+
+.network-host-icon-button:pressed {
+    -fx-background-color: -sh-secondary;
     -fx-border-color: -game-accent-pressed;
 }
 
@@ -274,7 +302,17 @@
 }
 
 .network-host-button .svg-icon-shape {
+    -fx-fill: -sh-primary-foreground;
     -fx-stroke: -sh-primary-foreground;
+}
+
+.network-host-icon-button .svg-icon-shape {
+    -fx-fill: transparent;
+    -fx-stroke: -game-accent;
+}
+
+.network-host-icon-button:hover .svg-icon-shape {
+    -fx-stroke: -game-accent-hover;
 }
 
 .memory-icon-box,

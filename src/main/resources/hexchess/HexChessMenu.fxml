@@ -196,14 +196,18 @@
             </VBox>
 
             <VBox spacing="12" styleClass="network-section">
-                <Button maxWidth="Infinity" onAction="#onHostLan" styleClass="network-host-button">
-                    <graphic>
-                        <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="12">
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Button onAction="#onHostLan" styleClass="network-host-icon-button">
+                        <graphic>
                             <SvgIcon icon="lan" styleClass="svg-icon-primary"/>
-                            <Label text="Host LAN Game" styleClass="mode-text"/>
-                        </HBox>
-                    </graphic>
-                </Button>
+                        </graphic>
+                    </Button>
+                    <Button text="Host LAN Game"
+                            maxWidth="Infinity"
+                            HBox.hgrow="ALWAYS"
+                            onAction="#onHostLan"
+                            styleClass="network-host-button"/>
+                </HBox>
 
                 <HBox alignment="CENTER_LEFT" spacing="10">
                     <Button text="Refresh" onAction="#onRefreshLan" maxWidth="Infinity"

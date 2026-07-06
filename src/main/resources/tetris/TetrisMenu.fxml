@@ -210,19 +210,24 @@
                     </VBox>
 
                     <VBox spacing="12" styleClass="network-section">
-                        <Button maxWidth="Infinity"
-                                onAction="#onHostLan"
-                                styleClass="network-host-button">
-                            <graphic>
-                                <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="12">
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Button onAction="#onHostLan" styleClass="network-host-icon-button">
+                                <graphic>
                                     <SvgIcon icon="lan" styleClass="svg-icon-primary"/>
-                                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                                </graphic>
+                            </Button>
+                            <Button maxWidth="Infinity"
+                                    HBox.hgrow="ALWAYS"
+                                    onAction="#onHostLan"
+                                    styleClass="network-host-button">
+                                <graphic>
+                                    <VBox spacing="2">
                                         <Label fx:id="hostLanTitleLabel" text="Host LAN Game" styleClass="mode-text"/>
                                         <Label fx:id="hostLanSubtitleLabel" text="Make your match discoverable" styleClass="row-subtitle"/>
                                     </VBox>
-                                </HBox>
-                            </graphic>
-                        </Button>
+                                </graphic>
+                            </Button>
+                        </HBox>
 
                         <HBox alignment="CENTER_LEFT" spacing="10">
                             <Button text="Refresh" onAction="#onRefreshGames" maxWidth="Infinity"

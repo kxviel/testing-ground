@@ -74,6 +74,8 @@ public class MemoryMenuController implements RouteDataReceiver {
     @FXML
     private Button btnLocalGame;
     @FXML
+    private Button btnHostGameIcon;
+    @FXML
     private Button btnHostGame;
     @FXML
     private Button btnCancelHost;
@@ -307,7 +309,7 @@ public class MemoryMenuController implements RouteDataReceiver {
     }
 
     private void setMenuButtonsDisabled(boolean disabled) {
-        Stream.of(btnLocalGame, btnHostGame, kField, btnApplyK,
+        Stream.of(btnLocalGame, btnHostGameIcon, btnHostGame, kField, btnApplyK,
                 playerOneNameField, playerTwoNameField,
                 variant1Radio, variant2Radio, variant3Radio, btnRefreshGames, availableGamesList)
                 .forEach(control -> control.setDisable(disabled));
