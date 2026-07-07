@@ -8,7 +8,6 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -106,8 +105,6 @@
                     </GridPane>
                 </VBox>
 
-                <Separator/>
-
                 <VBox styleClass="sidebar-section">
                     <Label text="Placement" styleClass="panel-label"/>
                     <ComboBox fx:id="colorChoiceBox" maxWidth="Infinity"/>
@@ -115,8 +112,6 @@
                     <Label fx:id="selectedLabel" text="Selected: none" wrapText="true" styleClass="stat-line"/>
                     <Button text="Remove Piece" onAction="#onRemovePiece" maxWidth="Infinity" styleClass="btn-outline"/>
                 </VBox>
-
-                <Separator/>
 
                 <VBox styleClass="sidebar-section">
                     <Label text="Position State" styleClass="panel-label"/>
@@ -127,10 +122,8 @@
                         <Button text="Clear" onAction="#onClearBoard" maxWidth="Infinity"
                                 styleClass="btn-danger" HBox.hgrow="ALWAYS"/>
                     </HBox>
-                    <Label fx:id="validationLabel" wrapText="true" minHeight="56" styleClass="status-box"/>
+                    <Label fx:id="validationLabel" wrapText="true" minHeight="56" maxWidth="Infinity" styleClass="status-box"/>
                 </VBox>
-
-                <Separator/>
 
                 <HBox styleClass="button-row">
                     <Button text="Back" onAction="#onBack" maxWidth="Infinity"

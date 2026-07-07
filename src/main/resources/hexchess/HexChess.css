@@ -64,6 +64,14 @@
     -fx-border-color: -sh-sidebar-border;
 }
 
+.hex-side-panel {
+    -fx-spacing: 18;
+}
+
+.hex-side-panel .sidebar-section {
+    -fx-spacing: 12;
+}
+
 .hex-board-zone {
     -fx-padding: 16;
 }
