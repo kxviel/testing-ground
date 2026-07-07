@@ -112,20 +112,22 @@
 
                 <VBox styleClass="sidebar-section hex-match-actions">
                     <Label text="Actions" styleClass="panel-label"/>
-                    <Button fx:id="offerDrawButton" text="Offer Draw" onAction="#onOfferDraw" maxWidth="Infinity"
-                            styleClass="hex-control-button"/>
-                    <Button fx:id="resignButton" text="Resign" onAction="#onResign" maxWidth="Infinity"
-                            styleClass="hex-control-button hex-control-danger"/>
-                    <Button fx:id="acceptDrawButton" text="Accept" onAction="#onAcceptDraw"
-                            visible="false" managed="false" maxWidth="Infinity"
-                            styleClass="hex-control-button"/>
-                    <Button fx:id="declineDrawButton" text="Decline" onAction="#onDeclineDraw"
-                            visible="false" managed="false" maxWidth="Infinity"
-                            styleClass="hex-control-button"/>
-                    <Button fx:id="restartButton" text="Restart" onAction="#onRestart" maxWidth="Infinity"
-                            styleClass="hex-control-button"/>
-                    <Button text="Back to GameBox" onAction="#onBackToGameBox" maxWidth="Infinity"
-                            styleClass="hex-control-button"/>
+                    <VBox spacing="8.0" styleClass="hex-action-button-stack">
+                        <Button fx:id="offerDrawButton" text="Offer Draw" onAction="#onOfferDraw" maxWidth="Infinity"
+                                styleClass="hex-control-button"/>
+                        <Button fx:id="resignButton" text="Resign" onAction="#onResign" maxWidth="Infinity"
+                                styleClass="hex-control-button hex-control-danger"/>
+                        <Button fx:id="acceptDrawButton" text="Accept" onAction="#onAcceptDraw"
+                                visible="false" managed="false" maxWidth="Infinity"
+                                styleClass="hex-control-button"/>
+                        <Button fx:id="declineDrawButton" text="Decline" onAction="#onDeclineDraw"
+                                visible="false" managed="false" maxWidth="Infinity"
+                                styleClass="hex-control-button"/>
+                        <Button fx:id="restartButton" text="Restart" onAction="#onRestart" maxWidth="Infinity"
+                                styleClass="hex-control-button"/>
+                        <Button text="Back to GameBox" onAction="#onBackToGameBox" maxWidth="Infinity"
+                                styleClass="hex-control-button"/>
+                    </VBox>
                 </VBox>
                 </VBox>
             </ScrollPane>

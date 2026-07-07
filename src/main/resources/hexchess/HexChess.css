@@ -220,7 +220,11 @@
 }
 
 .hex-match-actions {
-    -fx-spacing: 12;
+    -fx-spacing: 8;
+}
+
+.hex-action-button-stack {
+    -fx-spacing: 8;
 }
 
 .hex-control-button {

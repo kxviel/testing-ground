@@ -37,7 +37,7 @@ public class HexChessSetupController implements RouteDataReceiver {
     private static final double FALLBACK_CANVAS_HEIGHT = 590.0;
     private static final double BOARD_CONTENT_PADDING = 20.0;
     private static final double NOTATION_OFFSET_RATIO = 13.0 / BASE_HEX_SIZE;
-    private static final double PIECE_FONT_RATIO = 28.0 / BASE_HEX_SIZE;
+    private static final double PIECE_SIZE_RATIO = 35.0 / BASE_HEX_SIZE;
 
     @FXML
     private StackPane canvasFrame;
@@ -229,7 +229,7 @@ public class HexChessSetupController implements RouteDataReceiver {
                 width,
                 height,
                 Math.max(1.0, hexSize * NOTATION_OFFSET_RATIO),
-                Math.max(1.0, hexSize * PIECE_FONT_RATIO));
+                Math.max(1.0, hexSize * PIECE_SIZE_RATIO));
     }
 
     private void onCellClicked(HexCoordinate coordinate, MouseButton button) {
