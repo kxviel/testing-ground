@@ -132,7 +132,7 @@
                   styleClass="memory-post-game-bar">
                 <Label fx:id="resultLabel" wrapText="true" styleClass="memory-post-result" HBox.hgrow="ALWAYS"/>
                 <Button text="Play Again" onAction="#onPostPlayAgain" styleClass="memory-primary-button"/>
-                <Button text="Main Menu" onAction="#onPostMainMenu" styleClass="memory-secondary-button"/>
+                <Button text="GameBox" onAction="#onPostGameBox" styleClass="memory-secondary-button"/>
             </HBox>
 
             <Region VBox.vgrow="ALWAYS"/>
@@ -142,7 +142,7 @@
                         onAction="#onRestart"
                         maxWidth="Infinity"
                         styleClass="memory-secondary-button"/>
-                <Button text="↪  Quit to Menu"
+                <Button text="↪  Quit to GameBox"
                         onAction="#onQuit"
                         maxWidth="Infinity"
                         styleClass="memory-primary-button"/>

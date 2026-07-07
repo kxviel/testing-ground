@@ -142,19 +142,19 @@ public class TetrisGameController implements RouteDataReceiver {
     }
 
     @FXML
-    private void onBackToMenu(ActionEvent event) {
+    private void onBackToGameBox(ActionEvent event) {
         if (gameState.status() == TetrisGameStatus.RUNNING && !confirmQuit()) {
             Platform.runLater(gameRoot::requestFocus);
             return;
         }
         stopGameLoop();
         closeNetwork(true);
-        Router.goTo(event, "/tetris/TetrisMenu.fxml", null);
+        Router.goTo(event, "/GameChoice.fxml", null);
     }
 
     private boolean confirmQuit() {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
-                "Quit this match and return to the Zetris menu?", ButtonType.YES, ButtonType.NO);
+                "Quit this match and return to GameBox?", ButtonType.YES, ButtonType.NO);
         confirm.setTitle("Quit Match");
         return confirm.showAndWait().filter(ButtonType.YES::equals).isPresent();
     }
@@ -580,7 +580,7 @@ public class TetrisGameController implements RouteDataReceiver {
         closeNetwork(false);
         render();
         resultLabel.setText(OPPONENT_LEFT_MESSAGE);
-        returnToMenuAfterDisconnect();
+        returnToGameBoxAfterDisconnect();
     }
 
     private void sendState() {
@@ -762,10 +762,10 @@ public class TetrisGameController implements RouteDataReceiver {
         grid.add(label, 0, 0, columnSpan, rowSpan);
     }
 
-    private void returnToMenuAfterDisconnect() {
+    private void returnToGameBoxAfterDisconnect() {
         Timeline returnTimer = new Timeline(new KeyFrame(Duration.seconds(MENU_RETURN_SECONDS), event -> {
             Stage stage = (Stage) gameRoot.getScene().getWindow();
-            Router.goTo(stage, "/tetris/TetrisMenu.fxml", OPPONENT_LEFT_MESSAGE);
+            Router.goTo(stage, "/GameChoice.fxml", OPPONENT_LEFT_MESSAGE);
         }));
         returnTimer.setCycleCount(1);
         returnTimer.play();

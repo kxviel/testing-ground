@@ -2,10 +2,15 @@
 
 <?import java.net.URL?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
@@ -30,113 +35,299 @@
                 hbarPolicy="AS_NEEDED"
                 vbarPolicy="AS_NEEDED"
                 styleClass="app-scroll">
-        <StackPane minHeight="660"
-                   minWidth="660"
+        <StackPane alignment="CENTER"
                    maxHeight="Infinity"
                    maxWidth="Infinity"
-                   alignment="CENTER"
-                   styleClass="game-choice-main">
-            <StackPane prefHeight="620"
-                       prefWidth="620"
-                       maxHeight="620"
-                       maxWidth="620"
-                       styleClass="game-choice-frame">
-                <VBox alignment="TOP_CENTER"
-                      prefWidth="536"
-                      maxWidth="536"
-                      spacing="46"
-                      styleClass="game-choices">
+                   minHeight="0.0"
+                   minWidth="0.0"
+                   styleClass="game-choice-shell">
+            <GridPane alignment="CENTER"
+                      hgap="20.0"
+                      maxHeight="Infinity"
+                      maxWidth="Infinity"
+                      minHeight="0.0"
+                      minWidth="0.0"
+                      styleClass="game-choice-layout">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="60.0"/>
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="40.0"/>
+                </columnConstraints>
 
-                    <VBox alignment="CENTER" spacing="17" styleClass="game-choice-header">
-                        <Label text="G A M E B O X" styleClass="game-choice-eyebrow"/>
-                        <Label text="Zero Runtime Warranty" styleClass="game-choice-title"/>
+                <VBox GridPane.columnIndex="0"
+                      GridPane.hgrow="ALWAYS"
+                      GridPane.vgrow="ALWAYS"
+                      maxHeight="Infinity"
+                      maxWidth="Infinity"
+                      spacing="20.0"
+                      styleClass="choice-card">
+                    <VBox spacing="8.0" styleClass="choice-header">
+                        <Label text="G A M E B O X" styleClass="choice-eyebrow"/>
+                        <Label text="Zero Runtime Warranty" styleClass="choice-title"/>
+                        <Label text="Choose a game, mode, players, and match settings."
+                               wrapText="true"
+                               styleClass="choice-subtitle"/>
                     </VBox>
 
-                    <VBox spacing="32" styleClass="game-list">
-                        <Button maxWidth="Infinity" onAction="#playMemory" styleClass="game-row">
+                    <VBox spacing="12.0" styleClass="choice-section">
+                        <Label text="Game" styleClass="choice-section-title"/>
+
+                        <Button fx:id="memoryGameButton"
+                                maxWidth="Infinity"
+                                onAction="#selectMemory"
+                                styleClass="choice-row">
                             <graphic>
-                                <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="19" styleClass="row-content">
-                                    <StackPane styleClass="icon-chip">
-                                        <ImageView fitHeight="34.0" fitWidth="34.0" preserveRatio="true" styleClass="game-icon">
+                                <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="16.0">
+                                    <StackPane styleClass="choice-icon-chip">
+                                        <ImageView fitHeight="32.0" fitWidth="32.0" preserveRatio="true">
                                             <image>
                                                 <Image url="@icons/memory-card-icon.png"/>
                                             </image>
                                         </ImageView>
                                     </StackPane>
-                                    <VBox spacing="3" HBox.hgrow="ALWAYS">
-                                        <Label maxWidth="Infinity" text="EarlyAlzheimers" styleClass="row-title"/>
-                                        <Label maxWidth="Infinity" text="A memory matching challenge" styleClass="row-subtitle"/>
+                                    <VBox spacing="2.0" HBox.hgrow="ALWAYS">
+                                        <Label text="Memory Match" styleClass="choice-row-title"/>
+                                        <Label text="Tuple matching with scalable boards" styleClass="choice-row-subtitle"/>
                                     </VBox>
-                                    <StackPane styleClass="row-arrow-chip">
-                                        <SvgIcon icon="chevron-right" styleClass="svg-icon-muted"/>
-                                    </StackPane>
+                                    <SvgIcon icon="chevron-right" styleClass="svg-icon-muted"/>
                                 </HBox>
                             </graphic>
                         </Button>
 
-                        <Button maxWidth="Infinity" onAction="#playTetris" styleClass="game-row">
+                        <Button fx:id="tetrisGameButton"
+                                maxWidth="Infinity"
+                                onAction="#selectTetris"
+                                styleClass="choice-row">
                             <graphic>
-                                <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="19" styleClass="row-content">
-                                    <StackPane styleClass="icon-chip">
-                                        <ImageView fitHeight="34.0" fitWidth="34.0" preserveRatio="true" styleClass="game-icon">
+                                <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="16.0">
+                                    <StackPane styleClass="choice-icon-chip">
+                                        <ImageView fitHeight="32.0" fitWidth="32.0" preserveRatio="true">
                                             <image>
                                                 <Image url="@icons/tetris-icon.png"/>
                                             </image>
                                         </ImageView>
                                     </StackPane>
-                                    <VBox spacing="3" HBox.hgrow="ALWAYS">
-                                        <Label maxWidth="Infinity" text="Zetris" styleClass="row-title"/>
-                                        <Label maxWidth="Infinity" text="Stack the falling blocks" styleClass="row-subtitle"/>
+                                    <VBox spacing="2.0" HBox.hgrow="ALWAYS">
+                                        <Label text="Zetris" styleClass="choice-row-title"/>
+                                        <Label text="Two-board blocks with speed options" styleClass="choice-row-subtitle"/>
                                     </VBox>
-                                    <StackPane styleClass="row-arrow-chip">
-                                        <SvgIcon icon="chevron-right" styleClass="svg-icon-muted"/>
-                                    </StackPane>
+                                    <SvgIcon icon="chevron-right" styleClass="svg-icon-muted"/>
                                 </HBox>
                             </graphic>
                         </Button>
 
-                        <Button maxWidth="Infinity" onAction="#playHexChess" styleClass="game-row">
+                        <Button fx:id="hexGameButton"
+                                maxWidth="Infinity"
+                                onAction="#selectHexChess"
+                                styleClass="choice-row">
                             <graphic>
-                                <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="19" styleClass="row-content">
-                                    <StackPane styleClass="icon-chip">
-                                        <ImageView fitHeight="34.0" fitWidth="34.0" preserveRatio="true" styleClass="game-icon">
+                                <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="16.0">
+                                    <StackPane styleClass="choice-icon-chip">
+                                        <ImageView fitHeight="32.0" fitWidth="32.0" preserveRatio="true">
                                             <image>
                                                 <Image url="@icons/chess-icon.png"/>
                                             </image>
                                         </ImageView>
                                     </StackPane>
-                                    <VBox spacing="3" HBox.hgrow="ALWAYS">
-                                        <Label maxWidth="Infinity" text="Chexsagon" styleClass="row-title"/>
-                                        <Label maxWidth="Infinity" text="Hex chess with a twist" styleClass="row-subtitle"/>
+                                    <VBox spacing="2.0" HBox.hgrow="ALWAYS">
+                                        <Label text="Chexsagon" styleClass="choice-row-title"/>
+                                        <Label text="Hex chess with bot and custom setup" styleClass="choice-row-subtitle"/>
                                     </VBox>
-                                    <StackPane styleClass="row-arrow-chip">
-                                        <SvgIcon icon="chevron-right" styleClass="svg-icon-muted"/>
-                                    </StackPane>
-                                </HBox>
-                            </graphic>
-                        </Button>
-
-                        <Region maxHeight="1.0" maxWidth="Infinity" minHeight="1.0" prefHeight="1.0" styleClass="game-choice-divider"/>
-
-                        <Button id="exit-row" maxWidth="Infinity" onAction="#exit" styleClass="game-row">
-                            <graphic>
-                                <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="19" styleClass="row-content">
-                                    <StackPane styleClass="icon-chip-danger">
-                                        <SvgIcon icon="exit" styleClass="svg-icon-danger"/>
-                                    </StackPane>
-                                    <VBox spacing="3" HBox.hgrow="ALWAYS">
-                                        <Label maxWidth="Infinity" text="Exit" styleClass="row-title"/>
-                                        <Label maxWidth="Infinity" text="Close GameBox" styleClass="row-subtitle"/>
-                                    </VBox>
-                                    <StackPane styleClass="row-arrow-chip">
-                                        <SvgIcon icon="chevron-right" styleClass="svg-icon-muted"/>
-                                    </StackPane>
+                                    <SvgIcon icon="chevron-right" styleClass="svg-icon-muted"/>
                                 </HBox>
                             </graphic>
                         </Button>
                     </VBox>
+
+                    <VBox spacing="12.0" styleClass="choice-section">
+                        <Label text="Selected" styleClass="choice-section-title"/>
+                        <VBox spacing="2.0">
+                            <Label fx:id="selectedGameTitleLabel" styleClass="choice-selected-title"/>
+                            <Label fx:id="selectedGameSubtitleLabel" wrapText="true" styleClass="choice-subtitle"/>
+                        </VBox>
+
+                        <VBox fx:id="memorySettingsPane" spacing="12.0">
+                            <Label text="Memory Settings" styleClass="choice-section-title"/>
+                            <HBox alignment="BOTTOM_LEFT" spacing="10.0">
+                                <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                    <Label text="Tuple size" styleClass="choice-field-title"/>
+                                    <TextField fx:id="memoryTupleField"
+                                               text="2"
+                                               promptText="2"
+                                               maxWidth="Infinity"/>
+                                </VBox>
+                                <Button text="Apply"
+                                        onAction="#onApplyMemoryTuple"
+                                        styleClass="btn-primary"/>
+                            </HBox>
+                            <VBox spacing="4.0">
+                                <Label text="Board variant" styleClass="choice-field-title"/>
+                                <ComboBox fx:id="memoryVariantBox" maxWidth="Infinity"/>
+                            </VBox>
+                        </VBox>
+
+                        <VBox fx:id="tetrisSettingsPane" spacing="12.0" visible="false" managed="false">
+                            <Label text="Zetris Settings" styleClass="choice-section-title"/>
+                            <VBox spacing="8.0">
+                                <Label text="Pieces" styleClass="choice-field-title"/>
+                                <CheckBox fx:id="tetrisStandardPiecesCheckBox"
+                                          text="Standard pieces"
+                                          selected="true"/>
+                                <CheckBox fx:id="tetrisCustomPiecesCheckBox"
+                                          text="Custom pieces"
+                                          onAction="#onTetrisCustomPieceToggle"/>
+                            </VBox>
+                            <VBox spacing="4.0">
+                                <Label text="Speed" styleClass="choice-field-title"/>
+                                <ComboBox fx:id="tetrisSpeedBox" maxWidth="Infinity"/>
+                            </VBox>
+                            <CheckBox text="Dual blocks" fx:id="tetrisDualBlocksCheckBox"/>
+                            <CheckBox text="Horizontal mode" fx:id="tetrisHorizontalCheckBox"/>
+                            <VBox fx:id="tetrisCustomEditorBox"
+                                  spacing="10.0"
+                                  visible="false"
+                                  managed="false"
+                                  styleClass="custom-editor">
+                                <Label text="Custom Piece" styleClass="choice-field-title"/>
+                                <GridPane fx:id="tetrisCustomPieceGrid"
+                                          alignment="CENTER_LEFT"
+                                          styleClass="custom-piece-grid"/>
+                                <HBox spacing="10.0">
+                                    <Button text="Clear"
+                                            onAction="#onClearTetrisCustomPiece"
+                                            maxWidth="Infinity"
+                                            HBox.hgrow="ALWAYS"
+                                            styleClass="btn-outline"/>
+                                    <Button text="Save"
+                                            onAction="#onSaveTetrisCustomPiece"
+                                            maxWidth="Infinity"
+                                            HBox.hgrow="ALWAYS"
+                                            styleClass="btn-primary"/>
+                                </HBox>
+                                <Label fx:id="tetrisCustomPieceStatusLabel"
+                                       text=""
+                                       wrapText="true"
+                                       styleClass="choice-status"/>
+                            </VBox>
+                        </VBox>
+
+                        <VBox fx:id="hexSettingsPane" spacing="8.0" visible="false" managed="false">
+                            <Label text="Chexsagon Settings" styleClass="choice-section-title"/>
+                            <Label text="Local uses the standard board. Custom opens the setup board before starting."
+                                   wrapText="true"
+                                   styleClass="choice-subtitle"/>
+                        </VBox>
+                    </VBox>
+
+                    <Label fx:id="statusLabel"
+                           text=""
+                           wrapText="true"
+                           styleClass="choice-status"/>
                 </VBox>
-            </StackPane>
+
+                <VBox GridPane.columnIndex="1"
+                      GridPane.hgrow="ALWAYS"
+                      GridPane.vgrow="ALWAYS"
+                      maxHeight="Infinity"
+                      maxWidth="Infinity"
+                      spacing="20.0"
+                      styleClass="choice-card">
+                    <VBox spacing="8.0" styleClass="choice-header">
+                        <Label text="P L A Y" styleClass="choice-eyebrow"/>
+                        <Label text="Players and Mode" styleClass="choice-title"/>
+                        <Label text="Set players, choose a mode when needed, then launch."
+                               wrapText="true"
+                               styleClass="choice-subtitle"/>
+                    </VBox>
+
+                    <VBox spacing="12.0" styleClass="choice-section">
+                        <Label text="Players" styleClass="choice-section-title"/>
+                        <GridPane hgap="12.0" vgap="10.0" maxWidth="Infinity" styleClass="choice-player-grid">
+                            <columnConstraints>
+                                <ColumnConstraints halignment="RIGHT" minWidth="78.0" prefWidth="78.0"/>
+                                <ColumnConstraints hgrow="ALWAYS" minWidth="170.0"/>
+                            </columnConstraints>
+
+                            <Label fx:id="playerOneRoleLabel"
+                                   text="Player 1"
+                                   styleClass="player-one-name"
+                                   GridPane.columnIndex="0"
+                                   GridPane.rowIndex="0"/>
+                            <TextField fx:id="playerOneNameField"
+                                       text="The Old Monk"
+                                       promptText="The Old Monk"
+                                       styleClass="player-name-field player-one-name"
+                                       GridPane.columnIndex="1"
+                                       GridPane.rowIndex="0"/>
+
+                            <Label fx:id="playerTwoRoleLabel"
+                                   text="Player 2"
+                                   styleClass="player-two-name"
+                                   GridPane.columnIndex="0"
+                                   GridPane.rowIndex="1"/>
+                            <TextField fx:id="playerTwoNameField"
+                                       text="The Outer God"
+                                       promptText="The Outer God"
+                                       styleClass="player-name-field player-two-name"
+                                       GridPane.columnIndex="1"
+                                       GridPane.rowIndex="1"/>
+                        </GridPane>
+                    </VBox>
+
+                    <VBox fx:id="modeSection" spacing="12.0" styleClass="choice-section">
+                        <Label text="Mode" styleClass="choice-section-title"/>
+                        <GridPane hgap="10.0"
+                                  vgap="10.0"
+                                  maxWidth="Infinity"
+                                  styleClass="choice-mode-grid">
+                            <columnConstraints>
+                                <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0"/>
+                                <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0"/>
+                            </columnConstraints>
+                            <Button fx:id="localModeButton"
+                                    text="Local"
+                                    maxWidth="Infinity"
+                                    GridPane.columnIndex="0"
+                                    GridPane.rowIndex="0"
+                                    onAction="#selectLocalMode"
+                                    styleClass="choice-mode-button"/>
+                            <Button fx:id="botModeButton"
+                                    text="Bot"
+                                    maxWidth="Infinity"
+                                    GridPane.columnIndex="1"
+                                    GridPane.rowIndex="0"
+                                    onAction="#selectBotMode"
+                                    styleClass="choice-mode-button"/>
+                            <Button fx:id="customModeButton"
+                                    text="Custom"
+                                    maxWidth="Infinity"
+                                    GridPane.columnIndex="0"
+                                    GridPane.rowIndex="1"
+                                    GridPane.columnSpan="2"
+                                    onAction="#selectCustomMode"
+                                    styleClass="choice-mode-button"/>
+                        </GridPane>
+                        <Label fx:id="selectedModeLabel" styleClass="choice-status"/>
+                    </VBox>
+
+                    <VBox spacing="12.0" styleClass="choice-launch-card">
+                        <VBox spacing="4.0">
+                            <Label fx:id="launchTitleLabel" styleClass="choice-selected-title"/>
+                            <Label fx:id="launchSubtitleLabel" wrapText="true" styleClass="choice-subtitle"/>
+                        </VBox>
+                        <Button fx:id="primaryLaunchButton"
+                                maxWidth="Infinity"
+                                onAction="#launch"
+                                styleClass="btn-primary"/>
+                    </VBox>
+
+                    <Region VBox.vgrow="ALWAYS"/>
+
+                    <Button text="Exit GameBox"
+                            maxWidth="Infinity"
+                            onAction="#exit"
+                            styleClass="btn-outline choice-exit-button"/>
+                </VBox>
+            </GridPane>
         </StackPane>
     </ScrollPane>
 </StackPane>

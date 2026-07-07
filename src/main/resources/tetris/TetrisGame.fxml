@@ -21,7 +21,7 @@
             fx:controller="seda_project.control_alt_defeat.gamebox.controller.tetris.TetrisGameController">
 
     <stylesheets>
-        <URL value="@TetrisMenu.css"/>
+        <URL value="@Tetris.css"/>
     </stylesheets>
 
     <center>
@@ -175,7 +175,7 @@
                     <Button fx:id="restartButton" text="Restart" onAction="#onRestart"
                             visible="false" managed="false" maxWidth="Infinity"
                             styleClass="btn-outline" HBox.hgrow="ALWAYS"/>
-                    <Button text="Quit to Menu" onAction="#onBackToMenu" maxWidth="Infinity"
+                    <Button text="Quit to GameBox" onAction="#onBackToGameBox" maxWidth="Infinity"
                             styleClass="btn-primary" HBox.hgrow="ALWAYS"/>
                 </HBox>
                 </VBox>

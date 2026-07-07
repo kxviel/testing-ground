@@ -38,7 +38,7 @@ import java.util.stream.IntStream;
 public class GameController implements RouteDataReceiver {
 
     private static final Logger log = LoggerFactory.getLogger(GameController.class);
-    private static final String MENU_ROUTE = "/memory/MemoryMenu.fxml";
+    private static final String GAME_CHOICE_ROUTE = "/GameChoice.fxml";
     private static final String PLAYER_ONE = SafeText.PLAYER_ONE_NAME;
     private static final String PLAYER_TWO = SafeText.PLAYER_TWO_NAME;
     private static final String ACTIVE_PLAYER_CLASS = "score-active";
@@ -273,7 +273,7 @@ public class GameController implements RouteDataReceiver {
     private void handleRemoteQuit() {
         inputLocked = true;
         hidePostGameBar();
-        returnToMainMenu(opponentName() + " left the game.");
+        returnToGameBox(opponentName() + " left the game.");
     }
 
     private void handleDisconnect() {
@@ -285,7 +285,7 @@ public class GameController implements RouteDataReceiver {
                 "The connection to the other player was lost.", ButtonType.OK);
         a.setTitle("Connection Lost");
         a.showAndWait();
-        returnToMainMenu(null);
+        returnToGameBox(null);
     }
 
     private void buildBoard() {
@@ -576,7 +576,7 @@ public class GameController implements RouteDataReceiver {
     private void showLocalGameOver(String resultText, String scores) {
         Alert alert = new Alert(Alert.AlertType.NONE);
         ButtonType restartBtn = new ButtonType("Play Again", ButtonBar.ButtonData.YES);
-        ButtonType menuBtn = new ButtonType("Main Menu", ButtonBar.ButtonData.NO);
+        ButtonType menuBtn = new ButtonType("GameBox", ButtonBar.ButtonData.NO);
         alert.setTitle("Game Over");
         alert.setHeaderText(resultText);
         alert.setContentText(scores);
@@ -585,7 +585,7 @@ public class GameController implements RouteDataReceiver {
             if (btn == restartBtn)
                 restartGame();
             else
-                returnToMainMenu(null);
+                returnToGameBox(null);
         });
     }
 
@@ -613,11 +613,11 @@ public class GameController implements RouteDataReceiver {
     }
 
     @FXML
-    private void onPostMainMenu() {
+    private void onPostGameBox() {
         String myName = playerName();
         hidePostGameBar();
         sendQuit();
-        returnToMainMenu(myName + " left the game.");
+        returnToGameBox(myName + " left the game.");
     }
 
     private void showTimedStatus(String message, int seconds) {
@@ -639,7 +639,7 @@ public class GameController implements RouteDataReceiver {
         statusLabel.setText("");
         if (isNetworkHost()) {
             if (server == null) {
-                returnToMainMenu(null);
+                returnToGameBox(null);
                 return;
             }
             server.send(MemoryProtocol.restartState(snapshot()));
@@ -655,19 +655,19 @@ public class GameController implements RouteDataReceiver {
             if (btn == ButtonType.YES) {
                 stopMismatchPause();
                 sendQuit();
-                returnToMainMenu(null);
+                returnToGameBox(null);
             }
         });
     }
 
-    private void returnToMainMenu(String statusMessage) {
+    private void returnToGameBox(String statusMessage) {
         closeNetwork();
         Stage stage = currentStage();
         if (stage == null) {
-            log.error("Cannot return to main menu: stage reference is null");
+            log.error("Cannot return to GameBox: stage reference is null");
             return;
         }
-        Router.goTo(stage, MENU_ROUTE, statusMessage);
+        Router.goTo(stage, GAME_CHOICE_ROUTE, statusMessage);
     }
 
     private void sendQuit() {

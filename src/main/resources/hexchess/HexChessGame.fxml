@@ -104,7 +104,7 @@
                             styleClass="hex-control-button"/>
                     <Button fx:id="restartButton" text="Restart" onAction="#onRestart" maxWidth="Infinity"
                             styleClass="hex-control-button"/>
-                    <Button text="Back to Menu" onAction="#onBackToMenu" maxWidth="Infinity"
+                    <Button text="Back to GameBox" onAction="#onBackToGameBox" maxWidth="Infinity"
                             styleClass="hex-control-button"/>
                 </VBox>
                 </VBox>

@@ -224,12 +224,12 @@ public class HexChessGameController implements RouteDataReceiver {
     }
 
     @FXML
-    private void onBackToMenu(ActionEvent event) {
-        if (gameState.isActive() && !confirm("Leave Match", "Leave this match and return to the Chexsagon menu?")) {
+    private void onBackToGameBox(ActionEvent event) {
+        if (gameState.isActive() && !confirm("Leave Match", "Leave this match and return to GameBox?")) {
             return;
         }
         closeNetwork();
-        Router.goTo(event, "/hexchess/HexChessMenu.fxml", null);
+        Router.goTo(event, "/GameChoice.fxml", null);
     }
 
     private boolean confirm(String title, String message) {
@@ -392,7 +392,7 @@ public class HexChessGameController implements RouteDataReceiver {
 
     private void failBotMove(HexGameState stateBeforeBotMove) {
         if (gameState == stateBeforeBotMove && botThinking) {
-            gameState = gameState.failed("Bot encountered an error. Restart this game or return to the menu.");
+            gameState = gameState.failed("Bot encountered an error. Restart this game or return to GameBox.");
         }
         botThinking = false;
         render();

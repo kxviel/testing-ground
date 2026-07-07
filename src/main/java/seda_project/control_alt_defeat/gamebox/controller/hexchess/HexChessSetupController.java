@@ -140,7 +140,7 @@ public class HexChessSetupController implements RouteDataReceiver {
 
     @FXML
     private void onBack(ActionEvent event) {
-        Router.goTo(event, "/hexchess/HexChessMenu.fxml", setupWithNames());
+        Router.goTo(event, "/GameChoice.fxml", setupWithNames());
     }
 
     private HexChessGameSetup setupWithNames() {
