@@ -54,6 +54,14 @@
     -fx-padding: 0;
 }
 
+.game-background-overlay {
+    -fx-background-color: rgba(2, 6, 23, 0.34);
+}
+
+.game-screen-content {
+    -fx-background-color: transparent;
+}
+
 .app-scroll .scroll-bar:vertical,
 .app-scroll .scroll-bar:horizontal {
     -fx-background-color: transparent;

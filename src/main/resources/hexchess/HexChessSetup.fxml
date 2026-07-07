@@ -9,31 +9,52 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.GaussianBlur?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane styleClass="hex-game-root"
-            xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="seda_project.control_alt_defeat.gamebox.controller.hexchess.HexChessSetupController">
+<StackPane fx:id="hexSetupRoot"
+           styleClass="hex-game-root"
+           xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="seda_project.control_alt_defeat.gamebox.controller.hexchess.HexChessSetupController">
 
     <stylesheets>
         <URL value="@HexChess.css"/>
     </stylesheets>
 
-    <top>
+    <ImageView fitHeight="${hexSetupRoot.height}"
+               fitWidth="${hexSetupRoot.width}"
+               mouseTransparent="true"
+               preserveRatio="false"
+               smooth="true">
+        <image>
+            <Image url="@../images/game-choice-background.png"/>
+        </image>
+        <effect>
+            <GaussianBlur radius="7.0"/>
+        </effect>
+    </ImageView>
+
+    <Region mouseTransparent="true" styleClass="game-background-overlay"/>
+
+    <BorderPane styleClass="game-screen-content">
+        <top>
         <VBox alignment="CENTER" styleClass="hex-game-header">
             <Label text="POSITION BUILDER" styleClass="eyebrow"/>
             <Label text="Custom Position" styleClass="title"/>
             <Label text="Build a valid Chexsagon starting position" styleClass="subtitle"/>
         </VBox>
-    </top>
+        </top>
 
-    <center>
+        <center>
         <ScrollPane fitToHeight="true"
                     fitToWidth="true"
                     hbarPolicy="AS_NEEDED"
@@ -134,9 +155,10 @@
             </VBox>
             </GridPane>
         </ScrollPane>
-    </center>
+        </center>
 
-    <padding>
-        <Insets top="18" right="24" bottom="18" left="24"/>
-    </padding>
-</BorderPane>
+        <padding>
+            <Insets top="18" right="24" bottom="18" left="24"/>
+        </padding>
+    </BorderPane>
+</StackPane>

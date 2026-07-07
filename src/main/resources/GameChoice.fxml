@@ -45,7 +45,7 @@
         </effect>
     </ImageView>
 
-    <Region mouseTransparent="true" styleClass="game-choice-background-overlay"/>
+    <Region mouseTransparent="true" styleClass="game-background-overlay"/>
 
     <ScrollPane fitToHeight="true"
                 fitToWidth="true"

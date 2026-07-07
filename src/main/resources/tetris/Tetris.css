@@ -22,21 +22,13 @@
     -game-soft-surface: #f3f5fa;
 }
 
-.tetris-menu-root,
-.tetris-menu-main,
-.tetris-game-root,
-.tetris-game-main {
-    -fx-background-color: -sh-background;
-}
-
-.tetris-menu-root,
 .tetris-game-root {
+    -fx-background-color: #020617;
     -fx-padding: 0;
 }
 
-.tetris-menu-main {
-    -fx-hgap: 20;
-    -fx-padding: 0;
+.tetris-game-main {
+    -fx-background-color: transparent;
 }
 
 .tetris-game-main {

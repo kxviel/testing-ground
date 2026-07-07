@@ -23,21 +23,13 @@
     -game-soft-surface: #f9f4f1;
 }
 
-.hex-menu-root,
-.hex-menu-main,
-.hex-game-root,
-.hex-game-main {
-    -fx-background-color: -sh-background;
-}
-
-.hex-menu-root,
 .hex-game-root {
+    -fx-background-color: #020617;
     -fx-padding: 0;
 }
 
-.hex-menu-main {
-    -fx-hgap: 20;
-    -fx-padding: 0;
+.hex-game-main {
+    -fx-background-color: transparent;
 }
 
 .hex-game-main {
@@ -93,6 +85,11 @@
     -fx-border-width: 1;
     -fx-padding: 14;
     -fx-spacing: 12;
+}
+
+.hex-board-panel.board-surface,
+.hex-side-panel {
+    -fx-background-color: rgba(255, 255, 255, 0.77);
 }
 
 .title,

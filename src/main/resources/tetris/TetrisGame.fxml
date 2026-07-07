@@ -5,26 +5,49 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
+<?import javafx.scene.effect.GaussianBlur?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane maxHeight="Infinity"
-            maxWidth="Infinity"
-            fx:id="gameRoot"
-            styleClass="tetris-game-root"
-            xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="seda_project.control_alt_defeat.gamebox.controller.tetris.TetrisGameController">
+<StackPane fx:id="tetrisRoot"
+           maxHeight="Infinity"
+           maxWidth="Infinity"
+           styleClass="tetris-game-root"
+           xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="seda_project.control_alt_defeat.gamebox.controller.tetris.TetrisGameController">
 
     <stylesheets>
         <URL value="@Tetris.css"/>
     </stylesheets>
 
-    <center>
+    <ImageView fitHeight="${tetrisRoot.height}"
+               fitWidth="${tetrisRoot.width}"
+               mouseTransparent="true"
+               preserveRatio="false"
+               smooth="true">
+        <image>
+            <Image url="@../images/game-choice-background.png"/>
+        </image>
+        <effect>
+            <GaussianBlur radius="7.0"/>
+        </effect>
+    </ImageView>
+
+    <Region mouseTransparent="true" styleClass="game-background-overlay"/>
+
+    <BorderPane fx:id="gameRoot"
+                maxHeight="Infinity"
+                maxWidth="Infinity"
+                styleClass="game-screen-content">
+        <center>
         <ScrollPane fitToHeight="true"
                     fitToWidth="true"
                     hbarPolicy="AS_NEEDED"
@@ -182,5 +205,6 @@
             </ScrollPane>
         </GridPane>
         </ScrollPane>
-    </center>
-</BorderPane>
+        </center>
+    </BorderPane>
+</StackPane>
