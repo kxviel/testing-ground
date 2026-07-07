@@ -15,6 +15,9 @@ public final class SnapshotCodec {
     }
 
     public static String decode(String value) {
+        if (value == null) {
+            throw new IllegalArgumentException("Missing encoded value.");
+        }
         return new String(Base64.getUrlDecoder().decode(value), StandardCharsets.UTF_8);
     }
 

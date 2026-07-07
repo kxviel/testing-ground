@@ -29,11 +29,7 @@ public class GameClient extends AbstractGameConnection {
             log.info("Connected to host {}:{}", host, port);
             startReadLoop("client-reader", "Client");
         } catch (IOException e) {
-            try {
-                connectedSocket.close();
-            } catch (IOException closeException) {
-                e.addSuppressed(closeException);
-            }
+            closeQuietly(connectedSocket);
             throw e;
         }
     }

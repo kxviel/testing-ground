@@ -64,6 +64,16 @@ class NetworkSnapshotHardeningTest {
                 () -> HexChessStateSnapshot.deserialize(String.join("~", fields)));
     }
 
+    @Test
+    void networkFieldsRejectMalformedPayloadWithoutThrowing() {
+        assertEquals(List.of(), NetworkMessage.fields("STATE:not-base64!"));
+    }
+
+    @Test
+    void snapshotDecodeRejectsMissingValueAsProtocolDataError() {
+        assertThrows(IllegalArgumentException.class, () -> SnapshotCodec.decode(null));
+    }
+
     private static String snapshotWithBoard(String board) {
         String player = String.join(";",
                 SnapshotCodec.encode("Player"),
