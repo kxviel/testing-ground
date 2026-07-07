@@ -1,6 +1,14 @@
 .game-choice-root,
 .game-choice-shell {
-    -fx-background-color: -sh-background;
+    -fx-background-color: transparent;
+}
+
+.game-choice-root {
+    -fx-background-color: #020617;
+}
+
+.game-choice-background-overlay {
+    -fx-background-color: rgba(2, 6, 23, 0.34);
 }
 
 .game-choice-shell {
@@ -12,7 +20,7 @@
 }
 
 .choice-card {
-    -fx-background-color: -sh-card;
+    -fx-background-color: rgba(255, 255, 255, 0.92);
     -fx-background-radius: 6px;
     -fx-border-color: -sh-border;
     -fx-border-radius: 6px;

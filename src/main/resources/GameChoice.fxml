@@ -7,6 +7,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.GaussianBlur?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -29,6 +30,22 @@
     <stylesheets>
         <URL value="@GameChoice.css"/>
     </stylesheets>
+
+    <ImageView fitHeight="${root.height}"
+               fitWidth="${root.width}"
+               mouseTransparent="true"
+               preserveRatio="false"
+               smooth="true"
+               styleClass="game-choice-background">
+        <image>
+            <Image url="@images/game-choice-background.png"/>
+        </image>
+        <effect>
+            <GaussianBlur radius="7.0"/>
+        </effect>
+    </ImageView>
+
+    <Region mouseTransparent="true" styleClass="game-choice-background-overlay"/>
 
     <ScrollPane fitToHeight="true"
                 fitToWidth="true"
