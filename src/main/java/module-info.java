@@ -21,7 +21,6 @@ module seda.project.control.alt.defeat.gamebox {
     exports seda_project.control_alt_defeat.gamebox.controller.hexchess;
     opens seda_project.control_alt_defeat.gamebox.controller.hexchess to javafx.fxml;
     exports seda_project.control_alt_defeat.gamebox.settings;
-    exports seda_project.control_alt_defeat.gamebox.ui;
     opens seda_project.control_alt_defeat.gamebox.ui to javafx.fxml;
     exports seda_project.control_alt_defeat.gamebox.model.memory;
     exports seda_project.control_alt_defeat.gamebox.model.tetris;

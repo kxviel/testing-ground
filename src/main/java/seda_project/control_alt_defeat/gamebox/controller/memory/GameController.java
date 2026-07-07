@@ -17,7 +17,6 @@ import javafx.util.Duration;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import seda_project.control_alt_defeat.gamebox.model.memory.BoardVariant;
 import seda_project.control_alt_defeat.gamebox.model.memory.Card;
 import seda_project.control_alt_defeat.gamebox.model.memory.GameModel;
 import seda_project.control_alt_defeat.gamebox.network.GameClient;
