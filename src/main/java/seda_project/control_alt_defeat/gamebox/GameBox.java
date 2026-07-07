@@ -15,7 +15,10 @@ import seda_project.control_alt_defeat.gamebox.util.WindowManager;
 
 public class GameBox extends Application {
     private static final Logger logger = LoggerFactory.getLogger(GameBox.class);
-    private static final String INTER_FONT = "/fonts/InterVariable.ttf";
+    private static final String[] SOURCE_SANS_FONTS = {
+            "/fonts/SourceSans3-Regular.ttf",
+            "/fonts/SourceSans3-Bold.ttf"
+    };
     private static final String GAME_ICON = "/icons/game-icon.png";
 
     @Override
@@ -36,9 +39,11 @@ public class GameBox extends Application {
     }
 
     private void loadFonts() {
-        var fontUrl = GameBox.class.getResource(INTER_FONT);
-        if (fontUrl == null || Font.loadFont(fontUrl.toExternalForm(), 12) == null) {
-            System.err.println("Inter font missing; using system fallback.");
+        for (String fontPath : SOURCE_SANS_FONTS) {
+            var fontUrl = GameBox.class.getResource(fontPath);
+            if (fontUrl == null || Font.loadFont(fontUrl.toExternalForm(), 12) == null) {
+                throw new IllegalStateException("Required font missing: " + fontPath);
+            }
         }
     }
 

@@ -30,7 +30,7 @@
                     hbarPolicy="AS_NEEDED"
                     vbarPolicy="AS_NEEDED"
                     styleClass="app-scroll">
-        <GridPane minHeight="640"
+        <GridPane minHeight="0"
                   minWidth="0"
                   maxHeight="Infinity"
                   maxWidth="Infinity"
@@ -40,7 +40,8 @@
                 <ColumnConstraints hgrow="ALWAYS" percentWidth="30"/>
             </columnConstraints>
 
-            <StackPane GridPane.columnIndex="0"
+            <StackPane fx:id="boardZone"
+                       GridPane.columnIndex="0"
                        GridPane.hgrow="ALWAYS"
                        GridPane.vgrow="ALWAYS"
                        maxHeight="Infinity"

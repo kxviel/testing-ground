@@ -43,8 +43,8 @@
                     BorderPane.alignment="CENTER">
             <GridPane alignment="TOP_CENTER"
                       hgap="18"
-                      minHeight="620"
-                      minWidth="1080"
+                      minHeight="0"
+                      minWidth="0"
                       styleClass="hex-stage">
             <columnConstraints>
                 <ColumnConstraints hgrow="ALWAYS" percentWidth="60"/>
@@ -66,12 +66,13 @@
                         <Label text="Click a cell to place the selected piece." styleClass="section-copy"/>
                     </VBox>
                 </HBox>
-                <StackPane minWidth="720"
-                           minHeight="590"
-                           prefWidth="720"
-                           prefHeight="590"
+                <StackPane fx:id="canvasFrame"
+                           minWidth="0"
+                           minHeight="0"
+                           maxWidth="Infinity"
+                           maxHeight="Infinity"
                            styleClass="canvas-frame">
-                    <Canvas fx:id="boardCanvas" width="720" height="590"/>
+                    <Canvas fx:id="boardCanvas"/>
                 </StackPane>
             </VBox>
 

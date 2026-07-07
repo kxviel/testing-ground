@@ -28,7 +28,7 @@
                     hbarPolicy="AS_NEEDED"
                     vbarPolicy="AS_NEEDED"
                     styleClass="app-scroll">
-        <GridPane minHeight="640"
+        <GridPane minHeight="0"
                   minWidth="0"
                   maxHeight="Infinity"
                   maxWidth="Infinity"
@@ -45,7 +45,7 @@
                        maxHeight="Infinity"
                        maxWidth="Infinity"
                        styleClass="hex-board-zone">
-                <Canvas fx:id="boardCanvas" width="720" height="620"/>
+                <Canvas fx:id="boardCanvas"/>
             </StackPane>
 
             <ScrollPane GridPane.columnIndex="1"

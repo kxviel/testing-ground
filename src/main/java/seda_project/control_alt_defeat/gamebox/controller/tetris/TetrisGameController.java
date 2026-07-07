@@ -6,6 +6,8 @@ import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Bounds;
+import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -15,6 +17,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import seda_project.control_alt_defeat.gamebox.model.tetris.BoardPosition;
@@ -47,6 +50,11 @@ import java.util.Set;
 public class TetrisGameController implements RouteDataReceiver {
 
     private static final int GAME_TICK_MS = 100;
+    private static final double MIN_CELL_SIZE = 14;
+    private static final double MAX_CELL_SIZE = 32;
+    private static final double CELL_GAP = 1;
+    private static final double BOARD_CHROME = 10;
+    private static final double STACK_SPACING = 20;
     private static final int OBJECT_SPAWN_SECONDS = 4;
     private static final int OBJECT_SPAWN_ATTEMPTS = 100;
     private static final int MENU_RETURN_SECONDS = 2;
@@ -73,6 +81,8 @@ public class TetrisGameController implements RouteDataReceiver {
     private Label keymapLabel;
     @FXML
     private Button restartButton;
+    @FXML
+    private StackPane boardZone;
     @FXML
     private GridPane topBoardGrid;
     @FXML
@@ -114,6 +124,7 @@ public class TetrisGameController implements RouteDataReceiver {
     @FXML
     public void initialize() {
         setupKeyboardControls();
+        boardZone.layoutBoundsProperty().addListener((observable, oldBounds, bounds) -> render());
         startNewGame();
     }
 
@@ -334,6 +345,7 @@ public class TetrisGameController implements RouteDataReceiver {
 
     private void renderBoard(GridPane grid, TetrisPlayerState player) {
         grid.getChildren().clear();
+        double cellSize = computeCellSize();
 
         Set<BoardPosition> activeCells = new HashSet<>();
         int activeColor = -1;
@@ -348,7 +360,8 @@ public class TetrisGameController implements RouteDataReceiver {
                 TetrisBoardObject object = player.boardObject();
                 boolean hasObject = object != null && position.equals(object.position());
                 Region cell = hasObject ? new Label(object.type().symbol()) : new Region();
-                cell.getStyleClass().addAll("board-cell", "board-cell-vertical");
+                cell.getStyleClass().add("board-cell");
+                setCellSize(cell, cellSize);
 
                 if (activeCells.contains(position)) {
                     cell.getStyleClass().add("board-cell-active");
@@ -371,6 +384,40 @@ public class TetrisGameController implements RouteDataReceiver {
         if (!player.isPlaying()) {
             addGameOverOverlay(grid, player.side());
         }
+    }
+
+    private double computeCellSize() {
+        if (boardZone == null) {
+            return MAX_CELL_SIZE;
+        }
+
+        Bounds bounds = boardZone.getLayoutBounds();
+        Insets insets = boardZone.getInsets();
+        double horizontalInsets = insets == null ? 0 : insets.getLeft() + insets.getRight();
+        double verticalInsets = insets == null ? 0 : insets.getTop() + insets.getBottom();
+        double zoneWidth = Math.max(1, bounds.getWidth() - horizontalInsets);
+        double zoneHeight = Math.max(1, bounds.getHeight() - verticalInsets);
+        double boardWidth = Math.max(1, zoneWidth - BOARD_CHROME);
+        double boardHeight = Math.max(1, (zoneHeight - STACK_SPACING - 2 * BOARD_CHROME) / 2.0);
+
+        int rows = gameState.bottomPlayer().board().rows();
+        int columns = gameState.bottomPlayer().board().columns();
+        boolean horizontal = gameState.config().horizontalMode();
+        int displayedColumns = horizontal ? rows : columns;
+        int displayedRows = horizontal ? columns : rows;
+        double widthFit = (boardWidth - CELL_GAP * Math.max(0, displayedColumns - 1)) / displayedColumns;
+        double heightFit = (boardHeight - CELL_GAP * Math.max(0, displayedRows - 1)) / displayedRows;
+        double fit = Math.min(widthFit, heightFit);
+
+        return fit < MIN_CELL_SIZE
+                ? Math.max(1, fit)
+                : Math.min(MAX_CELL_SIZE, fit);
+    }
+
+    private static void setCellSize(Region cell, double size) {
+        cell.setMinSize(size, size);
+        cell.setPrefSize(size, size);
+        cell.setMaxSize(size, size);
     }
 
     private void setupKeyboardControls() {

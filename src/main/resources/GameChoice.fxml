@@ -30,8 +30,8 @@
                 hbarPolicy="AS_NEEDED"
                 vbarPolicy="AS_NEEDED"
                 styleClass="app-scroll">
-        <StackPane minHeight="680"
-                   minWidth="960"
+        <StackPane minHeight="660"
+                   minWidth="660"
                    maxHeight="Infinity"
                    maxWidth="Infinity"
                    alignment="CENTER"

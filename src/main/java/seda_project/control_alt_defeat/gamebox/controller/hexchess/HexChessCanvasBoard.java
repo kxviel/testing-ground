@@ -36,8 +36,7 @@ final class HexChessCanvasBoard {
     private static final Color BLACK_PIECE = Color.web("#31111D");
     private static final Color WHITE_PIECE_STROKE = Color.web("#31111D");
 
-    @SuppressWarnings("SpellCheckingInspection")
-    private static final String PIECE_FONT_FAMILY = "Segoe UI Symbol";
+    private static final String FONT_FAMILY = "Source Sans 3";
 
     private final double hexSize;
     private final double width;
@@ -63,9 +62,9 @@ final class HexChessCanvasBoard {
         BoardBounds bounds = computeBoardBounds(hexSize);
         this.boardOffsetX = (width - bounds.width()) / 2.0 - bounds.minX();
         this.boardOffsetY = (height - bounds.height()) / 2.0 - bounds.minY();
-        this.notationFont = Font.font("Inter Variable", FontWeight.BOLD, Math.max(9, hexSize * 0.41) + 2);
-        this.pieceFont = Font.font(PIECE_FONT_FAMILY, FontWeight.NORMAL, pieceFontSize + 2);
-        this.promotionFont = Font.font("Inter Variable", FontWeight.BOLD, Math.max(16, hexSize * 0.73) + 2);
+        this.notationFont = Font.font(FONT_FAMILY, FontWeight.BOLD, Math.max(9, hexSize * 0.41) + 2);
+        this.pieceFont = Font.font(FONT_FAMILY, FontWeight.BOLD, pieceFontSize + 2);
+        this.promotionFont = Font.font(FONT_FAMILY, FontWeight.BOLD, Math.max(16, hexSize * 0.73) + 2);
     }
 
     void attach(Canvas canvas, Consumer<HexCoordinate> onCellClicked) {
@@ -153,10 +152,10 @@ final class HexChessCanvasBoard {
         if (piece.color() == HexPieceColor.WHITE) {
             graphics.setStroke(WHITE_PIECE_STROKE);
             graphics.setLineWidth(0.75);
-            graphics.strokeText(piece.displayText(), center.getX(), center.getY() - 1);
+            graphics.strokeText(piece.type().symbol(), center.getX(), center.getY() - 1);
         }
         graphics.setFill(piece.color() == HexPieceColor.WHITE ? WHITE_PIECE : BLACK_PIECE);
-        graphics.fillText(piece.displayText(), center.getX(), center.getY() - 1);
+        graphics.fillText(piece.type().symbol(), center.getX(), center.getY() - 1);
     }
 
     private Optional<CellShape> cellShape(HexCoordinate coordinate) {
