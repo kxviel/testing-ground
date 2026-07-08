@@ -52,7 +52,11 @@ public class GameServer extends AbstractGameConnection {
             log.info("Client connected from {}", clientSocket.getRemoteSocketAddress());
             startReadLoop("server-reader", "Server");
         } catch (IOException e) {
-            closeQuietly(clientSocket);
+            try {
+                clientSocket.close();
+            } catch (IOException closeException) {
+                e.addSuppressed(closeException);
+            }
             throw e;
         }
     }
@@ -67,8 +71,13 @@ public class GameServer extends AbstractGameConnection {
     @Override
     public void close() {
         super.close();
-        closeQuietly(serverSocket);
-        serverSocket = null;
+        try {
+            if (serverSocket != null) {
+                serverSocket.close();
+                serverSocket = null;
+            }
+        } catch (IOException ignored) {
+        }
     }
 
     /**

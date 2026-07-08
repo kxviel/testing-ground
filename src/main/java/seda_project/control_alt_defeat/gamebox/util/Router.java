@@ -51,9 +51,10 @@ public final class Router {
     private static String titleFor(String route) {
         return switch (route) {
             case "/GameChoice.fxml" -> "GameBox: ZeroRuntimeWarranty";
+            case "/memory/MemoryMenu.fxml" -> "Multi Match Memory Game";
             case "/memory/GameBoard.fxml" -> "Memory Match";
-            case "/tetris/TetrisGame.fxml" -> "Zetris";
-            case "/hexchess/HexChessGame.fxml" -> "Chexsagon";
+            case "/tetris/TetrisMenu.fxml", "/tetris/TetrisGame.fxml" -> "Zetris";
+            case "/hexchess/HexChessMenu.fxml", "/hexchess/HexChessGame.fxml" -> "Chexsagon";
             case "/hexchess/HexChessSetup.fxml" -> "Chexsagon Setup";
             default -> "GameBox: ZeroRuntimeWarranty";
         };

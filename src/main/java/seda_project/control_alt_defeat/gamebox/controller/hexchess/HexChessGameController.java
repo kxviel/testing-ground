@@ -43,7 +43,7 @@ public class HexChessGameController implements RouteDataReceiver {
     private static final double FALLBACK_CANVAS_HEIGHT = 620.0;
     private static final double BOARD_CONTENT_PADDING = 16.0;
     private static final double NOTATION_OFFSET_RATIO = 16.0 / BASE_HEX_SIZE;
-    private static final double PIECE_SIZE_RATIO = 45.0 / BASE_HEX_SIZE;
+    private static final double PIECE_FONT_RATIO = 36.0 / BASE_HEX_SIZE;
     private static final Duration BOT_DELAY = Duration.millis(350);
     private static final Duration BOT_DRAW_DECLINE_DELAY = Duration.millis(800);
     private static final Color CELL_LEGAL = Color.web("#9fd3b5");
@@ -153,7 +153,7 @@ public class HexChessGameController implements RouteDataReceiver {
                 width,
                 height,
                 Math.max(1.0, hexSize * NOTATION_OFFSET_RATIO),
-                Math.max(1.0, hexSize * PIECE_SIZE_RATIO));
+                Math.max(1.0, hexSize * PIECE_FONT_RATIO));
     }
 
     @Override
@@ -224,12 +224,12 @@ public class HexChessGameController implements RouteDataReceiver {
     }
 
     @FXML
-    private void onBackToGameBox(ActionEvent event) {
-        if (gameState.isActive() && !confirm("Leave Match", "Leave this match and return to GameBox?")) {
+    private void onBackToMenu(ActionEvent event) {
+        if (gameState.isActive() && !confirm("Leave Match", "Leave this match and return to the Chexsagon menu?")) {
             return;
         }
         closeNetwork();
-        Router.goTo(event, "/GameChoice.fxml", null);
+        Router.goTo(event, "/hexchess/HexChessMenu.fxml", null);
     }
 
     private boolean confirm(String title, String message) {
@@ -392,7 +392,7 @@ public class HexChessGameController implements RouteDataReceiver {
 
     private void failBotMove(HexGameState stateBeforeBotMove) {
         if (gameState == stateBeforeBotMove && botThinking) {
-            gameState = gameState.failed("Bot encountered an error. Restart this game or return to GameBox.");
+            gameState = gameState.failed("Bot encountered an error. Restart this game or return to the menu.");
         }
         botThinking = false;
         render();

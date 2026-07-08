@@ -23,8 +23,9 @@
     -game-soft-surface: #f2f7f4;
 }
 
+.memory-menu-root,
 .memory-game-root {
-    -fx-background-color: #020617;
+    -fx-background-color: -sh-background;
 }
 
 .memory-screen-scroll,

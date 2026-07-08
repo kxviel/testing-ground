@@ -8,53 +8,35 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.effect.GaussianBlur?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane fx:id="hexSetupRoot"
-           styleClass="hex-game-root"
-           xmlns="http://javafx.com/javafx"
-           xmlns:fx="http://javafx.com/fxml"
-           fx:controller="seda_project.control_alt_defeat.gamebox.controller.hexchess.HexChessSetupController">
+<BorderPane styleClass="hex-game-root"
+            xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="seda_project.control_alt_defeat.gamebox.controller.hexchess.HexChessSetupController">
 
     <stylesheets>
         <URL value="@HexChess.css"/>
     </stylesheets>
 
-    <ImageView fitHeight="${hexSetupRoot.height}"
-               fitWidth="${hexSetupRoot.width}"
-               mouseTransparent="true"
-               preserveRatio="false"
-               smooth="true">
-        <image>
-            <Image url="@../images/game-choice-background.png"/>
-        </image>
-        <effect>
-            <GaussianBlur radius="7.0"/>
-        </effect>
-    </ImageView>
-
-    <Region mouseTransparent="true" styleClass="game-background-overlay"/>
-
-    <BorderPane styleClass="game-screen-content">
-        <top>
+    <top>
         <VBox alignment="CENTER" styleClass="hex-game-header">
             <Label text="POSITION BUILDER" styleClass="eyebrow"/>
             <Label text="Custom Position" styleClass="title"/>
             <Label text="Build a valid Chexsagon starting position" styleClass="subtitle"/>
         </VBox>
-        </top>
+    </top>
 
-        <center>
+    <center>
         <ScrollPane fitToHeight="true"
                     fitToWidth="true"
                     hbarPolicy="AS_NEEDED"
@@ -106,17 +88,33 @@
                     <Label text="Players" styleClass="panel-label"/>
                     <GridPane styleClass="hex-form-grid">
                         <columnConstraints>
-                            <ColumnConstraints halignment="RIGHT" minWidth="58" prefWidth="58"/>
-                            <ColumnConstraints hgrow="ALWAYS" minWidth="170" prefWidth="186"/>
+                            <ColumnConstraints halignment="RIGHT" minWidth="82" prefWidth="82"/>
+                            <ColumnConstraints hgrow="ALWAYS" minWidth="130" prefWidth="162"/>
                         </columnConstraints>
-                        <Label text="White" styleClass="player-one-name" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                        <Label text="White" graphicTextGap="6.0" styleClass="player-one-name" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                            <graphic>
+                                <ImageView fitHeight="18.0" fitWidth="18.0" preserveRatio="true" smooth="true" styleClass="player-field-icon">
+                                    <image>
+                                        <Image url="@../icons/player1.png"/>
+                                    </image>
+                                </ImageView>
+                            </graphic>
+                        </Label>
                         <TextField fx:id="playerOneNameField"
                                    text="The Old Monk"
                                    promptText="The Old Monk"
                                    styleClass="player-name-field player-one-name"
                                    GridPane.columnIndex="1"
                                    GridPane.rowIndex="0"/>
-                        <Label text="Black" styleClass="player-two-name" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                        <Label text="Black" graphicTextGap="6.0" styleClass="player-two-name" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                            <graphic>
+                                <ImageView fitHeight="18.0" fitWidth="18.0" preserveRatio="true" smooth="true" styleClass="player-field-icon">
+                                    <image>
+                                        <Image url="@../icons/player2.png"/>
+                                    </image>
+                                </ImageView>
+                            </graphic>
+                        </Label>
                         <TextField fx:id="playerTwoNameField"
                                    text="The Outer God"
                                    promptText="The Outer God"
@@ -126,6 +124,8 @@
                     </GridPane>
                 </VBox>
 
+                <Separator/>
+
                 <VBox styleClass="sidebar-section">
                     <Label text="Placement" styleClass="panel-label"/>
                     <ComboBox fx:id="colorChoiceBox" maxWidth="Infinity"/>
@@ -133,6 +133,8 @@
                     <Label fx:id="selectedLabel" text="Selected: none" wrapText="true" styleClass="stat-line"/>
                     <Button text="Remove Piece" onAction="#onRemovePiece" maxWidth="Infinity" styleClass="btn-outline"/>
                 </VBox>
+
+                <Separator/>
 
                 <VBox styleClass="sidebar-section">
                     <Label text="Position State" styleClass="panel-label"/>
@@ -143,8 +145,10 @@
                         <Button text="Clear" onAction="#onClearBoard" maxWidth="Infinity"
                                 styleClass="btn-danger" HBox.hgrow="ALWAYS"/>
                     </HBox>
-                    <Label fx:id="validationLabel" wrapText="true" minHeight="56" maxWidth="Infinity" styleClass="status-box"/>
+                    <Label fx:id="validationLabel" wrapText="true" minHeight="56" styleClass="status-box"/>
                 </VBox>
+
+                <Separator/>
 
                 <HBox styleClass="button-row">
                     <Button text="Back" onAction="#onBack" maxWidth="Infinity"
@@ -155,10 +159,9 @@
             </VBox>
             </GridPane>
         </ScrollPane>
-        </center>
+    </center>
 
-        <padding>
-            <Insets top="18" right="24" bottom="18" left="24"/>
-        </padding>
-    </BorderPane>
-</StackPane>
+    <padding>
+        <Insets top="18" right="24" bottom="18" left="24"/>
+    </padding>
+</BorderPane>

@@ -17,24 +17,25 @@ import seda_project.control_alt_defeat.gamebox.model.hexchess.HexPieceColor;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.stream.IntStream;
 
 final class HexChessCanvasBoard {
 
-    private static final int HEX_CORNERS = 6;
-    private static final double HEX_ANGLE_STEP = 60.0;
-    private static final double SQRT_3 = Math.sqrt(3.0);
-    private static final double HEX_APOTHEM_RATIO = SQRT_3 / 2.0;
-    private static final double MAX_PIECE_SIZE_RATIO = 1.5;
-    private static final String FONT_FAMILY = "Source Sans 3";
-
+    private static final int CORNER_COUNT = 6;
+    private static final double CORNER_ANGLE_DEGREES = 60.0;
+    private static final double HEX_APOTHEM_RATIO = Math.sqrt(3.0) / 2.0;
     public static final Color CELL_LIGHT = Color.web("#f7c895");
     public static final Color CELL_MID = Color.web("#e5aa68");
     public static final Color CELL_DARK = Color.web("#cf873d");
     public static final Color STROKE_BASE = Color.web("#6b4a28");
     public static final Color STROKE_SELECTED = Color.web("#0f62fe");
     public static final Color NOTATION_COLOR = Color.rgb(23, 23, 23, 0.45);
+    private static final double MAX_PIECE_SIZE_RATIO = 1.5;
+
+    private static final String FONT_FAMILY = "Source Sans 3";
 
     private final double hexSize;
     private final double width;
@@ -58,7 +59,6 @@ final class HexChessCanvasBoard {
         this.height = height;
         this.notationYOffset = notationYOffset;
         this.pieceSize = Math.min(pieceSize + 2.0, hexSize * MAX_PIECE_SIZE_RATIO);
-
         BoardBounds bounds = computeBoardBounds(hexSize);
         this.boardOffsetX = (width - bounds.width()) / 2.0 - bounds.minX();
         this.boardOffsetY = (height - bounds.height()) / 2.0 - bounds.minY();
@@ -78,17 +78,11 @@ final class HexChessCanvasBoard {
         canvas.setWidth(width);
         canvas.setHeight(height);
         canvas.setFocusTraversable(true);
-        canvas.setOnMouseClicked(event -> {
-            HexCoordinate coordinate = coordinateAt(event.getX(), event.getY());
-            if (coordinate != null) {
-                onCellClicked.accept(coordinate, event.getButton());
-            }
-        });
-
+        canvas.setOnMouseClicked(event -> coordinateAt(event.getX(), event.getY())
+                .ifPresent(coordinate -> onCellClicked.accept(coordinate, event.getButton())));
         cellCenters.clear();
-        for (HexCoordinate coordinate : HexBoardGeometry.displayOrder()) {
-            cellCenters.put(coordinate, centerOf(coordinate));
-        }
+        HexBoardGeometry.displayOrder()
+                .forEach(coordinate -> cellCenters.put(coordinate, centerOf(coordinate)));
     }
 
     void redraw(
@@ -98,33 +92,23 @@ final class HexChessCanvasBoard {
         GraphicsContext graphics = canvas.getGraphicsContext2D();
         graphics.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
-        for (HexCoordinate coordinate : HexBoardGeometry.displayOrder()) {
-            drawCell.accept(graphics, coordinate);
-        }
-        for (HexCoordinate coordinate : HexBoardGeometry.displayOrder()) {
-            drawPiece.accept(graphics, coordinate);
-        }
+        HexBoardGeometry.displayOrder().forEach(coordinate -> drawCell.accept(graphics, coordinate));
+        HexBoardGeometry.displayOrder().forEach(coordinate -> drawPiece.accept(graphics, coordinate));
     }
 
     void fillCell(GraphicsContext graphics, HexCoordinate coordinate, Color fill) {
-        CellShape shape = cellShape(coordinate);
-        if (shape == null) {
-            return;
-        }
-
-        graphics.setFill(fill);
-        graphics.fillPolygon(shape.xPoints(), shape.yPoints(), HEX_CORNERS);
+        cellShape(coordinate).ifPresent(shape -> {
+            graphics.setFill(fill);
+            graphics.fillPolygon(shape.xPoints(), shape.yPoints(), CORNER_COUNT);
+        });
     }
 
     void strokeCell(GraphicsContext graphics, HexCoordinate coordinate, Color color, double lineWidth) {
-        CellShape shape = cellShape(coordinate);
-        if (shape == null) {
-            return;
-        }
-
-        graphics.setStroke(color);
-        graphics.setLineWidth(lineWidth);
-        graphics.strokePolygon(shape.xPoints(), shape.yPoints(), HEX_CORNERS);
+        cellShape(coordinate).ifPresent(shape -> {
+            graphics.setStroke(color);
+            graphics.setLineWidth(lineWidth);
+            graphics.strokePolygon(shape.xPoints(), shape.yPoints(), CORNER_COUNT);
+        });
     }
 
     static Color baseFill(HexCoordinate coordinate) {
@@ -145,9 +129,13 @@ final class HexChessCanvasBoard {
             return;
         }
 
-        drawCenteredText(graphics, coordinate.notation(), center, notationFont, notationColor, notationYOffset);
+        graphics.setFill(notationColor);
+        graphics.setFont(notationFont);
+        graphics.setTextAlign(TextAlignment.CENTER);
+        graphics.setTextBaseline(VPos.CENTER);
+        graphics.fillText(coordinate.notation(), center.getX(), center.getY() + notationYOffset);
         if (isPromotionSquare(coordinate)) {
-            drawCenteredText(graphics, "*", center, promotionFont, notationColor, 1);
+            drawPromotionStar(graphics, center, notationColor);
         }
     }
 
@@ -158,75 +146,40 @@ final class HexChessCanvasBoard {
         }
 
         Image image = HexChessPieceImages.image(piece);
-        double x = center.getX() - pieceSize / 2.0;
-        double y = center.getY() - pieceSize / 2.0;
-        graphics.drawImage(image, x, y, pieceSize, pieceSize);
+        double maxImageDimension = Math.max(image.getWidth(), image.getHeight());
+        double scale = pieceSize / maxImageDimension;
+        double imageWidth = image.getWidth() * scale;
+        double imageHeight = image.getHeight() * scale;
+        double x = center.getX() - imageWidth / 2.0;
+        double y = center.getY() - imageHeight / 2.0;
+        graphics.drawImage(image, x, y, imageWidth, imageHeight);
     }
 
-    static double boardWidth(double hexSize) {
-        return computeBoardBounds(hexSize).width();
+    private Optional<CellShape> cellShape(HexCoordinate coordinate) {
+        return Optional.ofNullable(cellCenters.get(coordinate))
+                .map(center -> new CellShape(xPoints(center), yPoints(center)));
     }
 
-    static double boardHeight(double hexSize) {
-        return computeBoardBounds(hexSize).height();
-    }
-
-    private void drawCenteredText(
-            GraphicsContext graphics,
-            String text,
-            Point2D center,
-            Font font,
-            Color color,
-            double yOffset) {
-        graphics.setFill(color);
-        graphics.setFont(font);
-        graphics.setTextAlign(TextAlignment.CENTER);
-        graphics.setTextBaseline(VPos.CENTER);
-        graphics.fillText(text, center.getX(), center.getY() + yOffset);
-    }
-
-    private CellShape cellShape(HexCoordinate coordinate) {
-        Point2D center = cellCenters.get(coordinate);
-        return center == null ? null : polygonAround(center);
-    }
-
-    private CellShape polygonAround(Point2D center) {
-        double[] xPoints = new double[HEX_CORNERS];
-        double[] yPoints = new double[HEX_CORNERS];
-        for (int i = 0; i < HEX_CORNERS; i++) {
-            double angle = Math.toRadians(HEX_ANGLE_STEP * i);
-            xPoints[i] = center.getX() + hexSize * Math.cos(angle);
-            yPoints[i] = center.getY() + hexSize * Math.sin(angle);
-        }
-        return new CellShape(xPoints, yPoints);
-    }
-
-    private HexCoordinate coordinateAt(double x, double y) {
-        for (Map.Entry<HexCoordinate, Point2D> entry : cellCenters.entrySet()) {
-            if (containsPoint(entry.getValue(), x, y)) {
-                return entry.getKey();
-            }
-        }
-        return null;
+    private Optional<HexCoordinate> coordinateAt(double x, double y) {
+        return cellCenters.entrySet()
+                .stream()
+                .filter(entry -> containsPoint(entry.getValue(), x, y))
+                .map(Map.Entry::getKey)
+                .findFirst();
     }
 
     private boolean containsPoint(Point2D center, double x, double y) {
-        CellShape shape = polygonAround(center);
-        double[] xPoints = shape.xPoints();
-        double[] yPoints = shape.yPoints();
+        double[] xPoints = xPoints(center);
+        double[] yPoints = yPoints(center);
         boolean inside = false;
 
-        for (int current = 0, previous = HEX_CORNERS - 1; current < HEX_CORNERS; previous = current++) {
-            boolean crossesY = (yPoints[current] > y) != (yPoints[previous] > y);
-            if (!crossesY) {
-                continue;
-            }
-
+        for (int current = 0, previous = xPoints.length - 1; current < xPoints.length; previous = current++) {
+            boolean crosses = (yPoints[current] > y) != (yPoints[previous] > y);
             double intersectX = (xPoints[previous] - xPoints[current])
                     * (y - yPoints[current])
                     / (yPoints[previous] - yPoints[current])
                     + xPoints[current];
-            if (x < intersectX) {
+            if (crosses && x < intersectX) {
                 inside = !inside;
             }
         }
@@ -235,14 +188,10 @@ final class HexChessCanvasBoard {
     }
 
     private Point2D centerOf(HexCoordinate coordinate) {
-        return new Point2D(
-                rawX(coordinate, hexSize) + boardOffsetX,
-                rawY(coordinate, hexSize) + boardOffsetY);
-    }
+        double x = rawX(coordinate, hexSize) + boardOffsetX;
+        double y = rawY(coordinate, hexSize) + boardOffsetY;
 
-    private boolean isPromotionSquare(HexCoordinate coordinate) {
-        return HexBoardGeometry.isPromotionSquare(coordinate, HexPieceColor.WHITE)
-                || HexBoardGeometry.isPromotionSquare(coordinate, HexPieceColor.BLACK);
+        return new Point2D(x, y);
     }
 
     private static BoardBounds computeBoardBounds(double hexSize) {
@@ -264,6 +213,14 @@ final class HexChessCanvasBoard {
         return new BoardBounds(minX, maxX, minY, maxY);
     }
 
+    static double boardWidth(double hexSize) {
+        return computeBoardBounds(hexSize).width();
+    }
+
+    static double boardHeight(double hexSize) {
+        return computeBoardBounds(hexSize).height();
+    }
+
     private static double rawX(HexCoordinate coordinate, double hexSize) {
         return hexSize * 1.5 * HexBoardGeometry.axialQ(coordinate);
     }
@@ -271,7 +228,36 @@ final class HexChessCanvasBoard {
     private static double rawY(HexCoordinate coordinate, double hexSize) {
         double q = HexBoardGeometry.axialQ(coordinate);
         double r = HexBoardGeometry.axialR(coordinate);
-        return -hexSize * SQRT_3 * (r + q / 2.0);
+        return -hexSize * Math.sqrt(3) * (r + q / 2.0);
+    }
+
+    private double[] xPoints(Point2D center) {
+        return IntStream.range(0, CORNER_COUNT)
+                .mapToDouble(index -> center.getX() + hexSize * Math.cos(hexAngle(index)))
+                .toArray();
+    }
+
+    private double[] yPoints(Point2D center) {
+        return IntStream.range(0, CORNER_COUNT)
+                .mapToDouble(index -> center.getY() + hexSize * Math.sin(hexAngle(index)))
+                .toArray();
+    }
+
+    private double hexAngle(int index) {
+        return Math.toRadians(CORNER_ANGLE_DEGREES * index);
+    }
+
+    private void drawPromotionStar(GraphicsContext graphics, Point2D center, Color notationColor) {
+        graphics.setFill(notationColor);
+        graphics.setFont(promotionFont);
+        graphics.setTextAlign(TextAlignment.CENTER);
+        graphics.setTextBaseline(VPos.CENTER);
+        graphics.fillText("*", center.getX(), center.getY() + 1);
+    }
+
+    private boolean isPromotionSquare(HexCoordinate coordinate) {
+        return HexBoardGeometry.isPromotionSquare(coordinate, HexPieceColor.WHITE)
+                || HexBoardGeometry.isPromotionSquare(coordinate, HexPieceColor.BLACK);
     }
 
     private record CellShape(double[] xPoints, double[] yPoints) {

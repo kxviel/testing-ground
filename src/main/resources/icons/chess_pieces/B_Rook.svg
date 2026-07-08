@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="1024" viewBox="0 0 16 32" shape-rendering="crispEdges">
-  <title>B_Rook</title>
-  <desc>Pixel-perfect vector conversion from PNG. Transparent background preserved.</desc>
-  <path fill="#1f1f29" d="M4 13h1v1h-1zM6 13h3v1h-3zM10 13h4v1h-4zM5 14h2v1h-2zM9 14h2v1h-2zM13 14h1v1h-1zM13 15h1v1h-1zM2 16h1v1h-1zM13 16h1v1h-1zM2 17h1v1h-1zM13 17h1v1h-1zM3 18h1v1h-1zM12 18h1v1h-1zM4 19h1v1h-1zM11 19h1v1h-1zM4 20h1v1h-1zM11 20h1v1h-1zM4 21h1v1h-1zM11 21h1v1h-1zM11 22h1v1h-1zM12 23h1v1h-1zM12 24h1v1h-1zM13 25h1v1h-1zM2 26h1v1h-1zM13 26h1v1h-1zM2 27h1v1h-1zM13 27h1v1h-1zM2 28h1v1h-1zM13 28h1v1h-1zM1 29h1v1h-1zM14 29h1v1h-1zM1 30h2v1h-2zM13 30h2v1h-2zM2 31h12v1h-12z"/>
-  <path fill="#413a42" d="M2 13h2v1h-2zM2 14h1v1h-1zM2 15h1v1h-1zM5 15h2v1h-2zM9 15h2v1h-2zM12 15h1v1h-1zM11 16h2v1h-2zM11 17h2v1h-2zM10 18h2v1h-2zM9 19h2v1h-2zM10 20h1v1h-1zM10 21h1v1h-1zM4 22h1v1h-1zM9 22h2v1h-2zM3 23h1v1h-1zM10 23h2v1h-2zM3 24h1v1h-1zM10 24h2v1h-2zM2 25h1v1h-1zM7 25h6v1h-6zM11 26h2v1h-2zM11 27h2v1h-2zM7 28h6v1h-6zM10 29h4v1h-4zM3 30h10v1h-10z"/>
-  <path fill="#596070" d="M11 14h2v1h-2zM4 15h1v1h-1zM8 15h1v1h-1zM11 15h1v1h-1zM4 16h7v1h-7zM3 17h8v1h-8zM4 18h6v1h-6zM5 19h4v1h-4zM5 20h5v1h-5zM5 21h5v1h-5zM6 22h3v1h-3zM5 23h5v1h-5zM5 24h5v1h-5zM4 25h3v1h-3zM4 26h7v1h-7zM6 27h5v1h-5zM3 28h4v1h-4zM7 29h3v1h-3z"/>
-  <path fill="#96a2b3" d="M3 14h2v1h-2zM7 14h2v1h-2zM3 15h1v1h-1zM7 15h1v1h-1zM3 16h1v1h-1zM5 22h1v1h-1zM4 23h1v1h-1zM4 24h1v1h-1zM3 25h1v1h-1zM3 26h1v1h-1zM3 27h3v1h-3zM2 29h5v1h-5z"/>
-</svg>

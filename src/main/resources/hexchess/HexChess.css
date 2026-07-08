@@ -23,13 +23,21 @@
     -game-soft-surface: #f9f4f1;
 }
 
+.hex-menu-root,
+.hex-menu-main,
+.hex-game-root,
+.hex-game-main {
+    -fx-background-color: -sh-background;
+}
+
+.hex-menu-root,
 .hex-game-root {
-    -fx-background-color: #020617;
     -fx-padding: 0;
 }
 
-.hex-game-main {
-    -fx-background-color: transparent;
+.hex-menu-main {
+    -fx-hgap: 20;
+    -fx-padding: 0;
 }
 
 .hex-game-main {
@@ -56,14 +64,6 @@
     -fx-border-color: -sh-sidebar-border;
 }
 
-.hex-side-panel {
-    -fx-spacing: 18;
-}
-
-.hex-side-panel .sidebar-section {
-    -fx-spacing: 12;
-}
-
 .hex-board-zone {
     -fx-padding: 16;
 }
@@ -85,11 +85,6 @@
     -fx-border-width: 1;
     -fx-padding: 14;
     -fx-spacing: 12;
-}
-
-.hex-board-panel.board-surface,
-.hex-side-panel {
-    -fx-background-color: rgba(255, 255, 255, 0.77);
 }
 
 .title,
@@ -220,11 +215,7 @@
 }
 
 .hex-match-actions {
-    -fx-spacing: 8;
-}
-
-.hex-action-button-stack {
-    -fx-spacing: 8;
+    -fx-spacing: 12;
 }
 
 .hex-control-button {

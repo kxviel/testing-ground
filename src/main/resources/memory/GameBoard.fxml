@@ -5,7 +5,6 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
-<?import javafx.scene.effect.GaussianBlur?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -15,8 +14,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane fx:id="memoryRoot"
-           alignment="CENTER"
+<StackPane alignment="CENTER"
            prefWidth="1226.0"
            prefHeight="576.0"
            maxWidth="Infinity"
@@ -29,21 +27,6 @@
         <URL value="@Memory.css"/>
         <URL value="@game.css"/>
     </stylesheets>
-    <ImageView fitHeight="${memoryRoot.height}"
-               fitWidth="${memoryRoot.width}"
-               mouseTransparent="true"
-               preserveRatio="false"
-               smooth="true">
-        <image>
-            <Image url="@../images/game-choice-background.png"/>
-        </image>
-        <effect>
-            <GaussianBlur radius="7.0"/>
-        </effect>
-    </ImageView>
-
-    <Region mouseTransparent="true" styleClass="game-background-overlay"/>
-
     <GridPane alignment="CENTER"
               hgap="20.0"
               minWidth="0.0"
@@ -149,7 +132,7 @@
                   styleClass="memory-post-game-bar">
                 <Label fx:id="resultLabel" wrapText="true" styleClass="memory-post-result" HBox.hgrow="ALWAYS"/>
                 <Button text="Play Again" onAction="#onPostPlayAgain" styleClass="memory-primary-button"/>
-                <Button text="GameBox" onAction="#onPostGameBox" styleClass="memory-secondary-button"/>
+                <Button text="Main Menu" onAction="#onPostMainMenu" styleClass="memory-secondary-button"/>
             </HBox>
 
             <Region VBox.vgrow="ALWAYS"/>
@@ -159,7 +142,7 @@
                         onAction="#onRestart"
                         maxWidth="Infinity"
                         styleClass="memory-secondary-button"/>
-                <Button text="↪  Quit to GameBox"
+                <Button text="↪  Quit to Menu"
                         onAction="#onQuit"
                         maxWidth="Infinity"
                         styleClass="memory-primary-button"/>

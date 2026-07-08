@@ -6,9 +6,6 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
-<?import javafx.scene.effect.GaussianBlur?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -16,33 +13,16 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane fx:id="hexGameRoot"
-           styleClass="hex-game-root"
-           xmlns="http://javafx.com/javafx"
-           xmlns:fx="http://javafx.com/fxml"
-           fx:controller="seda_project.control_alt_defeat.gamebox.controller.hexchess.HexChessGameController">
+<BorderPane styleClass="hex-game-root"
+            xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="seda_project.control_alt_defeat.gamebox.controller.hexchess.HexChessGameController">
 
     <stylesheets>
         <URL value="@HexChess.css"/>
     </stylesheets>
 
-    <ImageView fitHeight="${hexGameRoot.height}"
-               fitWidth="${hexGameRoot.width}"
-               mouseTransparent="true"
-               preserveRatio="false"
-               smooth="true">
-        <image>
-            <Image url="@../images/game-choice-background.png"/>
-        </image>
-        <effect>
-            <GaussianBlur radius="7.0"/>
-        </effect>
-    </ImageView>
-
-    <Region mouseTransparent="true" styleClass="game-background-overlay"/>
-
-    <BorderPane styleClass="game-screen-content">
-        <center>
+    <center>
         <ScrollPane fitToHeight="true"
                     fitToWidth="true"
                     hbarPolicy="AS_NEEDED"
@@ -110,29 +90,26 @@
 
                 <Region VBox.vgrow="ALWAYS"/>
 
-                <VBox styleClass="sidebar-section hex-match-actions">
+                <VBox spacing="10" styleClass="sidebar-section hex-match-actions">
                     <Label text="Actions" styleClass="panel-label"/>
-                    <VBox spacing="8.0" styleClass="hex-action-button-stack">
-                        <Button fx:id="offerDrawButton" text="Offer Draw" onAction="#onOfferDraw" maxWidth="Infinity"
-                                styleClass="hex-control-button"/>
-                        <Button fx:id="resignButton" text="Resign" onAction="#onResign" maxWidth="Infinity"
-                                styleClass="hex-control-button hex-control-danger"/>
-                        <Button fx:id="acceptDrawButton" text="Accept" onAction="#onAcceptDraw"
-                                visible="false" managed="false" maxWidth="Infinity"
-                                styleClass="hex-control-button"/>
-                        <Button fx:id="declineDrawButton" text="Decline" onAction="#onDeclineDraw"
-                                visible="false" managed="false" maxWidth="Infinity"
-                                styleClass="hex-control-button"/>
-                        <Button fx:id="restartButton" text="Restart" onAction="#onRestart" maxWidth="Infinity"
-                                styleClass="hex-control-button"/>
-                        <Button text="Back to GameBox" onAction="#onBackToGameBox" maxWidth="Infinity"
-                                styleClass="hex-control-button"/>
-                    </VBox>
+                    <Button fx:id="offerDrawButton" text="Offer Draw" onAction="#onOfferDraw" maxWidth="Infinity"
+                            styleClass="hex-control-button"/>
+                    <Button fx:id="resignButton" text="Resign" onAction="#onResign" maxWidth="Infinity"
+                            styleClass="hex-control-button hex-control-danger"/>
+                    <Button fx:id="acceptDrawButton" text="Accept" onAction="#onAcceptDraw"
+                            visible="false" managed="false" maxWidth="Infinity"
+                            styleClass="hex-control-button"/>
+                    <Button fx:id="declineDrawButton" text="Decline" onAction="#onDeclineDraw"
+                            visible="false" managed="false" maxWidth="Infinity"
+                            styleClass="hex-control-button"/>
+                    <Button fx:id="restartButton" text="Restart" onAction="#onRestart" maxWidth="Infinity"
+                            styleClass="hex-control-button"/>
+                    <Button text="Back to Menu" onAction="#onBackToMenu" maxWidth="Infinity"
+                            styleClass="hex-control-button"/>
                 </VBox>
                 </VBox>
             </ScrollPane>
         </GridPane>
         </ScrollPane>
-        </center>
-    </BorderPane>
-</StackPane>
+    </center>
+</BorderPane>

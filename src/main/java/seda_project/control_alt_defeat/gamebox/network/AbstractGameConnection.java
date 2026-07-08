@@ -104,20 +104,9 @@ abstract class AbstractGameConnection implements Closeable {
     @Override
     public void close() {
         running = false;
-        closeQuietly(reader);
-        if (writer != null) {
-            writer.close();
-            writer = null;
-        }
-        closeQuietly(socket);
-        reader = null;
-        socket = null;
-    }
-
-    protected static void closeQuietly(Closeable closeable) {
         try {
-            if (closeable != null) {
-                closeable.close();
+            if (socket != null) {
+                socket.close();
             }
         } catch (IOException ignored) {
         }

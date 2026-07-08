@@ -44,6 +44,26 @@
     -fx-font-size: 14px;
 }
 
+.game-choice-root,
+.game-choice-main,
+.game-menu-shell,
+.memory-menu-root,
+.memory-menu-viewport,
+.memory-game-root,
+.tetris-menu-root,
+.tetris-menu-main,
+.tetris-game-root,
+.tetris-game-main,
+.hex-menu-root,
+.hex-menu-main,
+.hex-game-root,
+.hex-game-main {
+    -fx-background-image: url("images/game-bg.png");
+    -fx-background-position: center center;
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: cover;
+}
+
 .app-scroll,
 .app-scroll > .viewport {
     -fx-background-color: transparent;
@@ -52,14 +72,6 @@
 
 .app-scroll {
     -fx-padding: 0;
-}
-
-.game-background-overlay {
-    -fx-background-color: rgba(2, 6, 23, 0.34);
-}
-
-.game-screen-content {
-    -fx-background-color: transparent;
 }
 
 .app-scroll .scroll-bar:vertical,

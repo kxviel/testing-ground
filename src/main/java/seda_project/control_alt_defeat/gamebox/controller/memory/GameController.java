@@ -10,6 +10,8 @@ import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -23,7 +25,6 @@ import seda_project.control_alt_defeat.gamebox.network.GameClient;
 import seda_project.control_alt_defeat.gamebox.network.GameServer;
 import seda_project.control_alt_defeat.gamebox.network.memory.MemoryProtocol;
 import seda_project.control_alt_defeat.gamebox.network.memory.MemoryStateSnapshot;
-import seda_project.control_alt_defeat.gamebox.ui.SvgIcon;
 import seda_project.control_alt_defeat.gamebox.ui.TimedStatus;
 import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
 import seda_project.control_alt_defeat.gamebox.util.Router;
@@ -38,7 +39,7 @@ import java.util.stream.IntStream;
 public class GameController implements RouteDataReceiver {
 
     private static final Logger log = LoggerFactory.getLogger(GameController.class);
-    private static final String GAME_CHOICE_ROUTE = "/GameChoice.fxml";
+    private static final String MENU_ROUTE = "/memory/MemoryMenu.fxml";
     private static final String PLAYER_ONE = SafeText.PLAYER_ONE_NAME;
     private static final String PLAYER_TWO = SafeText.PLAYER_TWO_NAME;
     private static final String ACTIVE_PLAYER_CLASS = "score-active";
@@ -273,7 +274,7 @@ public class GameController implements RouteDataReceiver {
     private void handleRemoteQuit() {
         inputLocked = true;
         hidePostGameBar();
-        returnToGameBox(opponentName() + " left the game.");
+        returnToMainMenu(opponentName() + " left the game.");
     }
 
     private void handleDisconnect() {
@@ -285,7 +286,7 @@ public class GameController implements RouteDataReceiver {
                 "The connection to the other player was lost.", ButtonType.OK);
         a.setTitle("Connection Lost");
         a.showAndWait();
-        returnToGameBox(null);
+        returnToMainMenu(null);
     }
 
     private void buildBoard() {
@@ -491,15 +492,26 @@ public class GameController implements RouteDataReceiver {
     }
 
     private void showCardFace(Button button, String faceId, String stateClass, CardLayout layout) {
-        SvgIcon face = new SvgIcon();
+        double fitSize = Math.max(24.0, layout.size() * CARD_FACE_SCALE);
+        ImageView face = new ImageView(cardFaceImage(faceId));
         face.getStyleClass().add("memory-card-face");
-        face.setThemed(false);
-        face.setFitSize(Math.max(24.0, layout.size() * CARD_FACE_SCALE));
-        face.setIcon(faceId);
+        face.setFitWidth(fitSize);
+        face.setFitHeight(fitSize);
+        face.setPreserveRatio(true);
+        face.setSmooth(true);
         button.setText("");
         button.setGraphic(face);
         button.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
         setCardState(button, stateClass, layout.fontSize());
+    }
+
+    private static Image cardFaceImage(String faceId) {
+        String resource = "/icons/" + faceId;
+        var imageUrl = GameController.class.getResource(resource);
+        if (imageUrl == null) {
+            throw new IllegalStateException("Missing memory card image: " + resource);
+        }
+        return new Image(imageUrl.toExternalForm());
     }
 
     private CardLayout computeCardLayout() {
@@ -576,7 +588,7 @@ public class GameController implements RouteDataReceiver {
     private void showLocalGameOver(String resultText, String scores) {
         Alert alert = new Alert(Alert.AlertType.NONE);
         ButtonType restartBtn = new ButtonType("Play Again", ButtonBar.ButtonData.YES);
-        ButtonType menuBtn = new ButtonType("GameBox", ButtonBar.ButtonData.NO);
+        ButtonType menuBtn = new ButtonType("Main Menu", ButtonBar.ButtonData.NO);
         alert.setTitle("Game Over");
         alert.setHeaderText(resultText);
         alert.setContentText(scores);
@@ -585,7 +597,7 @@ public class GameController implements RouteDataReceiver {
             if (btn == restartBtn)
                 restartGame();
             else
-                returnToGameBox(null);
+                returnToMainMenu(null);
         });
     }
 
@@ -613,11 +625,11 @@ public class GameController implements RouteDataReceiver {
     }
 
     @FXML
-    private void onPostGameBox() {
+    private void onPostMainMenu() {
         String myName = playerName();
         hidePostGameBar();
         sendQuit();
-        returnToGameBox(myName + " left the game.");
+        returnToMainMenu(myName + " left the game.");
     }
 
     private void showTimedStatus(String message, int seconds) {
@@ -639,7 +651,7 @@ public class GameController implements RouteDataReceiver {
         statusLabel.setText("");
         if (isNetworkHost()) {
             if (server == null) {
-                returnToGameBox(null);
+                returnToMainMenu(null);
                 return;
             }
             server.send(MemoryProtocol.restartState(snapshot()));
@@ -655,19 +667,19 @@ public class GameController implements RouteDataReceiver {
             if (btn == ButtonType.YES) {
                 stopMismatchPause();
                 sendQuit();
-                returnToGameBox(null);
+                returnToMainMenu(null);
             }
         });
     }
 
-    private void returnToGameBox(String statusMessage) {
+    private void returnToMainMenu(String statusMessage) {
         closeNetwork();
         Stage stage = currentStage();
         if (stage == null) {
-            log.error("Cannot return to GameBox: stage reference is null");
+            log.error("Cannot return to main menu: stage reference is null");
             return;
         }
-        Router.goTo(stage, GAME_CHOICE_ROUTE, statusMessage);
+        Router.goTo(stage, MENU_ROUTE, statusMessage);
     }
 
     private void sendQuit() {
