@@ -40,6 +40,19 @@
     -fx-padding: 0;
 }
 
+.tetris-menu-root .game-menu-shell {
+    -fx-padding: 18 24;
+}
+
+.tetris-menu-root .tetris-setup,
+.tetris-menu-root .tetris-options-panel {
+    -fx-padding: 16;
+}
+
+.tetris-menu-root .menu-header {
+    -fx-spacing: 5;
+}
+
 .tetris-game-main {
     -fx-hgap: 20;
     -fx-padding: 40;
@@ -74,7 +87,7 @@
 }
 
 .title {
-    -fx-font-size: 42px;
+    -fx-font-size: 34px;
     -fx-font-weight: 800;
 }
 
@@ -103,7 +116,7 @@
 .tetris-setup-list,
 .menu-config-content,
 .game-actions {
-    -fx-spacing: 20;
+    -fx-spacing: 12;
 }
 
 .tetris-mode-card {
@@ -122,8 +135,8 @@
     -fx-border-width: 1;
     -fx-content-display: graphic-only;
     -fx-cursor: hand;
-    -fx-min-height: 86;
-    -fx-padding: 20;
+    -fx-min-height: 70;
+    -fx-padding: 12 14;
 }
 
 .tetris-action-row:hover {
@@ -142,20 +155,20 @@
     -fx-border-color: -sh-border;
     -fx-border-radius: 6px;
     -fx-border-width: 1;
-    -fx-min-height: 54;
-    -fx-min-width: 54;
-    -fx-pref-height: 54;
-    -fx-pref-width: 54;
+    -fx-min-height: 46;
+    -fx-min-width: 46;
+    -fx-pref-height: 46;
+    -fx-pref-width: 46;
 }
 
 .row-title {
-    -fx-font-size: 22px;
+    -fx-font-size: 19px;
     -fx-font-weight: 800;
 }
 
 .row-subtitle,
 .settings-subtitle {
-    -fx-font-size: 16px;
+    -fx-font-size: 15px;
 }
 
 .row-arrow-chip {
@@ -174,7 +187,7 @@
 
 .settings-footer {
     -fx-border-width: 1 0 0 0;
-    -fx-padding: 20 0 0 0;
+    -fx-padding: 12 0 0 0;
 }
 
 .menu-config-column,
@@ -184,7 +197,7 @@
 .button-row,
 .keymap-block,
 .boards-stack {
-    -fx-spacing: 10;
+    -fx-spacing: 8;
 }
 
 .menu-config-content .combo-box {
@@ -198,9 +211,9 @@
 }
 
 .custom-piece-grid {
-    -fx-hgap: 3;
+    -fx-hgap: 2;
     -fx-padding: 2 0;
-    -fx-vgap: 3;
+    -fx-vgap: 2;
 }
 
 .custom-cell {
@@ -215,10 +228,10 @@
 }
 
 .menu-custom-editor .custom-cell {
-    -fx-min-height: 22;
-    -fx-min-width: 22;
-    -fx-pref-height: 22;
-    -fx-pref-width: 22;
+    -fx-min-height: 20;
+    -fx-min-width: 20;
+    -fx-pref-height: 20;
+    -fx-pref-width: 20;
 }
 
 .custom-cell-selected {

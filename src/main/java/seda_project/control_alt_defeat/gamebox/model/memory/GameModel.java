@@ -8,16 +8,16 @@ import java.util.stream.IntStream;
 public class GameModel {
 
     private static final String[] SYMBOL_POOL = {
-            "card_faces/ahri.png",
+            "card_faces/angry.png",
             "card_faces/bad-piggies.png",
-            "card_faces/terraria.png",
+            "card_faces/troll.png",
             "card_faces/codw.png",
-            "card_faces/clubs.png",
+            "card_faces/shrek.png",
             "card_faces/heart-color.png",
             "card_faces/cs.png",
-            "card_faces/diamonds.png",
+            "card_faces/butt.png",
             "card_faces/elden-ring.png",
-            "card_faces/favorite.png",
+            "card_faces/hand.png",
             "card_faces/five-nights-at-freddys.png",
             "card_faces/greek-helmet.png",
             "card_faces/mage-staff.png",
@@ -27,7 +27,7 @@ public class GameModel {
             "card_faces/pixel-cat.png",
             "card_faces/pixel-star.png",
             "card_faces/scary-tree.png",
-            "card_faces/spades.png",
+            "card_faces/turkey.png",
             "card_faces/spartan-helmet.png",
             "card_faces/super-mario.png",
             "card_faces/ultra-ball.png"

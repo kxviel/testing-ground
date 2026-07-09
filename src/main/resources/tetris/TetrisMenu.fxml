@@ -58,7 +58,7 @@
                       GridPane.vgrow="ALWAYS"
                       maxHeight="Infinity"
                       maxWidth="Infinity"
-                      spacing="26"
+                      spacing="14"
                       styleClass="tetris-setup">
 
                     <VBox styleClass="menu-header">
@@ -73,9 +73,7 @@
                               spacing="12"
                               maxHeight="Infinity"
                               maxWidth="Infinity"
-                              minHeight="160"
-                              styleClass="tetris-mode-card"
-                              VBox.vgrow="ALWAYS">
+                              styleClass="tetris-mode-card">
                             <Button fx:id="localModeButton"
                                     maxWidth="Infinity"
                                     onAction="#onLocalMode"
