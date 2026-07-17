@@ -64,10 +64,15 @@ public class TetrisGameController implements RouteDataReceiver {
     private static final int MENU_RETURN_SECONDS = 2;
     private static final String OPPONENT_LEFT_MESSAGE = "Your opponent has left the game.";
     private static final double MIN_GAME_CONTENT_HEIGHT = 520;
-    private static final String[] BLOCK_COLORS = {
+    private static final String[] PLAYER_BLOCK_COLORS = {
             "#7873B8",
             "#8B8BC9",
             "#A3A7D6"
+    };
+    private static final String[] OPPONENT_BLOCK_COLORS = {
+            "#5D7FBD",
+            "#7694CC",
+            "#93ADD9"
     };
 
     @FXML
@@ -302,7 +307,7 @@ public class TetrisGameController implements RouteDataReceiver {
         boolean horizontal = gameState.config().horizontalMode();
 
         for (GridPane grid : List.of(bottomBoardGrid, topBoardGrid)) {
-            grid.getStyleClass().removeIf(style -> style.startsWith("tetris-board-"));
+            grid.getStyleClass().removeAll("tetris-board-horizontal", "tetris-board-vertical");
             if (!grid.getStyleClass().contains("tetris-board")) {
                 grid.getStyleClass().add("tetris-board");
             }
@@ -394,6 +399,7 @@ public class TetrisGameController implements RouteDataReceiver {
     }
 
     private void renderBoard(GridPane grid, TetrisPlayerState player) {
+        applyBoardTheme(grid, player.board().themeSide());
         grid.getChildren().clear();
         double cellSize = computeCellSize();
 
@@ -415,12 +421,12 @@ public class TetrisGameController implements RouteDataReceiver {
 
                 if (activeCells.contains(position)) {
                     cell.getStyleClass().add("board-cell-active");
-                    paintBlock(cell, activeColor);
+                    paintBlock(cell, activeColor, player.board().themeSide());
                 } else if (hasObject) {
                     cell.getStyleClass().add("board-cell-object");
                 } else if (player.board().cellAt(position) == TetrisCell.FILLED) {
                     cell.getStyleClass().add("board-cell-filled");
-                    paintBlock(cell, player.board().colorAt(position));
+                    paintBlock(cell, player.board().colorAt(position), player.board().themeSide());
                 }
 
                 grid.add(cell, column, row);
@@ -803,13 +809,25 @@ public class TetrisGameController implements RouteDataReceiver {
         }
     }
 
-    private void paintBlock(Region cell, int colorIndex) {
-        String color = BLOCK_COLORS[Math.floorMod(colorIndex, BLOCK_COLORS.length)];
+    private void paintBlock(Region cell, int colorIndex, PlayerSide themeSide) {
+        String color = blockColor(themeSide, colorIndex);
         cell.setStyle("-fx-background-color: " + color + "; -fx-border-color: derive(" + color + ", -24%);");
     }
 
+    static void applyBoardTheme(GridPane grid, PlayerSide themeSide) {
+        grid.getStyleClass().remove("tetris-board-opponent");
+        if (themeSide == PlayerSide.TOP) {
+            grid.getStyleClass().add("tetris-board-opponent");
+        }
+    }
+
+    static String blockColor(PlayerSide themeSide, int colorIndex) {
+        String[] palette = themeSide == PlayerSide.TOP ? OPPONENT_BLOCK_COLORS : PLAYER_BLOCK_COLORS;
+        return palette[Math.floorMod(colorIndex, palette.length)];
+    }
+
     private int randomBlockColor() {
-        return objectRandom.nextInt(BLOCK_COLORS.length);
+        return objectRandom.nextInt(PLAYER_BLOCK_COLORS.length);
     }
 
     private TetrisItemBag objectBag(PlayerSide side) {

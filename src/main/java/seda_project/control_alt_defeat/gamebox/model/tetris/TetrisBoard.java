@@ -1,6 +1,7 @@
 package seda_project.control_alt_defeat.gamebox.model.tetris;
 
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.GravityDirection;
+import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerSide;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisCell;
 
 import java.util.Arrays;
@@ -24,24 +25,34 @@ public class TetrisBoard {
     private final int columns;
     private final TetrisCell[][] cells;
     private final int[][] colorIndexes;
+    private final PlayerSide themeSide;
 
     public static TetrisBoard createDefault(boolean horizontalMode) {
+        return createDefault(horizontalMode, PlayerSide.BOTTOM);
+    }
+
+    public static TetrisBoard createDefault(boolean horizontalMode, PlayerSide themeSide) {
         return horizontalMode
-                ? new TetrisBoard(HORIZONTAL_ROWS, HORIZONTAL_COLUMNS)
-                : new TetrisBoard();
+                ? new TetrisBoard(HORIZONTAL_ROWS, HORIZONTAL_COLUMNS, themeSide)
+                : new TetrisBoard(DEFAULT_ROWS, DEFAULT_COLUMNS, themeSide);
     }
 
     public TetrisBoard() {
-        this(DEFAULT_ROWS, DEFAULT_COLUMNS);
+        this(DEFAULT_ROWS, DEFAULT_COLUMNS, PlayerSide.BOTTOM);
     }
 
     public TetrisBoard(int rows, int columns) {
+        this(rows, columns, PlayerSide.BOTTOM);
+    }
+
+    public TetrisBoard(int rows, int columns, PlayerSide themeSide) {
         int safeRows = clamp(rows, MIN_ROWS, MAX_ROWS);
         int safeColumns = clamp(columns, MIN_COLUMNS, MAX_COLUMNS);
         this.rows = safeRows;
         this.columns = safeColumns;
         this.cells = createEmptyCells(safeRows, safeColumns);
         this.colorIndexes = createEmptyColors(safeRows, safeColumns);
+        this.themeSide = safeThemeSide(themeSide);
     }
 
     public TetrisBoard(TetrisCell[][] cells) {
@@ -49,19 +60,30 @@ public class TetrisBoard {
     }
 
     public TetrisBoard(TetrisCell[][] cells, int[][] colorIndexes) {
+        this(cells, colorIndexes, PlayerSide.BOTTOM);
+    }
+
+    public TetrisBoard(TetrisCell[][] cells, int[][] colorIndexes, PlayerSide themeSide) {
         int inferredRows = cells == null ? DEFAULT_ROWS : cells.length;
         int inferredColumns = inferColumns(cells, DEFAULT_COLUMNS);
         this.rows = clamp(inferredRows, MIN_ROWS, MAX_ROWS);
         this.columns = clamp(inferredColumns, MIN_COLUMNS, MAX_COLUMNS);
         this.cells = copyCells(cells, this.rows, this.columns);
         this.colorIndexes = copyColors(colorIndexes, this.cells, this.rows, this.columns);
+        this.themeSide = safeThemeSide(themeSide);
     }
 
-    private TetrisBoard(int rows, int columns, TetrisCell[][] cells, int[][] colorIndexes) {
+    private TetrisBoard(
+            int rows,
+            int columns,
+            TetrisCell[][] cells,
+            int[][] colorIndexes,
+            PlayerSide themeSide) {
         this.rows = clamp(rows, MIN_ROWS, MAX_ROWS);
         this.columns = clamp(columns, MIN_COLUMNS, MAX_COLUMNS);
         this.cells = copyCells(cells, this.rows, this.columns);
         this.colorIndexes = copyColors(colorIndexes, this.cells, this.rows, this.columns);
+        this.themeSide = safeThemeSide(themeSide);
     }
 
     public int rows() {
@@ -70,6 +92,10 @@ public class TetrisBoard {
 
     public int columns() {
         return columns;
+    }
+
+    public PlayerSide themeSide() {
+        return themeSide;
     }
 
     public boolean isInside(BoardPosition position) {
@@ -116,7 +142,7 @@ public class TetrisBoard {
             nextColors[cell.row()][cell.column()] = piece.colorIndex();
         }
 
-        return new TetrisBoard(rows, columns, nextCells, nextColors);
+        return new TetrisBoard(rows, columns, nextCells, nextColors, themeSide);
     }
 
     public List<Integer> fullRows() {
@@ -160,10 +186,16 @@ public class TetrisBoard {
             writeRow--;
         }
 
-        return new TetrisBoard(rows, columns, nextCells, nextColors);
+        return new TetrisBoard(rows, columns, nextCells, nextColors, themeSide);
     }
 
     public TetrisBoard clearColumns(List<Integer> columnsToClear) {
+        return clearColumns(columnsToClear, GravityDirection.RIGHT);
+    }
+
+    public TetrisBoard clearColumns(
+            List<Integer> columnsToClear,
+            GravityDirection gravityDirection) {
         if (columnsToClear == null || columnsToClear.isEmpty()) {
             return this;
         }
@@ -178,21 +210,23 @@ public class TetrisBoard {
 
         TetrisCell[][] nextCells = createEmptyCells(rows, columns);
         int[][] nextColors = createEmptyColors(rows, columns);
-        int writeColumn = columns - 1;
-
-        for (int column = columns - 1; column >= 0; column--) {
-            if (clearedColumns.contains(column)) {
-                continue;
+        if (gravityDirection == GravityDirection.LEFT) {
+            int writeColumn = 0;
+            for (int column = 0; column < columns; column++) {
+                if (!clearedColumns.contains(column)) {
+                    copyColumn(column, writeColumn++, nextCells, nextColors);
+                }
             }
-
-            for (int row = 0; row < rows; row++) {
-                nextCells[row][writeColumn] = cells[row][column];
-                nextColors[row][writeColumn] = colorIndexes[row][column];
+        } else {
+            int writeColumn = columns - 1;
+            for (int column = columns - 1; column >= 0; column--) {
+                if (!clearedColumns.contains(column)) {
+                    copyColumn(column, writeColumn--, nextCells, nextColors);
+                }
             }
-            writeColumn--;
         }
 
-        return new TetrisBoard(rows, columns, nextCells, nextColors);
+        return new TetrisBoard(rows, columns, nextCells, nextColors, themeSide);
     }
 
     public TetrisBoard destroyRadius(BoardPosition center, int radius) {
@@ -322,7 +356,7 @@ public class TetrisBoard {
             System.arraycopy(colorIndexes[sourceStartRow + row], 0, newColors[targetStartRow + row], 0, columns);
         }
 
-        return new TetrisBoard(newRows, columns, newCells, newColors);
+        return new TetrisBoard(newRows, columns, newCells, newColors, themeSide);
     }
 
     private TetrisBoard resizeColumns(int newColumns, int sourceStartColumn, int targetStartColumn) {
@@ -337,7 +371,18 @@ public class TetrisBoard {
             }
         }
 
-        return new TetrisBoard(rows, newColumns, newCells, newColors);
+        return new TetrisBoard(rows, newColumns, newCells, newColors, themeSide);
+    }
+
+    private void copyColumn(
+            int sourceColumn,
+            int targetColumn,
+            TetrisCell[][] targetCells,
+            int[][] targetColors) {
+        for (int row = 0; row < rows; row++) {
+            targetCells[row][targetColumn] = cells[row][sourceColumn];
+            targetColors[row][targetColumn] = colorIndexes[row][sourceColumn];
+        }
     }
 
     public TetrisCell[][] cells() {
@@ -373,7 +418,7 @@ public class TetrisBoard {
                     nextColors[position.row()][position.column()] = -1;
                 });
 
-        return new TetrisBoard(rows, columns, nextCells, nextColors);
+        return new TetrisBoard(rows, columns, nextCells, nextColors, themeSide);
     }
 
     private static long distanceSquared(BoardPosition first, BoardPosition second) {
@@ -451,5 +496,9 @@ public class TetrisBoard {
 
     private static int clamp(int value, int min, int max) {
         return Math.min(max, Math.max(min, value));
+    }
+
+    private static PlayerSide safeThemeSide(PlayerSide themeSide) {
+        return themeSide == null ? PlayerSide.BOTTOM : themeSide;
     }
 }

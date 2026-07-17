@@ -21,6 +21,9 @@
     -game-accent-container: #d7dbee;
     -game-on-accent-container: #2b293d;
     -game-soft-surface: #f3f5fa;
+    -opponent-accent: #5d7fbd;
+    -opponent-accent-container: #d6e2f3;
+    -opponent-on-accent-container: #203a60;
 }
 
 .tetris-menu-root,
@@ -297,13 +300,13 @@
     -fx-border-color: -game-accent;
     -fx-border-radius: 6px;
     -fx-border-width: 1;
-    -fx-font-size: 13px;
-    -fx-font-weight: 800;
-    -fx-min-height: 22;
-    -fx-min-width: 22;
-    -fx-pref-height: 22;
-    -fx-pref-width: 22;
-    -fx-text-fill: -game-on-accent;
+    -fx-font-family: "Segoe UI Emoji";
+    -fx-font-size: 16px;
+    -fx-font-weight: 400;
+    -fx-min-height: 24;
+    -fx-min-width: 24;
+    -fx-pref-height: 24;
+    -fx-pref-width: 24;
 }
 
 .boards-stack {
@@ -323,10 +326,19 @@
     -fx-vgap: 1;
 }
 
+.tetris-board-opponent {
+    -fx-background-color: -opponent-on-accent-container;
+    -fx-border-color: -opponent-on-accent-container;
+}
+
 .board-cell {
     -fx-background-color: -sh-card;
     -fx-border-color: -game-accent-container;
     -fx-border-width: 0.5;
+}
+
+.tetris-board-opponent .board-cell {
+    -fx-border-color: -opponent-accent-container;
 }
 
 .board-cell-filled,
@@ -338,9 +350,14 @@
 
 .board-cell-object {
     -fx-alignment: center;
+    -fx-font-family: "Segoe UI Emoji";
     -fx-font-size: 12px;
-    -fx-font-weight: 800;
-    -fx-text-fill: -game-on-accent;
+    -fx-font-weight: 400;
+}
+
+.tetris-board-opponent .board-cell-object {
+    -fx-background-color: -opponent-accent;
+    -fx-border-color: -opponent-on-accent-container;
 }
 
 .board-game-over {

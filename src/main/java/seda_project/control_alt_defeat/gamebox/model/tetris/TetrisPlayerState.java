@@ -27,7 +27,7 @@ public record TetrisPlayerState(
     public TetrisPlayerState {
         playerName = SafeText.playerName(playerName, "Player");
         Objects.requireNonNull(side, "side");
-        board = board == null ? new TetrisBoard() : board;
+        board = board == null ? TetrisBoard.createDefault(false, side) : board;
         activePiece = activePiece != null && board.canPlace(activePiece) ? activePiece : null;
         score = Math.max(0, score);
         status = status == null ? PlayerStatus.PLAYING : status;
@@ -61,7 +61,7 @@ public record TetrisPlayerState(
         return new TetrisPlayerState(
                 playerName,
                 side,
-                TetrisBoard.createDefault(horizontalMode),
+                TetrisBoard.createDefault(horizontalMode, side),
                 null,
                 0,
                 PlayerStatus.PLAYING,
@@ -259,7 +259,7 @@ public record TetrisPlayerState(
 
         if (direction.isHorizontal()) {
             List<Integer> fullColumns = lockedBoard.fullColumns();
-            clearedBoard = lockedBoard.clearColumns(fullColumns);
+            clearedBoard = lockedBoard.clearColumns(fullColumns, direction);
             clearedLines = fullColumns.size();
         } else {
             List<Integer> fullRows = lockedBoard.fullRows();

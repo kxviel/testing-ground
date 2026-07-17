@@ -303,7 +303,7 @@ public record TetrisGameState(
             }
         }
 
-        return new TetrisBoard(mirroredCells, mirroredColors);
+        return new TetrisBoard(mirroredCells, mirroredColors, sourceBoard.themeSide());
     }
 
     private TetrisPiece mirrorPieceAcrossColumns(

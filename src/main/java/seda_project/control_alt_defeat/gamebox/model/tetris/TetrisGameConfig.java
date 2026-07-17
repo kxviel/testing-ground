@@ -176,8 +176,8 @@ public record TetrisGameConfig(
     }
 
     private static PieceShape combineDualShapes(PieceShape first, PieceShape second, boolean horizontalMode) {
-        int boardColumns = horizontalMode ? TetrisBoard.HORIZONTAL_COLUMNS : TetrisBoard.DEFAULT_COLUMNS;
-        int offset = Math.min(boardColumns - second.width(), first.width() + 1);
+        int maxCombinedWidth = horizontalMode ? TetrisBoard.HORIZONTAL_ROWS : TetrisBoard.DEFAULT_COLUMNS;
+        int offset = Math.min(maxCombinedWidth - second.width(), first.width() + 1);
         if (offset <= first.cells().stream().mapToInt(BoardPosition::column).max().orElse(0)) {
             offset = first.width();
         }

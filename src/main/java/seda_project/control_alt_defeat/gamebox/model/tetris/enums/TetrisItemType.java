@@ -5,16 +5,16 @@ import java.util.EnumSet;
 import java.util.stream.Collectors;
 
 public enum TetrisItemType {
-    SPEED_UP_OPPONENT("+"),
-    SLOW_SELF("-"),
-    ROTATION_DELAY_OPPONENT("R"),
-    ROTATION_DELAY_SELF("r"),
-    SLOW_OPPONENT("S"),
-    RADIUS_BOMB("*"),
-    COLUMN_BOMB("v"),
-    TELEPORT("P"),
-    BOARD_SWAP("T"),
-    FALLING_PIECE_SWAP("G");
+    SPEED_UP_OPPONENT("🏃"),
+    SLOW_SELF("🐌"),
+    ROTATION_DELAY_OPPONENT("😵‍💫"),
+    ROTATION_DELAY_SELF("🌀"),
+    SLOW_OPPONENT("🐌"),
+    RADIUS_BOMB("💥"),
+    COLUMN_BOMB("⚡"),
+    TELEPORT("🛸"),
+    BOARD_SWAP("🔄"),
+    FALLING_PIECE_SWAP("🔀");
 
     private final String symbol;
 

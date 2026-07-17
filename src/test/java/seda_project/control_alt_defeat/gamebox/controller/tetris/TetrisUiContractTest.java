@@ -1,6 +1,7 @@
 package seda_project.control_alt_defeat.gamebox.controller.tetris;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -22,6 +23,8 @@ import seda_project.control_alt_defeat.gamebox.model.tetris.PieceShape;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameConfig;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameSetup;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameState;
+import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerSide;
+import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisItemType;
 
 class TetrisUiContractTest {
 
@@ -67,6 +70,22 @@ class TetrisUiContractTest {
 
         assertTrue(css.contains(".combo-box-popup .list-view .list-cell:filled:hover"));
         assertTrue(css.contains("-fx-background-color: -sh-accent"));
+    }
+
+    @Test
+    void opponentBoardUsesTheBlueThemePalette() throws Exception {
+        String css = read("/tetris/TetrisMenu.css");
+
+        assertTrue(css.contains("-opponent-accent: #5d7fbd"));
+        assertTrue(css.contains(".tetris-board-opponent .board-cell"));
+        assertEquals("#5D7FBD", TetrisGameController.blockColor(PlayerSide.TOP, 0));
+        assertEquals("#7873B8", TetrisGameController.blockColor(PlayerSide.BOTTOM, 0));
+
+        GridPane board = new GridPane();
+        TetrisGameController.applyBoardTheme(board, PlayerSide.TOP);
+        assertTrue(board.getStyleClass().contains("tetris-board-opponent"));
+        TetrisGameController.applyBoardTheme(board, PlayerSide.BOTTOM);
+        assertFalse(board.getStyleClass().contains("tetris-board-opponent"));
     }
 
     @Test
@@ -150,9 +169,23 @@ class TetrisUiContractTest {
         assertTrue(fxml.contains("fx:id=\"bottomSpeedLabel\""));
         assertEquals("Speed: 320 ms/step", TetrisGameController.speedText(320));
 
-        for (String symbol : new String[] {"+", "-", "R", "r", "S", "*", "v", "P", "T", "G"}) {
+        for (String symbol : new String[] {"🏃", "🐌", "🌀", "😵‍💫", "💥", "⚡", "🛸", "🔄", "🔀"}) {
             assertTrue(fxml.contains("text=\"" + symbol + "\""), () -> "Missing special object " + symbol);
         }
+
+        assertEquals("🏃", TetrisItemType.SPEED_UP_OPPONENT.symbol());
+        assertEquals("🐌", TetrisItemType.SLOW_SELF.symbol());
+        assertEquals("🐌", TetrisItemType.SLOW_OPPONENT.symbol());
+        assertEquals("😵‍💫", TetrisItemType.ROTATION_DELAY_OPPONENT.symbol());
+        assertEquals("🌀", TetrisItemType.ROTATION_DELAY_SELF.symbol());
+        assertEquals("💥", TetrisItemType.RADIUS_BOMB.symbol());
+        assertEquals("⚡", TetrisItemType.COLUMN_BOMB.symbol());
+        assertEquals("🛸", TetrisItemType.TELEPORT.symbol());
+        assertEquals("🔄", TetrisItemType.BOARD_SWAP.symbol());
+        assertEquals("🔀", TetrisItemType.FALLING_PIECE_SWAP.symbol());
+
+        String css = read("/tetris/TetrisMenu.css");
+        assertTrue(css.contains("-fx-font-family: \"Segoe UI Emoji\""));
     }
 
     @Test

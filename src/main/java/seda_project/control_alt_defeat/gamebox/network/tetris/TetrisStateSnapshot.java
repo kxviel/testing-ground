@@ -88,7 +88,7 @@ public final class TetrisStateSnapshot {
         int score = parseInt(parts[1], 0);
         PlayerStatus status = parsePlayerStatus(parts[2]);
         Integer finalScore = "-".equals(parts[3]) ? null : parseInt(parts[3], score);
-        TetrisBoard board = deserializeBoard(parts[4], parts[5]);
+        TetrisBoard board = deserializeBoard(parts[4], parts[5], side);
         TetrisPiece activePiece = deserializePiece(decode(parts[6]));
         TetrisBoardObject boardObject = deserializeObject(parts[7]);
         TetrisEffectState effects = deserializeEffects(parts[8]);
@@ -119,7 +119,10 @@ public final class TetrisStateSnapshot {
         return builder.toString();
     }
 
-    private static TetrisBoard deserializeBoard(String value, String colorsValue) {
+    private static TetrisBoard deserializeBoard(
+            String value,
+            String colorsValue,
+            PlayerSide fallbackThemeSide) {
         int rows = TetrisBoard.DEFAULT_ROWS;
         int columns = TetrisBoard.DEFAULT_COLUMNS;
         String cellData = value;
@@ -155,7 +158,7 @@ public final class TetrisStateSnapshot {
             }
         }
 
-        return new TetrisBoard(cells, colors);
+        return new TetrisBoard(cells, colors, parseBoardTheme(colorsValue, fallbackThemeSide));
     }
 
     private static String serializeBoardColors(TetrisBoard board) {
@@ -168,6 +171,7 @@ public final class TetrisStateSnapshot {
             }
         }
 
+        builder.append(':').append(board.themeSide().name());
         return builder.toString();
     }
 
@@ -366,6 +370,24 @@ public final class TetrisStateSnapshot {
 
         char color = value.charAt(index);
         return color == '.' ? -1 : Character.digit(color, 36);
+    }
+
+    private static PlayerSide parseBoardTheme(String colorsValue, PlayerSide fallbackThemeSide) {
+        PlayerSide fallback = fallbackThemeSide == null ? PlayerSide.BOTTOM : fallbackThemeSide;
+        if (colorsValue == null) {
+            return fallback;
+        }
+
+        int separator = colorsValue.lastIndexOf(':');
+        if (separator < 0 || separator == colorsValue.length() - 1) {
+            return fallback;
+        }
+
+        try {
+            return PlayerSide.valueOf(colorsValue.substring(separator + 1));
+        } catch (IllegalArgumentException exception) {
+            return fallback;
+        }
     }
 
     private static int clamp(int value, int min, int max) {

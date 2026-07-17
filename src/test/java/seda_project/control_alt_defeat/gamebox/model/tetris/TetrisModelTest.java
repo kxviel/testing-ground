@@ -68,7 +68,11 @@ class TetrisModelTest {
     @Test
     void playerSwapKeepsScoresAndIdentitiesButSwapsBoardsAndFallingPieces() {
         TetrisBoard bottomBoard = boardWithFilledCell(19, 0);
-        TetrisBoard topBoard = boardWithFilledCell(19, 9);
+        TetrisBoard topBoardCells = boardWithFilledCell(19, 9);
+        TetrisBoard topBoard = new TetrisBoard(
+                topBoardCells.cells(),
+                topBoardCells.colors(),
+                PlayerSide.TOP);
         TetrisPlayerState bottom = playerWithObject(
                 PlayerSide.BOTTOM, bottomBoard, PieceType.O, 7, TetrisItemType.BOARD_SWAP);
         TetrisPlayerState top = playerWithObject(
@@ -76,6 +80,8 @@ class TetrisModelTest {
 
         TetrisGameState swapped = runningState(bottom, top).rotateClockwise(PlayerSide.BOTTOM);
 
+        assertEquals(PlayerSide.TOP, swapped.bottomPlayer().board().themeSide());
+        assertEquals(PlayerSide.BOTTOM, swapped.topPlayer().board().themeSide());
         assertEquals(7, swapped.bottomPlayer().score());
         assertEquals(3, swapped.topPlayer().score());
         assertEquals(TetrisCell.FILLED, swapped.bottomPlayer().board().cellAt(new BoardPosition(19, 9)));
@@ -272,6 +278,66 @@ class TetrisModelTest {
                     beforeGravity.column() + restored.gravityDirection(side).columnStep(),
                     moved.activePiece().position().column());
         }
+    }
+
+    @Test
+    void leftGravityColumnClearCompactsSettledBlocksAwayFromTheSpawnEdge() {
+        TetrisCell[][] cells = new TetrisCell[TetrisBoard.HORIZONTAL_ROWS][TetrisBoard.HORIZONTAL_COLUMNS];
+        for (TetrisCell[] row : cells) {
+            Arrays.fill(row, TetrisCell.EMPTY);
+        }
+        for (int row = 0; row < TetrisBoard.HORIZONTAL_ROWS; row++) {
+            if (row < 3 || row > 6) {
+                cells[row][0] = TetrisCell.FILLED;
+            }
+        }
+        cells[0][5] = TetrisCell.FILLED;
+
+        TetrisPiece clearingPiece = new TetrisPiece(
+                PieceShape.standardShape(PieceType.I).rotateClockwise90(),
+                new BoardPosition(3, 0),
+                Rotation.SPAWN);
+        TetrisPlayerState player = new TetrisPlayerState(
+                "Top",
+                PlayerSide.TOP,
+                new TetrisBoard(cells),
+                clearingPiece,
+                0,
+                PlayerStatus.PLAYING,
+                null);
+
+        TetrisPlayerState cleared = player.lockActivePiece(GravityDirection.LEFT);
+
+        assertEquals(1, cleared.score());
+        assertEquals(TetrisCell.FILLED, cleared.board().cellAt(new BoardPosition(0, 4)));
+        assertEquals(TetrisCell.EMPTY, cleared.board().cellAt(new BoardPosition(0, 6)));
+        assertEquals(
+                TetrisCell.EMPTY,
+                cleared.board().cellAt(new BoardPosition(0, TetrisBoard.HORIZONTAL_COLUMNS - 1)));
+    }
+
+    @Test
+    void horizontalDualCustomPieceFitsAnEmptyBoard() {
+        PieceShape wideCustomPiece = CustomPieceBuilder.build("Wide", List.of(
+                new BoardPosition(0, 0),
+                new BoardPosition(0, 1),
+                new BoardPosition(0, 2),
+                new BoardPosition(0, 3),
+                new BoardPosition(0, 4)));
+        TetrisGameConfig config = new TetrisGameConfig(
+                List.of("Custom"),
+                List.of(wideCustomPiece),
+                TetrisGameConfig.DEFAULT_GRAVITY_MILLIS,
+                true,
+                true);
+
+        PieceShape dualShape = config.availableShapes().getFirst();
+        TetrisPlayerState spawned = TetrisPlayerState.create("Top", PlayerSide.TOP, true)
+                .spawnPiece(dualShape, 0, GravityDirection.LEFT);
+
+        assertTrue(dualShape.height() <= TetrisBoard.HORIZONTAL_ROWS);
+        assertEquals(PlayerStatus.PLAYING, spawned.status());
+        assertNotNull(spawned.activePiece());
     }
 
     @Test
