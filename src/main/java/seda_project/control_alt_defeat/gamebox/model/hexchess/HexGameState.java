@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.LinkedHashSet;
+import seda_project.control_alt_defeat.gamebox.util.SafeText;
 
 public record HexGameState(
         HexBoard board,
@@ -20,13 +22,39 @@ public record HexGameState(
         double whiteScore,
         double blackScore) {
 
+    public static final int MAX_STATUS_MESSAGE_CHARS = 512;
+    public static final int MAX_HALF_MOVE_CLOCK = 10_000;
+    public static final int MAX_REPETITION_ENTRIES = 96;
+    public static final int MAX_POSITION_KEY_CHARS = 768;
+    public static final int MAX_REPETITION_COUNT = 1_000_000;
+
     public HexGameState {
         board = board == null ? HexBoard.standard() : board;
         turn = turn == null ? HexPieceColor.WHITE : turn;
         status = status == null ? HexGameStatus.RUNNING : status;
-        statusMessage = statusMessage == null ? "" : statusMessage;
-        repetitionCounts = repetitionCounts == null ? Map.of() : Map.copyOf(repetitionCounts);
-        doubleMoveEligibleSquares = doubleMoveEligibleSquares == null ? Set.of() : Set.copyOf(doubleMoveEligibleSquares);
+        statusMessage = SafeText.singleLine(statusMessage, "", MAX_STATUS_MESSAGE_CHARS);
+        halfMoveClock = Math.min(MAX_HALF_MOVE_CLOCK, Math.max(0, halfMoveClock));
+        Map<String, Integer> safeRepetitions = new LinkedHashMap<>();
+        if (repetitionCounts != null) {
+            repetitionCounts.forEach((key, count) -> {
+                if (safeRepetitions.size() < MAX_REPETITION_ENTRIES
+                        && key != null && !key.isBlank() && key.length() <= MAX_POSITION_KEY_CHARS
+                        && count != null && count >= 1) {
+                    safeRepetitions.put(key, Math.min(MAX_REPETITION_COUNT, count));
+                }
+            });
+        }
+        repetitionCounts = Map.copyOf(safeRepetitions);
+        Set<HexCoordinate> safeDoubleMoves = new LinkedHashSet<>();
+        if (doubleMoveEligibleSquares != null) {
+            doubleMoveEligibleSquares.stream()
+                    .filter(HexBoardGeometry::isValid)
+                    .limit(HexBoard.MAX_PIECES)
+                    .forEach(safeDoubleMoves::add);
+        }
+        doubleMoveEligibleSquares = Set.copyOf(safeDoubleMoves);
+        whiteScore = safeScore(whiteScore);
+        blackScore = safeScore(blackScore);
     }
 
     public static HexGameState standard() {
@@ -391,7 +419,10 @@ public record HexGameState(
 
     private static Map<String, Integer> incrementRepetition(Map<String, Integer> counts, String key) {
         Map<String, Integer> next = new LinkedHashMap<>(counts);
-        next.merge(key, 1, Integer::sum);
+        if (!next.containsKey(key) && next.size() >= MAX_REPETITION_ENTRIES) {
+            next.remove(next.keySet().iterator().next());
+        }
+        next.merge(key, 1, (current, one) -> Math.min(MAX_REPETITION_COUNT, current + one));
         return Map.copyOf(next);
     }
 
@@ -405,5 +436,9 @@ public record HexGameState(
         }
 
         return HexMoveRules.standardDoubleMoveEligibleSquares();
+    }
+
+    private static double safeScore(double score) {
+        return Double.isFinite(score) ? Math.min(1.0, Math.max(0.0, score)) : 0.0;
     }
 }

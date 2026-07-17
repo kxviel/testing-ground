@@ -9,6 +9,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,7 @@ import seda_project.control_alt_defeat.gamebox.network.LanDiscoveryService;
 import seda_project.control_alt_defeat.gamebox.network.memory.MemoryProtocol;
 import seda_project.control_alt_defeat.gamebox.ui.TimedStatus;
 import seda_project.control_alt_defeat.gamebox.util.DiscoveredGameListController;
+import seda_project.control_alt_defeat.gamebox.util.ResponsiveLayout;
 import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
 import seda_project.control_alt_defeat.gamebox.util.Router;
 import seda_project.control_alt_defeat.gamebox.util.SafeText;
@@ -28,7 +30,7 @@ import seda_project.control_alt_defeat.gamebox.util.UiVisibility;
 import java.io.IOException;
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -40,7 +42,10 @@ public class MemoryMenuController implements RouteDataReceiver {
     private static final String PLAYER_TWO = SafeText.PLAYER_TWO_NAME;
     private static final int STATUS_SECONDS = 10;
     private static final long DISCOVERED_GAME_TTL_MS = 5_000;
+    private static final int MAX_PENDING_MESSAGES = 128;
 
+    @FXML
+    private GridPane memoryMenuLayout;
     @FXML
     private TextField kField;
     @FXML
@@ -110,6 +115,7 @@ public class MemoryMenuController implements RouteDataReceiver {
 
     @FXML
     public void initialize() {
+        ResponsiveLayout.bindTwoColumnGrid(memoryMenuLayout, 60.0);
         timedStatus = new TimedStatus(statusLabel);
         discoveredGameList = new DiscoveredGameListController(availableGamesList);
         UiInputGuards.limitWholeNumber(kField, 2);
@@ -248,14 +254,14 @@ public class MemoryMenuController implements RouteDataReceiver {
         closePendingNetwork();
 
         GameServer server = new GameServer();
-        Queue<String> pendingMessages = new ConcurrentLinkedQueue<>();
+        Queue<String> pendingMessages = new ArrayBlockingQueue<>(MAX_PENDING_MESSAGES);
         String hostName = playerOneName();
         pendingServer = server;
         statusLabel.setText("Starting server...");
 
         startDaemon(() -> {
             try {
-                server.listen(GameServer.DEFAULT_PORT, pendingMessages::add, () -> {
+                server.listen(GameServer.DEFAULT_PORT, pendingMessages::offer, () -> {
                 });
                 discoveryService.startAdvertising(
                         hostName,
@@ -348,11 +354,11 @@ public class MemoryMenuController implements RouteDataReceiver {
 
         GameClient client = new GameClient();
         pendingClient = client;
-        Queue<String> pendingMessages = new ConcurrentLinkedQueue<>();
+        Queue<String> pendingMessages = new ArrayBlockingQueue<>(MAX_PENDING_MESSAGES);
 
         startDaemon(() -> {
             try {
-                client.connect(selectedGame.hostAddress(), selectedGame.tcpPort(), pendingMessages::add, () -> {
+                client.connect(selectedGame.hostAddress(), selectedGame.tcpPort(), pendingMessages::offer, () -> {
                 });
                 client.send(MemoryProtocol.join(joinerName));
                 Platform.runLater(() -> {

@@ -7,6 +7,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexChessGameSetup;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexGameMode;
@@ -14,6 +15,7 @@ import seda_project.control_alt_defeat.gamebox.network.GameClient;
 import seda_project.control_alt_defeat.gamebox.network.GameServer;
 import seda_project.control_alt_defeat.gamebox.network.LanDiscoveryService;
 import seda_project.control_alt_defeat.gamebox.util.DiscoveredGameListController;
+import seda_project.control_alt_defeat.gamebox.util.ResponsiveLayout;
 import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
 import seda_project.control_alt_defeat.gamebox.util.Router;
 import seda_project.control_alt_defeat.gamebox.util.SafeText;
@@ -21,11 +23,16 @@ import seda_project.control_alt_defeat.gamebox.util.UiInputGuards;
 import seda_project.control_alt_defeat.gamebox.util.UiVisibility;
 
 import java.io.IOException;
+import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
 
 public class HexChessMenuController implements RouteDataReceiver {
 
     private static final long DISCOVERED_GAME_TTL_MS = 5_000;
+    private static final int MAX_PENDING_MESSAGES = 128;
 
+    @FXML
+    private GridPane hexMenuMain;
     @FXML
     private TextField playerOneNameField;
     @FXML
@@ -36,6 +43,8 @@ public class HexChessMenuController implements RouteDataReceiver {
     private ListView<LanDiscoveryService.DiscoveredGame> lanGamesList;
     @FXML
     private Button joinSelectedLanButton;
+    @FXML
+    private Button cancelHostingButton;
 
     private final LanDiscoveryService discoveryService = LanDiscoveryService.hexChess();
     private GameServer pendingHostServer;
@@ -45,6 +54,7 @@ public class HexChessMenuController implements RouteDataReceiver {
 
     @FXML
     private void initialize() {
+        ResponsiveLayout.bindTwoColumnGrid(hexMenuMain, 60.0);
         UiInputGuards.limitPlayerNames(playerOneNameField, playerTwoNameField);
         discoveredGameList = new DiscoveredGameListController(lanGamesList);
         UiVisibility.bindVisibleWhenTextPresent(statusLabel);
@@ -94,18 +104,18 @@ public class HexChessMenuController implements RouteDataReceiver {
     }
 
     @FXML
-    private void onHostLan(ActionEvent event) {
+    private void onHostLan() {
         if (hasPendingNetwork()) {
             return;
         }
 
-        Stage stage = Router.stageFrom(event);
         closePendingJoinClient();
         closePendingHostServer();
 
+        Queue<String> pendingMessages = new ArrayBlockingQueue<>(MAX_PENDING_MESSAGES);
         GameServer server;
         try {
-            server = createListeningServer();
+            server = createListeningServer(pendingMessages);
         } catch (IOException e) {
             statusLabel.setText("Could not host LAN game: " + e.getMessage());
             return;
@@ -113,6 +123,10 @@ public class HexChessMenuController implements RouteDataReceiver {
 
         pendingHostServer = server;
         setPlayerFieldsDisabled(true);
+        discoveryService.stopListening();
+        stopStaleGameTimer();
+        discoveredGameList.clear();
+        UiVisibility.setVisibleManaged(cancelHostingButton, true);
         int tcpPort = server.localPort();
         discoveryService.startAdvertising(
                 hostPlayerName(),
@@ -130,15 +144,17 @@ public class HexChessMenuController implements RouteDataReceiver {
                         return;
                     }
                     clearPendingHostServer(server);
+                    UiVisibility.setVisibleManaged(cancelHostingButton, false);
                     closeDiscovery();
                     if (!beginNavigation()) {
                         server.close();
                         return;
                     }
+                    Stage stage = (Stage) statusLabel.getScene().getWindow();
                     Router.goTo(
                             stage,
                             "/hexchess/HexChessGame.fxml",
-                            HexChessGameRouteData.host(setup(HexGameMode.NETWORK_HOST), server));
+                            HexChessGameRouteData.host(setup(HexGameMode.NETWORK_HOST), server, pendingMessages));
                 });
             } catch (IOException e) {
                 Platform.runLater(() -> {
@@ -146,6 +162,7 @@ public class HexChessMenuController implements RouteDataReceiver {
                         pendingHostServer = null;
                         server.close();
                         setPlayerFieldsDisabled(false);
+                        UiVisibility.setVisibleManaged(cancelHostingButton, false);
                         statusLabel.setText("LAN host failed: " + e.getMessage());
                         closeDiscovery();
                         startListeningForLanGames();
@@ -156,6 +173,21 @@ public class HexChessMenuController implements RouteDataReceiver {
         }, "hexchess-host-wait");
         waitThread.setDaemon(true);
         waitThread.start();
+    }
+
+    @FXML
+    private void onCancelHost() {
+        if (pendingHostServer == null) {
+            return;
+        }
+
+        closePendingHostServer();
+        discoveryService.stopAdvertising();
+        setPlayerFieldsDisabled(false);
+        UiVisibility.setVisibleManaged(cancelHostingButton, false);
+        startListeningForLanGames();
+        startStaleGameTimer();
+        statusLabel.setText("Hosting cancelled.");
     }
 
     @FXML
@@ -193,13 +225,13 @@ public class HexChessMenuController implements RouteDataReceiver {
         closePendingJoinClient();
         statusLabel.setText("Connecting to " + host + ":" + port + "...");
         GameClient client = new GameClient();
+        Queue<String> pendingMessages = new ArrayBlockingQueue<>(MAX_PENDING_MESSAGES);
         pendingJoinClient = client;
         setPlayerFieldsDisabled(true);
 
         Thread connectThread = new Thread(() -> {
             try {
-                client.connect(host, port, message -> {
-                }, () -> {
+                client.connect(host, port, pendingMessages::offer, () -> {
                 });
                 Platform.runLater(() -> {
                     if (pendingJoinClient != client) {
@@ -215,7 +247,7 @@ public class HexChessMenuController implements RouteDataReceiver {
                     Router.goTo(
                             stage,
                             "/hexchess/HexChessGame.fxml",
-                            HexChessGameRouteData.join(setup(HexGameMode.NETWORK_CLIENT), client));
+                            HexChessGameRouteData.join(setup(HexGameMode.NETWORK_CLIENT), client, pendingMessages));
                 });
             } catch (IOException e) {
                 client.close();
@@ -254,19 +286,17 @@ public class HexChessMenuController implements RouteDataReceiver {
         return field == null ? "" : field.getText();
     }
 
-    private GameServer createListeningServer() throws IOException {
+    private GameServer createListeningServer(Queue<String> pendingMessages) throws IOException {
         GameServer server = new GameServer();
         try {
-            server.listen(GameServer.DEFAULT_PORT, message -> {
-            }, () -> {
+            server.listen(GameServer.DEFAULT_PORT, pendingMessages::offer, () -> {
             });
             return server;
         } catch (IOException e) {
             server.close();
             GameServer fallbackServer = new GameServer();
             try {
-                fallbackServer.listen(0, message -> {
-                }, () -> {
+                fallbackServer.listen(0, pendingMessages::offer, () -> {
                 });
                 return fallbackServer;
             } catch (IOException fallbackException) {
@@ -312,9 +342,10 @@ public class HexChessMenuController implements RouteDataReceiver {
     }
 
     private void closePendingHostServer() {
-        if (pendingHostServer != null) {
-            pendingHostServer.close();
-            pendingHostServer = null;
+        GameServer server = pendingHostServer;
+        pendingHostServer = null;
+        if (server != null) {
+            server.close();
         }
     }
 

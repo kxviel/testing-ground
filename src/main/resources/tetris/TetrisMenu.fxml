@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
 <?import java.net.URL?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
@@ -38,12 +39,13 @@
                 vbarPolicy="AS_NEEDED"
                 styleClass="app-scroll">
         <StackPane alignment="CENTER"
-                   minHeight="0"
+                   minHeight="580"
                    minWidth="0"
                    maxHeight="Infinity"
                    maxWidth="Infinity"
                    styleClass="game-menu-shell">
-            <GridPane alignment="CENTER"
+            <GridPane fx:id="tetrisMenuMain"
+                      alignment="CENTER"
                       minWidth="0"
                       maxHeight="Infinity"
                       maxWidth="Infinity"
@@ -137,28 +139,32 @@
                         <VBox alignment="TOP_LEFT"
                               maxWidth="Infinity"
                               styleClass="menu-config-column">
-                            <VBox styleClass="menu-config-content">
-                                <VBox styleClass="menu-config-section">
-                                    <Label text="Pieces" styleClass="field-title"/>
-                                    <VBox styleClass="menu-config-checks">
-                                        <CheckBox fx:id="standardPieceCheckBox" text="Standard" selected="true"/>
-                                        <CheckBox fx:id="customPieceCheckBox" text="Custom" onAction="#onCustomPieceToggle"/>
+                            <HBox alignment="TOP_LEFT" styleClass="menu-config-content">
+                                <VBox minWidth="0" HBox.hgrow="ALWAYS" styleClass="menu-config-options">
+                                    <VBox styleClass="menu-config-section">
+                                        <Label text="Pieces" styleClass="field-title"/>
+                                        <VBox styleClass="menu-config-checks">
+                                            <CheckBox fx:id="standardPieceCheckBox" text="Standard" selected="true"/>
+                                            <CheckBox fx:id="customPieceCheckBox" text="Custom" onAction="#onCustomPieceToggle"/>
+                                        </VBox>
                                     </VBox>
-                                </VBox>
 
-                                <VBox styleClass="menu-config-section">
-                                    <Label text="Speed" styleClass="field-title"/>
-                                    <ComboBox fx:id="speedChoiceBox" maxWidth="Infinity"/>
-                                </VBox>
+                                    <VBox styleClass="menu-config-section">
+                                        <Label text="Speed" styleClass="field-title"/>
+                                        <ComboBox fx:id="speedChoiceBox" maxWidth="Infinity"/>
+                                    </VBox>
 
-                                <VBox styleClass="menu-config-checks">
-                                    <CheckBox fx:id="dualPieceCheckBox" text="Dual blocks"/>
-                                    <CheckBox fx:id="horizontalModeCheckBox" text="Horizontal"/>
+                                    <VBox styleClass="menu-config-checks">
+                                        <CheckBox fx:id="dualPieceCheckBox" text="Dual blocks"/>
+                                        <CheckBox fx:id="horizontalModeCheckBox" text="Horizontal"/>
+                                    </VBox>
                                 </VBox>
 
                                 <VBox fx:id="customEditorBox"
                                       visible="false"
                                       managed="false"
+                                      minWidth="0"
+                                      HBox.hgrow="ALWAYS"
                                       styleClass="menu-custom-editor">
                                     <Separator/>
                                     <Label text="Custom Piece" styleClass="field-title"/>
@@ -169,7 +175,7 @@
                                     </HBox>
                                     <Label fx:id="customPieceStatusLabel" text="" wrapText="true" styleClass="status-line"/>
                                 </VBox>
-                            </VBox>
+                            </HBox>
                         </VBox>
 
                         <Region minHeight="1" styleClass="menu-divider"/>
@@ -178,7 +184,11 @@
 
                         <HBox alignment="CENTER_LEFT" styleClass="button-row">
                             <Button text="Back" onAction="#onBack" styleClass="btn-outline"/>
-                            <Button fx:id="startButton" text="Start" onAction="#onStart" styleClass="btn-primary">
+                            <Button fx:id="startButton" text="Start" onAction="#onStart">
+                                <styleClass>
+                                    <String fx:value="btn-primary"/>
+                                    <String fx:value="game-start-button"/>
+                                </styleClass>
                                 <graphic>
                                     <ImageView fitHeight="18.0" fitWidth="18.0" preserveRatio="true" smooth="true" styleClass="button-icon">
                                         <image>
@@ -216,7 +226,7 @@
 
                             <Label text="Player 1" graphicTextGap="6.0" styleClass="player-one-name" GridPane.columnIndex="0" GridPane.rowIndex="0">
                                 <graphic>
-                                    <ImageView fitHeight="18.0" fitWidth="18.0" preserveRatio="true" smooth="true" styleClass="player-field-icon">
+                                    <ImageView fitHeight="27.0" fitWidth="27.0" preserveRatio="true" smooth="true" styleClass="player-field-icon">
                                         <image>
                                             <Image url="@../icons/player1.png"/>
                                         </image>
@@ -226,13 +236,17 @@
                             <TextField fx:id="playerOneNameField"
                                        text="The Old Monk"
                                        promptText="The Old Monk"
-                                       styleClass="player-name-field player-one-name"
                                        GridPane.columnIndex="1"
-                                       GridPane.rowIndex="0"/>
+                                       GridPane.rowIndex="0">
+                                <styleClass>
+                                    <String fx:value="player-name-field"/>
+                                    <String fx:value="player-one-name"/>
+                                </styleClass>
+                            </TextField>
 
                             <Label text="Player 2" graphicTextGap="6.0" styleClass="player-two-name" GridPane.columnIndex="0" GridPane.rowIndex="1">
                                 <graphic>
-                                    <ImageView fitHeight="18.0" fitWidth="18.0" preserveRatio="true" smooth="true" styleClass="player-field-icon">
+                                    <ImageView fitHeight="27.0" fitWidth="27.0" preserveRatio="true" smooth="true" styleClass="player-field-icon">
                                         <image>
                                             <Image url="@../icons/player2.png"/>
                                         </image>
@@ -242,9 +256,13 @@
                             <TextField fx:id="playerTwoNameField"
                                        text="The Outer God"
                                        promptText="The Outer God"
-                                       styleClass="player-name-field player-two-name"
                                        GridPane.columnIndex="1"
-                                       GridPane.rowIndex="1"/>
+                                       GridPane.rowIndex="1">
+                                <styleClass>
+                                    <String fx:value="player-name-field"/>
+                                    <String fx:value="player-two-name"/>
+                                </styleClass>
+                            </TextField>
                         </GridPane>
                     </VBox>
 
@@ -259,7 +277,8 @@
                                     </ImageView>
                                 </graphic>
                             </Button>
-                            <Button maxWidth="Infinity"
+                            <Button fx:id="hostLanButton"
+                                    maxWidth="Infinity"
                                     HBox.hgrow="ALWAYS"
                                     onAction="#onHostLan"
                                     styleClass="network-host-button">
@@ -278,6 +297,14 @@
                             <Button fx:id="joinSelectedGameButton" text="Join Selected" onAction="#onJoinSelectedLan"
                                     maxWidth="Infinity" styleClass="btn-secondary" HBox.hgrow="ALWAYS"/>
                         </HBox>
+
+                        <Button fx:id="cancelHostingButton"
+                                text="Cancel Hosting"
+                                onAction="#onCancelHost"
+                                visible="false"
+                                managed="false"
+                                maxWidth="Infinity"
+                                styleClass="btn-secondary"/>
                     </VBox>
 
                     <VBox spacing="8">

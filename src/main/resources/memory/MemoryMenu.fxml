@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
 <?import java.net.URL?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
@@ -36,9 +37,10 @@
                 styleClass="memory-screen-scroll">
         <StackPane alignment="CENTER"
                    minWidth="0.0"
-                   minHeight="0.0"
+                   minHeight="580.0"
                    styleClass="memory-menu-viewport">
-            <GridPane alignment="CENTER"
+            <GridPane fx:id="memoryMenuLayout"
+                      alignment="CENTER"
                       hgap="20.0"
                       minWidth="0.0"
                       maxWidth="Infinity"
@@ -141,8 +143,11 @@
                     <VBox spacing="8.0" styleClass="memory-action-list">
                         <Button fx:id="btnLocalGame"
                                 maxWidth="Infinity"
-                                onAction="#onLocalGame"
-                                styleClass="memory-action-row">
+                                onAction="#onLocalGame">
+                            <styleClass>
+                                <String fx:value="memory-action-row"/>
+                                <String fx:value="game-start-button"/>
+                            </styleClass>
                             <graphic>
                                 <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="20.0">
                                     <StackPane styleClass="memory-icon-box">
@@ -216,7 +221,7 @@
 
                             <Label text="Player 1" graphicTextGap="6.0" styleClass="player-one-name" GridPane.columnIndex="0" GridPane.rowIndex="0">
                                 <graphic>
-                                    <ImageView fitHeight="18.0" fitWidth="18.0" preserveRatio="true" smooth="true" styleClass="player-field-icon">
+                                    <ImageView fitHeight="27.0" fitWidth="27.0" preserveRatio="true" smooth="true" styleClass="player-field-icon">
                                         <image>
                                             <Image url="@../icons/player1.png"/>
                                         </image>
@@ -226,13 +231,17 @@
                             <TextField fx:id="playerOneNameField"
                                        text="The Old Monk"
                                        promptText="The Old Monk"
-                                       styleClass="player-name-field player-one-name"
                                        GridPane.columnIndex="1"
-                                       GridPane.rowIndex="0"/>
+                                       GridPane.rowIndex="0">
+                                <styleClass>
+                                    <String fx:value="player-name-field"/>
+                                    <String fx:value="player-one-name"/>
+                                </styleClass>
+                            </TextField>
 
                             <Label text="Player 2" graphicTextGap="6.0" styleClass="player-two-name" GridPane.columnIndex="0" GridPane.rowIndex="1">
                                 <graphic>
-                                    <ImageView fitHeight="18.0" fitWidth="18.0" preserveRatio="true" smooth="true" styleClass="player-field-icon">
+                                    <ImageView fitHeight="27.0" fitWidth="27.0" preserveRatio="true" smooth="true" styleClass="player-field-icon">
                                         <image>
                                             <Image url="@../icons/player2.png"/>
                                         </image>
@@ -242,9 +251,13 @@
                             <TextField fx:id="playerTwoNameField"
                                        text="The Outer God"
                                        promptText="The Outer God"
-                                       styleClass="player-name-field player-two-name"
                                        GridPane.columnIndex="1"
-                                       GridPane.rowIndex="1"/>
+                                       GridPane.rowIndex="1">
+                                <styleClass>
+                                    <String fx:value="player-name-field"/>
+                                    <String fx:value="player-two-name"/>
+                                </styleClass>
+                            </TextField>
                         </GridPane>
                     </VBox>
 

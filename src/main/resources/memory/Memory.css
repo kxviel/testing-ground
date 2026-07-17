@@ -35,7 +35,7 @@
 }
 
 .memory-screen-scroll {
-    -fx-padding: 0;
+    -fx-padding: 0 0 16 0;
 }
 
 .memory-screen-scroll .scroll-bar:vertical,

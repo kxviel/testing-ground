@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
 <?import java.net.URL?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
@@ -35,12 +36,13 @@
                 vbarPolicy="AS_NEEDED"
                 styleClass="app-scroll">
         <StackPane alignment="CENTER"
-                   minHeight="0"
+                   minHeight="560"
                    minWidth="0"
                    maxHeight="Infinity"
                    maxWidth="Infinity"
                    styleClass="game-menu-shell">
-        <GridPane alignment="CENTER"
+        <GridPane fx:id="hexMenuMain"
+                  alignment="CENTER"
                   minWidth="0"
                   maxHeight="Infinity"
                   maxWidth="Infinity"
@@ -67,8 +69,11 @@
 
             <VBox spacing="16" styleClass="hex-setup-list">
                 <Button maxWidth="Infinity"
-                        onAction="#onStartLocal"
-                        styleClass="hex-action-row">
+                        onAction="#onStartLocal">
+                    <styleClass>
+                        <String fx:value="hex-action-row"/>
+                        <String fx:value="game-start-button"/>
+                    </styleClass>
                     <graphic>
                         <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="22" styleClass="row-content">
                             <StackPane styleClass="row-icon-chip">
@@ -96,8 +101,11 @@
                 </Button>
 
                 <Button maxWidth="Infinity"
-                        onAction="#onStartBot"
-                        styleClass="hex-action-row">
+                        onAction="#onStartBot">
+                    <styleClass>
+                        <String fx:value="hex-action-row"/>
+                        <String fx:value="game-start-button"/>
+                    </styleClass>
                     <graphic>
                         <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="22" styleClass="row-content">
                             <StackPane styleClass="row-icon-chip">
@@ -212,7 +220,7 @@
 
                     <Label text="White" graphicTextGap="6.0" styleClass="player-one-name" GridPane.columnIndex="0" GridPane.rowIndex="0">
                         <graphic>
-                            <ImageView fitHeight="18.0" fitWidth="18.0" preserveRatio="true" smooth="true" styleClass="player-field-icon">
+                            <ImageView fitHeight="27.0" fitWidth="27.0" preserveRatio="true" smooth="true" styleClass="player-field-icon">
                                 <image>
                                     <Image url="@../icons/player1.png"/>
                                 </image>
@@ -222,13 +230,17 @@
                     <TextField fx:id="playerOneNameField"
                                text="The Old Monk"
                                promptText="The Old Monk"
-                               styleClass="player-name-field player-one-name"
                                GridPane.columnIndex="1"
-                               GridPane.rowIndex="0"/>
+                               GridPane.rowIndex="0">
+                        <styleClass>
+                            <String fx:value="player-name-field"/>
+                            <String fx:value="player-one-name"/>
+                        </styleClass>
+                    </TextField>
 
                     <Label text="Black" graphicTextGap="6.0" styleClass="player-two-name" GridPane.columnIndex="0" GridPane.rowIndex="1">
                         <graphic>
-                            <ImageView fitHeight="18.0" fitWidth="18.0" preserveRatio="true" smooth="true" styleClass="player-field-icon">
+                            <ImageView fitHeight="27.0" fitWidth="27.0" preserveRatio="true" smooth="true" styleClass="player-field-icon">
                                 <image>
                                     <Image url="@../icons/player2.png"/>
                                 </image>
@@ -238,9 +250,13 @@
                     <TextField fx:id="playerTwoNameField"
                                text="The Outer God"
                                promptText="The Outer God"
-                               styleClass="player-name-field player-two-name"
                                GridPane.columnIndex="1"
-                               GridPane.rowIndex="1"/>
+                               GridPane.rowIndex="1">
+                        <styleClass>
+                            <String fx:value="player-name-field"/>
+                            <String fx:value="player-two-name"/>
+                        </styleClass>
+                    </TextField>
                 </GridPane>
             </VBox>
 
@@ -255,7 +271,8 @@
                             </ImageView>
                         </graphic>
                     </Button>
-                    <Button text="Host LAN Game"
+                    <Button fx:id="hostLanButton"
+                            text="Host LAN Game"
                             maxWidth="Infinity"
                             HBox.hgrow="ALWAYS"
                             onAction="#onHostLan"
@@ -269,6 +286,14 @@
                             onAction="#onJoinSelectedLan" maxWidth="Infinity"
                             styleClass="btn-secondary" HBox.hgrow="ALWAYS"/>
                 </HBox>
+
+                <Button fx:id="cancelHostingButton"
+                        text="Cancel Hosting"
+                        onAction="#onCancelHost"
+                        visible="false"
+                        managed="false"
+                        maxWidth="Infinity"
+                        styleClass="btn-secondary"/>
             </VBox>
 
             <VBox spacing="8">

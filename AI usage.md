@@ -1,5 +1,29 @@
 # AI Usage
 
+## Recorded AI Tool
+
+- **Tool:** [OpenAI Codex](https://openai.com/codex/)
+- **Mode:** Agent
+- **Model:** GPT-5 (Codex coding agent)
+- **Use:** code review, implementation, refactoring, test generation, debugging, UI verification, and documentation.
+
+## Representative Prompts
+
+- "Do an end-to-end code read of ZRW and identify what is redundant, reusable, reducible, or cleanable."
+- "Make the app responsive no matter what screen, and check the hidden speed selector."
+- "Replace SVG assets with PNG files and clean up unused code."
+- "Check the multiplayer commits and fix shared LAN/gameplay issues."
+- "Use the game-start sound for every real start-game action."
+
+## AI-Assisted Scope
+
+- **Responsive UI:** `ResponsiveLayout.bindTwoColumnGrid`, `ResponsiveLayout.isCompact`, controller `initialize` methods, and the Memory, Zetris, and Chexsagon FXML/CSS layouts.
+- **Networking:** `AbstractGameConnection.send`, `closeAfterSending`, and `startWriteLoop`; `GameServer.closeAfterSending`; and controller `sendQuit` / `closeNetwork` flows.
+- **Audio and assets:** `SoundManager.installButtonClickSound`, `setGameStartButton`, and `playButtonSound`, plus related FXML resource wiring.
+- **Game logic review/assistance:** `GameModel`, `BoardVariant`, `TetrisGameState`, `TetrisBoard`, `TetrisPlayerState`, `HexGameState`, `HexMoveGenerator`, `HexLegalMoveValidator`, `HexGameEndDetector`, and `HexPositionValidator`.
+- **Generated tests, then human-reviewed:** `GameChoiceFxmlSmokeTest`, `ResponsiveFxmlLayoutTest`, `GameLogicTest`, `HexChessModelTest`, `HexChessRulesTest`, `MemoryGameModelTest`, `TetrisComprehensiveTest`, `TetrisModelTest`, `AdversarialInputRobustnessTest`, `GameNetworkEndToEndTest`, `NetworkSnapshotHardeningTest`, and `SoundManagerTest`.
+- **Documentation:** `README.md`, `ARCHITECTURE.md`, and this AI usage record were AI-assisted and reviewed by the team.
+
 ## General Development Support
 
 - Discussed JavaFX structure, MVC boundaries, controller event flow, FXML routing, and UI state handling.

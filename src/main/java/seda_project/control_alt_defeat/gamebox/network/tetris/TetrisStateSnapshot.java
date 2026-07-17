@@ -27,9 +27,6 @@ import static seda_project.control_alt_defeat.gamebox.network.SnapshotCodec.pars
 
 public final class TetrisStateSnapshot {
 
-    private static final int MAX_SNAPSHOT_ROWS = 64;
-    private static final int MAX_SNAPSHOT_COLUMNS = 64;
-
     private TetrisStateSnapshot() {
     }
 
@@ -82,8 +79,8 @@ public final class TetrisStateSnapshot {
     }
 
     private static TetrisPlayerState deserializePlayer(String value, PlayerSide side) {
-        String[] parts = value.split(";", -1);
-        if (parts.length < 10) {
+        String[] parts = value.split(";", 11);
+        if (parts.length != 10) {
             return TetrisPlayerState.create("Player", side);
         }
 
@@ -143,8 +140,8 @@ public final class TetrisStateSnapshot {
             }
         }
 
-        rows = clamp(rows, TetrisBoard.MIN_ROWS, MAX_SNAPSHOT_ROWS);
-        columns = clamp(columns, TetrisBoard.MIN_COLUMNS, MAX_SNAPSHOT_COLUMNS);
+        rows = clamp(rows, TetrisBoard.MIN_ROWS, TetrisBoard.MAX_ROWS);
+        columns = clamp(columns, TetrisBoard.MIN_COLUMNS, TetrisBoard.MAX_COLUMNS);
 
         TetrisCell[][] cells = new TetrisCell[rows][columns];
         int[][] colors = new int[rows][columns];
@@ -199,7 +196,7 @@ public final class TetrisStateSnapshot {
         }
 
         String[] parts = value.split(",", 7);
-        if (parts.length < 6) {
+        if (parts.length != 7) {
             return null;
         }
 
@@ -208,7 +205,7 @@ public final class TetrisStateSnapshot {
         List<BoardPosition> cells = deserializeCells(parts[2]);
         BoardPosition position = new BoardPosition(parseInt(parts[3], 0), parseInt(parts[4], 0));
         Rotation rotation = parseRotation(parts[5]);
-        int colorIndex = parts.length < 7 ? -1 : parseInt(parts[6], -1);
+        int colorIndex = parseInt(parts[6], -1);
         PieceShape shape = new PieceShape(type, name, cells);
 
         return new TetrisPiece(shape, position, rotation, colorIndex);
@@ -238,10 +235,23 @@ public final class TetrisStateSnapshot {
             return List.of();
         }
 
-        return Arrays.stream(value.split("_"))
+        String[] entries = value.split("_", PieceShape.MAX_CELLS + 1);
+        if (entries.length > PieceShape.MAX_CELLS) {
+            throw new IllegalArgumentException("Piece contains too many cells.");
+        }
+        return Arrays.stream(entries)
                 .map(cellValue -> cellValue.split("\\.", 2))
-                .filter(parts -> parts.length == 2)
-                .map(parts -> new BoardPosition(parseInt(parts[0], 0), parseInt(parts[1], 0)))
+                .map(parts -> {
+                    if (parts.length != 2) {
+                        throw new IllegalArgumentException("Invalid piece cell.");
+                    }
+                    int row = parseInt(parts[0]);
+                    int column = parseInt(parts[1]);
+                    if (row < 0 || column < 0 || row >= PieceShape.MAX_EXTENT || column >= PieceShape.MAX_EXTENT) {
+                        throw new IllegalArgumentException("Piece cell is outside the supported range.");
+                    }
+                    return new BoardPosition(row, column);
+                })
                 .toList();
     }
 
@@ -299,7 +309,10 @@ public final class TetrisStateSnapshot {
             return TetrisEffectState.none();
         }
 
-        String[] parts = value.split(",", -1);
+        String[] parts = value.split(",", 5);
+        if (parts.length > 4) {
+            throw new IllegalArgumentException("Effect state has too many fields.");
+        }
         return new TetrisEffectState(
                 parts.length > 0 ? parseInt(parts[0], TetrisEffectState.NORMAL_GRAVITY_PERCENT) : TetrisEffectState.NORMAL_GRAVITY_PERCENT,
                 parts.length > 1 ? parseInt(parts[1], 0) : 0,
@@ -322,7 +335,11 @@ public final class TetrisStateSnapshot {
             return List.of();
         }
 
-        return Arrays.stream(value.split("\\."))
+        String[] entries = value.split("\\.", TetrisPlayerState.MAX_QUEUED_SHAPES + 1);
+        if (entries.length > TetrisPlayerState.MAX_QUEUED_SHAPES) {
+            throw new IllegalArgumentException("Piece queue exceeds the supported size.");
+        }
+        return Arrays.stream(entries)
                 .map(encodedShape -> decode(encodedShape))
                 .map(TetrisStateSnapshot::deserializeShape)
                 .filter(shape -> shape != null)

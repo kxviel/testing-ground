@@ -12,6 +12,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
@@ -37,6 +38,7 @@ import seda_project.control_alt_defeat.gamebox.network.GameClient;
 import seda_project.control_alt_defeat.gamebox.network.GameServer;
 import seda_project.control_alt_defeat.gamebox.network.tetris.TetrisProtocol;
 import seda_project.control_alt_defeat.gamebox.network.tetris.TetrisStateSnapshot;
+import seda_project.control_alt_defeat.gamebox.util.ResponsiveLayout;
 import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
 import seda_project.control_alt_defeat.gamebox.util.Router;
 import seda_project.control_alt_defeat.gamebox.util.SafeText;
@@ -46,6 +48,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class TetrisGameController implements RouteDataReceiver {
 
@@ -59,6 +63,7 @@ public class TetrisGameController implements RouteDataReceiver {
     private static final int OBJECT_SPAWN_ATTEMPTS = 100;
     private static final int MENU_RETURN_SECONDS = 2;
     private static final String OPPONENT_LEFT_MESSAGE = "Your opponent has left the game.";
+    private static final double MIN_GAME_CONTENT_HEIGHT = 520;
     private static final String[] BLOCK_COLORS = {
             "#7873B8",
             "#8B8BC9",
@@ -68,9 +73,17 @@ public class TetrisGameController implements RouteDataReceiver {
     @FXML
     private BorderPane gameRoot;
     @FXML
+    private ScrollPane gameScrollPane;
+    @FXML
+    private GridPane gameMain;
+    @FXML
     private Label topScoreLabel;
     @FXML
     private Label bottomScoreLabel;
+    @FXML
+    private Label topSpeedLabel;
+    @FXML
+    private Label bottomSpeedLabel;
     @FXML
     private Label configLabel;
     @FXML
@@ -98,14 +111,15 @@ public class TetrisGameController implements RouteDataReceiver {
     private GameServer hostServer;
     private GameClient joinClient;
     private final Random objectRandom = new Random();
+    private final Random pieceRandom = new Random();
     private final TetrisItemBag bottomObjectBag = new TetrisItemBag();
     private final TetrisItemBag topObjectBag = new TetrisItemBag();
     private boolean networkClosed;
-    private int bottomPieceIndex;
-    private int topPieceIndex;
     private int bottomGravityElapsedMs;
     private int topGravityElapsedMs;
     private int elapsedGameMs;
+    private final AtomicReference<TetrisGameState> pendingClientState = new AtomicReference<>();
+    private final AtomicBoolean clientStateRenderScheduled = new AtomicBoolean();
 
     @Override
     public void setRouteData(Object data) {
@@ -123,9 +137,41 @@ public class TetrisGameController implements RouteDataReceiver {
 
     @FXML
     public void initialize() {
+        ResponsiveLayout.bindTwoColumnGrid(gameMain, 70.0);
+        configureViewportFill();
         setupKeyboardControls();
         boardZone.layoutBoundsProperty().addListener((observable, oldBounds, bounds) -> render());
         startNewGame();
+    }
+
+    private void configureViewportFill() {
+        if (gameScrollPane == null || gameMain == null) {
+            return;
+        }
+        gameScrollPane.viewportBoundsProperty().addListener((observable, oldBounds, bounds) -> {
+            fitGameMainToViewport(bounds);
+            gameScrollPane.setVvalue(0);
+        });
+        Platform.runLater(this::resetGameViewport);
+    }
+
+    private void resetGameViewport() {
+        fitGameMainToViewport(gameScrollPane.getViewportBounds());
+        gameScrollPane.setHvalue(0);
+        gameScrollPane.setVvalue(0);
+        gameRoot.requestFocus();
+        Platform.runLater(() -> gameScrollPane.setVvalue(0));
+    }
+
+    private void fitGameMainToViewport(Bounds viewportBounds) {
+        if (viewportBounds == null || !Double.isFinite(viewportBounds.getHeight())) {
+            return;
+        }
+        boolean compact = ResponsiveLayout.isCompact(gameMain.getWidth());
+        gameMain.setMinHeight(Math.max(MIN_GAME_CONTENT_HEIGHT, viewportBounds.getHeight()));
+        gameMain.setPrefHeight(compact
+                ? Region.USE_COMPUTED_SIZE
+                : Math.max(MIN_GAME_CONTENT_HEIGHT, viewportBounds.getHeight()));
     }
 
     private void setupNetworkCallbacks() {
@@ -172,8 +218,6 @@ public class TetrisGameController implements RouteDataReceiver {
     }
 
     private void startNewGame() {
-        bottomPieceIndex = 0;
-        topPieceIndex = 0;
         bottomGravityElapsedMs = 0;
         topGravityElapsedMs = 0;
         elapsedGameMs = 0;
@@ -220,9 +264,9 @@ public class TetrisGameController implements RouteDataReceiver {
         }
 
         gameState = gameState.tickEffects();
-        elapsedGameMs += GAME_TICK_MS;
-        bottomGravityElapsedMs += GAME_TICK_MS;
-        topGravityElapsedMs += GAME_TICK_MS;
+        elapsedGameMs = saturatedAdd(elapsedGameMs, GAME_TICK_MS);
+        bottomGravityElapsedMs = saturatedAdd(bottomGravityElapsedMs, GAME_TICK_MS);
+        topGravityElapsedMs = saturatedAdd(topGravityElapsedMs, GAME_TICK_MS);
 
         if (bottomGravityElapsedMs >= effectiveGravityMs(gameState.bottomPlayer())) {
             bottomGravityElapsedMs = 0;
@@ -277,6 +321,8 @@ public class TetrisGameController implements RouteDataReceiver {
     private void renderLabels() {
         bottomScoreLabel.setText(scoreText(gameState.bottomPlayer()));
         topScoreLabel.setText(scoreText(gameState.topPlayer()));
+        bottomSpeedLabel.setText(speedText(effectiveGravityMs(gameState.bottomPlayer())));
+        topSpeedLabel.setText(speedText(effectiveGravityMs(gameState.topPlayer())));
         configLabel.setText("Pieces: " + gameState.config().displayText());
         renderKeymap();
         renderResult();
@@ -284,6 +330,10 @@ public class TetrisGameController implements RouteDataReceiver {
 
     private static String scoreText(TetrisPlayerState player) {
         return player.playerName() + ": " + player.score();
+    }
+
+    static String speedText(int gravityMillis) {
+        return "Speed: " + gravityMillis + " ms/step";
     }
 
     private void renderKeymap() {
@@ -373,11 +423,7 @@ public class TetrisGameController implements RouteDataReceiver {
                     paintBlock(cell, player.board().colorAt(position));
                 }
 
-                if (gameState.config().horizontalMode()) {
-                    grid.add(cell, row, column);
-                } else {
-                    grid.add(cell, column, row);
-                }
+                grid.add(cell, column, row);
             }
         }
 
@@ -402,11 +448,8 @@ public class TetrisGameController implements RouteDataReceiver {
 
         int rows = gameState.bottomPlayer().board().rows();
         int columns = gameState.bottomPlayer().board().columns();
-        boolean horizontal = gameState.config().horizontalMode();
-        int displayedColumns = horizontal ? rows : columns;
-        int displayedRows = horizontal ? columns : rows;
-        double widthFit = (boardWidth - CELL_GAP * Math.max(0, displayedColumns - 1)) / displayedColumns;
-        double heightFit = (boardHeight - CELL_GAP * Math.max(0, displayedRows - 1)) / displayedRows;
+        double widthFit = (boardWidth - CELL_GAP * Math.max(0, columns - 1)) / columns;
+        double heightFit = (boardHeight - CELL_GAP * Math.max(0, rows - 1)) / rows;
         double fit = Math.min(widthFit, heightFit);
 
         return fit < MIN_CELL_SIZE
@@ -534,38 +577,58 @@ public class TetrisGameController implements RouteDataReceiver {
 
             if (TetrisProtocol.isType(message, TetrisProtocol.INPUT)) {
                 List<String> fields = TetrisProtocol.fields(message);
-                if (fields.size() < 2) {
+                if (fields.size() != 2) {
                     return;
                 }
 
                 PlayerSide side = parseSide(fields.get(0));
-                if (side == PlayerSide.TOP) {
+                if (side == PlayerSide.TOP && isInputCommand(fields.get(1))) {
                     applyInput(side, fields.get(1));
                     finishStateChange();
                 }
             } else if (TetrisProtocol.isType(message, TetrisProtocol.RESTART_REQUEST)) {
-                startNewGame();
-                sendRestartState();
+                if (TetrisProtocol.fields(message).size() == 1) {
+                    startNewGame();
+                    sendRestartState();
+                }
             } else if (TetrisProtocol.isType(message, TetrisProtocol.QUIT)) {
-                onNetworkDisconnect();
+                if (TetrisProtocol.fields(message).size() == 1) {
+                    onNetworkDisconnect();
+                }
             }
         });
     }
 
     private void onClientMessage(String message) {
-        Platform.runLater(() -> {
-            if (TetrisProtocol.isType(message, TetrisProtocol.STATE)
-                    || TetrisProtocol.isType(message, TetrisProtocol.RESTART_STATE)) {
-                List<String> fields = TetrisProtocol.fields(message);
-                if (fields.isEmpty()) {
-                    return;
-                }
+        if (TetrisProtocol.isType(message, TetrisProtocol.STATE)
+                || TetrisProtocol.isType(message, TetrisProtocol.RESTART_STATE)) {
+            List<String> fields = TetrisProtocol.fields(message);
+            if (fields.size() != 1) {
+                return;
+            }
+            pendingClientState.set(TetrisStateSnapshot.deserialize(fields.getFirst(), setup.config()));
+            scheduleClientStateRender();
+        } else if (TetrisProtocol.isType(message, TetrisProtocol.QUIT)
+                || TetrisProtocol.isType(message, TetrisProtocol.ERROR)) {
+            if (TetrisProtocol.fields(message).size() == 1) {
+                Platform.runLater(this::onNetworkDisconnect);
+            }
+        }
+    }
 
-                gameState = TetrisStateSnapshot.deserialize(fields.get(0), setup.config());
+    private void scheduleClientStateRender() {
+        if (!clientStateRenderScheduled.compareAndSet(false, true)) {
+            return;
+        }
+        Platform.runLater(() -> {
+            TetrisGameState latest = pendingClientState.getAndSet(null);
+            if (latest != null && !networkClosed) {
+                gameState = latest;
                 render();
-            } else if (TetrisProtocol.isType(message, TetrisProtocol.QUIT)
-                    || TetrisProtocol.isType(message, TetrisProtocol.ERROR)) {
-                onNetworkDisconnect();
+            }
+            clientStateRenderScheduled.set(false);
+            if (pendingClientState.get() != null) {
+                scheduleClientStateRender();
             }
         });
     }
@@ -598,21 +661,20 @@ public class TetrisGameController implements RouteDataReceiver {
     private void closeNetwork(boolean sendQuit) {
         networkClosed = true;
 
-        if (sendQuit) {
-            if (hostServer != null && hostServer.isConnected()) {
-                hostServer.send(TetrisProtocol.quit(setup.playerOneName()));
-            }
-            if (joinClient != null && joinClient.isConnected()) {
-                joinClient.send(TetrisProtocol.quit(setup.playerTwoName()));
-            }
-        }
-
         if (hostServer != null) {
-            hostServer.close();
+            if (sendQuit && hostServer.isConnected()) {
+                hostServer.closeAfterSending(TetrisProtocol.quit(setup.playerOneName()));
+            } else {
+                hostServer.close();
+            }
             hostServer = null;
         }
         if (joinClient != null) {
-            joinClient.close();
+            if (sendQuit && joinClient.isConnected()) {
+                joinClient.closeAfterSending(TetrisProtocol.quit(setup.playerTwoName()));
+            } else {
+                joinClient.close();
+            }
             joinClient = null;
         }
     }
@@ -633,14 +695,31 @@ public class TetrisGameController implements RouteDataReceiver {
         }
     }
 
+    private static boolean isInputCommand(String command) {
+        return TetrisProtocol.MOVE_LEFT.equals(command)
+                || TetrisProtocol.MOVE_RIGHT.equals(command)
+                || TetrisProtocol.SOFT_DROP.equals(command)
+                || TetrisProtocol.ROTATE.equals(command);
+    }
+
+    private static int saturatedAdd(int value, int increment) {
+        return value >= Integer.MAX_VALUE - increment ? Integer.MAX_VALUE : value + increment;
+    }
+
     private TetrisGameState spawnMissingPieces(TetrisGameState state) {
         TetrisGameState next = state;
 
         if (next.bottomPlayer().isPlaying() && next.bottomPlayer().activePiece() == null) {
-            next = next.spawnPiece(PlayerSide.BOTTOM, nextSpawnShape(next.bottomPlayer(), PlayerSide.BOTTOM), randomBlockColor());
+            next = next.spawnPiece(
+                    PlayerSide.BOTTOM,
+                    nextSpawnShape(next.bottomPlayer(), next.config()),
+                    randomBlockColor());
         }
         if (next.topPlayer().isPlaying() && next.topPlayer().activePiece() == null) {
-            next = next.spawnPiece(PlayerSide.TOP, nextSpawnShape(next.topPlayer(), PlayerSide.TOP), randomBlockColor());
+            next = next.spawnPiece(
+                    PlayerSide.TOP,
+                    nextSpawnShape(next.topPlayer(), next.config()),
+                    randomBlockColor());
         }
 
         return next;
@@ -703,21 +782,15 @@ public class TetrisGameController implements RouteDataReceiver {
         return null;
     }
 
-    private PieceShape nextSpawnShape(TetrisPlayerState player, PlayerSide side) {
-        return player.hasQueuedShape() ? player.queuedShapes().getFirst() : nextPiece(side);
+    private PieceShape nextSpawnShape(TetrisPlayerState player, TetrisGameConfig config) {
+        return player.hasQueuedShape()
+                ? player.queuedShapes().getFirst()
+                : randomPiece(config, pieceRandom);
     }
 
-    private PieceShape nextPiece(PlayerSide side) {
-        List<PieceShape> shapes = gameState.config().availableShapes();
-        int index;
-
-        if (side == PlayerSide.BOTTOM) {
-            index = bottomPieceIndex++;
-        } else {
-            index = topPieceIndex++;
-        }
-
-        return shapes.get(index % shapes.size());
+    static PieceShape randomPiece(TetrisGameConfig config, Random random) {
+        List<PieceShape> shapes = config.availableShapes();
+        return shapes.get(random.nextInt(shapes.size()));
     }
 
     private void finishStateChange() {
@@ -757,9 +830,7 @@ public class TetrisGameController implements RouteDataReceiver {
         }
 
         TetrisPlayerState player = gameState.player(side);
-        int columnSpan = gameState.config().horizontalMode() ? player.board().rows() : player.board().columns();
-        int rowSpan = gameState.config().horizontalMode() ? player.board().columns() : player.board().rows();
-        grid.add(label, 0, 0, columnSpan, rowSpan);
+        grid.add(label, 0, 0, player.board().columns(), player.board().rows());
     }
 
     private void returnToMenuAfterDisconnect() {

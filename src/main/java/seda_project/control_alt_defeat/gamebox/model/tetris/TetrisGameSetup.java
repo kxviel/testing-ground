@@ -20,6 +20,9 @@ public record TetrisGameSetup(
         playerTwoName = SafeText.playerName(playerTwoName, SafeText.PLAYER_TWO_NAME);
         config = config == null ? TetrisGameConfig.defaultConfig() : config;
         mode = mode == null ? TetrisGameMode.LOCAL : mode;
+        localSide = mode == TetrisGameMode.LOCAL
+                ? null
+                : (localSide == null ? PlayerSide.BOTTOM : localSide);
     }
 
     public static TetrisGameSetup local(String playerOneName, String playerTwoName, TetrisGameConfig config) {

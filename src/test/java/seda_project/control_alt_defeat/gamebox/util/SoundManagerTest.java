@@ -32,6 +32,7 @@ class SoundManagerTest {
     @Test
     void installsWithoutReplacingButtonActions() throws Exception {
         assertNotNull(SoundManager.class.getResource("/sounds/click.wav"));
+        assertNotNull(SoundManager.class.getResource("/sounds/game-start.wav"));
 
         boolean actionPreserved = callOnFxThread(() -> {
             Button button = new Button("Play");
@@ -45,6 +46,21 @@ class SoundManagerTest {
         });
 
         assertTrue(actionPreserved);
+    }
+
+    @Test
+    void marksOnlyConfiguredButtonsForTheGameStartSound() throws Exception {
+        boolean correctlyMarked = callOnFxThread(() -> {
+            Button button = new Button("Start");
+
+            SoundManager.setGameStartButton(button, true);
+            boolean marked = button.getStyleClass().contains("game-start-button");
+
+            SoundManager.setGameStartButton(button, false);
+            return marked && !button.getStyleClass().contains("game-start-button");
+        });
+
+        assertTrue(correctlyMarked);
     }
 
     private static <T> T callOnFxThread(Callable<T> task) throws Exception {

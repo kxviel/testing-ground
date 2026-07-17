@@ -10,11 +10,11 @@ public enum TetrisItemType {
     ROTATION_DELAY_OPPONENT("R"),
     ROTATION_DELAY_SELF("r"),
     SLOW_OPPONENT("S"),
-    EXPLODE_RADIUS("*"),
-    EXPLODE_BELOW("v"),
-    PORTAL("P"),
-    TELEPORT_SWAP("T"),
-    PIECE_SWAP("G");
+    RADIUS_BOMB("*"),
+    COLUMN_BOMB("v"),
+    TELEPORT("P"),
+    BOARD_SWAP("T"),
+    FALLING_PIECE_SWAP("G");
 
     private final String symbol;
 
@@ -31,13 +31,13 @@ public enum TetrisItemType {
             case SPEED_UP_OPPONENT,
                  ROTATION_DELAY_OPPONENT,
                  SLOW_OPPONENT,
-                 PORTAL,
-                 TELEPORT_SWAP,
-                 PIECE_SWAP -> true;
+                 TELEPORT,
+                 BOARD_SWAP,
+                 FALLING_PIECE_SWAP -> true;
             case SLOW_SELF,
                  ROTATION_DELAY_SELF,
-                 EXPLODE_RADIUS,
-                 EXPLODE_BELOW -> false;
+                 RADIUS_BOMB,
+                 COLUMN_BOMB -> false;
         };
     }
 

@@ -19,16 +19,23 @@ public class BoardVariant {
     public final String difficulty;
 
     public BoardVariant(int k, int n, String difficulty) {
+        long total = (long) k * n;
+        if (k < 1 || n < 1 || total > MAX_CARDS) {
+            throw new IllegalArgumentException("Memory board must contain between 1 and " + MAX_CARDS + " cards.");
+        }
         this.k = k;
         this.n = n;
-        this.totalCards = n * k;
-        this.difficulty = difficulty;
+        this.totalCards = (int) total;
+        this.difficulty = difficulty == null || difficulty.isBlank() ? "Custom Board" : difficulty;
         int[] dims = bestDimensions(totalCards);
         this.rows = dims[0];
         this.cols = dims[1];
     }
 
     public static int[] bestDimensions(int total) {
+        if (total < 1 || total > MAX_CARDS) {
+            throw new IllegalArgumentException("Card count must be between 1 and " + MAX_CARDS + ".");
+        }
         List<int[]> candidates = IntStream.rangeClosed(1, (int) Math.sqrt(total))
                 .filter(rows -> total % rows == 0)
                 .mapToObj(rows -> new int[] { rows, total / rows })

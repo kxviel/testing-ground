@@ -6,8 +6,8 @@ public record WindowSettings(WindowMode mode, double windowedWidth, double windo
 
     public static final double DEFAULT_WINDOWED_WIDTH = 1280;
     public static final double DEFAULT_WINDOWED_HEIGHT = 720;
-    public static final double MIN_WINDOWED_WIDTH = 1000;
-    public static final double MIN_WINDOWED_HEIGHT = 680;
+    public static final double MIN_WINDOWED_WIDTH = 640;
+    public static final double MIN_WINDOWED_HEIGHT = 360;
 
     public WindowSettings {
         Objects.requireNonNull(mode, "mode");

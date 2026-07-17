@@ -9,12 +9,18 @@ public final class SnapshotCodec {
     }
 
     public static String encode(String value) {
+        if (value != null && value.length() > NetworkMessage.MAX_MESSAGE_CHARS) {
+            throw new IllegalArgumentException("Field exceeds the size limit.");
+        }
         return Base64.getUrlEncoder()
                 .withoutPadding()
                 .encodeToString((value == null ? "" : value).getBytes(StandardCharsets.UTF_8));
     }
 
     public static String decode(String value) {
+        if (value == null || value.length() > NetworkMessage.MAX_MESSAGE_CHARS) {
+            throw new IllegalArgumentException("Encoded field exceeds the size limit.");
+        }
         return new String(Base64.getUrlDecoder().decode(value), StandardCharsets.UTF_8);
     }
 
@@ -33,7 +39,7 @@ public final class SnapshotCodec {
     public static int parseInt(String value, int defaultValue) {
         try {
             return Integer.parseInt(value);
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException | NullPointerException e) {
             return defaultValue;
         }
     }

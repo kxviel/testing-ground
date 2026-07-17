@@ -8,6 +8,7 @@ import seda_project.control_alt_defeat.gamebox.model.tetris.enums.Rotation;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
+import seda_project.control_alt_defeat.gamebox.util.SafeText;
 
 public record TetrisPlayerState(
         String playerName,
@@ -21,18 +22,23 @@ public record TetrisPlayerState(
         TetrisEffectState effects,
         List<PieceShape> queuedShapes) {
 
+    public static final int MAX_QUEUED_SHAPES = 32;
+
     public TetrisPlayerState {
-        playerName = playerName == null || playerName.isBlank() ? "Player" : playerName.trim();
+        playerName = SafeText.playerName(playerName, "Player");
         Objects.requireNonNull(side, "side");
         board = board == null ? new TetrisBoard() : board;
+        activePiece = activePiece != null && board.canPlace(activePiece) ? activePiece : null;
         score = Math.max(0, score);
         status = status == null ? PlayerStatus.PLAYING : status;
+        finalScore = finalScore == null ? null : Math.max(0, finalScore);
         boardObject = canKeepObject(board, boardObject) ? boardObject : null;
         effects = effects == null ? TetrisEffectState.none() : effects;
         queuedShapes = queuedShapes == null
                 ? List.of()
                 : queuedShapes.stream()
                         .filter(Objects::nonNull)
+                        .limit(MAX_QUEUED_SHAPES)
                         .toList();
     }
 
@@ -264,7 +270,7 @@ public record TetrisPlayerState(
         return copy(
                 clearedBoard,
                 null,
-                score + clearedLines,
+                saturatedAdd(score, clearedLines),
                 status,
                 finalScore,
                 boardObject,
@@ -273,19 +279,19 @@ public record TetrisPlayerState(
     }
 
     public TetrisPlayerState addTopRows(int count) {
-        int n = Math.max(0, count);
-        if (n == 0) {
+        TetrisBoard newBoard = board.addRowsAtTop(count);
+        int added = newBoard.rows() - board.rows();
+        if (added == 0) {
             return this;
         }
-        TetrisBoard newBoard = board.addRowsAtTop(n);
         TetrisPiece newPiece = activePiece == null ? null
                 : activePiece.withPosition(new BoardPosition(
-                        activePiece.position().row() + n,
+                        activePiece.position().row() + added,
                         activePiece.position().column()));
         TetrisBoardObject newObject = boardObject == null ? null
                 : new TetrisBoardObject(
                         boardObject.type(),
-                        new BoardPosition(boardObject.position().row() + n, boardObject.position().column()),
+                        new BoardPosition(boardObject.position().row() + added, boardObject.position().column()),
                         boardObject.lifetimeTicks());
         return copy(newBoard, newPiece, score, status, finalScore, newObject, effects, queuedShapes);
     }
@@ -343,7 +349,8 @@ public record TetrisPlayerState(
     }
 
     public TetrisPlayerState addLeftColumns(int count) {
-        return shiftForColumnChange(board.addColumnsAtLeft(count), count);
+        TetrisBoard newBoard = board.addColumnsAtLeft(count);
+        return shiftForColumnChange(newBoard, newBoard.columns() - board.columns());
     }
 
     public TetrisPlayerState addRightColumns(int count) {
@@ -500,6 +507,11 @@ public record TetrisPlayerState(
 
     private static boolean canKeepObject(TetrisBoard board, TetrisBoardObject object) {
         return object != null && !object.isExpired() && canUseObjectPosition(board, null, object);
+    }
+
+    private static int saturatedAdd(int left, int right) {
+        long result = (long) left + right;
+        return (int) Math.min(Integer.MAX_VALUE, Math.max(0L, result));
     }
 
     private boolean hasObjectSupport(BoardPosition position, GravityDirection gravityDirection) {

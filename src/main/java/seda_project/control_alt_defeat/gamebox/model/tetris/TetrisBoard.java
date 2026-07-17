@@ -17,6 +17,8 @@ public class TetrisBoard {
     public static final int HORIZONTAL_COLUMNS = 20;
     public static final int MIN_ROWS = 4;
     public static final int MIN_COLUMNS = 4;
+    public static final int MAX_ROWS = 24;
+    public static final int MAX_COLUMNS = 24;
 
     private final int rows;
     private final int columns;
@@ -34,8 +36,8 @@ public class TetrisBoard {
     }
 
     public TetrisBoard(int rows, int columns) {
-        int safeRows = Math.max(MIN_ROWS, rows);
-        int safeColumns = Math.max(MIN_COLUMNS, columns);
+        int safeRows = clamp(rows, MIN_ROWS, MAX_ROWS);
+        int safeColumns = clamp(columns, MIN_COLUMNS, MAX_COLUMNS);
         this.rows = safeRows;
         this.columns = safeColumns;
         this.cells = createEmptyCells(safeRows, safeColumns);
@@ -49,15 +51,15 @@ public class TetrisBoard {
     public TetrisBoard(TetrisCell[][] cells, int[][] colorIndexes) {
         int inferredRows = cells == null ? DEFAULT_ROWS : cells.length;
         int inferredColumns = inferColumns(cells, DEFAULT_COLUMNS);
-        this.rows = Math.max(MIN_ROWS, inferredRows);
-        this.columns = Math.max(MIN_COLUMNS, inferredColumns);
+        this.rows = clamp(inferredRows, MIN_ROWS, MAX_ROWS);
+        this.columns = clamp(inferredColumns, MIN_COLUMNS, MAX_COLUMNS);
         this.cells = copyCells(cells, this.rows, this.columns);
         this.colorIndexes = copyColors(colorIndexes, this.cells, this.rows, this.columns);
     }
 
     private TetrisBoard(int rows, int columns, TetrisCell[][] cells, int[][] colorIndexes) {
-        this.rows = Math.max(MIN_ROWS, rows);
-        this.columns = Math.max(MIN_COLUMNS, columns);
+        this.rows = clamp(rows, MIN_ROWS, MAX_ROWS);
+        this.columns = clamp(columns, MIN_COLUMNS, MAX_COLUMNS);
         this.cells = copyCells(cells, this.rows, this.columns);
         this.colorIndexes = copyColors(colorIndexes, this.cells, this.rows, this.columns);
     }
@@ -71,7 +73,8 @@ public class TetrisBoard {
     }
 
     public boolean isInside(BoardPosition position) {
-        return position.row() >= 0
+        return position != null
+                && position.row() >= 0
                 && position.row() < rows
                 && position.column() >= 0
                 && position.column() < columns;
@@ -193,23 +196,24 @@ public class TetrisBoard {
     }
 
     public TetrisBoard destroyRadius(BoardPosition center, int radius) {
-        if (center == null || radius < 0) {
+        if (center == null || radius < 0 || !isInside(center)) {
             return this;
         }
 
-        Set<BoardPosition> positions = IntStream.rangeClosed(center.row() - radius, center.row() + radius)
+        int safeRadius = Math.min(radius, Math.max(rows, columns));
+        long radiusSquared = (long) safeRadius * safeRadius;
+        Set<BoardPosition> positions = IntStream.range(0, rows)
                 .boxed()
-                .flatMap(row -> IntStream.rangeClosed(center.column() - radius, center.column() + radius)
+                .flatMap(row -> IntStream.range(0, columns)
                         .mapToObj(column -> new BoardPosition(row, column)))
-                .filter(this::isInside)
-                .filter(position -> distanceSquared(center, position) <= radius * radius)
+                .filter(position -> distanceSquared(center, position) <= radiusSquared)
                 .collect(Collectors.toSet());
 
         return clearPositions(positions);
     }
 
     public TetrisBoard destroyAlongGravity(BoardPosition impact, GravityDirection gravityDirection) {
-        if (impact == null) {
+        if (impact == null || !isInside(impact)) {
             return this;
         }
 
@@ -237,7 +241,7 @@ public class TetrisBoard {
     }
 
     public TetrisBoard addRowsAtTop(int count) {
-        int n = Math.max(0, count);
+        int n = Math.min(Math.max(0, count), MAX_ROWS - rows);
         if (n == 0) {
             return this;
         }
@@ -246,7 +250,7 @@ public class TetrisBoard {
     }
 
     public TetrisBoard addRowsAtBottom(int count) {
-        int n = Math.max(0, count);
+        int n = Math.min(Math.max(0, count), MAX_ROWS - rows);
         if (n == 0) {
             return this;
         }
@@ -273,7 +277,7 @@ public class TetrisBoard {
     }
 
     public TetrisBoard addColumnsAtLeft(int count) {
-        int n = Math.max(0, count);
+        int n = Math.min(Math.max(0, count), MAX_COLUMNS - columns);
         if (n == 0) {
             return this;
         }
@@ -282,7 +286,7 @@ public class TetrisBoard {
     }
 
     public TetrisBoard addColumnsAtRight(int count) {
-        int n = Math.max(0, count);
+        int n = Math.min(Math.max(0, count), MAX_COLUMNS - columns);
         if (n == 0) {
             return this;
         }
@@ -372,9 +376,9 @@ public class TetrisBoard {
         return new TetrisBoard(rows, columns, nextCells, nextColors);
     }
 
-    private static int distanceSquared(BoardPosition first, BoardPosition second) {
-        int rowDelta = first.row() - second.row();
-        int columnDelta = first.column() - second.column();
+    private static long distanceSquared(BoardPosition first, BoardPosition second) {
+        long rowDelta = (long) first.row() - second.row();
+        long columnDelta = (long) first.column() - second.column();
 
         return rowDelta * rowDelta + columnDelta * columnDelta;
     }
@@ -384,7 +388,7 @@ public class TetrisBoard {
             return defaultColumns;
         }
 
-        return Math.max(MIN_COLUMNS, cells[0].length);
+        return clamp(cells[0].length, MIN_COLUMNS, MAX_COLUMNS);
     }
 
     private static TetrisCell[][] createEmptyCells(int rows, int columns) {
@@ -443,5 +447,9 @@ public class TetrisBoard {
         }
 
         return copy;
+    }
+
+    private static int clamp(int value, int min, int max) {
+        return Math.min(max, Math.max(min, value));
     }
 }

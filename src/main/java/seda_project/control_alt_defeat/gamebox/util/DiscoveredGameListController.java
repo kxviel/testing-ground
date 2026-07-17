@@ -11,6 +11,8 @@ import java.util.stream.IntStream;
 
 public final class DiscoveredGameListController {
 
+    private static final int MAX_DISCOVERED_GAMES = 100;
+
     private final ListView<LanDiscoveryService.DiscoveredGame> listView;
     private Timeline staleGameTimer;
 
@@ -32,6 +34,13 @@ public final class DiscoveredGameListController {
         if (existingIndex >= 0) {
             listView.getItems().set(existingIndex, game);
         } else {
+            if (listView.getItems().size() >= MAX_DISCOVERED_GAMES) {
+                int oldestIndex = IntStream.range(0, listView.getItems().size())
+                        .reduce((first, second) -> listView.getItems().get(first).timestamp()
+                                <= listView.getItems().get(second).timestamp() ? first : second)
+                        .orElse(0);
+                listView.getItems().remove(oldestIndex);
+            }
             listView.getItems().add(game);
         }
 
@@ -56,7 +65,7 @@ public final class DiscoveredGameListController {
             return;
         }
 
-        long cutoff = System.currentTimeMillis() - ttlMillis;
+        long cutoff = System.currentTimeMillis() - Math.max(0, ttlMillis);
         listView.getItems().removeIf(game -> game.timestamp() < cutoff);
     }
 

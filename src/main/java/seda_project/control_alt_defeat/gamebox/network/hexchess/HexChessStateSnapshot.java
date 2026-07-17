@@ -9,6 +9,8 @@ import seda_project.control_alt_defeat.gamebox.model.hexchess.HexMoveRecord;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexPiece;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexPieceColor;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexPieceType;
+import seda_project.control_alt_defeat.gamebox.model.hexchess.HexPositionValidation;
+import seda_project.control_alt_defeat.gamebox.model.hexchess.HexPositionValidator;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -50,15 +52,23 @@ public final class HexChessStateSnapshot {
             throw new IllegalArgumentException("Snapshot is empty.");
         }
 
-        String[] parts = value.split("~", -1);
+        String[] parts = value.split("~", SNAPSHOT_FIELD_COUNT + 1);
         if (parts.length != SNAPSHOT_FIELD_COUNT) {
             throw new IllegalArgumentException("Snapshot has wrong field count.");
         }
 
         HexBoard board = deserializeBoard(parts[0]);
+        HexPositionValidation materialValidation = HexPositionValidator.validateMaterial(board);
+        if (!materialValidation.isValid()) {
+            throw new IllegalArgumentException("Snapshot contains impossible material: "
+                    + materialValidation.message());
+        }
         HexPieceColor turn = parseColor(parts[1]);
         HexGameStatus status = parseStatus(parts[2]);
         String statusMessage = decode(parts[3]);
+        if (statusMessage.length() > HexGameState.MAX_STATUS_MESSAGE_CHARS) {
+            throw new IllegalArgumentException("Status message exceeds the supported length.");
+        }
         HexMoveRecord lastMove = deserializeLastMove(parts[4]);
         HexCoordinate enPassantTarget = parseCoordinate(parts[5]);
         HexPieceColor drawOfferBy = "-".equals(parts[6]) ? null : parseColor(parts[6]);
@@ -67,6 +77,13 @@ public final class HexChessStateSnapshot {
         double blackScore = parseDouble(parts[9]);
         Set<HexCoordinate> doubleMoveEligibleSquares = deserializeCoordinateSet(parts[10]);
         Map<String, Integer> repetitionCounts = deserializeRepetitionCounts(parts[11]);
+
+        if (halfMoveClock < 0 || halfMoveClock > HexGameState.MAX_HALF_MOVE_CLOCK) {
+            throw new IllegalArgumentException("Half-move clock is outside the supported range.");
+        }
+        if (whiteScore < 0 || whiteScore > 1 || blackScore < 0 || blackScore > 1) {
+            throw new IllegalArgumentException("Score is outside the supported range.");
+        }
 
         return new HexGameState(
                 board,
@@ -100,7 +117,11 @@ public final class HexChessStateSnapshot {
         }
 
         Map<HexCoordinate, HexPiece> pieces = new LinkedHashMap<>();
-        for (String part : value.split(";")) {
+        String[] entries = value.split(";", HexBoard.MAX_PIECES + 1);
+        if (entries.length > HexBoard.MAX_PIECES) {
+            throw new IllegalArgumentException("Snapshot contains too many pieces.");
+        }
+        for (String part : entries) {
             Map.Entry<HexCoordinate, HexPiece> entry = deserializePiece(part);
             if (pieces.putIfAbsent(entry.getKey(), entry.getValue()) != null) {
                 throw new IllegalArgumentException("Duplicate coordinate in snapshot: " + entry.getKey());
@@ -146,7 +167,7 @@ public final class HexChessStateSnapshot {
             return null;
         }
 
-        String[] parts = value.split(",", -1);
+        String[] parts = value.split(",", LAST_MOVE_FIELD_COUNT + 1);
         if (parts.length != LAST_MOVE_FIELD_COUNT) {
             throw new IllegalArgumentException("Invalid last move entry: " + value);
         }
@@ -220,7 +241,11 @@ public final class HexChessStateSnapshot {
             return Set.of();
         }
 
-        return Arrays.stream(value.split(","))
+        String[] entries = value.split(",", HexBoard.MAX_PIECES + 1);
+        if (entries.length > HexBoard.MAX_PIECES) {
+            throw new IllegalArgumentException("Snapshot contains too many double-move squares.");
+        }
+        return Arrays.stream(entries)
                 .map(HexCoordinate::of)
                 .collect(Collectors.toUnmodifiableSet());
     }
@@ -243,14 +268,20 @@ public final class HexChessStateSnapshot {
         }
 
         Map<String, Integer> counts = new LinkedHashMap<>();
-        for (String entry : value.split(";")) {
+        String[] entries = value.split(";", HexGameState.MAX_REPETITION_ENTRIES + 1);
+        if (entries.length > HexGameState.MAX_REPETITION_ENTRIES) {
+            throw new IllegalArgumentException("Snapshot contains too many repetition entries.");
+        }
+        for (String entry : entries) {
             String[] parts = entry.split("=", 2);
             if (parts.length != 2) {
                 throw new IllegalArgumentException("Invalid repetition entry: " + entry);
             }
             String key = decode(parts[0]);
             int count = parseInt(parts[1]);
-            if (count < 1 || counts.putIfAbsent(key, count) != null) {
+            if (key.isBlank() || key.length() > HexGameState.MAX_POSITION_KEY_CHARS
+                    || count < 1 || count > HexGameState.MAX_REPETITION_COUNT
+                    || counts.putIfAbsent(key, count) != null) {
                 throw new IllegalArgumentException("Invalid repetition count for key: " + key);
             }
         }

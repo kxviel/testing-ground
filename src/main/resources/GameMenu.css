@@ -1,7 +1,7 @@
 .game-menu-shell,
 .memory-menu-viewport {
     -fx-background-color: transparent;
-    -fx-padding: 40;
+    -fx-padding: 24;
 }
 
 .memory-menu-layout,

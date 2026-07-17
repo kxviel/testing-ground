@@ -12,6 +12,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Label;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
@@ -29,12 +30,14 @@ import seda_project.control_alt_defeat.gamebox.network.GameClient;
 import seda_project.control_alt_defeat.gamebox.network.GameServer;
 import seda_project.control_alt_defeat.gamebox.network.hexchess.HexChessProtocol;
 import seda_project.control_alt_defeat.gamebox.network.hexchess.HexChessStateSnapshot;
+import seda_project.control_alt_defeat.gamebox.util.ResponsiveLayout;
 import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
 import seda_project.control_alt_defeat.gamebox.util.Router;
 import seda_project.control_alt_defeat.gamebox.util.UiVisibility;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Queue;
 
 public class HexChessGameController implements RouteDataReceiver {
 
@@ -50,6 +53,8 @@ public class HexChessGameController implements RouteDataReceiver {
     private static final Color CELL_CHECK = Color.web("#f87171");
     private static final Color STROKE_LAST = Color.web("#7c3aed");
 
+    @FXML
+    private GridPane gameMain;
     @FXML
     private StackPane boardZone;
     @FXML
@@ -89,9 +94,12 @@ public class HexChessGameController implements RouteDataReceiver {
     private GameServer hostServer;
     private GameClient joinClient;
     private boolean botThinking;
+    private boolean remoteQuitHandled;
+    private Queue<String> pendingMessages;
 
     @FXML
     public void initialize() {
+        ResponsiveLayout.bindTwoColumnGrid(gameMain, 70.0);
         UiVisibility.bindVisibleWhenTextPresent(statusLabel);
         UiVisibility.bindVisibleWhenTextPresent(drawOfferLabel);
         bindBoardResize();
@@ -161,6 +169,7 @@ public class HexChessGameController implements RouteDataReceiver {
         if (data instanceof HexChessGameRouteData routeData) {
             hostServer = routeData.server();
             joinClient = routeData.client();
+            pendingMessages = routeData.pendingMessages();
             startGame(routeData.setup());
             configureNetwork();
         } else if (data instanceof HexChessGameSetup nextSetup) {
@@ -257,15 +266,33 @@ public class HexChessGameController implements RouteDataReceiver {
     private void configureNetwork() {
         if (isNetworkHost()) {
             hostServer.setMessageListener(message -> Platform.runLater(() -> processHostMessage(message)));
-            hostServer.setDisconnectListener(() -> Platform.runLater(() -> markDisconnected("Joiner disconnected.")));
+            hostServer.setDisconnectListener(
+                    () -> Platform.runLater(() -> handleNetworkDisconnect("Joiner disconnected.")));
             sendStartStateIfHost();
         }
 
         if (isNetworkClient()) {
             joinClient.setMessageListener(message -> Platform.runLater(() -> processClientMessage(message)));
-            joinClient.setDisconnectListener(() -> Platform.runLater(() -> markDisconnected("Host disconnected.")));
+            joinClient.setDisconnectListener(
+                    () -> Platform.runLater(() -> handleNetworkDisconnect("Host disconnected.")));
             joinClient.send(HexChessProtocol.join(setup.blackName()));
         }
+        replayPendingMessages();
+    }
+
+    private void replayPendingMessages() {
+        if (pendingMessages == null) {
+            return;
+        }
+        String message;
+        while ((message = pendingMessages.poll()) != null) {
+            if (isNetworkHost()) {
+                processHostMessage(message);
+            } else if (isNetworkClient()) {
+                processClientMessage(message);
+            }
+        }
+        pendingMessages = null;
     }
 
     private void buildBoard() {
@@ -421,7 +448,7 @@ public class HexChessGameController implements RouteDataReceiver {
         switch (HexChessProtocol.type(message)) {
             case HexChessProtocol.JOIN -> {
                 List<String> fields = HexChessProtocol.fields(message);
-                if (!fields.isEmpty() && !fields.getFirst().isBlank()) {
+                if (fields.size() == 1 && !fields.getFirst().isBlank()) {
                     setup = new HexChessGameSetup(
                             setup.whiteName(),
                             fields.getFirst(),
@@ -441,12 +468,17 @@ public class HexChessGameController implements RouteDataReceiver {
                     applyAndBroadcast(gameState.play(move));
                 }
             }
-            case HexChessProtocol.DRAW_OFFER -> applyAndBroadcast(gameState.offerDraw(HexPieceColor.BLACK));
-            case HexChessProtocol.DRAW_ACCEPT -> applyAndBroadcast(gameState.acceptDraw(HexPieceColor.BLACK));
-            case HexChessProtocol.DRAW_DECLINE -> applyAndBroadcast(gameState.declineDraw(HexPieceColor.BLACK));
-            case HexChessProtocol.RESIGN -> applyAndBroadcast(gameState.resign(HexPieceColor.BLACK));
-            case HexChessProtocol.RESTART -> restartMatch("Game restarted.");
-            case HexChessProtocol.QUIT -> markDisconnected("Joiner left the game.");
+            case HexChessProtocol.DRAW_OFFER -> runSimpleHostCommand(message,
+                    () -> applyAndBroadcast(gameState.offerDraw(HexPieceColor.BLACK)));
+            case HexChessProtocol.DRAW_ACCEPT -> runSimpleHostCommand(message,
+                    () -> applyAndBroadcast(gameState.acceptDraw(HexPieceColor.BLACK)));
+            case HexChessProtocol.DRAW_DECLINE -> runSimpleHostCommand(message,
+                    () -> applyAndBroadcast(gameState.declineDraw(HexPieceColor.BLACK)));
+            case HexChessProtocol.RESIGN -> runSimpleHostCommand(message,
+                    () -> applyAndBroadcast(gameState.resign(HexPieceColor.BLACK)));
+            case HexChessProtocol.RESTART -> runSimpleHostCommand(message, () -> restartMatch("Game restarted."));
+            case HexChessProtocol.QUIT -> runSimpleHostCommand(
+                    message, () -> handleRemoteQuit("Joiner left the game."));
             default -> {
             }
         }
@@ -476,13 +508,29 @@ public class HexChessGameController implements RouteDataReceiver {
             }
             case HexChessProtocol.ERROR -> {
                 List<String> fields = HexChessProtocol.fields(message);
-                gameState = gameState.withStatusMessage(fields.isEmpty() ? "Network error." : fields.getFirst());
-                render();
+                if (fields.size() == 1) {
+                    gameState = gameState.withStatusMessage(fields.getFirst());
+                    render();
+                }
             }
-            case HexChessProtocol.QUIT -> markDisconnected("Host left the game.");
+            case HexChessProtocol.QUIT -> {
+                if (isFieldlessMessage(message)) {
+                    handleRemoteQuit("Host left the game.");
+                }
+            }
             default -> {
             }
         }
+    }
+
+    private void runSimpleHostCommand(String message, Runnable command) {
+        if (isFieldlessMessage(message)) {
+            command.run();
+        }
+    }
+
+    private static boolean isFieldlessMessage(String message) {
+        return message != null && message.equals(HexChessProtocol.type(message));
     }
 
     private void applySnapshot(String snapshot) {
@@ -505,6 +553,17 @@ public class HexChessGameController implements RouteDataReceiver {
         gameState = gameState.disconnected(message);
         clearSelection();
         render();
+    }
+
+    private void handleRemoteQuit(String message) {
+        remoteQuitHandled = true;
+        markDisconnected(message);
+    }
+
+    private void handleNetworkDisconnect(String message) {
+        if (!remoteQuitHandled) {
+            markDisconnected(message);
+        }
     }
 
     private void applyAndBroadcast(HexGameState nextState) {
@@ -667,13 +726,11 @@ public class HexChessGameController implements RouteDataReceiver {
 
     private void closeNetwork() {
         if (hostServer != null) {
-            hostServer.send(HexChessProtocol.simple(HexChessProtocol.QUIT));
-            hostServer.close();
+            hostServer.closeAfterSending(HexChessProtocol.simple(HexChessProtocol.QUIT));
             hostServer = null;
         }
         if (joinClient != null) {
-            joinClient.send(HexChessProtocol.simple(HexChessProtocol.QUIT));
-            joinClient.close();
+            joinClient.closeAfterSending(HexChessProtocol.simple(HexChessProtocol.QUIT));
             joinClient = null;
         }
     }

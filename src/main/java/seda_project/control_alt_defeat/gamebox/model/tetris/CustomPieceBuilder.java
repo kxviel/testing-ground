@@ -12,10 +12,21 @@ import java.util.stream.Collectors;
 
 public final class CustomPieceBuilder {
 
+    public static final int MAX_CUSTOM_CELLS = 25;
+
     private CustomPieceBuilder() {
     }
 
     public static PieceShape build(String name, List<BoardPosition> selectedCells) {
+        if (selectedCells != null && selectedCells.size() > MAX_CUSTOM_CELLS) {
+            throw new IllegalArgumentException("A custom piece can contain at most " + MAX_CUSTOM_CELLS + " cells.");
+        }
+        if (selectedCells != null && selectedCells.stream()
+                .filter(Objects::nonNull)
+                .anyMatch(cell -> cell.row() < 0 || cell.column() < 0
+                        || cell.row() >= PieceShape.MAX_EXTENT || cell.column() >= PieceShape.MAX_EXTENT)) {
+            throw new IllegalArgumentException("Custom piece cells are outside the supported grid.");
+        }
         List<BoardPosition> normalizedCells = normalize(selectedCells);
 
         if (normalizedCells.isEmpty()) {

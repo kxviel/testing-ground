@@ -8,12 +8,17 @@ public record TetrisEffectState(
 
     public static final int NORMAL_GRAVITY_PERCENT = 100;
     public static final int ROTATION_LAG_TICKS = 20;
+    public static final int MIN_GRAVITY_PERCENT = 25;
+    public static final int MAX_GRAVITY_PERCENT = 400;
+    public static final int MAX_EFFECT_TICKS = 10_000;
 
     public TetrisEffectState {
-        gravityPercent = gravityPercent <= 0 ? NORMAL_GRAVITY_PERCENT : gravityPercent;
-        gravityTicks = Math.max(0, gravityTicks);
-        rotationEffectTicks = Math.max(0, rotationEffectTicks);
-        rotationLagTicks = Math.max(0, rotationLagTicks);
+        gravityPercent = gravityPercent <= 0
+                ? NORMAL_GRAVITY_PERCENT
+                : Math.min(MAX_GRAVITY_PERCENT, Math.max(MIN_GRAVITY_PERCENT, gravityPercent));
+        gravityTicks = Math.min(MAX_EFFECT_TICKS, Math.max(0, gravityTicks));
+        rotationEffectTicks = Math.min(MAX_EFFECT_TICKS, Math.max(0, rotationEffectTicks));
+        rotationLagTicks = Math.min(MAX_EFFECT_TICKS, Math.max(0, rotationLagTicks));
     }
 
     public static TetrisEffectState none() {
@@ -58,6 +63,7 @@ public record TetrisEffectState(
     }
 
     public int gravityMillis(int baseGravityMillis) {
-        return Math.max(80, baseGravityMillis * gravityPercent / NORMAL_GRAVITY_PERCENT);
+        long adjusted = (long) Math.max(0, baseGravityMillis) * gravityPercent / NORMAL_GRAVITY_PERCENT;
+        return (int) Math.min(Integer.MAX_VALUE, Math.max(80L, adjusted));
     }
 }

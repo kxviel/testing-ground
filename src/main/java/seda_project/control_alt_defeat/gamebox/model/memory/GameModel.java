@@ -3,6 +3,7 @@ package seda_project.control_alt_defeat.gamebox.model.memory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.IntStream;
 
 public class GameModel {
@@ -46,10 +47,11 @@ public class GameModel {
     private int remainingCards;
 
     public GameModel(BoardVariant variant) {
-        this(variant.k, variant.n, variant.rows, variant.cols);
+        this(requireVariant(variant).k, variant.n, variant.rows, variant.cols);
     }
 
     public GameModel(int k, int n, int rows, int cols) {
+        validateDimensions(k, n, rows, cols, (long) k * n);
         this.k = k;
         this.n = n;
         this.rows = rows;
@@ -70,6 +72,7 @@ public class GameModel {
     }
 
     public GameModel(int k, int n, int rows, int cols, List<String> orderedSymbols, int currentPlayer) {
+        validateSnapshotBasics(k, n, rows, cols, orderedSymbols, currentPlayer, 0, 0);
         this.k = k;
         this.n = n;
         this.rows = rows;
@@ -112,10 +115,44 @@ public class GameModel {
             List<Boolean> faceUp,
             List<Boolean> matched,
             List<Integer> matchedBy) {
+        validateSnapshotBasics(k, n, rows, cols, orderedSymbols, currentPlayer, score0, score1);
+        Objects.requireNonNull(faceUp, "Face-up state is required.");
+        Objects.requireNonNull(matched, "Matched state is required.");
+        Objects.requireNonNull(matchedBy, "Matched-owner state is required.");
         if (orderedSymbols.size() != faceUp.size()
                 || orderedSymbols.size() != matched.size()
                 || orderedSymbols.size() != matchedBy.size()) {
             throw new IllegalArgumentException("Card state size must match symbol count.");
+        }
+        int[] matchedCounts = new int[2];
+        int openCount = 0;
+        for (int i = 0; i < orderedSymbols.size(); i++) {
+            Boolean isFaceUp = faceUp.get(i);
+            Boolean isMatched = matched.get(i);
+            Integer owner = matchedBy.get(i);
+            if (isFaceUp == null || isMatched == null || owner == null) {
+                throw new IllegalArgumentException("Card state must not contain null values.");
+            }
+            if (isMatched) {
+                if (owner != 0 && owner != 1) {
+                    throw new IllegalArgumentException("Matched cards require a valid owner.");
+                }
+                matchedCounts[owner]++;
+            } else {
+                if (owner != -1) {
+                    throw new IllegalArgumentException("Unmatched cards cannot have an owner.");
+                }
+                if (isFaceUp) {
+                    openCount++;
+                }
+            }
+        }
+        if (openCount > k || matchedCounts[0] != score0 * k || matchedCounts[1] != score1 * k) {
+            throw new IllegalArgumentException("Card state is inconsistent with the scores.");
+        }
+        boolean allMatched = matchedCounts[0] + matchedCounts[1] == orderedSymbols.size();
+        if (gameOver != allMatched) {
+            throw new IllegalArgumentException("Game-over state is inconsistent with the cards.");
         }
 
         this.k = k;
@@ -241,9 +278,69 @@ public class GameModel {
     }
 
     private static List<Card> cardsFromSymbols(List<String> symbols) {
+        Objects.requireNonNull(symbols, "Card symbols are required.");
+        if (symbols.isEmpty()) {
+            throw new IllegalArgumentException("At least one card symbol is required.");
+        }
+        symbols.forEach(symbol -> {
+            if (symbol == null || symbol.isBlank() || symbol.length() > 128) {
+                throw new IllegalArgumentException("Invalid memory card symbol.");
+            }
+        });
         return IntStream.range(0, symbols.size())
                 .mapToObj(i -> new Card(i, symbols.get(i)))
                 .toList();
+    }
+
+    public static boolean isSupportedSymbol(String symbol) {
+        if (symbol == null) {
+            return false;
+        }
+        for (String supported : SYMBOL_POOL) {
+            if (supported.equals(symbol)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static BoardVariant requireVariant(BoardVariant variant) {
+        return Objects.requireNonNull(variant, "Board variant is required.");
+    }
+
+    private static void validateSnapshotBasics(
+            int k,
+            int n,
+            int rows,
+            int cols,
+            List<String> symbols,
+            int currentPlayer,
+            int score0,
+            int score1) {
+        Objects.requireNonNull(symbols, "Card symbols are required.");
+        validateDimensions(k, n, rows, cols, symbols.size());
+        if (currentPlayer != 0 && currentPlayer != 1) {
+            throw new IllegalArgumentException("Current player must be 0 or 1.");
+        }
+        if (score0 < 0 || score1 < 0 || (long) score0 + score1 > n) {
+            throw new IllegalArgumentException("Memory scores are outside the valid range.");
+        }
+        symbols.forEach(symbol -> {
+            if (symbol == null || symbol.isBlank() || symbol.length() > 128) {
+                throw new IllegalArgumentException("Invalid memory card symbol.");
+            }
+        });
+    }
+
+    private static void validateDimensions(int k, int n, int rows, int cols, long cardCount) {
+        long configuredCards = (long) k * n;
+        long gridCards = (long) rows * cols;
+        if (k < 1 || n < 1 || rows < 1 || cols < 1
+                || configuredCards > BoardVariant.MAX_CARDS
+                || configuredCards != gridCards
+                || configuredCards != cardCount) {
+            throw new IllegalArgumentException("Invalid memory board dimensions.");
+        }
     }
 
     public enum SelectResult {

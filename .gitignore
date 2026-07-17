@@ -33,7 +33,3 @@ replay_pid*
 # LaTeX
 /auxil/
 /out/
-
-# Local agent skills
-/.agents/
-/skills-lock.json

@@ -12,9 +12,11 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexBoard;
+import seda_project.control_alt_defeat.gamebox.model.hexchess.HexBoardGeometry;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexChessGameSetup;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexCoordinate;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexGameMode;
@@ -23,6 +25,7 @@ import seda_project.control_alt_defeat.gamebox.model.hexchess.HexPieceColor;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexPieceType;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexPositionValidation;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexPositionValidator;
+import seda_project.control_alt_defeat.gamebox.util.ResponsiveLayout;
 import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
 import seda_project.control_alt_defeat.gamebox.util.Router;
 import seda_project.control_alt_defeat.gamebox.util.SafeText;
@@ -39,6 +42,8 @@ public class HexChessSetupController implements RouteDataReceiver {
     private static final double NOTATION_OFFSET_RATIO = 13.0 / BASE_HEX_SIZE;
     private static final double PIECE_FONT_RATIO = 28.0 / BASE_HEX_SIZE;
 
+    @FXML
+    private GridPane setupMain;
     @FXML
     private StackPane canvasFrame;
     @FXML
@@ -71,6 +76,7 @@ public class HexChessSetupController implements RouteDataReceiver {
 
     @FXML
     public void initialize() {
+        ResponsiveLayout.bindTwoColumnGrid(setupMain, 60.0);
         UiInputGuards.limitPlayerNames(playerOneNameField, playerTwoNameField);
         colorChoiceBox.getItems().setAll(HexPieceColor.values());
         colorChoiceBox.getSelectionModel().select(HexPieceColor.WHITE);
@@ -121,6 +127,10 @@ public class HexChessSetupController implements RouteDataReceiver {
     @FXML
     private void onStart(ActionEvent event) {
         HexPieceColor startingTurn = turnChoiceBox.getSelectionModel().getSelectedItem();
+        if (startingTurn == null) {
+            startingTurn = HexPieceColor.WHITE;
+            turnChoiceBox.getSelectionModel().select(startingTurn);
+        }
         HexPositionValidation validation = HexPositionValidator.validate(board, startingTurn);
 
         if (!validation.isValid()) {
@@ -233,6 +243,10 @@ public class HexChessSetupController implements RouteDataReceiver {
     }
 
     private void onCellClicked(HexCoordinate coordinate, MouseButton button) {
+        if (!HexBoardGeometry.isValid(coordinate) || button == null) {
+            validationLabel.setText("Select a valid board cell.");
+            return;
+        }
         selectedCoordinate = coordinate;
 
         if (button == MouseButton.SECONDARY) {
@@ -247,10 +261,25 @@ public class HexChessSetupController implements RouteDataReceiver {
             return;
         }
 
-        HexPiece piece = new HexPiece(
-                colorChoiceBox.getSelectionModel().getSelectedItem(),
-                typeChoiceBox.getSelectionModel().getSelectedItem());
-        board = withoutExistingKing(piece).withPiece(coordinate, piece);
+        HexPieceColor selectedColor = colorChoiceBox.getSelectionModel().getSelectedItem();
+        HexPieceType selectedType = typeChoiceBox.getSelectionModel().getSelectedItem();
+        if (selectedColor == null || selectedType == null) {
+            colorChoiceBox.getSelectionModel().select(HexPieceColor.WHITE);
+            typeChoiceBox.getSelectionModel().select(HexPieceType.KING);
+            validationLabel.setText("Choose a piece color and type first.");
+            return;
+        }
+        HexPiece piece = new HexPiece(selectedColor, selectedType);
+        HexBoard candidateBoard = withoutExistingKing(piece).withPiece(coordinate, piece);
+        HexPositionValidation materialValidation = HexPositionValidator.validateMaterial(candidateBoard);
+        if (!materialValidation.isValid()) {
+            validationLabel.setText(materialValidation.message());
+            validationLabel.getStyleClass().setAll("status-box", "status-box-warn");
+            startButton.setDisable(true);
+            boardCanvas.requestFocus();
+            return;
+        }
+        board = candidateBoard;
         boardCanvas.requestFocus();
         render();
     }

@@ -4,7 +4,7 @@
 
 .memory-game-layout {
     -fx-alignment: center;
-    -fx-padding: 40;
+    -fx-padding: 20;
 }
 
 .memory-board-header {

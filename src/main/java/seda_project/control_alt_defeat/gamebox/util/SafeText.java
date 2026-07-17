@@ -14,14 +14,15 @@ public final class SafeText {
     }
 
     public static String singleLine(String value, String fallback, int maxChars) {
+        int safeMaxChars = Math.max(0, maxChars);
         String cleaned = normalizeSingleLine(value);
         if (cleaned.isBlank()) {
             cleaned = normalizeSingleLine(fallback);
         }
-        if (cleaned.length() <= maxChars) {
+        if (cleaned.length() <= safeMaxChars) {
             return cleaned;
         }
-        return cleaned.substring(0, maxChars).stripTrailing();
+        return cleaned.substring(0, safeMaxChars).stripTrailing();
     }
 
     private static String normalizeSingleLine(String value) {

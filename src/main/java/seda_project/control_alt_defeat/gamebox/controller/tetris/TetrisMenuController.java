@@ -23,9 +23,11 @@ import seda_project.control_alt_defeat.gamebox.network.GameServer;
 import seda_project.control_alt_defeat.gamebox.network.LanDiscoveryService;
 import seda_project.control_alt_defeat.gamebox.network.tetris.TetrisProtocol;
 import seda_project.control_alt_defeat.gamebox.util.DiscoveredGameListController;
+import seda_project.control_alt_defeat.gamebox.util.ResponsiveLayout;
 import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
 import seda_project.control_alt_defeat.gamebox.util.Router;
 import seda_project.control_alt_defeat.gamebox.util.SafeText;
+import seda_project.control_alt_defeat.gamebox.util.SoundManager;
 import seda_project.control_alt_defeat.gamebox.util.UiInputGuards;
 import seda_project.control_alt_defeat.gamebox.util.UiVisibility;
 
@@ -42,11 +44,17 @@ public class TetrisMenuController implements RouteDataReceiver {
     private static final String PLAYER_TWO = SafeText.PLAYER_TWO_NAME;
 
     @FXML
+    private GridPane tetrisMenuMain;
+    @FXML
     private Button localModeButton;
     @FXML
     private Button startButton;
     @FXML
     private Button joinSelectedGameButton;
+    @FXML
+    private Button cancelHostingButton;
+    @FXML
+    private Button hostLanButton;
 
     @FXML
     private TextField playerOneNameField;
@@ -96,6 +104,7 @@ public class TetrisMenuController implements RouteDataReceiver {
 
     @FXML
     public void initialize() {
+        ResponsiveLayout.bindTwoColumnGrid(tetrisMenuMain, 60.0);
         UiInputGuards.limitPlayerNames(playerOneNameField, playerTwoNameField);
         buildCustomPieceGrid();
         discoveredGameList = new DiscoveredGameListController(availableGamesList);
@@ -137,6 +146,10 @@ public class TetrisMenuController implements RouteDataReceiver {
     @FXML
     private void onSaveCustomPiece() {
         try {
+            if (customPieces.size() >= TetrisGameConfig.MAX_CUSTOM_PIECES) {
+                customPieceStatusLabel.setText("You can save at most " + TetrisGameConfig.MAX_CUSTOM_PIECES + " custom pieces.");
+                return;
+            }
             PieceShape shape = CustomPieceBuilder.build("Custom " + (customPieces.size() + 1), selectedCustomCells());
 
             if (customPieceExists(shape)) {
@@ -161,7 +174,7 @@ public class TetrisMenuController implements RouteDataReceiver {
 
     @FXML
     private void onGameSelected(MouseEvent event) {
-        if (event.getClickCount() == 2) {
+        if (event != null && event.getClickCount() == 2) {
             joinGame();
         }
     }
@@ -188,6 +201,23 @@ public class TetrisMenuController implements RouteDataReceiver {
         }
 
         startHostGame(event);
+    }
+
+    @FXML
+    private void onCancelHost() {
+        if (hostServer == null) {
+            return;
+        }
+
+        gameStarted = false;
+        joinedPlayerName = null;
+        closeHostServer();
+        udpDiscovery.stopAdvertising();
+        setNetworkControlsDisabled(false);
+        UiVisibility.setVisibleManaged(cancelHostingButton, false);
+        updateHostLanButton();
+        startDiscovery();
+        statusLabel.setText("Hosting cancelled.");
     }
 
     @FXML
@@ -360,6 +390,7 @@ public class TetrisMenuController implements RouteDataReceiver {
                 error -> Platform.runLater(() -> statusLabel.setText(error)));
 
         setNetworkControlsDisabled(true);
+        UiVisibility.setVisibleManaged(cancelHostingButton, true);
         updateHostLanButton();
         statusLabel.setText("Host is visible on LAN.");
 
@@ -378,6 +409,7 @@ public class TetrisMenuController implements RouteDataReceiver {
                         server.close();
                         udpDiscovery.stopAdvertising();
                         setNetworkControlsDisabled(false);
+                        UiVisibility.setVisibleManaged(cancelHostingButton, false);
                         updateHostLanButton();
                         startDiscovery();
                         statusLabel.setText("Host stopped: " + e.getMessage());
@@ -407,6 +439,7 @@ public class TetrisMenuController implements RouteDataReceiver {
         gameStarted = true;
         gameServer.send(TetrisProtocol.start(hostName, joinedPlayerName, hostConfig));
         hostServer = null;
+        UiVisibility.setVisibleManaged(cancelHostingButton, false);
         udpDiscovery.close();
         Router.goTo(event,
                 "/tetris/TetrisGame.fxml",
@@ -521,12 +554,15 @@ public class TetrisMenuController implements RouteDataReceiver {
         if (hostServer == null) {
             hostLanTitleLabel.setText("Host LAN Game");
             hostLanSubtitleLabel.setText("Make your match discoverable");
+            SoundManager.setGameStartButton(hostLanButton, false);
         } else if (joinedPlayerName == null || joinedPlayerName.isBlank()) {
             hostLanTitleLabel.setText("Waiting for " + PLAYER_TWO);
             hostLanSubtitleLabel.setText("Host is visible on LAN");
+            SoundManager.setGameStartButton(hostLanButton, false);
         } else {
             hostLanTitleLabel.setText("Start Game");
             hostLanSubtitleLabel.setText(joinedPlayerName + " joined");
+            SoundManager.setGameStartButton(hostLanButton, true);
         }
     }
 
@@ -550,7 +586,7 @@ public class TetrisMenuController implements RouteDataReceiver {
             }
 
             List<String> fields = TetrisProtocol.fields(message);
-            if (fields.isEmpty()) {
+            if (fields.size() != 1) {
                 return;
             }
 
@@ -572,7 +608,7 @@ public class TetrisMenuController implements RouteDataReceiver {
             }
 
             List<String> fields = TetrisProtocol.fields(message);
-            if (fields.size() < 3) {
+            if (fields.size() != 3) {
                 return;
             }
 
@@ -623,9 +659,10 @@ public class TetrisMenuController implements RouteDataReceiver {
     }
 
     private void closeHostServer() {
-        if (hostServer != null) {
-            hostServer.close();
-            hostServer = null;
+        GameServer server = hostServer;
+        hostServer = null;
+        if (server != null) {
+            server.close();
         }
     }
 
@@ -667,7 +704,10 @@ public class TetrisMenuController implements RouteDataReceiver {
 
     private int selectedGravityMillis() {
         String speed = speedChoiceBox.getSelectionModel().getSelectedItem();
+        return gravityMillisForSpeed(speed);
+    }
 
+    static int gravityMillisForSpeed(String speed) {
         return switch (speed == null ? "Normal" : speed) {
             case "Slow" -> 750;
             case "Fast" -> 320;

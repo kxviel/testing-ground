@@ -23,12 +23,15 @@ public record TetrisGameConfig(
     public static final int GRAVITY_RAMP_INTERVAL_MILLIS = 15_000;
     public static final int GRAVITY_RAMP_STEP_MILLIS = 20;
     public static final int MIN_DYNAMIC_GRAVITY_MILLIS = 80;
+    public static final int MAX_CUSTOM_PIECES = 32;
     private static final int MIN_GRAVITY_MILLIS = 180;
     private static final int MAX_GRAVITY_MILLIS = 1_100;
 
     public TetrisGameConfig {
         pieces = normalizePieces(pieces);
-        customPieces = customPieces == null ? List.of() : List.copyOf(customPieces);
+        customPieces = customPieces == null
+                ? List.of()
+                : customPieces.stream().filter(java.util.Objects::nonNull).limit(MAX_CUSTOM_PIECES).toList();
         gravityMillis = clampGravity(gravityMillis);
     }
 
@@ -98,8 +101,8 @@ public record TetrisGameConfig(
     public int gravityMillisAtElapsed(int elapsedMillis) {
         int safeElapsedMillis = Math.max(0, elapsedMillis);
         int rampSteps = safeElapsedMillis / GRAVITY_RAMP_INTERVAL_MILLIS;
-        int rampedGravity = gravityMillis - (rampSteps * GRAVITY_RAMP_STEP_MILLIS);
-        return Math.max(MIN_DYNAMIC_GRAVITY_MILLIS, rampedGravity);
+        long rampedGravity = (long) gravityMillis - ((long) rampSteps * GRAVITY_RAMP_STEP_MILLIS);
+        return (int) Math.max(MIN_DYNAMIC_GRAVITY_MILLIS, rampedGravity);
     }
 
     public String serialize() {
@@ -118,8 +121,15 @@ public record TetrisGameConfig(
         }
 
         try {
-            String[] sections = value.split("~", -1);
-            List<String> pieces = normalizePieces(Arrays.stream(sections[0].split(","))
+            String[] sections = value.split("~", 4);
+            if (sections.length > 3) {
+                return defaultConfig();
+            }
+            String[] pieceEntries = sections[0].split(",", 3);
+            if (pieceEntries.length > 2) {
+                return defaultConfig();
+            }
+            List<String> pieces = normalizePieces(Arrays.stream(pieceEntries)
                     .map(String::trim)
                     .filter(piece -> !piece.isEmpty())
                     .toList());
@@ -198,7 +208,8 @@ public record TetrisGameConfig(
             return List.of();
         }
 
-        List<List<BoardPosition>> shapes = Arrays.stream(value.split(";"))
+        List<List<BoardPosition>> shapes = Arrays.stream(value.split(";", MAX_CUSTOM_PIECES + 1))
+                .limit(MAX_CUSTOM_PIECES)
                 .map(TetrisGameConfig::parseCells)
                 .filter(cells -> !cells.isEmpty())
                 .toList();
@@ -222,7 +233,11 @@ public record TetrisGameConfig(
             return List.of();
         }
 
-        return Arrays.stream(value.split("_"))
+        String[] entries = value.split("_", CustomPieceBuilder.MAX_CUSTOM_CELLS + 1);
+        if (entries.length > CustomPieceBuilder.MAX_CUSTOM_CELLS) {
+            return List.of();
+        }
+        return Arrays.stream(entries)
                 .map(cellValue -> cellValue.split("\\.", 2))
                 .filter(parts -> parts.length == 2)
                 .map(parts -> parseBoardPosition(parts[0], parts[1]))
@@ -235,7 +250,10 @@ public record TetrisGameConfig(
             return ConfigOptions.defaults();
         }
 
-        String[] values = value.split(",", -1);
+        String[] values = value.split(",", 4);
+        if (values.length > 3) {
+            return ConfigOptions.defaults();
+        }
         return new ConfigOptions(
                 values.length >= 1 ? parseInt(values[0], DEFAULT_GRAVITY_MILLIS) : DEFAULT_GRAVITY_MILLIS,
                 values.length >= 2 && Boolean.parseBoolean(values[1]),
@@ -256,7 +274,13 @@ public record TetrisGameConfig(
 
     private static BoardPosition parseBoardPosition(String row, String column) {
         try {
-            return new BoardPosition(Integer.parseInt(row), Integer.parseInt(column));
+            int parsedRow = Integer.parseInt(row);
+            int parsedColumn = Integer.parseInt(column);
+            if (parsedRow < 0 || parsedColumn < 0
+                    || parsedRow >= PieceShape.MAX_EXTENT || parsedColumn >= PieceShape.MAX_EXTENT) {
+                return null;
+            }
+            return new BoardPosition(parsedRow, parsedColumn);
         } catch (NumberFormatException e) {
             return null;
         }

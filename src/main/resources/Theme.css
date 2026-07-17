@@ -44,6 +44,10 @@
     -fx-font-size: 14px;
 }
 
+.responsive-scene-viewport {
+    -fx-background-color: -sh-background;
+}
+
 .game-choice-root,
 .game-choice-main,
 .game-menu-shell,
@@ -71,7 +75,7 @@
 }
 
 .app-scroll {
-    -fx-padding: 0;
+    -fx-padding: 0 0 16 0;
 }
 
 .app-scroll .scroll-bar:vertical,

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
 <?import java.net.URL?>
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.Button?>
@@ -28,7 +29,8 @@
                     hbarPolicy="AS_NEEDED"
                     vbarPolicy="AS_NEEDED"
                     styleClass="app-scroll">
-        <GridPane minHeight="0"
+        <GridPane fx:id="gameMain"
+                  minHeight="480"
                   minWidth="0"
                   maxHeight="Infinity"
                   maxWidth="Infinity"
@@ -74,7 +76,8 @@
                 <VBox styleClass="sidebar-section">
                     <Label text="Turn" styleClass="panel-label"/>
                     <Label fx:id="turnLabel" styleClass="turn-display"/>
-                    <Label fx:id="statusLabel" wrapText="true" minHeight="52" styleClass="status-box"/>
+                    <Label fx:id="statusLabel" wrapText="true" minHeight="60" prefHeight="60" maxHeight="60"
+                           styleClass="status-box"/>
                 </VBox>
 
                 <Separator/>
@@ -90,12 +93,20 @@
 
                 <Region VBox.vgrow="ALWAYS"/>
 
-                <VBox spacing="10" styleClass="sidebar-section hex-match-actions">
+                <VBox spacing="10">
+                    <styleClass>
+                        <String fx:value="sidebar-section"/>
+                        <String fx:value="hex-match-actions"/>
+                    </styleClass>
                     <Label text="Actions" styleClass="panel-label"/>
                     <Button fx:id="offerDrawButton" text="Offer Draw" onAction="#onOfferDraw" maxWidth="Infinity"
                             styleClass="hex-control-button"/>
-                    <Button fx:id="resignButton" text="Resign" onAction="#onResign" maxWidth="Infinity"
-                            styleClass="hex-control-button hex-control-danger"/>
+                    <Button fx:id="resignButton" text="Resign" onAction="#onResign" maxWidth="Infinity">
+                        <styleClass>
+                            <String fx:value="hex-control-button"/>
+                            <String fx:value="hex-control-danger"/>
+                        </styleClass>
+                    </Button>
                     <Button fx:id="acceptDrawButton" text="Accept" onAction="#onAcceptDraw"
                             visible="false" managed="false" maxWidth="Infinity"
                             styleClass="hex-control-button"/>

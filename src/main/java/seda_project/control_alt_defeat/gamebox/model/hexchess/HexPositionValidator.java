@@ -52,6 +52,24 @@ public final class HexPositionValidator {
         return HexPositionValidation.valid();
     }
 
+    /**
+     * Validates material limits while a custom position is still being edited.
+     * Unlike {@link #validate(HexBoard, HexPieceColor)}, this does not require
+     * kings or a playable position, so the editor can reject an impossible
+     * piece as soon as the user attempts to place it.
+     */
+    public static HexPositionValidation validateMaterial(HexBoard board) {
+        HexBoard safeBoard = board == null ? HexBoard.empty() : board;
+        List<String> errors = Stream.of(
+                        validatePawnCounts(safeBoard),
+                        validatePieceCounts(safeBoard))
+                .flatMap(List::stream)
+                .toList();
+        return errors.isEmpty()
+                ? HexPositionValidation.valid()
+                : HexPositionValidation.invalid(errors);
+    }
+
     private static List<String> validateBoardCoordinates(HexBoard board) {
         List<String> invalidCoordinates = board.pieces()
                 .keySet()

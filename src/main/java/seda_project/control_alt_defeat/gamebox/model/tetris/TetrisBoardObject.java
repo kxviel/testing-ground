@@ -7,15 +7,16 @@ import java.util.Objects;
 public record TetrisBoardObject(TetrisItemType type, BoardPosition position, int lifetimeTicks) {
 
     public static final int DEFAULT_LIFETIME_TICKS = 100;
+    public static final int MAX_LIFETIME_TICKS = 10_000;
 
     public TetrisBoardObject(TetrisItemType type, BoardPosition position) {
         this(type, position, DEFAULT_LIFETIME_TICKS);
     }
 
     public TetrisBoardObject {
-        type = type == null ? TetrisItemType.TELEPORT_SWAP : type;
+        type = type == null ? TetrisItemType.BOARD_SWAP : type;
         Objects.requireNonNull(position, "position");
-        lifetimeTicks = Math.max(0, lifetimeTicks);
+        lifetimeTicks = Math.min(MAX_LIFETIME_TICKS, Math.max(0, lifetimeTicks));
     }
 
     public TetrisBoardObject tick() {

@@ -24,12 +24,14 @@
         <URL value="@GameChoice.css"/>
     </stylesheets>
 
-    <ScrollPane fitToHeight="true"
+    <ScrollPane fx:id="gameChoiceScroll"
+                fitToHeight="false"
                 fitToWidth="true"
                 hbarPolicy="AS_NEEDED"
                 vbarPolicy="AS_NEEDED"
                 styleClass="app-scroll">
-        <StackPane minHeight="660"
+        <StackPane fx:id="gameChoiceMain"
+                   minHeight="620"
                    minWidth="660"
                    maxHeight="Infinity"
                    maxWidth="Infinity"

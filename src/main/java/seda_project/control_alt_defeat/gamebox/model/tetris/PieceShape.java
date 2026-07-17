@@ -4,8 +4,13 @@ import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PieceType;
 
 import java.util.List;
 import java.util.Objects;
+import seda_project.control_alt_defeat.gamebox.util.SafeText;
 
 public record PieceShape(PieceType type, String name, List<BoardPosition> cells) {
+
+    public static final int MAX_CELLS = 64;
+    public static final int MAX_EXTENT = 64;
+    private static final int MAX_NAME_CHARS = 64;
 
     private static final List<PieceShape> STANDARD_SHAPES = List.of(
             new PieceShape(PieceType.I, "I", List.of(
@@ -46,8 +51,16 @@ public record PieceShape(PieceType type, String name, List<BoardPosition> cells)
 
     public PieceShape {
         Objects.requireNonNull(type, "type");
-        name = name == null || name.isBlank() ? type.name() : name.trim();
-        cells = cells == null ? List.of() : List.copyOf(cells);
+        name = SafeText.singleLine(name, type.name(), MAX_NAME_CHARS);
+        if (cells == null || cells.isEmpty() || cells.size() > MAX_CELLS) {
+            throw new IllegalArgumentException("A piece must contain between 1 and " + MAX_CELLS + " cells.");
+        }
+        cells = cells.stream().map(cell -> Objects.requireNonNull(cell, "piece cell")).distinct().toList();
+        if (cells.isEmpty() || cells.size() > MAX_CELLS
+                || cells.stream().anyMatch(cell -> cell.row() < 0 || cell.column() < 0
+                        || cell.row() >= MAX_EXTENT || cell.column() >= MAX_EXTENT)) {
+            throw new IllegalArgumentException("Piece cells are outside the supported range.");
+        }
     }
 
     public int height() {

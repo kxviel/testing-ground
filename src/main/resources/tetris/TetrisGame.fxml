@@ -25,12 +25,15 @@
     </stylesheets>
 
     <center>
-        <ScrollPane fitToHeight="true"
+        <ScrollPane fx:id="gameScrollPane"
+                    fitToHeight="true"
                     fitToWidth="true"
+                    focusTraversable="false"
                     hbarPolicy="AS_NEEDED"
                     vbarPolicy="AS_NEEDED"
                     styleClass="app-scroll">
-        <GridPane minHeight="0"
+        <GridPane fx:id="gameMain"
+                  minHeight="520"
                   minWidth="0"
                   maxHeight="Infinity"
                   maxWidth="Infinity"
@@ -87,6 +90,10 @@
                                    maxWidth="Infinity"
                                    styleClass="score-label"
                                    style="-fx-text-fill: #7A4A00; -fx-font-weight: 900;"/>
+                            <Label fx:id="topSpeedLabel"
+                                   text="Speed: 550 ms/step"
+                                   maxWidth="Infinity"
+                                   styleClass="player-speed-label"/>
                         </VBox>
 
                         <VBox maxWidth="Infinity" spacing="6" styleClass="player-score-card" HBox.hgrow="ALWAYS">
@@ -96,6 +103,10 @@
                                    maxWidth="Infinity"
                                    styleClass="score-label"
                                    style="-fx-text-fill: #0A235A; -fx-font-weight: 900;"/>
+                            <Label fx:id="bottomSpeedLabel"
+                                   text="Speed: 550 ms/step"
+                                   maxWidth="Infinity"
+                                   styleClass="player-speed-label"/>
                         </VBox>
                     </HBox>
                 </VBox>
@@ -158,7 +169,7 @@
                                        GridPane.columnIndex="1" GridPane.rowIndex="7"/>
 
                                 <Label text="T" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="8"/>
-                                <Label text="Board swap: swaps boards only" styleClass="object-description" wrapText="true"
+                                <Label text="Player swap: swaps boards and falling pieces" styleClass="object-description" wrapText="true"
                                        GridPane.columnIndex="1" GridPane.rowIndex="8"/>
 
                                 <Label text="G" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="9"/>

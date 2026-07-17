@@ -3,6 +3,7 @@ package seda_project.control_alt_defeat.gamebox.ui;
 import javafx.animation.PauseTransition;
 import javafx.scene.control.Label;
 import javafx.util.Duration;
+import seda_project.control_alt_defeat.gamebox.util.SafeText;
 
 public final class TimedStatus {
 
@@ -14,14 +15,15 @@ public final class TimedStatus {
     }
 
     public void show(String message, int seconds) {
-        label.setText(message);
+        String safeMessage = SafeText.singleLine(message, "", 512);
+        label.setText(safeMessage);
         if (timer != null) {
             timer.stop();
         }
 
-        timer = new PauseTransition(Duration.seconds(seconds));
+        timer = new PauseTransition(Duration.seconds(Math.min(3_600, Math.max(0, seconds))));
         timer.setOnFinished(event -> {
-            if (message.equals(label.getText())) {
+            if (safeMessage.equals(label.getText())) {
                 label.setText("");
             }
             timer = null;

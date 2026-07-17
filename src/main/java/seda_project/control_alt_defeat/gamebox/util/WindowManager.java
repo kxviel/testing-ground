@@ -28,7 +28,7 @@ public final class WindowManager {
     }
 
     private static Scene createScene(Parent root, double width, double height) {
-        Scene scene = new Scene(root, width, height);
+        Scene scene = new Scene(new ResponsiveViewport(root), width, height);
         scene.getStylesheets().add(themeUrl());
         return scene;
     }

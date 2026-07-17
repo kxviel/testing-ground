@@ -10,10 +10,12 @@ import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 import javafx.stage.Stage;
@@ -26,6 +28,7 @@ import seda_project.control_alt_defeat.gamebox.network.GameServer;
 import seda_project.control_alt_defeat.gamebox.network.memory.MemoryProtocol;
 import seda_project.control_alt_defeat.gamebox.network.memory.MemoryStateSnapshot;
 import seda_project.control_alt_defeat.gamebox.ui.TimedStatus;
+import seda_project.control_alt_defeat.gamebox.util.ResponsiveLayout;
 import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
 import seda_project.control_alt_defeat.gamebox.util.Router;
 import seda_project.control_alt_defeat.gamebox.util.SafeText;
@@ -57,6 +60,7 @@ public class GameController implements RouteDataReceiver {
     private static final double MIN_GAP = 10;
     private static final Duration MISMATCH_DELAY = Duration.millis(800);
     private static final int STATUS_SECONDS = 10;
+    private static final double MIN_GAME_CONTENT_HEIGHT = 480;
 
     public enum Mode {
         LOCAL, NETWORK_HOST, NETWORK_CLIENT
@@ -77,6 +81,10 @@ public class GameController implements RouteDataReceiver {
     @FXML
     private GridPane cardGrid;
     @FXML
+    private ScrollPane gameScrollPane;
+    @FXML
+    private GridPane gameLayout;
+    @FXML
     private StackPane boardGridWrapper;
     @FXML
     private HBox p1Chip;
@@ -86,6 +94,8 @@ public class GameController implements RouteDataReceiver {
     private HBox postGameBar;
     @FXML
     private Label resultLabel;
+    @FXML
+    private Button memoryRestartButton;
 
     private GameModel model;
     private Mode mode;
@@ -98,13 +108,41 @@ public class GameController implements RouteDataReceiver {
     private CardLayout cardLayout = new CardLayout(MAX_CARD_SIZE, MIN_GAP, 32);
     private boolean inputLocked = false;
     private boolean gameEnded = false;
+    private boolean remoteQuitHandled;
     private PauseTransition mismatchPause;
     private TimedStatus timedStatus;
 
     @FXML
     private void initialize() {
+        ResponsiveLayout.bindTwoColumnGrid(gameLayout, 70.0);
         timedStatus = new TimedStatus(statusLabel);
         boardGridWrapper.layoutBoundsProperty().addListener((obs, oldBounds, newBounds) -> resizeBoard());
+        configureViewportFill();
+    }
+
+    private void configureViewportFill() {
+        if (gameScrollPane == null || gameLayout == null) {
+            return;
+        }
+        gameScrollPane.viewportBoundsProperty().addListener((observable, oldBounds, bounds) -> {
+            fitGameLayoutToViewport(bounds);
+            gameScrollPane.setVvalue(0);
+        });
+        Platform.runLater(() -> {
+            fitGameLayoutToViewport(gameScrollPane.getViewportBounds());
+            gameScrollPane.setVvalue(0);
+        });
+    }
+
+    private void fitGameLayoutToViewport(Bounds viewportBounds) {
+        if (viewportBounds == null || !Double.isFinite(viewportBounds.getHeight())) {
+            return;
+        }
+        boolean compact = ResponsiveLayout.isCompact(gameLayout.getWidth());
+        gameLayout.setMinHeight(Math.max(MIN_GAME_CONTENT_HEIGHT, viewportBounds.getHeight()));
+        gameLayout.setPrefHeight(compact
+                ? Region.USE_COMPUTED_SIZE
+                : Math.max(MIN_GAME_CONTENT_HEIGHT, viewportBounds.getHeight()));
     }
 
     @Override
@@ -120,6 +158,7 @@ public class GameController implements RouteDataReceiver {
         client = routeData.client();
         playerOneName = SafeText.playerName(routeData.playerOneName(), PLAYER_ONE);
         playerTwoName = SafeText.playerName(routeData.playerTwoName(), PLAYER_TWO);
+        memoryRestartButton.setDisable(isNetworkClient());
 
         if (isNetworkClient()) {
             configureClient();
@@ -171,12 +210,18 @@ public class GameController implements RouteDataReceiver {
         List<String> fields = MemoryProtocol.fields(msg);
         switch (MemoryProtocol.type(msg)) {
             case MemoryProtocol.JOIN -> {
+                if (fields.size() != 1) {
+                    return;
+                }
                 playerTwoName = fieldOrDefault(fields, 0, PLAYER_TWO);
                 refreshUI();
                 sendStartToClient();
                 showTimedStatus(playerTwoName + " joined. Game started!", STATUS_SECONDS);
             }
             case MemoryProtocol.FLIP -> {
+                if (fields.size() != 1) {
+                    return;
+                }
                 Integer idx = parseCardIndex(fields, "FLIP from client");
                 if (idx == null) {
                     return;
@@ -188,11 +233,19 @@ public class GameController implements RouteDataReceiver {
                 executeCardSelect(idx);
             }
             case MemoryProtocol.RESTART_REQUEST -> {
+                if (fields.size() != 1) {
+                    return;
+                }
                 String initiator = fieldOrDefault(fields, 0, PLAYER_TWO);
-                restartGame();
-                showTimedStatus(initiator + " restarted the game!", STATUS_SECONDS);
+                if (restartGame()) {
+                    showTimedStatus(initiator + " restarted the game!", STATUS_SECONDS);
+                }
             }
-            case MemoryProtocol.QUIT -> handleRemoteQuit();
+            case MemoryProtocol.QUIT -> {
+                if (fields.size() == 1) {
+                    handleRemoteQuit();
+                }
+            }
         }
     }
 
@@ -205,8 +258,16 @@ public class GameController implements RouteDataReceiver {
             case MemoryProtocol.START -> handleStart(fields);
             case MemoryProtocol.STATE -> handleState(fields);
             case MemoryProtocol.RESTART_STATE -> handleRestartState(fields);
-            case MemoryProtocol.ERROR -> handleError(fields);
-            case MemoryProtocol.QUIT -> handleRemoteQuit();
+            case MemoryProtocol.ERROR -> {
+                if (fields.size() == 1) {
+                    handleError(fields);
+                }
+            }
+            case MemoryProtocol.QUIT -> {
+                if (fields.size() == 1) {
+                    handleRemoteQuit();
+                }
+            }
         }
     }
 
@@ -240,6 +301,7 @@ public class GameController implements RouteDataReceiver {
     private void handleError(List<String> fields) {
         statusLabel.setText(fieldOrDefault(fields, 0, "Network error."));
         inputLocked = false;
+        memoryRestartButton.setDisable(false);
     }
 
     private boolean applySnapshot(String snapshot) {
@@ -259,6 +321,7 @@ public class GameController implements RouteDataReceiver {
                 buildBoard();
             }
             refreshAll();
+            memoryRestartButton.setDisable(false);
 
             if (gameEnded) {
                 showGameOver();
@@ -267,18 +330,20 @@ public class GameController implements RouteDataReceiver {
         } catch (IllegalArgumentException e) {
             statusLabel.setText("Invalid network state received.");
             inputLocked = true;
+            memoryRestartButton.setDisable(false);
             return false;
         }
     }
 
     private void handleRemoteQuit() {
+        remoteQuitHandled = true;
         inputLocked = true;
         hidePostGameBar();
         returnToMainMenu(opponentName() + " left the game.");
     }
 
     private void handleDisconnect() {
-        if (gameEnded)
+        if (gameEnded || remoteQuitHandled)
             return;
         inputLocked = true;
         statusLabel.setText("Connection lost!");
@@ -509,7 +574,10 @@ public class GameController implements RouteDataReceiver {
         String resource = "/icons/" + faceId;
         var imageUrl = GameController.class.getResource(resource);
         if (imageUrl == null) {
-            throw new IllegalStateException("Missing memory card image: " + resource);
+            imageUrl = GameController.class.getResource("/icons/memory-card-icon.png");
+        }
+        if (imageUrl == null) {
+            throw new IllegalStateException("Memory card fallback image is missing.");
         }
         return new Image(imageUrl.toExternalForm());
     }
@@ -594,10 +662,11 @@ public class GameController implements RouteDataReceiver {
         alert.setContentText(scores);
         alert.getButtonTypes().setAll(restartBtn, menuBtn);
         alert.showAndWait().ifPresent(btn -> {
-            if (btn == restartBtn)
+            if (btn == restartBtn) {
                 restartGame();
-            else
+            } else {
                 returnToMainMenu(null);
+            }
         });
     }
 
@@ -615,11 +684,21 @@ public class GameController implements RouteDataReceiver {
     private void requestRestart() {
         String myName = playerName();
         if (isNetworkClient()) {
+            if (model == null) {
+                statusLabel.setText("Wait for the game to start before restarting.");
+                return;
+            }
+            if (client == null || !client.isConnected()) {
+                inputLocked = false;
+                memoryRestartButton.setDisable(false);
+                statusLabel.setText("Cannot restart because the host is disconnected.");
+                return;
+            }
             inputLocked = true;
+            memoryRestartButton.setDisable(true);
             client.send(MemoryProtocol.restartRequest(myName));
             showTimedStatus("Restart requested. Waiting for host...", STATUS_SECONDS);
-        } else {
-            restartGame();
+        } else if (restartGame()) {
             showTimedStatus(myName + " restarted the game!", STATUS_SECONDS);
         }
     }
@@ -640,22 +719,41 @@ public class GameController implements RouteDataReceiver {
         UiVisibility.setVisibleManaged(postGameBar, false);
     }
 
-    private void restartGame() {
+    private boolean restartGame() {
+        if (model == null) {
+            statusLabel.setText("The game is not ready to restart.");
+            return false;
+        }
+
         hidePostGameBar();
         stopMismatchPause();
-        model = new GameModel(model.getK(), model.getN(), model.getRows(), model.getCols());
-        buildBoard();
-        refreshUI();
         inputLocked = false;
         gameEnded = false;
+        remoteQuitHandled = false;
+        model = new GameModel(model.getK(), model.getN(), model.getRows(), model.getCols());
+        buildBoard();
+        refreshAll();
+        memoryRestartButton.setDisable(false);
         statusLabel.setText("");
+        resetGameViewport();
+
         if (isNetworkHost()) {
             if (server == null) {
                 returnToMainMenu(null);
-                return;
+                return false;
             }
             server.send(MemoryProtocol.restartState(snapshot()));
         }
+        return true;
+    }
+
+    private void resetGameViewport() {
+        gameScrollPane.setHvalue(0.0);
+        gameScrollPane.setVvalue(0.0);
+        Platform.runLater(() -> {
+            gameScrollPane.setHvalue(0.0);
+            gameScrollPane.setVvalue(0.0);
+        });
     }
 
     @FXML
@@ -683,10 +781,14 @@ public class GameController implements RouteDataReceiver {
     }
 
     private void sendQuit() {
-        if (isNetworkHost() && server != null)
-            server.send(MemoryProtocol.quit(playerOneName));
-        if (isNetworkClient() && client != null)
-            client.send(MemoryProtocol.quit(playerTwoName));
+        if (isNetworkHost() && server != null) {
+            server.closeAfterSending(MemoryProtocol.quit(playerOneName));
+            server = null;
+        }
+        if (isNetworkClient() && client != null) {
+            client.closeAfterSending(MemoryProtocol.quit(playerTwoName));
+            client = null;
+        }
     }
 
     private void closeNetwork() {
@@ -742,7 +844,8 @@ public class GameController implements RouteDataReceiver {
         try {
             return Integer.parseInt(fields.getFirst());
         } catch (NumberFormatException e) {
-            log.warn("Ignoring malformed {}: {}", source, fields.getFirst());
+            log.warn("Ignoring malformed {}: {}", source,
+                    SafeText.singleLine(fields.getFirst(), "invalid value", 64));
             return null;
         }
     }

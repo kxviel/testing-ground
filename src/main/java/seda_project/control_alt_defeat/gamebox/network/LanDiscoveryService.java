@@ -29,6 +29,7 @@ public class LanDiscoveryService implements Closeable {
     private static final int HEX_CHESS_PORT = 54324;
     private static final int TICK_MS = 1_000;
     private static final long ADVERTISEMENT_TTL_MS = 5_000;
+    private static final int MAX_PACKETS_PER_SECOND = 30;
 
     private final String gameType;
     private final int discoveryPort;
@@ -77,18 +78,25 @@ public class LanDiscoveryService implements Closeable {
 
     public void startAdvertising(String playerName, int tcpPort, Consumer<String> onError) {
         stopAdvertising();
+        Consumer<String> safeError = onError == null ? message -> { } : onError;
+        if (tcpPort < 1 || tcpPort > 65_535) {
+            notifySafely(safeError, "Could not advertise " + displayName + " LAN game: invalid TCP port.");
+            return;
+        }
         advertising = true;
 
-        Thread thread = new Thread(() -> advertise(playerName, tcpPort, onError), threadPrefix + "-udp-advertise");
+        Thread thread = new Thread(() -> advertise(playerName, tcpPort, safeError), threadPrefix + "-udp-advertise");
         thread.setDaemon(true);
         thread.start();
     }
 
     public void startListening(Consumer<DiscoveredGame> onGameFound, Consumer<String> onError) {
         stopListening();
+        Consumer<DiscoveredGame> safeGameFound = onGameFound == null ? game -> { } : onGameFound;
+        Consumer<String> safeError = onError == null ? message -> { } : onError;
         listening = true;
 
-        Thread thread = new Thread(() -> listen(onGameFound, onError), threadPrefix + "-udp-listen");
+        Thread thread = new Thread(() -> listen(safeGameFound, safeError), threadPrefix + "-udp-listen");
         thread.setDaemon(true);
         thread.start();
     }
@@ -126,7 +134,7 @@ public class LanDiscoveryService implements Closeable {
             socket.setReuseAddress(true);
             socket.setBroadcast(true);
 
-            while (advertising) {
+            while (advertising && advertisingSocket == socket) {
                 byte[] data = buildMessage(playerName, tcpPort).getBytes(StandardCharsets.UTF_8);
                 for (InetAddress address : broadcastAddresses()) {
                     socket.send(new DatagramPacket(data, data.length, address, discoveryPort));
@@ -137,7 +145,7 @@ public class LanDiscoveryService implements Closeable {
             Thread.currentThread().interrupt();
         } catch (IOException e) {
             if (advertising && advertisingSocket == socket) {
-                onError.accept("Could not advertise " + displayName + " LAN game: " + e.getMessage());
+                notifySafely(onError, "Could not advertise " + displayName + " LAN game: " + e.getMessage());
             }
         } finally {
             if (socket != null) {
@@ -150,29 +158,49 @@ public class LanDiscoveryService implements Closeable {
     }
 
     private void listen(Consumer<DiscoveredGame> onGameFound, Consumer<String> onError) {
-        try (DatagramSocket socket = new DatagramSocket(null)) {
+        DatagramSocket socket = null;
+        try {
+            socket = new DatagramSocket(null);
             socket.setReuseAddress(true);
             socket.setBroadcast(true);
             socket.bind(new InetSocketAddress(InetAddress.getByName("0.0.0.0"), discoveryPort));
             socket.setSoTimeout(TICK_MS);
             listeningSocket = socket;
+            long rateWindowStarted = System.nanoTime();
+            int packetsInWindow = 0;
 
-            while (listening) {
+            while (listening && listeningSocket == socket) {
                 try {
                     byte[] data = new byte[512];
                     DatagramPacket packet = new DatagramPacket(data, data.length);
                     socket.receive(packet);
 
+                    long now = System.nanoTime();
+                    if (now - rateWindowStarted >= 1_000_000_000L) {
+                        rateWindowStarted = now;
+                        packetsInWindow = 0;
+                    }
+                    if (++packetsInWindow > MAX_PACKETS_PER_SECOND) {
+                        continue;
+                    }
+
                     DiscoveredGame game = parse(packet);
                     if (game != null) {
-                        onGameFound.accept(game);
+                        notifySafely(onGameFound, game);
                     }
                 } catch (SocketTimeoutException ignored) {
                 }
             }
         } catch (IOException e) {
-            if (listening) {
-                onError.accept("Could not find " + displayName + " LAN games: " + e.getMessage());
+            if (listening && listeningSocket == socket) {
+                notifySafely(onError, "Could not find " + displayName + " LAN games: " + e.getMessage());
+            }
+        } finally {
+            if (socket != null) {
+                socket.close();
+            }
+            if (listeningSocket == socket) {
+                listeningSocket = null;
             }
         }
     }
@@ -210,7 +238,12 @@ public class LanDiscoveryService implements Closeable {
         try {
             int tcpPort = Integer.parseInt(fields.get(2));
             long timestamp = Long.parseLong(fields.get(4));
-            if (tcpPort <= 0 || tcpPort > 65_535 || System.currentTimeMillis() - timestamp > ADVERTISEMENT_TTL_MS) {
+            long now = System.currentTimeMillis();
+            if (tcpPort <= 0 || tcpPort > 65_535
+                    || timestamp > now + TICK_MS
+                    || timestamp < now - ADVERTISEMENT_TTL_MS
+                    || fields.get(1).isBlank() || fields.get(1).length() > 64
+                    || packet.getAddress() == null) {
                 return null;
             }
             return new DiscoveredGame(
@@ -235,6 +268,9 @@ public class LanDiscoveryService implements Closeable {
         addresses.add(InetAddress.getByName("127.0.0.1"));
 
         Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+        if (interfaces == null) {
+            return addresses;
+        }
         while (interfaces.hasMoreElements()) {
             NetworkInterface networkInterface = interfaces.nextElement();
             if (!networkInterface.isUp() || networkInterface.isLoopback()) {
@@ -250,5 +286,13 @@ public class LanDiscoveryService implements Closeable {
         }
 
         return addresses;
+    }
+
+    private static <T> void notifySafely(Consumer<T> callback, T value) {
+        try {
+            callback.accept(value);
+        } catch (RuntimeException ignored) {
+            // A UI callback must not terminate the long-running discovery thread.
+        }
     }
 }

@@ -7,8 +7,22 @@ import java.util.stream.Stream;
 
 public record HexBoard(Map<HexCoordinate, HexPiece> pieces) {
 
+    public static final int MAX_PIECES = 91;
+
     public HexBoard {
-        pieces = pieces == null ? Map.of() : Map.copyOf(pieces);
+        if (pieces == null || pieces.isEmpty()) {
+            pieces = Map.of();
+        } else {
+            Map<HexCoordinate, HexPiece> safePieces = new LinkedHashMap<>();
+            pieces.forEach((coordinate, piece) -> {
+                if (safePieces.size() < MAX_PIECES
+                        && HexBoardGeometry.isValid(coordinate)
+                        && piece != null) {
+                    safePieces.put(coordinate, piece);
+                }
+            });
+            pieces = Map.copyOf(safePieces);
+        }
     }
 
     public static HexBoard empty() {
@@ -28,6 +42,9 @@ public record HexBoard(Map<HexCoordinate, HexPiece> pieces) {
     }
 
     public HexBoard withPiece(HexCoordinate coordinate, HexPiece piece) {
+        if (!HexBoardGeometry.isValid(coordinate)) {
+            return this;
+        }
         Map<HexCoordinate, HexPiece> nextPieces = new LinkedHashMap<>(pieces);
 
         if (piece == null) {

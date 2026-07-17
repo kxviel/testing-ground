@@ -28,14 +28,6 @@
         <URL value="@HexChess.css"/>
     </stylesheets>
 
-    <top>
-        <VBox alignment="CENTER" styleClass="hex-game-header">
-            <Label text="POSITION BUILDER" styleClass="eyebrow"/>
-            <Label text="Custom Position" styleClass="title"/>
-            <Label text="Build a valid Chexsagon starting position" styleClass="subtitle"/>
-        </VBox>
-    </top>
-
     <center>
         <ScrollPane fitToHeight="true"
                     fitToWidth="true"
@@ -43,10 +35,20 @@
                     vbarPolicy="AS_NEEDED"
                     styleClass="app-scroll"
                     BorderPane.alignment="CENTER">
-            <GridPane alignment="TOP_CENTER"
+            <VBox minHeight="580"
+                  maxWidth="Infinity"
+                  spacing="18">
+            <VBox alignment="CENTER" styleClass="hex-game-header">
+                <Label text="POSITION BUILDER" styleClass="eyebrow"/>
+                <Label text="Custom Position" styleClass="title"/>
+                <Label text="Build a valid Chexsagon starting position" styleClass="subtitle"/>
+            </VBox>
+            <GridPane fx:id="setupMain"
+                      alignment="TOP_CENTER"
                       hgap="18"
-                      minHeight="0"
+                      minHeight="480"
                       minWidth="0"
+                      VBox.vgrow="ALWAYS"
                       styleClass="hex-stage">
             <columnConstraints>
                 <ColumnConstraints hgrow="ALWAYS" percentWidth="60"/>
@@ -93,7 +95,7 @@
                         </columnConstraints>
                         <Label text="White" graphicTextGap="6.0" styleClass="player-one-name" GridPane.columnIndex="0" GridPane.rowIndex="0">
                             <graphic>
-                                <ImageView fitHeight="18.0" fitWidth="18.0" preserveRatio="true" smooth="true" styleClass="player-field-icon">
+                                <ImageView fitHeight="27.0" fitWidth="27.0" preserveRatio="true" smooth="true" styleClass="player-field-icon">
                                     <image>
                                         <Image url="@../icons/player1.png"/>
                                     </image>
@@ -103,12 +105,16 @@
                         <TextField fx:id="playerOneNameField"
                                    text="The Old Monk"
                                    promptText="The Old Monk"
-                                   styleClass="player-name-field player-one-name"
                                    GridPane.columnIndex="1"
-                                   GridPane.rowIndex="0"/>
+                                   GridPane.rowIndex="0">
+                            <styleClass>
+                                <String fx:value="player-name-field"/>
+                                <String fx:value="player-one-name"/>
+                            </styleClass>
+                        </TextField>
                         <Label text="Black" graphicTextGap="6.0" styleClass="player-two-name" GridPane.columnIndex="0" GridPane.rowIndex="1">
                             <graphic>
-                                <ImageView fitHeight="18.0" fitWidth="18.0" preserveRatio="true" smooth="true" styleClass="player-field-icon">
+                                <ImageView fitHeight="27.0" fitWidth="27.0" preserveRatio="true" smooth="true" styleClass="player-field-icon">
                                     <image>
                                         <Image url="@../icons/player2.png"/>
                                     </image>
@@ -118,9 +124,13 @@
                         <TextField fx:id="playerTwoNameField"
                                    text="The Outer God"
                                    promptText="The Outer God"
-                                   styleClass="player-name-field player-two-name"
                                    GridPane.columnIndex="1"
-                                   GridPane.rowIndex="1"/>
+                                   GridPane.rowIndex="1">
+                            <styleClass>
+                                <String fx:value="player-name-field"/>
+                                <String fx:value="player-two-name"/>
+                            </styleClass>
+                        </TextField>
                     </GridPane>
                 </VBox>
 
@@ -154,10 +164,16 @@
                     <Button text="Back" onAction="#onBack" maxWidth="Infinity"
                             styleClass="btn-outline" HBox.hgrow="ALWAYS"/>
                     <Button fx:id="startButton" text="Start" onAction="#onStart" maxWidth="Infinity"
-                            styleClass="btn-primary" HBox.hgrow="ALWAYS"/>
+                            HBox.hgrow="ALWAYS">
+                        <styleClass>
+                            <String fx:value="btn-primary"/>
+                            <String fx:value="game-start-button"/>
+                        </styleClass>
+                    </Button>
                 </HBox>
             </VBox>
             </GridPane>
+            </VBox>
         </ScrollPane>
     </center>
 

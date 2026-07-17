@@ -20,14 +20,15 @@ public final class UiInputGuards {
             return;
         }
 
+        int safeMaxDigits = Math.max(0, maxDigits);
         field.setTextFormatter(new TextFormatter<>(change -> {
             String nextText = change.getControlNewText();
-            if (nextText.length() > maxDigits || !nextText.matches("\\d*")) {
+            if (nextText.length() > safeMaxDigits || !nextText.matches("\\d*")) {
                 return null;
             }
             return change;
         }));
-        truncateExistingText(field, maxDigits);
+        truncateExistingText(field, safeMaxDigits);
     }
 
     public static void limitText(TextInputControl control, int maxChars) {
@@ -35,15 +36,16 @@ public final class UiInputGuards {
             return;
         }
 
+        int safeMaxChars = Math.max(0, maxChars);
         control.setTextFormatter(new TextFormatter<>(change -> {
             String nextText = change.getControlNewText();
-            if (nextText.length() <= maxChars) {
+            if (nextText.length() <= safeMaxChars) {
                 return change;
             }
 
             int existingWithoutSelection = control.getLength()
                     - Math.max(0, change.getRangeEnd() - change.getRangeStart());
-            int allowedInsertedChars = Math.max(0, maxChars - existingWithoutSelection);
+            int allowedInsertedChars = Math.max(0, safeMaxChars - existingWithoutSelection);
             if (allowedInsertedChars == 0) {
                 return null;
             }
@@ -52,7 +54,7 @@ public final class UiInputGuards {
             change.setText(insertedText.substring(0, Math.min(allowedInsertedChars, insertedText.length())));
             return change;
         }));
-        truncateExistingText(control, maxChars);
+        truncateExistingText(control, safeMaxChars);
     }
 
     private static void truncateExistingText(TextInputControl control, int maxChars) {

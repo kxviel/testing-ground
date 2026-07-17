@@ -55,7 +55,7 @@
 
 .tetris-game-main {
     -fx-hgap: 20;
-    -fx-padding: 40;
+    -fx-padding: 20;
 }
 
 .tetris-board-zone,
@@ -191,6 +191,7 @@
 }
 
 .menu-config-column,
+.menu-config-options,
 .menu-config-section,
 .menu-config-checks,
 .menu-custom-editor,
@@ -202,6 +203,13 @@
 
 .menu-config-content .combo-box {
     -fx-pref-width: 200;
+}
+
+.combo-box-popup .list-view .list-cell:filled:hover,
+.combo-box-popup .list-view .list-cell:filled:selected,
+.combo-box-popup .list-view .list-cell:filled:selected:hover {
+    -fx-background-color: -sh-accent;
+    -fx-text-fill: -sh-accent-foreground;
 }
 
 .btn-selected {
@@ -256,6 +264,12 @@
 .status-line,
 .keymap-label,
 .object-description {
+    -fx-font-weight: 600;
+}
+
+.player-speed-label {
+    -fx-text-fill: -sh-muted-foreground;
+    -fx-font-size: 12px;
     -fx-font-weight: 600;
 }
 
