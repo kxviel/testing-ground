@@ -37,10 +37,10 @@
                     BorderPane.alignment="CENTER">
             <VBox minHeight="580"
                   maxWidth="Infinity"
-                  spacing="18">
-            <VBox alignment="CENTER" styleClass="hex-game-header">
-                <Label text="POSITION BUILDER" styleClass="eyebrow"/>
-                <Label text="Custom Position" styleClass="title"/>
+                  spacing="10"
+                  styleClass="hex-setup-content">
+            <VBox alignment="CENTER" styleClass="hex-setup-header">
+                <Label text="Custom Position Builder" styleClass="title"/>
                 <Label text="Build a valid Chexsagon starting position" styleClass="subtitle"/>
             </VBox>
             <GridPane fx:id="setupMain"
@@ -55,7 +55,8 @@
                 <ColumnConstraints hgrow="ALWAYS" percentWidth="40"/>
             </columnConstraints>
 
-            <VBox GridPane.columnIndex="0"
+            <VBox fx:id="boardEditorPanel"
+                  GridPane.columnIndex="0"
                   GridPane.hgrow="ALWAYS"
                   GridPane.vgrow="ALWAYS"
                   minWidth="0"
@@ -178,6 +179,6 @@
     </center>
 
     <padding>
-        <Insets top="18" right="24" bottom="18" left="24"/>
+        <Insets top="10" right="24" bottom="10" left="24"/>
     </padding>
 </BorderPane>

@@ -101,6 +101,19 @@
     -fx-font-weight: 800;
 }
 
+.hex-setup-header {
+    -fx-spacing: 2;
+    -fx-padding: 4 0 2 0;
+}
+
+.hex-setup-header .title {
+    -fx-font-size: 30px;
+}
+
+.hex-setup-header .subtitle {
+    -fx-font-size: 14px;
+}
+
 .hex-game-info-panel .title {
     -fx-font-size: 30px;
     -fx-font-weight: 800;
