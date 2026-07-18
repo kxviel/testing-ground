@@ -12,9 +12,9 @@
 <?import javafx.scene.layout.VBox?>
 
 <StackPane fx:id="root"
-           prefHeight="720.0"
-           prefWidth="1080.0"
            focusTraversable="true"
+           maxHeight="Infinity"
+           maxWidth="Infinity"
            styleClass="game-choice-root"
            xmlns="http://javafx.com/javafx"
            xmlns:fx="http://javafx.com/fxml"
@@ -37,10 +37,11 @@
                    maxWidth="Infinity"
                    alignment="CENTER"
                    styleClass="game-choice-main">
-            <StackPane prefHeight="620"
+            <StackPane fx:id="gameChoiceCard"
+                       prefHeight="-1"
                        prefWidth="620"
-                       maxHeight="620"
-                       maxWidth="620"
+                       maxHeight="Infinity"
+                       maxWidth="900"
                        styleClass="game-choice-frame">
                 <VBox alignment="TOP_CENTER"
                       prefWidth="536"

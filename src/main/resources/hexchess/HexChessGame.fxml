@@ -76,7 +76,7 @@
                 <VBox styleClass="sidebar-section">
                     <Label text="Turn" styleClass="panel-label"/>
                     <Label fx:id="turnLabel" styleClass="turn-display"/>
-                    <Label fx:id="statusLabel" wrapText="true" minHeight="60" prefHeight="60" maxHeight="60"
+                    <Label fx:id="statusLabel" wrapText="true"
                            styleClass="status-box"/>
                 </VBox>
 
