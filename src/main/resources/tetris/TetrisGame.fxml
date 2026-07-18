@@ -51,7 +51,7 @@
                        maxWidth="Infinity"
                        styleClass="tetris-board-zone">
                 <!-- boards managed/reparented dynamically by TetrisGameController -->
-                <GridPane fx:id="topBoardGrid" rotate="180" visible="false" managed="false" styleClass="tetris-board"/>
+                <GridPane fx:id="topBoardGrid" visible="false" managed="false" styleClass="tetris-board"/>
                 <GridPane fx:id="bottomBoardGrid" visible="false" managed="false" styleClass="tetris-board"/>
             </StackPane>
 

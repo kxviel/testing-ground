@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Random;
@@ -16,7 +17,17 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Bounds;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.layout.Background;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import seda_project.control_alt_defeat.gamebox.model.tetris.PieceShape;
@@ -25,6 +36,7 @@ import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameSetup;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameState;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerSide;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisItemType;
+import seda_project.control_alt_defeat.gamebox.util.ResponsiveViewport;
 
 class TetrisUiContractTest {
 
@@ -162,6 +174,39 @@ class TetrisUiContractTest {
     }
 
     @Test
+    void visualIndexMappingMirrorsBoardDataWithoutTransformingNodes() {
+        assertEquals(2, TetrisGameController.visualIndex(2, 10, false));
+        assertEquals(7, TetrisGameController.visualIndex(2, 10, true));
+        assertEquals(19, TetrisGameController.visualIndex(0, 20, true));
+        assertEquals(0, TetrisGameController.visualIndex(19, 20, true));
+    }
+
+    @Test
+    void localBoardsAreCenteredTransparentAndUprightAtMaximizedSizes() throws Exception {
+        CountDownLatch latch = new CountDownLatch(1);
+        AtomicReference<Throwable> failure = new AtomicReference<>();
+
+        Platform.runLater(() -> {
+            try {
+                for (boolean horizontal : new boolean[] {false, true}) {
+                    for (double[] viewport : new double[][] {{1366, 768}, {1920, 1080}}) {
+                        assertLocalBoardPresentation(viewport[0], viewport[1], horizontal);
+                    }
+                }
+            } catch (Throwable throwable) {
+                failure.set(throwable);
+            } finally {
+                latch.countDown();
+            }
+        });
+
+        assertTrue(latch.await(20, TimeUnit.SECONDS));
+        if (failure.get() != null) {
+            throw new AssertionError(failure.get());
+        }
+    }
+
+    @Test
     void gameSidebarShowsLiveSpeedForBothPlayersAndEverySpecialObject() throws Exception {
         String fxml = read("/tetris/TetrisGame.fxml");
 
@@ -228,6 +273,114 @@ class TetrisUiContractTest {
 
         assertEquals(19, maxColumn);
         assertEquals(9, maxRow);
+    }
+
+    private static void assertLocalBoardPresentation(double width, double height, boolean horizontal)
+            throws Exception {
+        FXMLLoader loader = new FXMLLoader(
+                TetrisUiContractTest.class.getResource("/tetris/TetrisGame.fxml"));
+        Parent root = loader.load();
+        TetrisGameController controller = loader.getController();
+        try {
+            controller.setRouteData(new TetrisGameSetup(
+                    "Bottom",
+                    "Top",
+                    new TetrisGameConfig(
+                            List.of("Standard"),
+                            List.of(),
+                            TetrisGameConfig.DEFAULT_GRAVITY_MILLIS,
+                            false,
+                            horizontal)));
+
+            ResponsiveViewport viewport = new ResponsiveViewport(root);
+            Scene scene = new Scene(viewport, width, height);
+            scene.getStylesheets().add(
+                    TetrisUiContractTest.class.getResource("/Theme.css").toExternalForm());
+            viewport.resize(width, height);
+            for (int pulse = 0; pulse < 3; pulse++) {
+                viewport.applyCss();
+                viewport.layout();
+            }
+
+            StackPane boardZone = (StackPane) loader.getNamespace().get("boardZone");
+            GridPane topBoard = (GridPane) loader.getNamespace().get("topBoardGrid");
+            GridPane bottomBoard = (GridPane) loader.getNamespace().get("bottomBoardGrid");
+            String context = (horizontal ? "horizontal" : "vertical") + " " + (int) width + "x" + (int) height;
+
+            assertTransparent(boardZone.getBackground(), context);
+            assertIdentityTransform(topBoard, context + " top board");
+            assertIdentityTransform(bottomBoard, context + " bottom board");
+            assertCenteredInSlot(topBoard, context + " top board");
+            assertCenteredInSlot(bottomBoard, context + " bottom board");
+            assertInsideViewport(topBoard, width, height, context + " top board");
+            assertInsideViewport(bottomBoard, width, height, context + " bottom board");
+
+            StackPane topSlot = (StackPane) topBoard.getParent();
+            StackPane bottomSlot = (StackPane) bottomBoard.getParent();
+            if (horizontal) {
+                assertTrue(topSlot.getParent() instanceof HBox, context);
+                assertEquals(bottomSlot.getWidth(), topSlot.getWidth(), 1.0, context);
+            } else {
+                assertTrue(topSlot.getParent() instanceof VBox, context);
+                assertEquals(bottomSlot.getHeight(), topSlot.getHeight(), 1.0, context);
+            }
+
+            Method addOverlay = TetrisGameController.class.getDeclaredMethod(
+                    "addGameOverOverlay", GridPane.class, PlayerSide.class);
+            addOverlay.setAccessible(true);
+            addOverlay.invoke(controller, topBoard, PlayerSide.TOP);
+            addOverlay.invoke(controller, bottomBoard, PlayerSide.BOTTOM);
+            assertOverlayUpright(topBoard, context + " top overlay");
+            assertOverlayUpright(bottomBoard, context + " bottom overlay");
+        } finally {
+            stopGameLoop(controller);
+        }
+    }
+
+    private static void assertTransparent(Background background, String context) {
+        if (background == null || background.getFills().isEmpty()) {
+            return;
+        }
+        assertTrue(background.getFills().stream().allMatch(fill ->
+                        fill.getFill() instanceof Color color && color.getOpacity() == 0.0),
+                () -> context + " board zone has a visible background");
+    }
+
+    private static void assertIdentityTransform(Region node, String context) {
+        assertEquals(0.0, node.getRotate(), 0.0, context);
+        assertEquals(1.0, node.getScaleX(), 0.0, context);
+        assertEquals(1.0, node.getScaleY(), 0.0, context);
+    }
+
+    private static void assertCenteredInSlot(GridPane board, String context) {
+        StackPane slot = (StackPane) board.getParent();
+        Bounds boardBounds = board.getBoundsInParent();
+        Bounds slotBounds = slot.getLayoutBounds();
+        assertEquals(slotBounds.getCenterX(), boardBounds.getCenterX(), 1.0, context + " x-center");
+        assertEquals(slotBounds.getCenterY(), boardBounds.getCenterY(), 1.0, context + " y-center");
+        assertTrue(boardBounds.getWidth() <= slotBounds.getWidth() + 1.0, context + " width");
+        assertTrue(boardBounds.getHeight() <= slotBounds.getHeight() + 1.0, context + " height");
+        // JavaFX can snap the styled grid's outer border by up to two pixels per edge.
+        assertEquals(board.prefWidth(-1), boardBounds.getWidth(), 5.0, context + " natural width");
+        assertEquals(board.prefHeight(-1), boardBounds.getHeight(), 5.0, context + " natural height");
+    }
+
+    private static void assertInsideViewport(Region node, double width, double height, String context) {
+        Bounds bounds = node.localToScene(node.getBoundsInLocal());
+        assertTrue(bounds.getMinX() >= -1.0 && bounds.getMaxX() <= width + 1.0, context + " scene width");
+        assertTrue(bounds.getMinY() >= -1.0 && bounds.getMaxY() <= height + 1.0, context + " scene height");
+    }
+
+    private static void assertOverlayUpright(GridPane board, String context) {
+        Label overlay = board.getChildren().stream()
+                .filter(Label.class::isInstance)
+                .map(Label.class::cast)
+                .filter(label -> label.getStyleClass().contains("board-game-over"))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError(context + " is missing"));
+        assertIdentityTransform(overlay, context);
+        assertEquals(1.0, overlay.getLocalToSceneTransform().getMxx(), 0.0001, context);
+        assertEquals(1.0, overlay.getLocalToSceneTransform().getMyy(), 0.0001, context);
     }
 
     private static void stopGameLoop(TetrisGameController controller) {

@@ -61,7 +61,8 @@ public class TetrisGameController implements RouteDataReceiver {
     private static final double MIN_CELL_SIZE = 14;
     private static final double MAX_CELL_SIZE = 80;
     private static final double CELL_GAP = 1;
-    private static final double BOARD_CHROME = 10;
+    // Total non-cell extent reported by the styled GridPane (padding, border, and insets).
+    private static final double BOARD_CHROME = 18;
     private static final double SIDE_SPACING = 12.0;
     private static final double NETWORK_PRIMARY_RATIO = 0.65;
     private static final int OBJECT_SPAWN_SECONDS = 4;
@@ -113,6 +114,20 @@ public class TetrisGameController implements RouteDataReceiver {
 
     private enum BoardArrangement {
         LOCAL_STACKED, LOCAL_SIDE_BY_SIDE, NETWORK_PRIMARY_BOTTOM, NETWORK_PRIMARY_TOP
+    }
+
+    private record BoardView(boolean reverseRows, boolean reverseColumns) {
+        private static final BoardView NORMAL = new BoardView(false, false);
+        private static final BoardView ROTATED_180 = new BoardView(true, true);
+        private static final BoardView MIRRORED_HORIZONTALLY = new BoardView(false, true);
+
+        int visualRow(int modelRow, int rowCount) {
+            return visualIndex(modelRow, rowCount, reverseRows);
+        }
+
+        int visualColumn(int modelColumn, int columnCount) {
+            return visualIndex(modelColumn, columnCount, reverseColumns);
+        }
     }
 
     private BoardArrangement currentArrangement = null;
@@ -323,16 +338,21 @@ public class TetrisGameController implements RouteDataReceiver {
         BoardArrangement arr = applyBoardLayout();
         if (setup.isLocal()) {
             double cs = computeLocalCellSize(arr);
-            renderBoard(bottomBoardGrid, gameState.bottomPlayer(), cs);
-            renderBoard(topBoardGrid, gameState.topPlayer(), cs);
+            if (arr == BoardArrangement.LOCAL_SIDE_BY_SIDE) {
+                renderBoard(bottomBoardGrid, gameState.bottomPlayer(), cs, BoardView.MIRRORED_HORIZONTALLY);
+                renderBoard(topBoardGrid, gameState.topPlayer(), cs, BoardView.MIRRORED_HORIZONTALLY);
+            } else {
+                renderBoard(bottomBoardGrid, gameState.bottomPlayer(), cs, BoardView.NORMAL);
+                renderBoard(topBoardGrid, gameState.topPlayer(), cs, BoardView.ROTATED_180);
+            }
         } else {
             CellSizePair cs = computeNetworkCellSizes();
             if (setup.localSide() == PlayerSide.BOTTOM) {
-                renderBoard(bottomBoardGrid, gameState.bottomPlayer(), cs.primary());
-                renderBoard(topBoardGrid, gameState.topPlayer(), cs.secondary());
+                renderBoard(bottomBoardGrid, gameState.bottomPlayer(), cs.primary(), BoardView.NORMAL);
+                renderBoard(topBoardGrid, gameState.topPlayer(), cs.secondary(), BoardView.NORMAL);
             } else {
-                renderBoard(topBoardGrid, gameState.topPlayer(), cs.primary());
-                renderBoard(bottomBoardGrid, gameState.bottomPlayer(), cs.secondary());
+                renderBoard(topBoardGrid, gameState.topPlayer(), cs.primary(), BoardView.NORMAL);
+                renderBoard(bottomBoardGrid, gameState.bottomPlayer(), cs.secondary(), BoardView.NORMAL);
             }
         }
     }
@@ -370,6 +390,8 @@ public class TetrisGameController implements RouteDataReceiver {
         topBoardGrid.setManaged(true);
         bottomBoardGrid.setVisible(true);
         bottomBoardGrid.setManaged(true);
+        hugRenderedBoard(topBoardGrid);
+        hugRenderedBoard(bottomBoardGrid);
         boardZone.getChildren().clear();
         switch (arrangement) {
             case LOCAL_STACKED          -> buildStackedLayout();
@@ -379,35 +401,66 @@ public class TetrisGameController implements RouteDataReceiver {
         }
     }
 
-
     private void buildStackedLayout() {
-        topBoardGrid.setRotate(180);
-
-        // Boards placed directly in the VBox — no stat strip above each board;
-        // scores are shown in the shared sidebar Points section.
-        VBox container = new VBox(SIDE_SPACING, topBoardGrid, bottomBoardGrid);
+        StackPane topSlot = centeredBoardSlot(topBoardGrid);
+        StackPane bottomSlot = centeredBoardSlot(bottomBoardGrid);
+        VBox container = new VBox(SIDE_SPACING, topSlot, bottomSlot);
         container.setAlignment(Pos.CENTER);
-        container.setFillWidth(false);
+        container.setFillWidth(true);
+        container.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        VBox.setVgrow(topSlot, Priority.ALWAYS);
+        VBox.setVgrow(bottomSlot, Priority.ALWAYS);
 
         boardZone.getChildren().add(container);
     }
 
     /**
-     * Local horizontal mode — boards are wide/short (rows=10, cols=20), so place them
-     * side by side (P1 left, P2 right). P2’s board retains the 180° rotation from
-     * the stacked mode: it appears upside-down from P1’s perspective, which is the
-     * correct “facing” visual when players sit across the table from each other.
+     * Local horizontal mode — boards are wide/short (rows=10, cols=20), placed side by side.
+     *
+     * <p>Gravity assignments ({@link TetrisGameConfig#gravityDirection}):
+     * <ul>
+     *   <li>P1 (BOTTOM, left board)  — {@code GravityDirection.RIGHT}: pieces fall col0→col19,
+     *       blocks pile up at col19 (the visual RIGHT edge in a normal board).</li>
+     *   <li>P2 (TOP,    right board) — {@code GravityDirection.LEFT}:  pieces fall col19→col0,
+     *       blocks pile up at col0  (the visual LEFT  edge in a normal board).</li>
+     * </ul>
+     *
+     * <p>Target: left board piles on its LEFT edge; right board piles on its RIGHT edge
+     * (both stacks build outward, away from the centre gap).
+     *
+     * <p>The renderer reverses the model-column-to-visual-column mapping, so col0 appears
+     * on the visual right and the pile side appears on the visual outer edge. The board
+     * node itself remains untransformed, keeping overlays and object labels readable.
+     *
+     * <p>Controls are unaffected: {@code MOVE_LEFT}/{@code MOVE_RIGHT} move pieces
+     * <em>perpendicular</em> to gravity — i.e. up/down in rows, not columns.
+     * Only the rendered column mapping changes; the row (Y) axis is unchanged.
+     * LEFT key → row−1 (visual UP) and RIGHT key → row+1 (visual DOWN) remain
+     * exactly the same on both boards — no key inversion needed.
      */
     private void buildSideBySideLayout() {
-        topBoardGrid.setRotate(180);
-
-        // bottomBoardGrid (P1) on the left, topBoardGrid (P2, rotated) on the right.
-        // No HGrow: cells have maxSize set by setCellSize(), so boards are their
-        // natural computed width. The StackPane (boardZone) centres the HBox.
-        HBox container = new HBox(SIDE_SPACING, bottomBoardGrid, topBoardGrid);
+        StackPane bottomSlot = centeredBoardSlot(bottomBoardGrid);
+        StackPane topSlot = centeredBoardSlot(topBoardGrid);
+        HBox container = new HBox(SIDE_SPACING, bottomSlot, topSlot);
         container.setAlignment(Pos.CENTER);
+        container.setFillHeight(true);
+        container.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        HBox.setHgrow(bottomSlot, Priority.ALWAYS);
+        HBox.setHgrow(topSlot, Priority.ALWAYS);
 
         boardZone.getChildren().add(container);
+    }
+
+    private static StackPane centeredBoardSlot(GridPane board) {
+        StackPane slot = new StackPane(board);
+        slot.setAlignment(Pos.CENTER);
+        slot.setMinSize(0, 0);
+        slot.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        return slot;
+    }
+
+    private static void hugRenderedBoard(GridPane board) {
+        board.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
     }
 
     /**
@@ -415,8 +468,6 @@ public class TetrisGameController implements RouteDataReceiver {
      * small/secondary (right). Opponent board rendered right-side-up (spectator view).
      */
     private void buildNetworkLayout(boolean localIsBottom) {
-        topBoardGrid.setRotate(0); // clear local-mode 180° rotation for spectator view
-
         GridPane primaryGrid   = localIsBottom ? bottomBoardGrid : topBoardGrid;
         GridPane secondaryGrid = localIsBottom ? topBoardGrid    : bottomBoardGrid;
 
@@ -431,14 +482,17 @@ public class TetrisGameController implements RouteDataReceiver {
     }
 
     private double computeLocalCellSize(BoardArrangement arrangement) {
-        // Use the ScrollPane viewport height as the authoritative available height.
-        // This is immune to content-inflation: boardZone.getHeight() can be driven
-        // upward by cell minSize propagation, but viewportBounds is set directly by
-        // the ScrollPane and always equals the true visible content area.
         double viewportH = (gameScrollPane != null && gameScrollPane.getViewportBounds() != null)
                 ? gameScrollPane.getViewportBounds().getHeight() : 0;
-        double zoneH = viewportH > 1 ? viewportH : (boardZone != null ? boardZone.getHeight() : 0);
-        double zoneW = boardZone != null ? boardZone.getWidth() : 0;
+        double zoneH = boardZoneContentHeight();
+        double zoneW = boardZoneContentWidth();
+
+        // The zone is still zero during the FXML's first render. Its size listeners
+        // trigger a second render after layout; this fallback only keeps that initial
+        // render well-defined.
+        if (zoneH <= 1 && viewportH > 1) {
+            zoneH = Math.max(1.0, viewportH - boardZoneVerticalInsets());
+        }
 
         int rows = gameState.bottomPlayer().board().rows();
         int cols = gameState.bottomPlayer().board().columns();
@@ -521,12 +575,13 @@ public class TetrisGameController implements RouteDataReceiver {
     }
 
     private CellSizePair computeNetworkCellSizes() {
-        // Use viewport height (not boardZone.getHeight()) for the same reason as local:
-        // avoids cell-minSize inflation from propagating into the measurement.
         double viewportH = (gameScrollPane != null && gameScrollPane.getViewportBounds() != null)
                 ? gameScrollPane.getViewportBounds().getHeight() : 0;
-        double zoneH = viewportH > 1 ? viewportH : (boardZone != null ? boardZone.getHeight() : 0);
-        double zoneW = boardZone != null ? boardZone.getWidth() : 0;
+        double zoneH = boardZoneContentHeight();
+        double zoneW = boardZoneContentWidth();
+        if (zoneH <= 1 && viewportH > 1) {
+            zoneH = Math.max(1.0, viewportH - boardZoneVerticalInsets());
+        }
 
         int rows = gameState.bottomPlayer().board().rows();
         int cols = gameState.bottomPlayer().board().columns();
@@ -544,6 +599,26 @@ public class TetrisGameController implements RouteDataReceiver {
         return new CellSizePair(
                 clampCellSize((primaryW   - gapCols) / cols, (commonH - gapRows) / rows),
                 clampCellSize((secondaryW - gapCols) / cols, (commonH - gapRows) / rows));
+    }
+
+    private double boardZoneContentWidth() {
+        return boardZone == null
+                ? 0.0
+                : Math.max(0.0, boardZone.getWidth()
+                        - boardZone.getInsets().getLeft()
+                        - boardZone.getInsets().getRight());
+    }
+
+    private double boardZoneContentHeight() {
+        return boardZone == null
+                ? 0.0
+                : Math.max(0.0, boardZone.getHeight() - boardZoneVerticalInsets());
+    }
+
+    private double boardZoneVerticalInsets() {
+        return boardZone == null
+                ? 0.0
+                : boardZone.getInsets().getTop() + boardZone.getInsets().getBottom();
     }
 
     private double clampCellSize(double widthFit, double heightFit) {
@@ -627,7 +702,7 @@ public class TetrisGameController implements RouteDataReceiver {
         return player.finalScore() == null ? player.score() : player.finalScore();
     }
 
-    private void renderBoard(GridPane grid, TetrisPlayerState player, double cellSize) {
+    private void renderBoard(GridPane grid, TetrisPlayerState player, double cellSize, BoardView view) {
         applyBoardTheme(grid, player.board().themeSide());
         grid.getChildren().clear();
 
@@ -657,7 +732,10 @@ public class TetrisGameController implements RouteDataReceiver {
                     paintBlock(cell, player.board().colorAt(position), player.board().themeSide());
                 }
 
-                grid.add(cell, column, row);
+                grid.add(
+                        cell,
+                        view.visualColumn(column, player.board().columns()),
+                        view.visualRow(row, player.board().rows()));
             }
         }
 
@@ -676,6 +754,10 @@ public class TetrisGameController implements RouteDataReceiver {
         cell.setMinSize(0, 0);
         cell.setPrefSize(size, size);
         cell.setMaxSize(size, size);
+    }
+
+    static int visualIndex(int modelIndex, int count, boolean reversed) {
+        return reversed ? count - 1 - modelIndex : modelIndex;
     }
 
     private void setupKeyboardControls() {
@@ -1052,9 +1134,6 @@ public class TetrisGameController implements RouteDataReceiver {
         Label label = new Label("Game Over");
         label.getStyleClass().add("board-game-over");
         label.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        if (side == PlayerSide.TOP) {
-            label.setRotate(180);
-        }
 
         TetrisPlayerState player = gameState.player(side);
         grid.add(label, 0, 0, player.board().columns(), player.board().rows());
