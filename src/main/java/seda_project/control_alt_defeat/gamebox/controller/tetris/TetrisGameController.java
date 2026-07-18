@@ -13,6 +13,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.Node;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
@@ -23,9 +24,10 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.geometry.Pos;
-import javafx.scene.text.Text;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import org.kordamp.ikonli.javafx.FontIcon;
 import seda_project.control_alt_defeat.gamebox.model.tetris.BoardPosition;
 import seda_project.control_alt_defeat.gamebox.model.tetris.PieceShape;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisBoardObject;
@@ -66,9 +68,11 @@ public class TetrisGameController implements RouteDataReceiver {
     private static final double BOARD_CHROME = 18;
     private static final double SIDE_SPACING = 12.0;
     private static final double NETWORK_PRIMARY_RATIO = 0.65;
-    private static final double OBJECT_ICON_MIN_FONT_SIZE = 8.0;
-    private static final double OBJECT_ICON_MAX_FONT_SIZE = 20.0;
-    private static final double OBJECT_ICON_FONT_RATIO = 0.72;
+    private static final double OBJECT_ICON_MIN_SIZE = 8.0;
+    private static final double OBJECT_ICON_MAX_SIZE = 20.0;
+    private static final double OBJECT_ICON_CELL_RATIO = 0.72;
+    private static final double OBJECT_ICON_OVERLAY_RATIO = 0.38;
+    private static final double OBJECT_LEGEND_ICON_SIZE = 16.0;
     private static final int OBJECT_SPAWN_SECONDS = 4;
     private static final int OBJECT_SPAWN_ATTEMPTS = 100;
     private static final int MENU_RETURN_SECONDS = 2;
@@ -115,6 +119,8 @@ public class TetrisGameController implements RouteDataReceiver {
     private GridPane topBoardGrid;
     @FXML
     private GridPane bottomBoardGrid;
+    @FXML
+    private GridPane objectLegendGrid;
 
     private enum BoardArrangement {
         LOCAL_STACKED, LOCAL_SIDE_BY_SIDE, NETWORK_PRIMARY_BOTTOM, NETWORK_PRIMARY_TOP
@@ -183,6 +189,7 @@ public class TetrisGameController implements RouteDataReceiver {
         boardZone.maxHeightProperty().bind(gameMain.heightProperty());
         configureViewportFill();
         setupKeyboardControls();
+        configureObjectLegend();
         // Re-render whenever the board zone actually changes size.
         boardZone.widthProperty().addListener((obs, o, n)  -> render());
         boardZone.heightProperty().addListener((obs, o, n) -> render());
@@ -750,20 +757,60 @@ public class TetrisGameController implements RouteDataReceiver {
         }
     }
 
-    /**
-     * Uses the same emoji-glyph node as the sidebar legend, but without a Label
-     * text-overrun policy.  The glyph size follows the rendered cell so the
-     * icon remains visible when either local board arrangement is compressed.
-     */
+    private void configureObjectLegend() {
+        if (objectLegendGrid == null) {
+            return;
+        }
+        List<StackPane> iconSlots = objectLegendGrid.getChildren().stream()
+                .filter(StackPane.class::isInstance)
+                .map(StackPane.class::cast)
+                .sorted((left, right) -> Integer.compare(
+                        gridRow(left), gridRow(right)))
+                .toList();
+        TetrisItemType[] types = TetrisItemType.values();
+        for (int index = 0; index < Math.min(iconSlots.size(), types.length); index++) {
+            populateObjectIcon(iconSlots.get(index), types[index], OBJECT_LEGEND_ICON_SIZE);
+        }
+    }
+
+    private static int gridRow(Node node) {
+        Integer row = GridPane.getRowIndex(node);
+        return row == null ? 0 : row;
+    }
+
     private static StackPane createObjectCell(TetrisItemType type, double cellSize) {
         StackPane cell = new StackPane();
-        Text icon = new Text(type.symbol());
-        icon.getStyleClass().add("object-symbol-glyph");
-        double iconSize = Math.max(OBJECT_ICON_MIN_FONT_SIZE,
-                Math.min(OBJECT_ICON_MAX_FONT_SIZE, cellSize * OBJECT_ICON_FONT_RATIO));
-        icon.setStyle("-fx-font-size: " + Double.toString(iconSize) + "px;");
-        cell.getChildren().add(icon);
+        double iconSize = Math.max(OBJECT_ICON_MIN_SIZE,
+                Math.min(OBJECT_ICON_MAX_SIZE, cellSize * OBJECT_ICON_CELL_RATIO));
+        populateObjectIcon(cell, type, iconSize);
         return cell;
+    }
+
+    private static void populateObjectIcon(StackPane target, TetrisItemType type, double baseSize) {
+        target.getChildren().clear();
+        FontIcon baseIcon = createObjectIcon(type.icon(), iconSize(baseSize));
+        target.getChildren().add(baseIcon);
+
+        if (type.actorOverlay() != null) {
+            FontIcon actorOverlay = createObjectIcon(
+                    type.actorOverlay(), iconSize(Math.max(4.0, baseSize * OBJECT_ICON_OVERLAY_RATIO)));
+            StackPane.setAlignment(actorOverlay, Pos.BOTTOM_RIGHT);
+            StackPane.setMargin(actorOverlay, new Insets(0.5));
+            target.getChildren().add(actorOverlay);
+        }
+    }
+
+    private static FontIcon createObjectIcon(org.kordamp.ikonli.Ikon icon, int size) {
+        FontIcon fontIcon = new FontIcon(icon);
+        fontIcon.setIconSize(size);
+        fontIcon.setIconColor(Color.BLACK);
+        fontIcon.getStyleClass().add("object-icon");
+        fontIcon.setMouseTransparent(true);
+        return fontIcon;
+    }
+
+    private static int iconSize(double size) {
+        return Math.max(1, (int) Math.round(size));
     }
 
     private static void setCellSize(Region cell, double size) {

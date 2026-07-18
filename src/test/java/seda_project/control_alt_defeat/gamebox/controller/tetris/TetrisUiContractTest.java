@@ -29,7 +29,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
+import org.kordamp.ikonli.javafx.FontIcon;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import seda_project.control_alt_defeat.gamebox.model.tetris.BoardPosition;
@@ -221,33 +221,17 @@ class TetrisUiContractTest {
         assertTrue(fxml.contains("fx:id=\"bottomSpeedLabel\""));
         assertEquals("Speed: 320 ms/step", TetrisGameController.speedText(320));
 
-        for (String symbol : new String[] {"🐇", "🐢", "🌀", "💥", "⚡", "🛸", "🔄", "🔀"}) {
-            assertTrue(fxml.contains("text=\"" + symbol + "\""), () -> "Missing special object " + symbol);
-        }
-
-        assertEquals("🐇", TetrisItemType.SPEED_UP_OPPONENT.symbol());
-        assertEquals("🐢", TetrisItemType.SLOW_SELF.symbol());
-        assertEquals("🐢", TetrisItemType.SLOW_OPPONENT.symbol());
-        assertEquals("🌀", TetrisItemType.ROTATION_DELAY_OPPONENT.symbol());
-        assertEquals("🌀", TetrisItemType.ROTATION_DELAY_SELF.symbol());
-        assertEquals("💥", TetrisItemType.RADIUS_BOMB.symbol());
-        assertEquals("⚡", TetrisItemType.COLUMN_BOMB.symbol());
-        assertEquals("🛸", TetrisItemType.TELEPORT.symbol());
-        assertEquals("🔄", TetrisItemType.BOARD_SWAP.symbol());
-        assertEquals("🔀", TetrisItemType.FALLING_PIECE_SWAP.symbol());
         for (TetrisItemType type : TetrisItemType.values()) {
-            assertEquals(1, type.symbol().codePoints().count(),
-                    () -> type + " must use one Unicode code point");
-            assertFalse(type.symbol().contains("\u200D"),
-                    () -> type + " must not use a ZWJ sequence");
+            assertNotNull(type.icon(), () -> type + " must have a vector icon");
         }
 
         String css = read("/tetris/TetrisMenu.css");
-        assertTrue(css.contains("-fx-font-family: \"Segoe UI Emoji\""));
         assertTrue(css.contains("-fx-background-color: #EF9F27"));
-        assertTrue(css.contains("-fx-fill: #000000"));
-        assertTrue(fxml.contains("styleClass=\"object-symbol-glyph\""));
-        assertFalse(fxml.contains("\u200D"), "The sidebar legend must not contain ZWJ emoji");
+        assertTrue(css.contains(".object-icon"));
+        assertTrue(css.contains("-fx-icon-color: #000000"));
+        assertTrue(fxml.contains("fx:id=\"objectLegendGrid\""));
+        assertFalse(fxml.contains("object-symbol-glyph"));
+        assertFalse(fxml.contains("Segoe UI Emoji"));
     }
 
     @Test
@@ -347,23 +331,45 @@ class TetrisUiContractTest {
                     assertAmberBadge((Region) cell, side + " board");
                     assertTrue(cell.getStyleClass().contains("board-cell-object"), type.toString());
                     assertTrue(cell.getStyleClass().contains("board-cell"), type.toString());
-                    Text glyph = ((StackPane) cell).getChildren().stream()
-                            .filter(Text.class::isInstance)
-                            .map(Text.class::cast)
-                            .findFirst()
-                            .orElseThrow(() -> new AssertionError("Missing glyph for " + type));
-                    assertEquals(type.symbol(), glyph.getText());
-                    assertTrue(glyph.getStyleClass().contains("object-symbol-glyph"), type.toString());
-                    assertTrue(glyph.getStyle().contains("-fx-font-size:"), type.toString());
-                    assertTrue(glyph.getFont().getSize() >= 8.0, type.toString());
-                    assertTrue(glyph.getFont().getSize() <= 20.0, type.toString());
-                    assertTrue(glyph.getLayoutBounds().getWidth() <= cellSize + 1.0,
-                            () -> type + " glyph exceeds its " + cellSize + "px cell: "
-                                    + glyph.getLayoutBounds());
+                    assertVectorIconStack((StackPane) cell, type, side + " board " + type);
                 }
+            }
+
+            List<Node> legendSlots = root.lookupAll(".object-symbol").stream()
+                    .sorted((left, right) -> Integer.compare(
+                            rowIndex(left), rowIndex(right)))
+                    .toList();
+            assertEquals(TetrisItemType.values().length, legendSlots.size());
+            for (int index = 0; index < legendSlots.size(); index++) {
+                assertVectorIconStack((StackPane) legendSlots.get(index),
+                        TetrisItemType.values()[index], "sidebar " + index);
             }
         } finally {
             stopGameLoop(controller);
+        }
+    }
+
+    private static int rowIndex(Node node) {
+        Integer row = GridPane.getRowIndex(node);
+        return row == null ? 0 : row;
+    }
+
+    private static void assertVectorIconStack(StackPane stack, TetrisItemType type, String context) {
+        List<FontIcon> icons = stack.getChildren().stream()
+                .filter(FontIcon.class::isInstance)
+                .map(FontIcon.class::cast)
+                .toList();
+        int expectedCount = type.actorOverlay() == null ? 1 : 2;
+        assertEquals(expectedCount, icons.size(), context + " icon count");
+        FontIcon base = icons.get(0);
+        assertEquals(type.icon(), base.getIconCode(), context + " base icon");
+        assertEquals(Color.BLACK, base.getIconColor(), context + " base color");
+        assertTrue(base.getIconSize() >= 8, context + " base size");
+        if (type.actorOverlay() != null) {
+            FontIcon overlay = icons.get(1);
+            assertEquals(type.actorOverlay(), overlay.getIconCode(), context + " overlay icon");
+            assertEquals(Color.BLACK, overlay.getIconColor(), context + " overlay color");
+            assertTrue(overlay.getIconSize() < base.getIconSize(), context + " overlay size");
         }
     }
 

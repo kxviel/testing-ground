@@ -3,27 +3,42 @@ package seda_project.control_alt_defeat.gamebox.model.tetris.enums;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.stream.Collectors;
+import org.kordamp.ikonli.Ikon;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignA;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignB;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignF;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignO;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignR;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignS;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignT;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignU;
 
 public enum TetrisItemType {
-    SPEED_UP_OPPONENT("🐇"),
-    SLOW_SELF("🐢"),
-    ROTATION_DELAY_OPPONENT("🌀"),
-    ROTATION_DELAY_SELF("🌀"),
-    SLOW_OPPONENT("🐢"),
-    RADIUS_BOMB("💥"),
-    COLUMN_BOMB("⚡"),
-    TELEPORT("🛸"),
-    BOARD_SWAP("🔄"),
-    FALLING_PIECE_SWAP("🔀");
+    SPEED_UP_OPPONENT(MaterialDesignR.RABBIT, MaterialDesignS.SWORD_CROSS),
+    SLOW_SELF(MaterialDesignT.TURTLE, MaterialDesignA.ACCOUNT),
+    ROTATION_DELAY_OPPONENT(MaterialDesignO.ORBIT, MaterialDesignS.SWORD_CROSS),
+    ROTATION_DELAY_SELF(MaterialDesignO.ORBIT, MaterialDesignA.ACCOUNT),
+    SLOW_OPPONENT(MaterialDesignT.TURTLE, MaterialDesignS.SWORD_CROSS),
+    RADIUS_BOMB(MaterialDesignB.BOMB, null),
+    COLUMN_BOMB(MaterialDesignF.FLASH, null),
+    TELEPORT(MaterialDesignU.UFO, null),
+    BOARD_SWAP(MaterialDesignS.SWAP_HORIZONTAL_BOLD, null),
+    FALLING_PIECE_SWAP(MaterialDesignS.SHUFFLE_VARIANT, null);
 
-    private final String symbol;
+    private final Ikon icon;
+    private final Ikon actorOverlay;
 
-    TetrisItemType(String symbol) {
-        this.symbol = symbol;
+    TetrisItemType(Ikon icon, Ikon actorOverlay) {
+        this.icon = icon;
+        this.actorOverlay = actorOverlay;
     }
 
-    public String symbol() {
-        return symbol;
+    public Ikon icon() {
+        return icon;
+    }
+
+    public Ikon actorOverlay() {
+        return actorOverlay;
     }
 
     public boolean requiresActiveOpponent() {

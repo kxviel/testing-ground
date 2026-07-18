@@ -308,11 +308,8 @@
     -fx-pref-width: 24;
 }
 
-.object-symbol-glyph {
-    -fx-font-family: "Segoe UI Emoji";
-    -fx-font-size: 16px;
-    -fx-font-weight: 400;
-    -fx-fill: #000000;
+.object-icon {
+    -fx-icon-color: #000000;
 }
 
 .boards-stack {

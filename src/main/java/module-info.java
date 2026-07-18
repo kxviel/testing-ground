@@ -5,6 +5,9 @@ module seda.project.control.alt.defeat.gamebox {
     requires transitive javafx.graphics;
     requires org.slf4j;
     requires ch.qos.logback.classic;
+    requires org.kordamp.ikonli.core;
+    requires org.kordamp.ikonli.javafx;
+    requires org.kordamp.ikonli.materialdesign2;
 
     opens seda_project.control_alt_defeat.gamebox to javafx.fxml;
     opens seda_project.control_alt_defeat.gamebox.controller to javafx.fxml;
