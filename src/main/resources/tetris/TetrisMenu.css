@@ -297,18 +297,22 @@
 
 .object-symbol {
     -fx-alignment: center;
-    -fx-background-color: -game-accent;
+    -fx-background-color: #EF9F27;
     -fx-background-radius: 6px;
-    -fx-border-color: -game-accent;
+    -fx-border-color: #EF9F27;
     -fx-border-radius: 6px;
     -fx-border-width: 1;
-    -fx-font-family: "Segoe UI Emoji";
-    -fx-font-size: 16px;
-    -fx-font-weight: 400;
     -fx-min-height: 24;
     -fx-min-width: 24;
     -fx-pref-height: 24;
     -fx-pref-width: 24;
+}
+
+.object-symbol-glyph {
+    -fx-font-family: "Segoe UI Emoji";
+    -fx-font-size: 16px;
+    -fx-font-weight: 400;
+    -fx-fill: #000000;
 }
 
 .boards-stack {
@@ -344,21 +348,18 @@
 }
 
 .board-cell-filled,
-.board-cell-active,
-.board-cell-object {
+.board-cell-active {
     -fx-background-color: -game-accent;
     -fx-border-color: -game-on-accent-container;
 }
 
 .board-cell-object {
     -fx-alignment: center;
-    -fx-font-family: "Segoe UI Emoji";
-    -fx-font-size: 12px;
-    -fx-font-weight: 400;
+    -fx-background-color: #EF9F27;
+    -fx-border-color: -game-on-accent-container;
 }
 
 .tetris-board-opponent .board-cell-object {
-    -fx-background-color: -opponent-accent;
     -fx-border-color: -opponent-on-accent-container;
 }
 

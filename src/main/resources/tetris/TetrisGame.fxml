@@ -11,6 +11,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
 
 <BorderPane maxHeight="Infinity"
             maxWidth="Infinity"
@@ -135,43 +136,63 @@
                                     <ColumnConstraints hgrow="ALWAYS"/>
                                 </columnConstraints>
 
-                                <Label text="🏃" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                                <StackPane styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                    <Text text="🐇" styleClass="object-symbol-glyph"/>
+                                </StackPane>
                                 <Label text="Opponent 2x faster (10s)" styleClass="object-description" wrapText="true"
                                        GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
-                                <Label text="🐌" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                                <StackPane styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                    <Text text="🐢" styleClass="object-symbol-glyph"/>
+                                </StackPane>
                                 <Label text="You 2x slower (10s)" styleClass="object-description" wrapText="true"
                                        GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
-                                <Label text="😵‍💫" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                                <StackPane styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                                    <Text text="🌀" styleClass="object-symbol-glyph"/>
+                                </StackPane>
                                 <Label text="Opponent rotation lags 2s per press (10s)" styleClass="object-description" wrapText="true"
                                        GridPane.columnIndex="1" GridPane.rowIndex="2"/>
 
-                                <Label text="🌀" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                                <StackPane styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="3">
+                                    <Text text="🌀" styleClass="object-symbol-glyph"/>
+                                </StackPane>
                                 <Label text="Your rotation lags 2s per press (10s)" styleClass="object-description" wrapText="true"
                                        GridPane.columnIndex="1" GridPane.rowIndex="3"/>
 
-                                <Label text="🐌" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+                                <StackPane styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="4">
+                                    <Text text="🐢" styleClass="object-symbol-glyph"/>
+                                </StackPane>
                                 <Label text="Opponent 2x slower (10s)" styleClass="object-description" wrapText="true"
                                        GridPane.columnIndex="1" GridPane.rowIndex="4"/>
 
-                                <Label text="💥" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
+                                <StackPane styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="5">
+                                    <Text text="💥" styleClass="object-symbol-glyph"/>
+                                </StackPane>
                                 <Label text="Radius bomb: clears nearby blocks within 3 cells" styleClass="object-description" wrapText="true"
                                        GridPane.columnIndex="1" GridPane.rowIndex="5"/>
 
-                                <Label text="⚡" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="6"/>
+                                <StackPane styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="6">
+                                    <Text text="⚡" styleClass="object-symbol-glyph"/>
+                                </StackPane>
                                 <Label text="Column bomb: clears along your gravity direction" styleClass="object-description" wrapText="true"
                                        GridPane.columnIndex="1" GridPane.rowIndex="6"/>
 
-                                <Label text="🛸" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="7"/>
+                                <StackPane styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="7">
+                                    <Text text="🛸" styleClass="object-symbol-glyph"/>
+                                </StackPane>
                                 <Label text="Teleport: sends your falling piece to the opponent next" styleClass="object-description" wrapText="true"
                                        GridPane.columnIndex="1" GridPane.rowIndex="7"/>
 
-                                <Label text="🔄" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="8"/>
+                                <StackPane styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="8">
+                                    <Text text="🔄" styleClass="object-symbol-glyph"/>
+                                </StackPane>
                                 <Label text="Player swap: swaps boards and falling pieces" styleClass="object-description" wrapText="true"
                                        GridPane.columnIndex="1" GridPane.rowIndex="8"/>
 
-                                <Label text="🔀" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="9"/>
+                                <StackPane styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="9">
+                                    <Text text="🔀" styleClass="object-symbol-glyph"/>
+                                </StackPane>
                                 <Label text="Swap falling pieces only" styleClass="object-description" wrapText="true"
                                        GridPane.columnIndex="1" GridPane.rowIndex="9"/>
                             </GridPane>

@@ -23,6 +23,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.geometry.Pos;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import seda_project.control_alt_defeat.gamebox.model.tetris.BoardPosition;
@@ -65,6 +66,9 @@ public class TetrisGameController implements RouteDataReceiver {
     private static final double BOARD_CHROME = 18;
     private static final double SIDE_SPACING = 12.0;
     private static final double NETWORK_PRIMARY_RATIO = 0.65;
+    private static final double OBJECT_ICON_MIN_FONT_SIZE = 8.0;
+    private static final double OBJECT_ICON_MAX_FONT_SIZE = 20.0;
+    private static final double OBJECT_ICON_FONT_RATIO = 0.72;
     private static final int OBJECT_SPAWN_SECONDS = 4;
     private static final int OBJECT_SPAWN_ATTEMPTS = 100;
     private static final int MENU_RETURN_SECONDS = 2;
@@ -718,7 +722,9 @@ public class TetrisGameController implements RouteDataReceiver {
                 BoardPosition position = new BoardPosition(row, column);
                 TetrisBoardObject object = player.boardObject();
                 boolean hasObject = object != null && position.equals(object.position());
-                Region cell = hasObject ? new Label(object.type().symbol()) : new Region();
+                Region cell = hasObject
+                        ? createObjectCell(object.type(), cellSize)
+                        : new Region();
                 cell.getStyleClass().add("board-cell");
                 setCellSize(cell, cellSize);
 
@@ -742,6 +748,22 @@ public class TetrisGameController implements RouteDataReceiver {
         if (!player.isPlaying()) {
             addGameOverOverlay(grid, player.side());
         }
+    }
+
+    /**
+     * Uses the same emoji-glyph node as the sidebar legend, but without a Label
+     * text-overrun policy.  The glyph size follows the rendered cell so the
+     * icon remains visible when either local board arrangement is compressed.
+     */
+    private static StackPane createObjectCell(TetrisItemType type, double cellSize) {
+        StackPane cell = new StackPane();
+        Text icon = new Text(type.symbol());
+        icon.getStyleClass().add("object-symbol-glyph");
+        double iconSize = Math.max(OBJECT_ICON_MIN_FONT_SIZE,
+                Math.min(OBJECT_ICON_MAX_FONT_SIZE, cellSize * OBJECT_ICON_FONT_RATIO));
+        icon.setStyle("-fx-font-size: " + Double.toString(iconSize) + "px;");
+        cell.getChildren().add(icon);
+        return cell;
     }
 
     private static void setCellSize(Region cell, double size) {

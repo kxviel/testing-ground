@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Bounds;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -28,13 +29,19 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import seda_project.control_alt_defeat.gamebox.model.tetris.BoardPosition;
 import seda_project.control_alt_defeat.gamebox.model.tetris.PieceShape;
+import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisBoard;
+import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisBoardObject;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameConfig;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameSetup;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameState;
+import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisPlayerState;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerSide;
+import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerStatus;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisItemType;
 import seda_project.control_alt_defeat.gamebox.util.ResponsiveViewport;
 
@@ -214,23 +221,158 @@ class TetrisUiContractTest {
         assertTrue(fxml.contains("fx:id=\"bottomSpeedLabel\""));
         assertEquals("Speed: 320 ms/step", TetrisGameController.speedText(320));
 
-        for (String symbol : new String[] {"🏃", "🐌", "🌀", "😵‍💫", "💥", "⚡", "🛸", "🔄", "🔀"}) {
+        for (String symbol : new String[] {"🐇", "🐢", "🌀", "💥", "⚡", "🛸", "🔄", "🔀"}) {
             assertTrue(fxml.contains("text=\"" + symbol + "\""), () -> "Missing special object " + symbol);
         }
 
-        assertEquals("🏃", TetrisItemType.SPEED_UP_OPPONENT.symbol());
-        assertEquals("🐌", TetrisItemType.SLOW_SELF.symbol());
-        assertEquals("🐌", TetrisItemType.SLOW_OPPONENT.symbol());
-        assertEquals("😵‍💫", TetrisItemType.ROTATION_DELAY_OPPONENT.symbol());
+        assertEquals("🐇", TetrisItemType.SPEED_UP_OPPONENT.symbol());
+        assertEquals("🐢", TetrisItemType.SLOW_SELF.symbol());
+        assertEquals("🐢", TetrisItemType.SLOW_OPPONENT.symbol());
+        assertEquals("🌀", TetrisItemType.ROTATION_DELAY_OPPONENT.symbol());
         assertEquals("🌀", TetrisItemType.ROTATION_DELAY_SELF.symbol());
         assertEquals("💥", TetrisItemType.RADIUS_BOMB.symbol());
         assertEquals("⚡", TetrisItemType.COLUMN_BOMB.symbol());
         assertEquals("🛸", TetrisItemType.TELEPORT.symbol());
         assertEquals("🔄", TetrisItemType.BOARD_SWAP.symbol());
         assertEquals("🔀", TetrisItemType.FALLING_PIECE_SWAP.symbol());
+        for (TetrisItemType type : TetrisItemType.values()) {
+            assertEquals(1, type.symbol().codePoints().count(),
+                    () -> type + " must use one Unicode code point");
+            assertFalse(type.symbol().contains("\u200D"),
+                    () -> type + " must not use a ZWJ sequence");
+        }
 
         String css = read("/tetris/TetrisMenu.css");
         assertTrue(css.contains("-fx-font-family: \"Segoe UI Emoji\""));
+        assertTrue(css.contains("-fx-background-color: #EF9F27"));
+        assertTrue(css.contains("-fx-fill: #000000"));
+        assertTrue(fxml.contains("styleClass=\"object-symbol-glyph\""));
+        assertFalse(fxml.contains("\u200D"), "The sidebar legend must not contain ZWJ emoji");
+    }
+
+    @Test
+    void boardSpecialObjectsUseSharedGlyphNodesAtSmallCellSizes() throws Exception {
+        CountDownLatch latch = new CountDownLatch(1);
+        AtomicReference<Throwable> failure = new AtomicReference<>();
+
+        Platform.runLater(() -> {
+            try {
+                for (boolean horizontal : new boolean[] {false, true}) {
+                    for (double cellSize : new double[] {12.0, 14.0}) {
+                        assertObjectGlyphs(horizontal, cellSize);
+                    }
+                }
+            } catch (Throwable throwable) {
+                failure.set(throwable);
+            } finally {
+                latch.countDown();
+            }
+        });
+
+        assertTrue(latch.await(20, TimeUnit.SECONDS));
+        if (failure.get() != null) {
+            throw new AssertionError(failure.get());
+        }
+    }
+
+    private static void assertObjectGlyphs(boolean horizontal, double cellSize) throws Exception {
+        FXMLLoader loader = new FXMLLoader(
+                TetrisUiContractTest.class.getResource("/tetris/TetrisGame.fxml"));
+        Parent root = loader.load();
+        TetrisGameController controller = loader.getController();
+        try {
+            TetrisGameConfig config = new TetrisGameConfig(
+                    List.of("Standard"),
+                    List.of(),
+                    TetrisGameConfig.DEFAULT_GRAVITY_MILLIS,
+                    false,
+                    horizontal);
+            controller.setRouteData(new TetrisGameSetup("Bottom", "Top", config));
+
+            ResponsiveViewport viewport = new ResponsiveViewport(root);
+            Scene scene = new Scene(viewport, 1366, 768);
+            scene.getStylesheets().add(
+                    TetrisUiContractTest.class.getResource("/Theme.css").toExternalForm());
+            viewport.resize(1366, 768);
+            for (int pulse = 0; pulse < 3; pulse++) {
+                viewport.applyCss();
+                viewport.layout();
+            }
+
+            GridPane[] boards = {
+                    (GridPane) loader.getNamespace().get("topBoardGrid"),
+                    (GridPane) loader.getNamespace().get("bottomBoardGrid")};
+            PlayerSide[] sides = {PlayerSide.TOP, PlayerSide.BOTTOM};
+            for (Node legendIcon : root.lookupAll(".object-symbol")) {
+                assertAmberBadge((Region) legendIcon, "sidebar legend");
+            }
+            Method renderBoard = TetrisGameController.class.getDeclaredMethod(
+                    "renderBoard",
+                    GridPane.class,
+                    TetrisPlayerState.class,
+                    double.class,
+                    Class.forName(TetrisGameController.class.getName() + "$BoardView"));
+            renderBoard.setAccessible(true);
+            Class<?> boardViewType = Class.forName(TetrisGameController.class.getName() + "$BoardView");
+            Field normalField = boardViewType.getDeclaredField("NORMAL");
+            normalField.setAccessible(true);
+            Object normalView = normalField.get(null);
+
+            for (TetrisItemType type : TetrisItemType.values()) {
+                BoardPosition objectPosition = new BoardPosition(4, 4);
+                for (int boardIndex = 0; boardIndex < boards.length; boardIndex++) {
+                    PlayerSide side = sides[boardIndex];
+                    GridPane board = boards[boardIndex];
+                    TetrisPlayerState player = new TetrisPlayerState(
+                            side == PlayerSide.BOTTOM ? "Bottom" : "Top",
+                            side,
+                            TetrisBoard.createDefault(horizontal, side),
+                            null,
+                            0,
+                            PlayerStatus.PLAYING,
+                            null,
+                            new TetrisBoardObject(type, objectPosition),
+                            null,
+                            List.of());
+                    renderBoard.invoke(controller, board, player, cellSize, normalView);
+                    root.applyCss();
+                    root.layout();
+
+                    Node cell = board.getChildren().stream()
+                            .filter(node -> Integer.valueOf(objectPosition.row()).equals(GridPane.getRowIndex(node)))
+                            .filter(node -> Integer.valueOf(objectPosition.column()).equals(GridPane.getColumnIndex(node)))
+                            .findFirst()
+                            .orElseThrow(() -> new AssertionError("Missing board object cell for " + type));
+                    assertTrue(cell instanceof StackPane, type + " should use a stack cell");
+                    assertAmberBadge((Region) cell, side + " board");
+                    assertTrue(cell.getStyleClass().contains("board-cell-object"), type.toString());
+                    assertTrue(cell.getStyleClass().contains("board-cell"), type.toString());
+                    Text glyph = ((StackPane) cell).getChildren().stream()
+                            .filter(Text.class::isInstance)
+                            .map(Text.class::cast)
+                            .findFirst()
+                            .orElseThrow(() -> new AssertionError("Missing glyph for " + type));
+                    assertEquals(type.symbol(), glyph.getText());
+                    assertTrue(glyph.getStyleClass().contains("object-symbol-glyph"), type.toString());
+                    assertTrue(glyph.getStyle().contains("-fx-font-size:"), type.toString());
+                    assertTrue(glyph.getFont().getSize() >= 8.0, type.toString());
+                    assertTrue(glyph.getFont().getSize() <= 20.0, type.toString());
+                    assertTrue(glyph.getLayoutBounds().getWidth() <= cellSize + 1.0,
+                            () -> type + " glyph exceeds its " + cellSize + "px cell: "
+                                    + glyph.getLayoutBounds());
+                }
+            }
+        } finally {
+            stopGameLoop(controller);
+        }
+    }
+
+    private static void assertAmberBadge(Region badge, String context) {
+        assertNotNull(badge.getBackground(), context + " is missing a background");
+        assertTrue(badge.getBackground().getFills().stream().allMatch(fill ->
+                        fill.getFill() instanceof Color color
+                                && color.equals(Color.web("#EF9F27"))),
+                () -> context + " is not amber: " + badge.getBackground());
     }
 
     @Test

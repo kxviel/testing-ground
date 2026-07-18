@@ -5,11 +5,11 @@ import java.util.EnumSet;
 import java.util.stream.Collectors;
 
 public enum TetrisItemType {
-    SPEED_UP_OPPONENT("🏃"),
-    SLOW_SELF("🐌"),
-    ROTATION_DELAY_OPPONENT("😵‍💫"),
+    SPEED_UP_OPPONENT("🐇"),
+    SLOW_SELF("🐢"),
+    ROTATION_DELAY_OPPONENT("🌀"),
     ROTATION_DELAY_SELF("🌀"),
-    SLOW_OPPONENT("🐌"),
+    SLOW_OPPONENT("🐢"),
     RADIUS_BOMB("💥"),
     COLUMN_BOMB("⚡"),
     TELEPORT("🛸"),
