@@ -377,16 +377,36 @@
     -fx-font-size: 13px;
 }
 
-/* Per-player compact stat strip rendered above each board */
-.stat-strip {
-    -fx-font-size: 13px;
-    -fx-font-weight: 700;
-    -fx-background-color: -sh-card;
-    -fx-background-radius: 5px;
-    -fx-border-color: -sh-border;
-    -fx-border-radius: 5px;
+.player-card {
+    -fx-background-radius: 12px;
+    -fx-border-radius: 12px;
     -fx-border-width: 1;
-    -fx-padding: 4 10;
+    -fx-background-insets: 0;
+    -fx-border-insets: 0;
+    -fx-padding: 22;
+    -fx-max-width: 340;
+}
+
+.player-card-name,
+.player-card-stats,
+.player-card-controls {
     -fx-text-fill: -sh-card-foreground;
-    -fx-alignment: center-left;
+}
+
+.player-card-name {
+    -fx-font-size: 21px;
+    -fx-font-weight: 800;
+}
+
+.player-card-stats {
+    -fx-font-size: 15px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #666A78;
+}
+
+.player-card-controls {
+    -fx-font-family: "Monospaced";
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-line-spacing: 1px;
 }

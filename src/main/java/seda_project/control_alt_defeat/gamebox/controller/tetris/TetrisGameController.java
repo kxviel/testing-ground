@@ -53,6 +53,7 @@ import seda_project.control_alt_defeat.gamebox.util.UiVisibility;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -73,20 +74,32 @@ public class TetrisGameController implements RouteDataReceiver {
     private static final double OBJECT_ICON_CELL_RATIO = 0.72;
     private static final double OBJECT_ICON_OVERLAY_RATIO = 0.38;
     private static final double OBJECT_LEGEND_ICON_SIZE = 16.0;
+    private static final double PLAYER_CARD_MAX_WIDTH = 340.0;
     private static final int OBJECT_SPAWN_SECONDS = 4;
     private static final int OBJECT_SPAWN_ATTEMPTS = 100;
     private static final int MENU_RETURN_SECONDS = 2;
     private static final String OPPONENT_LEFT_MESSAGE = "Your opponent has left the game.";
     private static final double MIN_GAME_CONTENT_HEIGHT = 520;
+    // 7 shades per palette — one per standard PieceType ordinal (I=0 … L=6).
+    // Spread from a light tint to a dark/saturated tone within the board's hue family.
+    // None of these shades come close to the amber effect badge colour (#EF9F27).
     private static final String[] PLAYER_BLOCK_COLORS = {
-            "#7873B8",
-            "#8B8BC9",
-            "#A3A7D6"
+            "#B3D4F5",   // I – very light sky-blue
+            "#80B8EE",   // O – light blue
+            "#4D9AE8",   // T – medium-light blue
+            "#2279D4",   // S – medium blue
+            "#1A62B5",   // Z – medium-dark blue
+            "#12478A",   // J – dark blue
+            "#0D3368"    // L – deep navy
     };
     private static final String[] OPPONENT_BLOCK_COLORS = {
-            "#5D7FBD",
-            "#7694CC",
-            "#93ADD9"
+            "#DDD4F5",   // I – very light lavender
+            "#BBA9EE",   // O – light purple
+            "#9980E4",   // T – medium-light purple
+            "#7A5CD8",   // S – medium purple
+            "#5C3DC0",   // Z – medium-dark purple
+            "#432C99",   // J – dark purple
+            "#2E1E73"    // L – deep indigo
     };
 
     @FXML
@@ -96,21 +109,7 @@ public class TetrisGameController implements RouteDataReceiver {
     @FXML
     private GridPane gameMain;
     @FXML
-    private Label configLabel;
-    @FXML
-    private Label resultLabel;
-    @FXML
-    private Label keymapTitleLabel;
-    @FXML
-    private Label keymapLabel;
-    @FXML
-    private Label topScoreLabel;
-    @FXML
-    private Label bottomScoreLabel;
-    @FXML
-    private Label topSpeedLabel;
-    @FXML
-    private Label bottomSpeedLabel;
+    private Label statusLineLabel;
     @FXML
     private Button restartButton;
     @FXML
@@ -141,11 +140,111 @@ public class TetrisGameController implements RouteDataReceiver {
     }
 
     private BoardArrangement currentArrangement = null;
+    private PlayerCard topPlayerCard;
+    private PlayerCard bottomPlayerCard;
     // Cache for gating the debug log — only print when zone dimensions actually change.
     private double lastLoggedZoneH = -1;
     private double lastLoggedZoneW = -1;
 
     private record CellSizePair(double primary, double secondary) {}
+
+    private static final class PlayerCard {
+        private final StackPane root = new StackPane();
+        private final Label playerName = new Label();
+        private final Label stats = new Label();
+        private final Label controls = new Label();
+
+        private PlayerCard(PlayerSide side) {
+            root.getStyleClass().add("player-card");
+            if (side == PlayerSide.TOP) {
+                root.getStyleClass().add("player-card-opponent");
+            }
+            root.setMouseTransparent(true);
+
+            playerName.getStyleClass().add("player-card-name");
+            playerName.setWrapText(true);
+            playerName.setMaxWidth(Double.MAX_VALUE);
+
+            stats.getStyleClass().add("player-card-stats");
+
+            controls.getStyleClass().add("player-card-controls");
+            controls.setWrapText(true);
+            controls.setMaxWidth(Double.MAX_VALUE);
+
+            VBox content = new VBox(7, playerName, stats, controls);
+            content.setFillWidth(true);
+            content.setMaxWidth(Double.MAX_VALUE);
+            root.getChildren().add(content);
+            StackPane.setAlignment(content, Pos.TOP_LEFT);
+        }
+
+        private void update(TetrisPlayerState player, int gravityMillis) {
+            Color accent = Color.web(playerPieceAccent(player));
+            Color lightTint = tint(accent, 0.12);
+            Color outerBorder = tint(accent, 0.35);
+            Color nameColor = Color.color(
+                    accent.getRed() * 0.55,
+                    accent.getGreen() * 0.55,
+                    accent.getBlue() * 0.55);
+            String accentHex = colorHex(accent);
+
+            root.setStyle("-fx-background-color: " + colorHex(lightTint)
+                    + "; -fx-border-color: " + colorHex(outerBorder)
+                    + " " + colorHex(outerBorder)
+                    + " " + colorHex(outerBorder)
+                    + " " + accentHex
+                    + "; -fx-border-width: 1 1 1 4;");
+            playerName.setStyle("-fx-text-fill: " + colorHex(nameColor) + ";");
+            playerName.setText(player.playerName());
+            stats.setText("Score: " + player.score() + "  ·  " + gravityMillis + " ms/step");
+            controls.setText(controlScheme(player.side()));
+        }
+    }
+
+    /**
+     * A board-sized StackPane whose unmanaged card child is laid out over the
+     * board.  Keeping the card unmanaged is important: the board slot's
+     * measured size remains entirely board-driven, just like the StackPane
+     * effect badges inside board cells.
+     */
+    private final class BoardSlot extends StackPane {
+        private static final double CARD_INSET = 4.0;
+        private final PlayerCard playerCard;
+
+        private BoardSlot(GridPane board, PlayerCard playerCard) {
+            this.playerCard = playerCard;
+            setAlignment(Pos.CENTER);
+            setMinSize(0, 0);
+            setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+            playerCard.root.setManaged(false);
+            StackPane.setAlignment(playerCard.root, Pos.TOP_LEFT);
+            StackPane.setMargin(playerCard.root, new Insets(CARD_INSET));
+            getChildren().addAll(board, playerCard.root);
+        }
+
+        @Override
+        protected void layoutChildren() {
+            super.layoutChildren();
+
+            double availableWidth = Math.max(0.0, getWidth() - 2.0 * CARD_INSET);
+            double preferredWidth = playerCard.root.prefWidth(-1);
+            double cardWidth = Math.min(PLAYER_CARD_MAX_WIDTH,
+                    Math.min(availableWidth, preferredWidth > 0.0 ? preferredWidth : availableWidth));
+            if (cardWidth <= 0.0) {
+                playerCard.root.resizeRelocate(CARD_INSET, CARD_INSET, 0.0, 0.0);
+                return;
+            }
+
+            playerCard.root.setMaxWidth(cardWidth);
+            double cardHeight = playerCard.root.prefHeight(cardWidth);
+            double availableHeight = Math.max(0.0, getHeight() - 2.0 * CARD_INSET);
+            playerCard.root.resizeRelocate(
+                    CARD_INSET,
+                    CARD_INSET,
+                    cardWidth,
+                    Math.min(cardHeight, availableHeight));
+        }
+    }
 
     private TetrisGameSetup setup = new TetrisGameSetup(
             SafeText.PLAYER_ONE_NAME,
@@ -261,7 +360,7 @@ public class TetrisGameController implements RouteDataReceiver {
     private void onRestart() {
         if (isLanClient()) {
             joinClient.send(TetrisProtocol.restartRequest(setup.playerTwoName()));
-            resultLabel.setText("Waiting for host restart.");
+            statusLineLabel.setText("Waiting for host restart.");
         } else {
             startNewGame();
             sendRestartState();
@@ -413,8 +512,8 @@ public class TetrisGameController implements RouteDataReceiver {
     }
 
     private void buildStackedLayout() {
-        StackPane topSlot = centeredBoardSlot(topBoardGrid);
-        StackPane bottomSlot = centeredBoardSlot(bottomBoardGrid);
+        StackPane topSlot = centeredBoardSlot(topBoardGrid, gameState.topPlayer());
+        StackPane bottomSlot = centeredBoardSlot(bottomBoardGrid, gameState.bottomPlayer());
         VBox container = new VBox(SIDE_SPACING, topSlot, bottomSlot);
         container.setAlignment(Pos.CENTER);
         container.setFillWidth(true);
@@ -450,8 +549,8 @@ public class TetrisGameController implements RouteDataReceiver {
      * exactly the same on both boards — no key inversion needed.
      */
     private void buildSideBySideLayout() {
-        StackPane bottomSlot = centeredBoardSlot(bottomBoardGrid);
-        StackPane topSlot = centeredBoardSlot(topBoardGrid);
+        StackPane bottomSlot = centeredBoardSlot(bottomBoardGrid, gameState.bottomPlayer());
+        StackPane topSlot = centeredBoardSlot(topBoardGrid, gameState.topPlayer());
         HBox container = new HBox(SIDE_SPACING, bottomSlot, topSlot);
         container.setAlignment(Pos.CENTER);
         container.setFillHeight(true);
@@ -462,12 +561,15 @@ public class TetrisGameController implements RouteDataReceiver {
         boardZone.getChildren().add(container);
     }
 
-    private static StackPane centeredBoardSlot(GridPane board) {
-        StackPane slot = new StackPane(board);
-        slot.setAlignment(Pos.CENTER);
-        slot.setMinSize(0, 0);
-        slot.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        return slot;
+    private StackPane centeredBoardSlot(GridPane board, TetrisPlayerState player) {
+        PlayerCard card = new PlayerCard(player.side());
+        card.update(player, effectiveGravityMs(player));
+        if (player.side() == PlayerSide.TOP) {
+            topPlayerCard = card;
+        } else {
+            bottomPlayerCard = card;
+        }
+        return new BoardSlot(board, card);
     }
 
     private static void hugRenderedBoard(GridPane board) {
@@ -481,11 +583,15 @@ public class TetrisGameController implements RouteDataReceiver {
     private void buildNetworkLayout(boolean localIsBottom) {
         GridPane primaryGrid   = localIsBottom ? bottomBoardGrid : topBoardGrid;
         GridPane secondaryGrid = localIsBottom ? topBoardGrid    : bottomBoardGrid;
+        PlayerSide primarySide = localIsBottom ? PlayerSide.BOTTOM : PlayerSide.TOP;
+        PlayerSide secondarySide = primarySide.opponent();
+        StackPane primarySlot = centeredBoardSlot(primaryGrid, gameState.player(primarySide));
+        StackPane secondarySlot = centeredBoardSlot(secondaryGrid, gameState.player(secondarySide));
 
-        HBox container = new HBox(SIDE_SPACING, primaryGrid, secondaryGrid);
+        HBox container = new HBox(SIDE_SPACING, primarySlot, secondarySlot);
         container.setAlignment(Pos.TOP_LEFT);
-        HBox.setHgrow(primaryGrid,   Priority.ALWAYS);
-        HBox.setHgrow(secondaryGrid, Priority.NEVER);
+        HBox.setHgrow(primarySlot,   Priority.ALWAYS);
+        HBox.setHgrow(secondarySlot, Priority.NEVER);
         primaryGrid.setMaxWidth(Double.MAX_VALUE);
         secondaryGrid.setMinWidth(0);
 
@@ -639,39 +745,41 @@ public class TetrisGameController implements RouteDataReceiver {
 
 
     private void renderLabels() {
-        bottomScoreLabel.setText(scoreText(gameState.bottomPlayer()));
-        topScoreLabel.setText(scoreText(gameState.topPlayer()));
-        bottomSpeedLabel.setText(speedText(effectiveGravityMs(gameState.bottomPlayer())));
-        topSpeedLabel.setText(speedText(effectiveGravityMs(gameState.topPlayer())));
-        configLabel.setText("Pieces: " + gameState.config().displayText());
-        renderKeymap();
+        if (bottomPlayerCard != null) {
+            bottomPlayerCard.update(gameState.bottomPlayer(), effectiveGravityMs(gameState.bottomPlayer()));
+        }
+        if (topPlayerCard != null) {
+            topPlayerCard.update(gameState.topPlayer(), effectiveGravityMs(gameState.topPlayer()));
+        }
         renderResult();
-    }
-
-    private static String scoreText(TetrisPlayerState player) {
-        return player.playerName() + ": " + player.score();
     }
 
     static String speedText(int gravityMillis) {
         return "Speed: " + gravityMillis + " ms/step";
     }
 
-    private void renderKeymap() {
-        if (setup.isLocal()) {
-            keymapTitleLabel.setText("Controls");
-            keymapLabel.setText("""
-                    Bottom (arrow keys): ← / → move   ↓ drop   ↑ rotate
-                    Top (WASD): A / D move   W drop   S rotate""");
-            return;
-        }
+    private static String controlScheme(PlayerSide side) {
+        return side == PlayerSide.BOTTOM
+                ? "Arrow keys: ← / → move, ↓ drop, ↑ rotate"
+                : "WASD: A / D move, W drop, S rotate";
+    }
 
-        if (setup.localSide() == PlayerSide.TOP) {
-            keymapTitleLabel.setText("Controls — " + gameState.topPlayer().playerName());
-            keymapLabel.setText("A / D = move  |  W = drop  |  S = rotate");
-        } else {
-            keymapTitleLabel.setText("Controls — " + gameState.bottomPlayer().playerName());
-            keymapLabel.setText("← / → = move  |  ↓ = drop  |  ↑ = rotate");
-        }
+    static String playerPieceAccent(TetrisPlayerState player) {
+        return blockColor(player.board().themeSide(), 0);
+    }
+
+    private static Color tint(Color color, double colorOpacityOverWhite) {
+        return Color.color(
+                1.0 - (1.0 - color.getRed()) * colorOpacityOverWhite,
+                1.0 - (1.0 - color.getGreen()) * colorOpacityOverWhite,
+                1.0 - (1.0 - color.getBlue()) * colorOpacityOverWhite);
+    }
+
+    private static String colorHex(Color color) {
+        return String.format(Locale.ROOT, "#%02X%02X%02X",
+                Math.round((float) color.getRed() * 255),
+                Math.round((float) color.getGreen() * 255),
+                Math.round((float) color.getBlue() * 255));
     }
 
     private void renderResult() {
@@ -681,17 +789,18 @@ public class TetrisGameController implements RouteDataReceiver {
         restartButton.setDisable(!setup.isLocal() && networkClosed);
 
         if (!setup.isLocal() && networkClosed) {
-            resultLabel.setText("LAN connection lost.");
+            statusLineLabel.setText("LAN connection lost.");
         } else if (finished) {
-            resultLabel.setText(resultText());
+            statusLineLabel.setText(resultText());
         } else if (!gameState.bottomPlayer().isPlaying()) {
-            resultLabel.setText(gameState.bottomPlayer().playerName() + " lost. "
+            statusLineLabel.setText(gameState.bottomPlayer().playerName() + " lost. "
                     + gameState.topPlayer().playerName() + " continues.");
         } else if (!gameState.topPlayer().isPlaying()) {
-            resultLabel.setText(gameState.topPlayer().playerName() + " lost. "
+            statusLineLabel.setText(gameState.topPlayer().playerName() + " lost. "
                     + gameState.bottomPlayer().playerName() + " continues.");
         } else {
-            resultLabel.setText("Game running.");
+            statusLineLabel.setText("Pieces: " + gameState.config().displayText()
+                    + " - Game running.");
         }
     }
 
@@ -1008,7 +1117,7 @@ public class TetrisGameController implements RouteDataReceiver {
         stopGameLoop();
         closeNetwork(false);
         render();
-        resultLabel.setText(OPPONENT_LEFT_MESSAGE);
+        statusLineLabel.setText(OPPONENT_LEFT_MESSAGE);
         returnToMenuAfterDisconnect();
     }
 
@@ -1076,16 +1185,18 @@ public class TetrisGameController implements RouteDataReceiver {
         TetrisGameState next = state;
 
         if (next.bottomPlayer().isPlaying() && next.bottomPlayer().activePiece() == null) {
+            PieceShape bottomShape = nextSpawnShape(next.bottomPlayer(), next.config());
             next = next.spawnPiece(
                     PlayerSide.BOTTOM,
-                    nextSpawnShape(next.bottomPlayer(), next.config()),
-                    randomBlockColor());
+                    bottomShape,
+                    pieceColorIndex(bottomShape));
         }
         if (next.topPlayer().isPlaying() && next.topPlayer().activePiece() == null) {
+            PieceShape topShape = nextSpawnShape(next.topPlayer(), next.config());
             next = next.spawnPiece(
                     PlayerSide.TOP,
-                    nextSpawnShape(next.topPlayer(), next.config()),
-                    randomBlockColor());
+                    topShape,
+                    pieceColorIndex(topShape));
         }
 
         return next;
@@ -1186,8 +1297,16 @@ public class TetrisGameController implements RouteDataReceiver {
         return palette[Math.floorMod(colorIndex, palette.length)];
     }
 
-    private int randomBlockColor() {
-        return objectRandom.nextInt(PLAYER_BLOCK_COLORS.length);
+    /**
+     * Returns a color-palette index for the given piece shape.
+     * Standard pieces (I–L) map to their {@link seda_project.control_alt_defeat.gamebox.model.tetris.enums.PieceType}
+     * ordinal (0–6), giving each shape a unique, consistent shade.
+     * Custom pieces use the last palette slot so they always fit within bounds.
+     */
+    private static int pieceColorIndex(PieceShape shape) {
+        int ordinal = shape.type().ordinal();
+        // CUSTOM (ordinal 7) or any future type beyond the palette → clamp to last slot.
+        return Math.min(ordinal, PLAYER_BLOCK_COLORS.length - 1);
     }
 
     private TetrisItemBag objectBag(PlayerSide side) {

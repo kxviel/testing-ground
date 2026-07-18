@@ -22,6 +22,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -217,8 +218,11 @@ class TetrisUiContractTest {
     void gameSidebarShowsLiveSpeedForBothPlayersAndEverySpecialObject() throws Exception {
         String fxml = read("/tetris/TetrisGame.fxml");
 
-        assertTrue(fxml.contains("fx:id=\"topSpeedLabel\""));
-        assertTrue(fxml.contains("fx:id=\"bottomSpeedLabel\""));
+        assertTrue(fxml.contains("fx:id=\"statusLineLabel\""));
+        assertFalse(fxml.contains("Zetris"));
+        assertFalse(fxml.contains("Points"));
+        assertFalse(fxml.contains("Controls"));
+        assertFalse(fxml.contains("maxHeight=\"200\""));
         assertEquals("Speed: 320 ms/step", TetrisGameController.speedText(320));
 
         for (TetrisItemType type : TetrisItemType.values()) {
@@ -229,6 +233,10 @@ class TetrisUiContractTest {
         assertTrue(css.contains("-fx-background-color: #EF9F27"));
         assertTrue(css.contains(".object-icon"));
         assertTrue(css.contains("-fx-icon-color: #000000"));
+        assertTrue(css.contains(".player-card"));
+        assertTrue(css.contains("-fx-padding: 22;"));
+        assertTrue(css.contains("-fx-max-width: 340;"));
+        assertTrue(css.contains("-fx-font-family: \"Monospaced\""));
         assertTrue(fxml.contains("fx:id=\"objectLegendGrid\""));
         assertFalse(fxml.contains("object-symbol-glyph"));
         assertFalse(fxml.contains("Segoe UI Emoji"));
@@ -462,9 +470,36 @@ class TetrisUiContractTest {
             assertCenteredInSlot(bottomBoard, context + " bottom board");
             assertInsideViewport(topBoard, width, height, context + " top board");
             assertInsideViewport(bottomBoard, width, height, context + " bottom board");
+            if (width == 1366.0 && height == 768.0 && !horizontal) {
+                ScrollPane objectScroll = (ScrollPane) root.lookup(".object-scroll");
+                GridPane objectLegend = (GridPane) loader.getNamespace().get("objectLegendGrid");
+                assertTrue(objectScroll.getViewportBounds().getHeight() > 200.0,
+                        "Special Objects must get more than the old 200px cap");
+                assertTrue(objectLegend.getHeight() <= objectScroll.getViewportBounds().getHeight() + 1.0,
+                        "All Special Objects should be visible without scrolling");
+            }
+
+            assertPlayerCard((StackPane) topBoard.getParent(), "Top", PlayerSide.TOP,
+                    "WASD: A / D move, W drop, S rotate", context + " top card");
+            assertPlayerCard((StackPane) bottomBoard.getParent(), "Bottom", PlayerSide.BOTTOM,
+                    "Arrow keys: ← / → move, ↓ drop, ↑ rotate", context + " bottom card");
+
+            // Recorded from the pre-overlay implementation at these same viewports.
+            if (width == 1366.0 && height == 768.0) {
+                assertBoardSize(topBoard, horizontal ? 466.0 : 169.0,
+                        horizontal ? 239.0 : 329.0, context);
+                assertBoardSize(bottomBoard, horizontal ? 466.0 : 169.0,
+                        horizontal ? 239.0 : 329.0, context);
+            } else if (width == 1920.0 && height == 1080.0) {
+                assertBoardSize(topBoard, horizontal ? 689.0 : 249.0,
+                        horizontal ? 349.0 : 485.0, context);
+                assertBoardSize(bottomBoard, horizontal ? 689.0 : 249.0,
+                        horizontal ? 349.0 : 485.0, context);
+            }
 
             StackPane topSlot = (StackPane) topBoard.getParent();
             StackPane bottomSlot = (StackPane) bottomBoard.getParent();
+            assertCardsDoNotOverlap(topSlot, bottomSlot, context);
             if (horizontal) {
                 assertTrue(topSlot.getParent() instanceof HBox, context);
                 assertEquals(bottomSlot.getWidth(), topSlot.getWidth(), 1.0, context);
@@ -517,6 +552,60 @@ class TetrisUiContractTest {
         Bounds bounds = node.localToScene(node.getBoundsInLocal());
         assertTrue(bounds.getMinX() >= -1.0 && bounds.getMaxX() <= width + 1.0, context + " scene width");
         assertTrue(bounds.getMinY() >= -1.0 && bounds.getMaxY() <= height + 1.0, context + " scene height");
+    }
+
+    private static void assertBoardSize(GridPane board, double expectedWidth, double expectedHeight,
+                                        String context) {
+        assertEquals(expectedWidth, board.getWidth(), 0.1, context + " width");
+        assertEquals(expectedHeight, board.getHeight(), 0.1, context + " height");
+    }
+
+    private static void assertPlayerCard(StackPane slot, String expectedPlayer, PlayerSide expectedSide,
+                                         String expectedControls, String context) {
+        List<StackPane> cards = slot.getChildren().stream()
+                .filter(StackPane.class::isInstance)
+                .map(StackPane.class::cast)
+                .filter(card -> card.getStyleClass().contains("player-card"))
+                .toList();
+        assertEquals(1, cards.size(), context + " count");
+
+        StackPane card = cards.getFirst();
+        assertFalse(card.isManaged(), context + " must not participate in sizing");
+        assertEquals(340.0, card.getWidth(), 0.1, context + " width");
+        assertEquals(4.0, card.getLayoutX(), 0.1, context + " inset x");
+        assertEquals(4.0, card.getLayoutY(), 0.1, context + " inset y");
+        assertEquals(expectedPlayer, ((Label) card.lookup(".player-card-name")).getText(), context + " player");
+        assertEquals("Score: 0  ·  550 ms/step",
+                ((Label) card.lookup(".player-card-stats")).getText(), context + " stats");
+        assertEquals(expectedControls, ((Label) card.lookup(".player-card-controls")).getText(),
+                context + " controls");
+
+        String accent = TetrisGameController.blockColor(expectedSide, 0);
+        assertTrue(card.getStyle().contains(accent + "; -fx-border-width: 1 1 1 4;"),
+                context + " left strip must use the board piece color");
+        assertTrue(card.getStyle().contains("-fx-background-color:"), context + " background tint");
+        String nameStyle = card.lookup(".player-card-name").getStyle();
+        assertTrue(nameStyle.contains("-fx-text-fill:"), context + " name color");
+        assertFalse(nameStyle.contains(accent), context + " name must use a darker shade");
+    }
+
+    private static void assertCardsDoNotOverlap(StackPane topSlot, StackPane bottomSlot,
+                                                String context) {
+        StackPane topCard = topSlot.getChildren().stream()
+                .filter(StackPane.class::isInstance)
+                .map(StackPane.class::cast)
+                .filter(card -> card.getStyleClass().contains("player-card"))
+                .findFirst()
+                .orElseThrow();
+        StackPane bottomCard = bottomSlot.getChildren().stream()
+                .filter(StackPane.class::isInstance)
+                .map(StackPane.class::cast)
+                .filter(card -> card.getStyleClass().contains("player-card"))
+                .findFirst()
+                .orElseThrow();
+        assertFalse(topCard.localToScene(topCard.getBoundsInLocal())
+                        .intersects(bottomCard.localToScene(bottomCard.getBoundsInLocal())),
+                context + " cards overlap");
     }
 
     private static void assertOverlayUpright(GridPane board, String context) {

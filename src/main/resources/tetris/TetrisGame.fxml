@@ -71,55 +71,12 @@
                       styleClass="tetris-game-info-panel">
 
                 <VBox styleClass="game-sidebar-header">
-                    <Label text="Zetris" styleClass="game-side-title"/>
-                    <Label fx:id="configLabel" text="Pieces: Standard" styleClass="subtitle"/>
-                    <Label fx:id="resultLabel" text="Game running." styleClass="status-line" wrapText="true"/>
+                    <Label fx:id="statusLineLabel" text="Game running." styleClass="status-line"/>
                 </VBox>
 
                 <Separator styleClass="game-separator"/>
 
-                <VBox spacing="10" styleClass="score-section">
-                    <Label text="Points" styleClass="field-title"/>
-
-                    <HBox alignment="CENTER_LEFT" spacing="12">
-                        <VBox maxWidth="Infinity" spacing="6" styleClass="player-score-card" HBox.hgrow="ALWAYS">
-                            <Label fx:id="topScoreLabel"
-                                   text="P2: 0"
-                                   minHeight="24"
-                                   maxWidth="Infinity"
-                                   styleClass="score-label"
-                                   style="-fx-text-fill: #7A4A00; -fx-font-weight: 900;"/>
-                            <Label fx:id="topSpeedLabel"
-                                   text="Speed: 550 ms/step"
-                                   maxWidth="Infinity"
-                                   styleClass="player-speed-label"/>
-                        </VBox>
-
-                        <VBox maxWidth="Infinity" spacing="6" styleClass="player-score-card" HBox.hgrow="ALWAYS">
-                            <Label fx:id="bottomScoreLabel"
-                                   text="P1: 0"
-                                   minHeight="24"
-                                   maxWidth="Infinity"
-                                   styleClass="score-label"
-                                   style="-fx-text-fill: #0A235A; -fx-font-weight: 900;"/>
-                            <Label fx:id="bottomSpeedLabel"
-                                   text="Speed: 550 ms/step"
-                                   maxWidth="Infinity"
-                                   styleClass="player-speed-label"/>
-                        </VBox>
-                    </HBox>
-                </VBox>
-
-                <Separator styleClass="game-separator"/>
-
-                <VBox styleClass="keymap-block">
-                    <Label fx:id="keymapTitleLabel" text="Controls" styleClass="field-title"/>
-                    <Label fx:id="keymapLabel" text="" styleClass="keymap-label" wrapText="true"/>
-                </VBox>
-
-                <Separator styleClass="game-separator"/>
-
-                <VBox spacing="10" VBox.vgrow="ALWAYS" maxHeight="200">
+                <VBox spacing="10" VBox.vgrow="ALWAYS" maxHeight="Infinity">
                     <Label text="Special Objects" styleClass="field-title"/>
 
                     <ScrollPane fitToWidth="true"
