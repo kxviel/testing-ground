@@ -114,7 +114,7 @@ public class GameController implements RouteDataReceiver {
 
     @FXML
     private void initialize() {
-        ResponsiveLayout.bindTwoColumnGrid(gameLayout, 70.0);
+        ResponsiveLayout.bindSidebarGrid(gameLayout, 320.0, 420.0);
         timedStatus = new TimedStatus(statusLabel);
         boardGridWrapper.layoutBoundsProperty().addListener((obs, oldBounds, newBounds) -> resizeBoard());
         configureViewportFill();

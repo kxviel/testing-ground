@@ -376,3 +376,17 @@
 .tetris-game-horizontal .object-description {
     -fx-font-size: 13px;
 }
+
+/* Per-player compact stat strip rendered above each board */
+.stat-strip {
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-background-color: -sh-card;
+    -fx-background-radius: 5px;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 5px;
+    -fx-border-width: 1;
+    -fx-padding: 4 10;
+    -fx-text-fill: -sh-card-foreground;
+    -fx-alignment: center-left;
+}

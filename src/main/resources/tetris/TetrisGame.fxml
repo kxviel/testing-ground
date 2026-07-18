@@ -50,10 +50,9 @@
                        maxHeight="Infinity"
                        maxWidth="Infinity"
                        styleClass="tetris-board-zone">
-                <VBox alignment="CENTER" fillWidth="false" styleClass="boards-stack">
-                    <GridPane fx:id="topBoardGrid" rotate="180" styleClass="tetris-board"/>
-                    <GridPane fx:id="bottomBoardGrid" styleClass="tetris-board"/>
-                </VBox>
+                <!-- boards managed/reparented dynamically by TetrisGameController -->
+                <GridPane fx:id="topBoardGrid" rotate="180" visible="false" managed="false" styleClass="tetris-board"/>
+                <GridPane fx:id="bottomBoardGrid" visible="false" managed="false" styleClass="tetris-board"/>
             </StackPane>
 
             <ScrollPane GridPane.columnIndex="1"
@@ -85,7 +84,7 @@
                     <HBox alignment="CENTER_LEFT" spacing="12">
                         <VBox maxWidth="Infinity" spacing="6" styleClass="player-score-card" HBox.hgrow="ALWAYS">
                             <Label fx:id="topScoreLabel"
-                                   text="The Outer God: 0"
+                                   text="P2: 0"
                                    minHeight="24"
                                    maxWidth="Infinity"
                                    styleClass="score-label"
@@ -98,7 +97,7 @@
 
                         <VBox maxWidth="Infinity" spacing="6" styleClass="player-score-card" HBox.hgrow="ALWAYS">
                             <Label fx:id="bottomScoreLabel"
-                                   text="The Old Monk: 0"
+                                   text="P1: 0"
                                    minHeight="24"
                                    maxWidth="Infinity"
                                    styleClass="score-label"
@@ -120,7 +119,7 @@
 
                 <Separator styleClass="game-separator"/>
 
-                <VBox spacing="10" VBox.vgrow="ALWAYS">
+                <VBox spacing="10" VBox.vgrow="ALWAYS" maxHeight="200">
                     <Label text="Special Objects" styleClass="field-title"/>
 
                     <ScrollPane fitToWidth="true"

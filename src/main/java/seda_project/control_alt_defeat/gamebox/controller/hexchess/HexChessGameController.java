@@ -99,7 +99,7 @@ public class HexChessGameController implements RouteDataReceiver {
 
     @FXML
     public void initialize() {
-        ResponsiveLayout.bindTwoColumnGrid(gameMain, 70.0);
+        ResponsiveLayout.bindSidebarGrid(gameMain, 320.0, 420.0);
         UiVisibility.bindVisibleWhenTextPresent(statusLabel);
         UiVisibility.bindVisibleWhenTextPresent(drawOfferLabel);
         bindBoardResize();
