@@ -40,9 +40,12 @@ public class GameBox extends Application {
 
     private void loadFonts() {
         for (String fontPath : SOURCE_SANS_FONTS) {
-            var fontUrl = GameBox.class.getResource(fontPath);
-            if (fontUrl == null || Font.loadFont(fontUrl.toExternalForm(), 12) == null) {
-                throw new IllegalStateException("Required font missing: " + fontPath);
+            try (var fontStream = GameBox.class.getResourceAsStream(fontPath)) {
+                if (fontStream == null || Font.loadFont(fontStream, 12) == null) {
+                    throw new IllegalStateException("Required font could not be loaded: " + fontPath);
+                }
+            } catch (IOException e) {
+                throw new IllegalStateException("Unable to read required font: " + fontPath, e);
             }
         }
     }
