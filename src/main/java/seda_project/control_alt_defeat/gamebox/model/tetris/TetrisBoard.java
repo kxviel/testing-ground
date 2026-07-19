@@ -255,19 +255,15 @@ public class TetrisBoard {
         Set<BoardPosition> positions = switch (direction) {
             case DOWN -> IntStream.range(impact.row(), rows)
                     .mapToObj(row -> new BoardPosition(row, impact.column()))
-                    .filter(this::isInside)
                     .collect(Collectors.toSet());
-            case UP -> IntStream.rangeClosed(0, impact.row())
+            case UP -> IntStream.range(0, impact.row() + 1)
                     .mapToObj(row -> new BoardPosition(row, impact.column()))
-                    .filter(this::isInside)
                     .collect(Collectors.toSet());
             case RIGHT -> IntStream.range(impact.column(), columns)
                     .mapToObj(column -> new BoardPosition(impact.row(), column))
-                    .filter(this::isInside)
                     .collect(Collectors.toSet());
-            case LEFT -> IntStream.rangeClosed(0, impact.column())
+            case LEFT -> IntStream.range(0, impact.column() + 1)
                     .mapToObj(column -> new BoardPosition(impact.row(), column))
-                    .filter(this::isInside)
                     .collect(Collectors.toSet());
         };
 

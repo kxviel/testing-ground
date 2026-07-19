@@ -72,6 +72,10 @@ public record TetrisGameState(
         return updatePlayer(side, player -> player.withBoardObject(object), false, false);
     }
 
+    public TetrisGameState queueShapeFirst(PlayerSide side, PieceShape shape) {
+        return updatePlayer(side, player -> player.queueShapeFirst(shape), false, false);
+    }
+
     public TetrisGameState moveLeft(PlayerSide side) {
         return updatePlayer(side, player -> player.moveLeft(config.gravityDirection(side)), true, false);
     }
@@ -323,6 +327,23 @@ public record TetrisGameState(
         int minRow = mirroredCells.stream().mapToInt(BoardPosition::row).min().orElse(0);
         int minColumn = mirroredCells.stream().mapToInt(BoardPosition::column).min().orElse(0);
         BoardPosition anchor = new BoardPosition(minRow, minColumn);
+
+        if (sourcePiece.shape().type().isBomb()) {
+            PieceShape bombShape = new PieceShape(
+                    sourcePiece.shape().type(),
+                    sourcePiece.shape().name(),
+                    mirroredCells.stream()
+                            .map(position -> new BoardPosition(
+                                    position.row() - minRow,
+                                    position.column() - minColumn))
+                            .toList());
+            TetrisPiece bombPiece = new TetrisPiece(
+                    bombShape,
+                    anchor,
+                    Rotation.SPAWN,
+                    sourcePiece.colorIndex());
+            return mirroredBoard.canPlace(bombPiece) ? bombPiece : null;
+        }
 
         for (PieceShape shape : config.availableShapes()) {
             for (Rotation rotation : Rotation.values()) {

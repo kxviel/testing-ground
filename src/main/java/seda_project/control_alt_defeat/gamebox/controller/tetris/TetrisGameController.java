@@ -25,6 +25,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.geometry.Pos;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -33,6 +34,7 @@ import seda_project.control_alt_defeat.gamebox.model.tetris.PieceShape;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisBoardObject;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerSide;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.GravityDirection;
+import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PieceType;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisCell;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameConfig;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameSetup;
@@ -72,8 +74,11 @@ public class TetrisGameController implements RouteDataReceiver {
     private static final double OBJECT_ICON_MIN_SIZE = 8.0;
     private static final double OBJECT_ICON_MAX_SIZE = 20.0;
     private static final double OBJECT_ICON_CELL_RATIO = 0.72;
-    private static final double OBJECT_ICON_OVERLAY_RATIO = 0.38;
     private static final double OBJECT_LEGEND_ICON_SIZE = 16.0;
+    private static final String BOMB_COLOR = "#D85A30";
+    private static final String BOMB_PREVIEW_COLOR = "#F5C4B3";
+    private static final double BOMB_PREVIEW_OPACITY = 0.38;
+    private static final double BOMB_RADIUS_CELLS = 3.0;
     private static final double PLAYER_CARD_MAX_WIDTH = 340.0;
     private static final int OBJECT_SPAWN_SECONDS = 4;
     private static final int OBJECT_SPAWN_ATTEMPTS = 100;
@@ -437,10 +442,9 @@ public class TetrisGameController implements RouteDataReceiver {
             return;
         }
 
-        gameState = spawnObject(gameState, PlayerSide.BOTTOM);
-        gameState = spawnObject(gameState, PlayerSide.TOP);
-        render();
-        sendState();
+        gameState = spawnMissingPieces(spawnObject(gameState, PlayerSide.BOTTOM));
+        gameState = spawnMissingPieces(spawnObject(gameState, PlayerSide.TOP));
+        finishStateChange();
     }
 
     private void render() {
@@ -828,30 +832,51 @@ public class TetrisGameController implements RouteDataReceiver {
 
         Set<BoardPosition> activeCells = new HashSet<>();
         int activeColor = -1;
+        PieceType activePieceType = null;
         if (player.activePiece() != null) {
             activeCells.addAll(player.activePiece().boardCells());
             activeColor = player.activePiece().colorIndex();
+            activePieceType = player.activePiece().shape().type();
         }
+
+        boolean ownBoard = setup.isLocal() || setup.localSide() == player.side();
+        boolean radiusPreview = ownBoard && activePieceType == PieceType.RADIUS_BOMB;
+        boolean columnPreview = ownBoard && activePieceType == PieceType.COLUMN_BOMB;
+        BoardPosition bombPosition = player.activePiece() == null
+                ? null
+                : player.activePiece().boardCells().getFirst();
+        StackPane activeBombCell = null;
 
         for (int row = 0; row < player.board().rows(); row++) {
             for (int column = 0; column < player.board().columns(); column++) {
                 BoardPosition position = new BoardPosition(row, column);
                 TetrisBoardObject object = player.boardObject();
                 boolean hasObject = object != null && position.equals(object.position());
-                Region cell = hasObject
+                StackPane cell = hasObject
                         ? createObjectCell(object.type(), cellSize)
-                        : new Region();
+                        : new StackPane();
                 cell.getStyleClass().add("board-cell");
                 setCellSize(cell, cellSize);
 
                 if (activeCells.contains(position)) {
-                    cell.getStyleClass().add("board-cell-active");
-                    paintBlock(cell, activeColor, player.board().themeSide());
+                    if (activePieceType != null && activePieceType.isBomb()) {
+                        cell.getStyleClass().add("board-cell-bomb");
+                        paintBombCell(cell, activePieceType, cellSize);
+                        activeBombCell = cell;
+                    } else {
+                        cell.getStyleClass().add("board-cell-active");
+                        paintBlock(cell, activeColor, player.board().themeSide());
+                    }
                 } else if (hasObject) {
                     cell.getStyleClass().add("board-cell-object");
                 } else if (player.board().cellAt(position) == TetrisCell.FILLED) {
                     cell.getStyleClass().add("board-cell-filled");
                     paintBlock(cell, player.board().colorAt(position), player.board().themeSide());
+                }
+
+                if (columnPreview && !activeCells.contains(position)
+                        && isBombPreviewLine(position, bombPosition, player, gameState.config().gravityDirection(player.side()))) {
+                    addBombLinePreview(cell);
                 }
 
                 grid.add(
@@ -861,9 +886,92 @@ public class TetrisGameController implements RouteDataReceiver {
             }
         }
 
+        if (radiusPreview && bombPosition != null) {
+            Circle preview = createRadiusPreview(grid, bombPosition, player, cellSize, view);
+            grid.getChildren().add(preview);
+            // The circle intentionally sits above settled cells, but the solid
+            // bomb square must remain the topmost item at its center.
+            if (activeBombCell != null) {
+                grid.getChildren().remove(activeBombCell);
+                grid.getChildren().add(activeBombCell);
+            }
+        }
+
         if (!player.isPlaying()) {
             addGameOverOverlay(grid, player.side());
         }
+    }
+
+    private static boolean isBombPreviewLine(
+            BoardPosition position,
+            BoardPosition bombPosition,
+            TetrisPlayerState player,
+            GravityDirection gravityDirection) {
+        if (position == null || bombPosition == null || player == null || gravityDirection == null) {
+            return false;
+        }
+
+        if (gravityDirection == GravityDirection.RIGHT) {
+            return position.row() == bombPosition.row()
+                    && position.column() >= bombPosition.column();
+        }
+        if (gravityDirection == GravityDirection.LEFT) {
+            return position.row() == bombPosition.row()
+                    && position.column() <= bombPosition.column();
+        }
+        if (gravityDirection == GravityDirection.UP) {
+            return position.column() == bombPosition.column()
+                    && position.row() <= bombPosition.row();
+        }
+        return position.column() == bombPosition.column()
+                && position.row() >= bombPosition.row();
+    }
+
+    private static void addBombLinePreview(StackPane cell) {
+        Region tint = new Region();
+        tint.setMouseTransparent(true);
+        tint.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        tint.getStyleClass().add("bomb-preview-line");
+        tint.setStyle("-fx-background-color: rgba(245, 196, 179, 0.38);");
+        cell.getChildren().add(tint);
+    }
+
+    private static Circle createRadiusPreview(
+            GridPane grid,
+            BoardPosition bombPosition,
+            TetrisPlayerState player,
+            double cellSize,
+            BoardView view) {
+        double radius = (BOMB_RADIUS_CELLS + 0.5) * cellSize;
+        Circle preview = new Circle(radius);
+        preview.setFill(Color.web(BOMB_PREVIEW_COLOR, BOMB_PREVIEW_OPACITY));
+        preview.setStroke(Color.web(BOMB_COLOR));
+        preview.setStrokeWidth(2.0);
+        preview.setMouseTransparent(true);
+        preview.setManaged(false);
+
+        double cellStep = cellSize + CELL_GAP;
+        double leftInset = grid.getInsets().getLeft();
+        double topInset = grid.getInsets().getTop();
+        double centerX = leftInset
+                + view.visualColumn(bombPosition.column(), player.board().columns()) * cellStep
+                + cellSize / 2.0;
+        double centerY = topInset
+                + view.visualRow(bombPosition.row(), player.board().rows()) * cellStep
+                + cellSize / 2.0;
+        preview.relocate(centerX - radius, centerY - radius);
+        return preview;
+    }
+
+    private static void paintBombCell(StackPane cell, PieceType type, double cellSize) {
+        cell.setStyle("-fx-background-color: " + BOMB_COLOR
+                + "; -fx-border-color: " + BOMB_COLOR + ";");
+        TetrisItemType itemType = type == PieceType.RADIUS_BOMB
+                ? TetrisItemType.RADIUS_BOMB
+                : TetrisItemType.COLUMN_BOMB;
+        FontIcon icon = createObjectIcon(itemType.icon(), iconSize(
+                Math.max(8.0, Math.min(20.0, cellSize * OBJECT_ICON_CELL_RATIO))));
+        cell.getChildren().add(icon);
     }
 
     private void configureObjectLegend() {
@@ -897,16 +1005,22 @@ public class TetrisGameController implements RouteDataReceiver {
 
     private static void populateObjectIcon(StackPane target, TetrisItemType type, double baseSize) {
         target.getChildren().clear();
+        target.getStyleClass().removeAll("object-badge-you", "object-badge-opponent");
+        String roleClass = badgeRoleClass(type);
+        if (roleClass != null) {
+            target.getStyleClass().add(roleClass);
+        }
+
         FontIcon baseIcon = createObjectIcon(type.icon(), iconSize(baseSize));
         target.getChildren().add(baseIcon);
+    }
 
-        if (type.actorOverlay() != null) {
-            FontIcon actorOverlay = createObjectIcon(
-                    type.actorOverlay(), iconSize(Math.max(4.0, baseSize * OBJECT_ICON_OVERLAY_RATIO)));
-            StackPane.setAlignment(actorOverlay, Pos.BOTTOM_RIGHT);
-            StackPane.setMargin(actorOverlay, new Insets(0.5));
-            target.getChildren().add(actorOverlay);
-        }
+    private static String badgeRoleClass(TetrisItemType type) {
+        return switch (type) {
+            case SPEED_UP_OPPONENT, ROTATION_DELAY_OPPONENT, SLOW_OPPONENT -> "object-badge-opponent";
+            case SLOW_SELF, ROTATION_DELAY_SELF -> "object-badge-you";
+            default -> null;
+        };
     }
 
     private static FontIcon createObjectIcon(org.kordamp.ikonli.Ikon icon, int size) {
@@ -1212,6 +1326,16 @@ public class TetrisGameController implements RouteDataReceiver {
         if (typeToSpawn == null) {
             return state;
         }
+
+        if (typeToSpawn == TetrisItemType.RADIUS_BOMB || typeToSpawn == TetrisItemType.COLUMN_BOMB) {
+            PieceType bombType = typeToSpawn == TetrisItemType.RADIUS_BOMB
+                    ? PieceType.RADIUS_BOMB
+                    : PieceType.COLUMN_BOMB;
+            // A bomb is a normal queued shape.  Prepending gives it priority
+            // over a shape already queued by Teleport or piece-swap effects.
+            return state.queueShapeFirst(side, PieceShape.bombShape(bombType));
+        }
+
         TetrisBoardObject spawnedObject = findSpawnObject(
                 player,
                 typeToSpawn,

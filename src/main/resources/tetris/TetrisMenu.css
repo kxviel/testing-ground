@@ -356,8 +356,30 @@
     -fx-border-color: -game-on-accent-container;
 }
 
+.board-cell-bomb {
+    -fx-alignment: center;
+    -fx-background-color: #D85A30;
+    -fx-border-color: #D85A30;
+}
+
+.bomb-preview-line {
+    -fx-background-color: rgba(245, 196, 179, 0.38);
+}
+
 .tetris-board-opponent .board-cell-object {
     -fx-border-color: -opponent-on-accent-container;
+}
+
+.object-symbol.object-badge-you,
+.board-cell-object.object-badge-you {
+    -fx-border-color: #1D9E75;
+    -fx-border-width: 3;
+}
+
+.object-symbol.object-badge-opponent,
+.board-cell-object.object-badge-opponent {
+    -fx-border-color: #D85A30;
+    -fx-border-width: 3;
 }
 
 .board-game-over {

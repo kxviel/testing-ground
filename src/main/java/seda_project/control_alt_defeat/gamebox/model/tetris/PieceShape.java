@@ -104,6 +104,15 @@ public record PieceShape(PieceType type, String name, List<BoardPosition> cells)
                 .orElseGet(shapes::getFirst);
     }
 
+    public static PieceShape bombShape(PieceType type) {
+        if (type == null || !type.isBomb()) {
+            throw new IllegalArgumentException("Bomb shape type required.");
+        }
+
+        String name = type == PieceType.RADIUS_BOMB ? "Radius bomb" : "Column bomb";
+        return new PieceShape(type, name, List.of(new BoardPosition(0, 0)));
+    }
+
     public static List<PieceShape> standardShapes() {
         return STANDARD_SHAPES;
     }
