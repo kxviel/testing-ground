@@ -801,7 +801,7 @@ public class TetrisGameController implements RouteDataReceiver {
     private void renderResult() {
         boolean finished = gameState.isFinished();
 
-        UiVisibility.setVisibleManaged(restartButton, finished);
+        UiVisibility.setVisibleManaged(restartButton, true);
         restartButton.setDisable(!setup.isLocal() && networkClosed);
 
         if (!setup.isLocal() && networkClosed) {
