@@ -215,6 +215,28 @@ class TetrisUiContractTest {
     }
 
     @Test
+    void networkBoardsUseTheSameEqualSizeLayoutsAsLocalMode() throws Exception {
+        CountDownLatch latch = new CountDownLatch(1);
+        AtomicReference<Throwable> failure = new AtomicReference<>();
+
+        Platform.runLater(() -> {
+            try {
+                assertNetworkBoardPresentation(false);
+                assertNetworkBoardPresentation(true);
+            } catch (Throwable throwable) {
+                failure.set(throwable);
+            } finally {
+                latch.countDown();
+            }
+        });
+
+        assertTrue(latch.await(20, TimeUnit.SECONDS));
+        if (failure.get() != null) {
+            throw new AssertionError(failure.get());
+        }
+    }
+
+    @Test
     void gameSidebarShowsLiveSpeedForBothPlayersAndEverySpecialObject() throws Exception {
         String fxml = read("/tetris/TetrisGame.fxml");
 
@@ -515,6 +537,62 @@ class TetrisUiContractTest {
             addOverlay.invoke(controller, bottomBoard, PlayerSide.BOTTOM);
             assertOverlayUpright(topBoard, context + " top overlay");
             assertOverlayUpright(bottomBoard, context + " bottom overlay");
+        } finally {
+            stopGameLoop(controller);
+        }
+    }
+
+    private static void assertNetworkBoardPresentation(boolean horizontal) throws Exception {
+        FXMLLoader loader = new FXMLLoader(
+                TetrisUiContractTest.class.getResource("/tetris/TetrisGame.fxml"));
+        Parent root = loader.load();
+        TetrisGameController controller = loader.getController();
+        try {
+            TetrisGameConfig config = new TetrisGameConfig(
+                    List.of("Standard"),
+                    List.of(),
+                    TetrisGameConfig.DEFAULT_GRAVITY_MILLIS,
+                    false,
+                    horizontal);
+            controller.setRouteData(new TetrisGameRouteData(
+                    TetrisGameSetup.host("Bottom", "Top", config),
+                    null,
+                    null));
+
+            ResponsiveViewport viewport = new ResponsiveViewport(root);
+            Scene scene = new Scene(viewport, 1366, 768);
+            scene.getStylesheets().add(
+                    TetrisUiContractTest.class.getResource("/Theme.css").toExternalForm());
+            viewport.resize(1366, 768);
+            for (int pulse = 0; pulse < 3; pulse++) {
+                viewport.applyCss();
+                viewport.layout();
+            }
+
+            StackPane boardZone = (StackPane) loader.getNamespace().get("boardZone");
+            GridPane topBoard = (GridPane) loader.getNamespace().get("topBoardGrid");
+            GridPane bottomBoard = (GridPane) loader.getNamespace().get("bottomBoardGrid");
+            String context = "network " + (horizontal ? "horizontal" : "vertical");
+
+            assertTransparent(boardZone.getBackground(), context);
+            assertTrue(topBoard.getWidth() > 0.0, context + " top board is visible");
+            assertEquals(bottomBoard.getWidth(), topBoard.getWidth(), 1.0,
+                    context + " board widths");
+            assertEquals(bottomBoard.getHeight(), topBoard.getHeight(), 1.0,
+                    context + " board heights");
+
+            StackPane topSlot = (StackPane) topBoard.getParent();
+            StackPane bottomSlot = (StackPane) bottomBoard.getParent();
+            assertEquals(horizontal ? HBox.class : VBox.class,
+                    topSlot.getParent().getClass(), context + " arrangement");
+            assertEquals(bottomSlot.getWidth(), topSlot.getWidth(), 1.0,
+                    context + " slot widths");
+            assertEquals(bottomSlot.getHeight(), topSlot.getHeight(), 1.0,
+                    context + " slot heights");
+            assertPlayerCard(topSlot, "Top", PlayerSide.TOP,
+                    "WASD: A / D move, W drop, S rotate", context + " top card");
+            assertPlayerCard(bottomSlot, "Bottom", PlayerSide.BOTTOM,
+                    "Arrow keys: ← / → move, ↓ drop, ↑ rotate", context + " bottom card");
         } finally {
             stopGameLoop(controller);
         }

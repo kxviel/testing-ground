@@ -71,7 +71,6 @@ public class TetrisGameController implements RouteDataReceiver {
     // Total non-cell extent reported by the styled GridPane (padding, border, and insets).
     private static final double BOARD_CHROME = 18;
     private static final double SIDE_SPACING = 12.0;
-    private static final double NETWORK_PRIMARY_RATIO = 0.65;
     private static final double OBJECT_ICON_MIN_SIZE = 8.0;
     private static final double OBJECT_ICON_MAX_SIZE = 20.0;
     private static final double OBJECT_ICON_CELL_RATIO = 0.72;
@@ -128,7 +127,7 @@ public class TetrisGameController implements RouteDataReceiver {
     private GridPane objectLegendGrid;
 
     private enum BoardArrangement {
-        LOCAL_STACKED, LOCAL_SIDE_BY_SIDE, NETWORK_PRIMARY_BOTTOM, NETWORK_PRIMARY_TOP
+        LOCAL_STACKED, LOCAL_SIDE_BY_SIDE
     }
 
     private record BoardView(boolean reverseRows, boolean reverseColumns) {
@@ -151,8 +150,6 @@ public class TetrisGameController implements RouteDataReceiver {
     // Cache for gating the debug log — only print when zone dimensions actually change.
     private double lastLoggedZoneH = -1;
     private double lastLoggedZoneW = -1;
-
-    private record CellSizePair(double primary, double secondary) {}
 
     private record ActiveEffectChip(TetrisItemType type, String label, int remainingTicks) {}
 
@@ -462,24 +459,13 @@ public class TetrisGameController implements RouteDataReceiver {
     private void render() {
         renderLabels();
         BoardArrangement arr = applyBoardLayout();
-        if (setup.isLocal()) {
-            double cs = computeLocalCellSize(arr);
-            if (arr == BoardArrangement.LOCAL_SIDE_BY_SIDE) {
-                renderBoard(bottomBoardGrid, gameState.bottomPlayer(), cs, BoardView.MIRRORED_HORIZONTALLY);
-                renderBoard(topBoardGrid, gameState.topPlayer(), cs, BoardView.MIRRORED_HORIZONTALLY);
-            } else {
-                renderBoard(bottomBoardGrid, gameState.bottomPlayer(), cs, BoardView.NORMAL);
-                renderBoard(topBoardGrid, gameState.topPlayer(), cs, BoardView.ROTATED_180);
-            }
+        double cs = computeLocalCellSize(arr);
+        if (arr == BoardArrangement.LOCAL_SIDE_BY_SIDE) {
+            renderBoard(bottomBoardGrid, gameState.bottomPlayer(), cs, BoardView.MIRRORED_HORIZONTALLY);
+            renderBoard(topBoardGrid, gameState.topPlayer(), cs, BoardView.MIRRORED_HORIZONTALLY);
         } else {
-            CellSizePair cs = computeNetworkCellSizes();
-            if (setup.localSide() == PlayerSide.BOTTOM) {
-                renderBoard(bottomBoardGrid, gameState.bottomPlayer(), cs.primary(), BoardView.NORMAL);
-                renderBoard(topBoardGrid, gameState.topPlayer(), cs.secondary(), BoardView.NORMAL);
-            } else {
-                renderBoard(topBoardGrid, gameState.topPlayer(), cs.primary(), BoardView.NORMAL);
-                renderBoard(bottomBoardGrid, gameState.bottomPlayer(), cs.secondary(), BoardView.NORMAL);
-            }
+            renderBoard(bottomBoardGrid, gameState.bottomPlayer(), cs, BoardView.NORMAL);
+            renderBoard(topBoardGrid, gameState.topPlayer(), cs, BoardView.ROTATED_180);
         }
     }
 
@@ -497,13 +483,8 @@ public class TetrisGameController implements RouteDataReceiver {
     }
 
     private BoardArrangement computeDesiredArrangement() {
-        if (!setup.isLocal()) {
-            return setup.localSide() == PlayerSide.BOTTOM
-                    ? BoardArrangement.NETWORK_PRIMARY_BOTTOM
-                    : BoardArrangement.NETWORK_PRIMARY_TOP;
-        }
-        // Local 2-player: horizontal (wide/landscape) boards go side by side;
-        // standard (tall/portrait) boards stay stacked vertically.
+        // Both local and LAN 2-player games use the same equal-size arrangement:
+        // horizontal boards go side by side, standard boards stay stacked vertically.
         return setup.config().horizontalMode()
                 ? BoardArrangement.LOCAL_SIDE_BY_SIDE
                 : BoardArrangement.LOCAL_STACKED;
@@ -522,8 +503,6 @@ public class TetrisGameController implements RouteDataReceiver {
         switch (arrangement) {
             case LOCAL_STACKED          -> buildStackedLayout();
             case LOCAL_SIDE_BY_SIDE     -> buildSideBySideLayout();
-            case NETWORK_PRIMARY_BOTTOM -> buildNetworkLayout(true);
-            case NETWORK_PRIMARY_TOP    -> buildNetworkLayout(false);
         }
     }
 
@@ -590,28 +569,6 @@ public class TetrisGameController implements RouteDataReceiver {
 
     private static void hugRenderedBoard(GridPane board) {
         board.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
-    }
-
-    /**
-     * Network mode — local player's board is large/primary (left), opponent's is
-     * small/secondary (right). Opponent board rendered right-side-up (spectator view).
-     */
-    private void buildNetworkLayout(boolean localIsBottom) {
-        GridPane primaryGrid   = localIsBottom ? bottomBoardGrid : topBoardGrid;
-        GridPane secondaryGrid = localIsBottom ? topBoardGrid    : bottomBoardGrid;
-        PlayerSide primarySide = localIsBottom ? PlayerSide.BOTTOM : PlayerSide.TOP;
-        PlayerSide secondarySide = primarySide.opponent();
-        StackPane primarySlot = centeredBoardSlot(primaryGrid, gameState.player(primarySide));
-        StackPane secondarySlot = centeredBoardSlot(secondaryGrid, gameState.player(secondarySide));
-
-        HBox container = new HBox(SIDE_SPACING, primarySlot, secondarySlot);
-        container.setAlignment(Pos.TOP_LEFT);
-        HBox.setHgrow(primarySlot,   Priority.ALWAYS);
-        HBox.setHgrow(secondarySlot, Priority.NEVER);
-        primaryGrid.setMaxWidth(Double.MAX_VALUE);
-        secondaryGrid.setMinWidth(0);
-
-        boardZone.getChildren().add(container);
     }
 
     private double computeLocalCellSize(BoardArrangement arrangement) {
@@ -705,33 +662,6 @@ public class TetrisGameController implements RouteDataReceiver {
         }
 
         return cellSize;
-    }
-
-    private CellSizePair computeNetworkCellSizes() {
-        double viewportH = (gameScrollPane != null && gameScrollPane.getViewportBounds() != null)
-                ? gameScrollPane.getViewportBounds().getHeight() : 0;
-        double zoneH = boardZoneContentHeight();
-        double zoneW = boardZoneContentWidth();
-        if (zoneH <= 1 && viewportH > 1) {
-            zoneH = Math.max(1.0, viewportH - boardZoneVerticalInsets());
-        }
-
-        int rows = gameState.bottomPlayer().board().rows();
-        int cols = gameState.bottomPlayer().board().columns();
-
-        if (zoneH <= 1 || zoneW <= 1 || rows <= 0 || cols <= 0) {
-            return new CellSizePair(MIN_CELL_SIZE, MIN_CELL_SIZE);
-        }
-
-        double commonH    = Math.max(1.0, zoneH - BOARD_CHROME);
-        double primaryW   = Math.max(1.0, zoneW * NETWORK_PRIMARY_RATIO   - SIDE_SPACING / 2.0 - BOARD_CHROME);
-        double secondaryW = Math.max(1.0, zoneW * (1.0 - NETWORK_PRIMARY_RATIO) - SIDE_SPACING / 2.0 - BOARD_CHROME);
-        double gapCols = CELL_GAP * Math.max(0, cols - 1);
-        double gapRows = CELL_GAP * Math.max(0, rows - 1);
-
-        return new CellSizePair(
-                clampCellSize((primaryW   - gapCols) / cols, (commonH - gapRows) / rows),
-                clampCellSize((secondaryW - gapCols) / cols, (commonH - gapRows) / rows));
     }
 
     private double boardZoneContentWidth() {
