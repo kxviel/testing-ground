@@ -96,20 +96,26 @@ class TetrisModelTest {
         TetrisGameState spedUpOpponent = triggerBottomObject(TetrisItemType.SPEED_UP_OPPONENT);
         assertEquals(50, spedUpOpponent.topPlayer().effects().gravityPercent());
         assertEquals(100, spedUpOpponent.topPlayer().effects().gravityTicks());
+        assertEquals(TetrisItemType.SPEED_UP_OPPONENT, spedUpOpponent.topPlayer().effects().gravityEffectType());
         assertEquals(275, spedUpOpponent.topPlayer().effects().gravityMillis(550));
 
         TetrisGameState slowedSelf = triggerBottomObject(TetrisItemType.SLOW_SELF);
         assertEquals(200, slowedSelf.bottomPlayer().effects().gravityPercent());
         assertEquals(100, slowedSelf.bottomPlayer().effects().gravityTicks());
+        assertEquals(TetrisItemType.SLOW_SELF, slowedSelf.bottomPlayer().effects().gravityEffectType());
         assertEquals(1_100, slowedSelf.bottomPlayer().effects().gravityMillis(550));
 
         TetrisGameState slowedOpponent = triggerBottomObject(TetrisItemType.SLOW_OPPONENT);
         assertEquals(200, slowedOpponent.topPlayer().effects().gravityPercent());
         assertEquals(100, slowedOpponent.topPlayer().effects().gravityTicks());
+        assertEquals(TetrisItemType.SLOW_OPPONENT, slowedOpponent.topPlayer().effects().gravityEffectType());
         assertEquals(1_100, slowedOpponent.topPlayer().effects().gravityMillis(550));
 
         TetrisGameState delayedOpponent = triggerBottomObject(TetrisItemType.ROTATION_DELAY_OPPONENT);
         assertEquals(100, delayedOpponent.topPlayer().effects().rotationEffectTicks());
+        assertEquals(
+                TetrisItemType.ROTATION_DELAY_OPPONENT,
+                delayedOpponent.topPlayer().effects().rotationEffectType());
         Rotation opponentRotation = delayedOpponent.topPlayer().activePiece().rotation();
         TetrisGameState queuedOpponentRotation = delayedOpponent.rotateClockwise(PlayerSide.TOP);
         assertEquals(opponentRotation, queuedOpponentRotation.topPlayer().activePiece().rotation());
@@ -119,6 +125,7 @@ class TetrisModelTest {
 
         TetrisGameState delayedSelf = triggerBottomObject(TetrisItemType.ROTATION_DELAY_SELF);
         assertEquals(100, delayedSelf.bottomPlayer().effects().rotationEffectTicks());
+        assertEquals(TetrisItemType.ROTATION_DELAY_SELF, delayedSelf.bottomPlayer().effects().rotationEffectType());
 
         TetrisGameState afterEffect = spedUpOpponent;
         for (int tick = 0; tick < 100; tick++) {
@@ -126,6 +133,40 @@ class TetrisModelTest {
         }
         assertEquals(100, afterEffect.topPlayer().effects().gravityPercent());
         assertEquals(0, afterEffect.topPlayer().effects().gravityTicks());
+        assertNull(afterEffect.topPlayer().effects().gravityEffectType());
+    }
+
+    @Test
+    void activeEffectSourcesSurviveNetworkSnapshots() {
+        TetrisEffectState effects = new TetrisEffectState(
+                200,
+                37,
+                23,
+                2,
+                TetrisItemType.SLOW_SELF,
+                TetrisItemType.ROTATION_DELAY_OPPONENT);
+        TetrisGameState state = runningState(
+                new TetrisPlayerState(
+                        "Bottom",
+                        PlayerSide.BOTTOM,
+                        new TetrisBoard(),
+                        null,
+                        0,
+                        PlayerStatus.PLAYING,
+                        null,
+                        null,
+                        effects,
+                        List.of()),
+                TetrisPlayerState.create("Top", PlayerSide.TOP));
+
+        TetrisGameState restored = TetrisStateSnapshot.deserialize(
+                TetrisStateSnapshot.serialize(state),
+                TetrisGameConfig.defaultConfig());
+
+        assertEquals(TetrisItemType.SLOW_SELF, restored.bottomPlayer().effects().gravityEffectType());
+        assertEquals(TetrisItemType.ROTATION_DELAY_OPPONENT, restored.bottomPlayer().effects().rotationEffectType());
+        assertEquals(37, restored.bottomPlayer().effects().gravityTicks());
+        assertEquals(23, restored.bottomPlayer().effects().rotationEffectTicks());
     }
 
     @Test

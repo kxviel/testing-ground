@@ -426,6 +426,21 @@
     -fx-text-fill: #666A78;
 }
 
+.player-card-effects {
+    -fx-spacing: 3;
+}
+
+.active-effect-chip {
+    -fx-alignment: center-left;
+    -fx-spacing: 6;
+}
+
+.active-effect-chip-label {
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #666A78;
+}
+
 .player-card-controls {
     -fx-font-family: "Monospaced";
     -fx-font-size: 16px;

@@ -6,6 +6,7 @@ import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerSide;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.Rotation;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisGameStatus;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisCell;
+import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisItemType;
 import seda_project.control_alt_defeat.gamebox.util.SafeText;
 
 import java.util.HashSet;
@@ -167,19 +168,32 @@ public record TetrisGameState(
         return switch (object.type()) {
             case SPEED_UP_OPPONENT -> next.withPlayer(
                     opponentSide,
-                    opponent.withEffects(opponent.effects().withGravityPercent(FAST_GRAVITY_PERCENT, OBJECT_EFFECT_TICKS)));
+                    opponent.withEffects(opponent.effects().withGravityPercent(
+                            FAST_GRAVITY_PERCENT,
+                            OBJECT_EFFECT_TICKS,
+                            TetrisItemType.SPEED_UP_OPPONENT)));
             case SLOW_SELF -> next.withPlayer(
                     side,
-                    actor.withEffects(actor.effects().withGravityPercent(SLOW_GRAVITY_PERCENT, OBJECT_EFFECT_TICKS)));
+                    actor.withEffects(actor.effects().withGravityPercent(
+                            SLOW_GRAVITY_PERCENT,
+                            OBJECT_EFFECT_TICKS,
+                            TetrisItemType.SLOW_SELF)));
             case ROTATION_DELAY_OPPONENT -> next.withPlayer(
                     opponentSide,
-                    opponent.withEffects(opponent.effects().withRotationDelay(OBJECT_EFFECT_TICKS)));
+                    opponent.withEffects(opponent.effects().withRotationDelay(
+                            OBJECT_EFFECT_TICKS,
+                            TetrisItemType.ROTATION_DELAY_OPPONENT)));
             case ROTATION_DELAY_SELF -> next.withPlayer(
                     side,
-                    actor.withEffects(actor.effects().withRotationDelay(OBJECT_EFFECT_TICKS)));
+                    actor.withEffects(actor.effects().withRotationDelay(
+                            OBJECT_EFFECT_TICKS,
+                            TetrisItemType.ROTATION_DELAY_SELF)));
             case SLOW_OPPONENT -> next.withPlayer(
                     opponentSide,
-                    opponent.withEffects(opponent.effects().withGravityPercent(SLOW_GRAVITY_PERCENT, OBJECT_EFFECT_TICKS)));
+                    opponent.withEffects(opponent.effects().withGravityPercent(
+                            SLOW_GRAVITY_PERCENT,
+                            OBJECT_EFFECT_TICKS,
+                            TetrisItemType.SLOW_OPPONENT)));
             case RADIUS_BOMB -> next.withPlayer(
                     side,
                     actor.withBoard(actor.board().destroyRadius(object.position(), EXPLOSION_RADIUS)));

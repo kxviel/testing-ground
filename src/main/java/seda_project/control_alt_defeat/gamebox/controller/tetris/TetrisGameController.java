@@ -32,6 +32,7 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import seda_project.control_alt_defeat.gamebox.model.tetris.BoardPosition;
 import seda_project.control_alt_defeat.gamebox.model.tetris.PieceShape;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisBoardObject;
+import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisEffectState;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerSide;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.GravityDirection;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PieceType;
@@ -153,10 +154,13 @@ public class TetrisGameController implements RouteDataReceiver {
 
     private record CellSizePair(double primary, double secondary) {}
 
+    private record ActiveEffectChip(TetrisItemType type, String label, int remainingTicks) {}
+
     private static final class PlayerCard {
         private final StackPane root = new StackPane();
         private final Label playerName = new Label();
         private final Label stats = new Label();
+        private final VBox activeEffects = new VBox();
         private final Label controls = new Label();
 
         private PlayerCard(PlayerSide side) {
@@ -172,11 +176,15 @@ public class TetrisGameController implements RouteDataReceiver {
 
             stats.getStyleClass().add("player-card-stats");
 
+            activeEffects.getStyleClass().add("player-card-effects");
+            activeEffects.setFillWidth(true);
+            UiVisibility.setVisibleManaged(activeEffects, false);
+
             controls.getStyleClass().add("player-card-controls");
             controls.setWrapText(true);
             controls.setMaxWidth(Double.MAX_VALUE);
 
-            VBox content = new VBox(7, playerName, stats, controls);
+            VBox content = new VBox(7, playerName, stats, activeEffects, controls);
             content.setFillWidth(true);
             content.setMaxWidth(Double.MAX_VALUE);
             root.getChildren().add(content);
@@ -202,6 +210,10 @@ public class TetrisGameController implements RouteDataReceiver {
             playerName.setStyle("-fx-text-fill: " + colorHex(nameColor) + ";");
             playerName.setText(player.playerName());
             stats.setText("Score: " + player.score() + "  ·  " + gravityMillis + " ms/step");
+            activeEffects.getChildren().setAll(activeEffectChips(player.effects()).stream()
+                    .map(TetrisGameController::createActiveEffectChip)
+                    .toList());
+            UiVisibility.setVisibleManaged(activeEffects, !activeEffects.getChildren().isEmpty());
             controls.setText(controlScheme(player.side()));
         }
     }
@@ -1001,6 +1013,60 @@ public class TetrisGameController implements RouteDataReceiver {
                 Math.min(OBJECT_ICON_MAX_SIZE, cellSize * OBJECT_ICON_CELL_RATIO));
         populateObjectIcon(cell, type, iconSize);
         return cell;
+    }
+
+    private static List<ActiveEffectChip> activeEffectChips(TetrisEffectState effects) {
+        if (effects == null) {
+            return List.of();
+        }
+
+        ActiveEffectChip gravityChip = null;
+        if (effects.gravityTicks() > 0) {
+            TetrisItemType type = effects.gravityEffectType();
+            if (type == null) {
+                type = effects.gravityPercent() < TetrisEffectState.NORMAL_GRAVITY_PERCENT
+                        ? TetrisItemType.SPEED_UP_OPPONENT
+                        : TetrisItemType.SLOW_OPPONENT;
+            }
+            String label = type == TetrisItemType.SPEED_UP_OPPONENT
+                    ? "2x faster"
+                    : "Slowed 2x";
+            gravityChip = new ActiveEffectChip(type, label, effects.gravityTicks());
+        }
+
+        ActiveEffectChip rotationChip = null;
+        if (effects.rotationEffectTicks() > 0) {
+            TetrisItemType type = effects.rotationEffectType() == null
+                    ? TetrisItemType.ROTATION_DELAY_OPPONENT
+                    : effects.rotationEffectType();
+            rotationChip = new ActiveEffectChip(type, "Rotation lag", effects.rotationEffectTicks());
+        }
+
+        if (gravityChip == null) {
+            return rotationChip == null ? List.of() : List.of(rotationChip);
+        }
+        if (rotationChip == null) {
+            return List.of(gravityChip);
+        }
+        return List.of(gravityChip, rotationChip);
+    }
+
+    private static HBox createActiveEffectChip(ActiveEffectChip effect) {
+        StackPane iconBadge = new StackPane();
+        iconBadge.getStyleClass().add("object-symbol");
+        populateObjectIcon(iconBadge, effect.type(), OBJECT_LEGEND_ICON_SIZE);
+
+        Label text = new Label(effect.label() + " · " + remainingEffectSeconds(effect.remainingTicks()) + "s");
+        text.getStyleClass().add("active-effect-chip-label");
+        text.setWrapText(false);
+
+        HBox chip = new HBox(6, iconBadge, text);
+        chip.getStyleClass().add("active-effect-chip");
+        return chip;
+    }
+
+    private static int remainingEffectSeconds(int remainingTicks) {
+        return Math.max(1, (remainingTicks * GAME_TICK_MS + 999) / 1_000);
     }
 
     private static void populateObjectIcon(StackPane target, TetrisItemType type, double baseSize) {
