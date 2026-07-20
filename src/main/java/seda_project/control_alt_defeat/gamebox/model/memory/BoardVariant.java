@@ -9,6 +9,11 @@ import java.util.stream.IntStream;
 public class BoardVariant {
 
     public static final int MAX_CARDS = 45;
+    /**
+     * Near-square layouts may need a few unused cells for counts that do not
+     * have a well-proportioned factor pair (for example, 23 cards -> 5x5).
+     */
+    public static final int MAX_GRID_CELLS = 49;
     public static final double MAX_ASPECT = 2.5;
 
     public final int k;
@@ -44,9 +49,18 @@ public class BoardVariant {
         return candidates.stream()
                 .filter(pair -> aspectRatio(pair) <= MAX_ASPECT)
                 .max(Comparator.comparingInt(pair -> pair[0]))
-                .orElseGet(() -> candidates.stream()
-                        .min(Comparator.comparingDouble(BoardVariant::aspectRatio))
-                        .orElse(new int[] { 1, total }));
+                .orElseGet(() -> nearSquareDimensions(total));
+    }
+
+    private static int[] nearSquareDimensions(int total) {
+        int rows = (int) Math.ceil(Math.sqrt(total));
+        int cols = (int) Math.ceil((double) total / rows);
+        if (rows > cols) {
+            int swap = rows;
+            rows = cols;
+            cols = swap;
+        }
+        return new int[] { rows, cols };
     }
 
     public static List<BoardVariant> computeVariants(int k) {

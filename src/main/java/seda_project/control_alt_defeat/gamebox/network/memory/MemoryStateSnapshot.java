@@ -57,7 +57,9 @@ public final class MemoryStateSnapshot {
         }
         long configuredCards = (long) k * n;
         long gridCards = (long) rows * cols;
-        if (configuredCards > BoardVariant.MAX_CARDS || configuredCards != gridCards) {
+        if (configuredCards > BoardVariant.MAX_CARDS
+                || gridCards < configuredCards
+                || gridCards > BoardVariant.MAX_GRID_CELLS) {
             throw new IllegalArgumentException("Snapshot dimensions are outside the supported range.");
         }
         if (score0 < 0 || score1 < 0) {

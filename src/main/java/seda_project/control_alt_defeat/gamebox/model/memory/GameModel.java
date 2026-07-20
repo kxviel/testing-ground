@@ -337,7 +337,8 @@ public class GameModel {
         long gridCards = (long) rows * cols;
         if (k < 1 || n < 1 || rows < 1 || cols < 1
                 || configuredCards > BoardVariant.MAX_CARDS
-                || configuredCards != gridCards
+                || gridCards < configuredCards
+                || gridCards > BoardVariant.MAX_GRID_CELLS
                 || configuredCards != cardCount) {
             throw new IllegalArgumentException("Invalid memory board dimensions.");
         }

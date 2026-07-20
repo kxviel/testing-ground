@@ -382,6 +382,10 @@ class GameChoiceFxmlSmokeTest {
                 assertNotNull(originalCard);
                 originalCard.fire();
                 assertTrue(originalCard.isDisabled());
+                assertEquals("Game over", ((Label) loader.getNamespace().get("gamePhaseLabel")).getText());
+                assertEquals("RESULT", ((Label) loader.getNamespace().get("turnSectionLabel")).getText());
+                assertTrue(((Label) loader.getNamespace().get("statusLabel"))
+                        .getText().startsWith("Game over:"));
 
                 Button restartButton = (Button) loader.getNamespace().get("memoryRestartButton");
                 ScrollPane gameScrollPane =
@@ -395,6 +399,8 @@ class GameChoiceFxmlSmokeTest {
                 assertNotSame(originalCard, restartedCard);
                 assertEquals("?", restartedCard.getText());
                 assertFalse(restartedCard.isDisabled());
+                assertEquals("Match in progress", ((Label) loader.getNamespace().get("gamePhaseLabel")).getText());
+                assertEquals("TURN", ((Label) loader.getNamespace().get("turnSectionLabel")).getText());
                 assertEquals("0", ((Label) loader.getNamespace().get("p1ScoreLabel")).getText());
                 assertEquals("0", ((Label) loader.getNamespace().get("p2ScoreLabel")).getText());
                 assertFalse(((HBox) loader.getNamespace().get("postGameBar")).isVisible());

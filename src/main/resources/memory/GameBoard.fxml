@@ -103,7 +103,7 @@
 
             <VBox spacing="8.0" styleClass="memory-sidebar-header">
                 <Label text="Memory Match" styleClass="memory-sidebar-title"/>
-                <Label text="Match in progress" styleClass="memory-game-muted"/>
+                <Label fx:id="gamePhaseLabel" text="Waiting for game" styleClass="memory-game-muted"/>
                 <Label fx:id="statusLabel" text="" wrapText="true" styleClass="memory-status"/>
             </VBox>
 
@@ -134,10 +134,10 @@
             <Separator styleClass="memory-section-separator"/>
 
             <VBox spacing="10.0" styleClass="memory-sidebar-section">
-                <Label text="TURN" styleClass="memory-section-label"/>
+                <Label fx:id="turnSectionLabel" text="STATUS" styleClass="memory-section-label"/>
                 <HBox alignment="CENTER_LEFT" styleClass="memory-turn-pill">
                     <Region styleClass="memory-turn-dot"/>
-                    <Label fx:id="turnLabel" text="The Old Monk's turn" styleClass="memory-turn-label"/>
+                    <Label fx:id="turnLabel" text="Waiting for game" styleClass="memory-turn-label"/>
                 </HBox>
             </VBox>
 

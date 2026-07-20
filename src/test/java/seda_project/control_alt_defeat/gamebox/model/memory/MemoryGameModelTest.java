@@ -516,9 +516,21 @@ class MemoryGameModelTest {
 
     @Test
     void bestDimensions_primeCount_stillReturnsValidGrid() {
-        // 7 cards → only factor pair is 1×7; aspect = 7.0 > 2.5 so fallback used
-        int[] dims = BoardVariant.bestDimensions(7);
-        assertEquals(7, dims[0] * dims[1]);
+        int[] dims = BoardVariant.bestDimensions(23);
+        assertEquals(5, dims[0]);
+        assertEquals(5, dims[1]);
+        assertTrue(dims[0] * dims[1] >= 23);
+        assertTrue((double) dims[1] / dims[0] <= BoardVariant.MAX_ASPECT);
+    }
+
+    @Test
+    void gameModel_primeCount_keepsPlayableCardsSeparateFromGridCapacity() {
+        BoardVariant variant = new BoardVariant(23, 1, "Prime Board");
+        GameModel model = new GameModel(variant);
+
+        assertEquals(5, model.getRows());
+        assertEquals(5, model.getCols());
+        assertEquals(23, model.getCards().size());
     }
 
     // ─────────────────────────────────────────────────────────────

@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexGameState;
+import seda_project.control_alt_defeat.gamebox.model.memory.BoardVariant;
 import seda_project.control_alt_defeat.gamebox.model.memory.GameModel;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameConfig;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameState;
@@ -35,6 +36,17 @@ class NetworkSnapshotHardeningTest {
 
         assertEquals(GameModel.SelectResult.IGNORED, model.selectCard(-1));
         assertEquals(GameModel.SelectResult.IGNORED, model.selectCard(2));
+    }
+
+    @Test
+    void memorySnapshotRoundTripsPrimeBoardWithUnusedCells() {
+        GameModel original = new GameModel(new BoardVariant(23, 1, "Prime Board"));
+
+        GameModel restored = MemoryStateSnapshot.deserialize(MemoryStateSnapshot.serialize(original));
+
+        assertEquals(5, restored.getRows());
+        assertEquals(5, restored.getCols());
+        assertEquals(23, restored.getCards().size());
     }
 
     @Test

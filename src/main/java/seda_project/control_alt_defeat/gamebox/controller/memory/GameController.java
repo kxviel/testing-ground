@@ -77,6 +77,10 @@ public class GameController implements RouteDataReceiver {
     @FXML
     private Label turnLabel;
     @FXML
+    private Label turnSectionLabel;
+    @FXML
+    private Label gamePhaseLabel;
+    @FXML
     private Label statusLabel;
     @FXML
     private GridPane cardGrid;
@@ -162,6 +166,7 @@ public class GameController implements RouteDataReceiver {
 
         if (isNetworkClient()) {
             configureClient();
+            showWaitingState("Waiting for host");
             statusLabel.setText("Connected! Waiting for host to start the game...");
             replayPendingMessages(routeData.pendingMessages(), this::processMessage);
             return;
@@ -174,6 +179,7 @@ public class GameController implements RouteDataReceiver {
 
         if (isNetworkHost()) {
             configureHost();
+            showWaitingState("Waiting for " + playerTwoName);
             statusLabel.setText("Connected. Waiting for " + playerTwoName + "'s name...");
             replayPendingMessages(routeData.pendingMessages(), this::processClientMessage);
         }
@@ -310,7 +316,8 @@ public class GameController implements RouteDataReceiver {
             boolean rebuild = model == null
                     || cardButtons == null
                     || model.getRows() != nextModel.getRows()
-                    || model.getCols() != nextModel.getCols();
+                    || model.getCols() != nextModel.getCols()
+                    || model.getCards().size() != nextModel.getCards().size();
 
             model = nextModel;
             gameEnded = model.isGameOver();
@@ -356,7 +363,7 @@ public class GameController implements RouteDataReceiver {
 
     private void buildBoard() {
         cardGrid.getChildren().clear();
-        int total = model.getRows() * model.getCols();
+        int total = model.getCards().size();
         cardButtons = new Button[total];
         cardLayout = computeCardLayout();
 
@@ -515,9 +522,29 @@ public class GameController implements RouteDataReceiver {
         p2Label.setText(scoreboardPlayerName(1));
         p1ScoreLabel.setText(String.valueOf(model.getScore(0)));
         p2ScoreLabel.setText(String.valueOf(model.getScore(1)));
+
+        if (model.isGameOver()) {
+            setActivePlayer(p1Chip, false);
+            setActivePlayer(p2Chip, false);
+            gamePhaseLabel.setText("Game over");
+            turnSectionLabel.setText("STATUS");
+            turnLabel.setText("Game over");
+            return;
+        }
+
         setActivePlayer(p1Chip, cur == 0);
         setActivePlayer(p2Chip, cur == 1);
+        gamePhaseLabel.setText("Match in progress");
+        turnSectionLabel.setText("TURN");
         turnLabel.setText(playerName(cur) + "'s turn");
+    }
+
+    private void showWaitingState(String message) {
+        gamePhaseLabel.setText("Waiting for game");
+        turnSectionLabel.setText("STATUS");
+        turnLabel.setText(message);
+        setActivePlayer(p1Chip, false);
+        setActivePlayer(p2Chip, false);
     }
 
     private void refreshAll() {
@@ -645,6 +672,12 @@ public class GameController implements RouteDataReceiver {
         String scores = playerOneName + ": " + model.getScore(0)
                 + "  |  " + playerTwoName + ": " + model.getScore(1);
 
+        String outcomeText = winner < 0 ? "It's a draw."
+                : playerName(winner) + " wins.";
+        gamePhaseLabel.setText("Game over");
+        turnSectionLabel.setText("RESULT");
+        turnLabel.setText(outcomeText);
+        statusLabel.setText("Game over: " + outcomeText);
         resultLabel.setText(resultText + "   " + scores);
         UiVisibility.setVisibleManaged(postGameBar, true);
     }
