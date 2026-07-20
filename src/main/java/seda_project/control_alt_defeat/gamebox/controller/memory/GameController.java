@@ -6,7 +6,6 @@ import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
@@ -45,6 +44,7 @@ public class GameController implements RouteDataReceiver {
     private static final String MENU_ROUTE = "/memory/MemoryMenu.fxml";
     private static final String PLAYER_ONE = SafeText.PLAYER_ONE_NAME;
     private static final String PLAYER_TWO = SafeText.PLAYER_TWO_NAME;
+    private static final String LOCAL_PLAYER_SUFFIX = " (You)";
     private static final String ACTIVE_PLAYER_CLASS = "score-active";
     private static final String CARD_BASE_CLASS = "memory-card-button";
     private static final String CARD_HIDDEN_CLASS = "card";
@@ -511,8 +511,8 @@ public class GameController implements RouteDataReceiver {
 
     private void refreshUI() {
         int cur = model.getCurrentPlayer();
-        p1Label.setText(playerOneName);
-        p2Label.setText(playerTwoName);
+        p1Label.setText(scoreboardPlayerName(0));
+        p2Label.setText(scoreboardPlayerName(1));
         p1ScoreLabel.setText(String.valueOf(model.getScore(0)));
         p2ScoreLabel.setText(String.valueOf(model.getScore(1)));
         setActivePlayer(p1Chip, cur == 0);
@@ -645,35 +645,8 @@ public class GameController implements RouteDataReceiver {
         String scores = playerOneName + ": " + model.getScore(0)
                 + "  |  " + playerTwoName + ": " + model.getScore(1);
 
-        if (mode == Mode.LOCAL) {
-            showLocalGameOver(resultText, scores);
-        } else {
-            resultLabel.setText(resultText + "   " + scores);
-            UiVisibility.setVisibleManaged(postGameBar, true);
-        }
-    }
-
-    private void showLocalGameOver(String resultText, String scores) {
-        Alert alert = new Alert(Alert.AlertType.NONE);
-        ButtonType restartBtn = new ButtonType("Play Again", ButtonBar.ButtonData.YES);
-        ButtonType menuBtn = new ButtonType("Main Menu", ButtonBar.ButtonData.NO);
-        alert.setTitle("Game Over");
-        alert.setHeaderText(resultText);
-        alert.setContentText(scores);
-        alert.getButtonTypes().setAll(restartBtn, menuBtn);
-        alert.showAndWait().ifPresent(btn -> {
-            if (btn == restartBtn) {
-                restartGame();
-            } else {
-                returnToMainMenu(null);
-            }
-        });
-    }
-
-    @FXML
-    private void onPostPlayAgain() {
-        hidePostGameBar();
-        requestRestart();
+        resultLabel.setText(resultText + "   " + scores);
+        UiVisibility.setVisibleManaged(postGameBar, true);
     }
 
     @FXML
@@ -701,14 +674,6 @@ public class GameController implements RouteDataReceiver {
         } else if (restartGame()) {
             showTimedStatus(myName + " restarted the game!", STATUS_SECONDS);
         }
-    }
-
-    @FXML
-    private void onPostMainMenu() {
-        String myName = playerName();
-        hidePostGameBar();
-        sendQuit();
-        returnToMainMenu(myName + " left the game.");
     }
 
     private void showTimedStatus(String message, int seconds) {
@@ -819,6 +784,13 @@ public class GameController implements RouteDataReceiver {
 
     private String playerName(int player) {
         return player == 0 ? playerOneName : playerTwoName;
+    }
+
+    private String scoreboardPlayerName(int player) {
+        String name = playerName(player);
+        boolean isLocalNetworkPlayer = (isNetworkHost() && player == 0)
+                || (isNetworkClient() && player == 1);
+        return isLocalNetworkPlayer ? name + LOCAL_PLAYER_SUFFIX : name;
     }
 
     private boolean isNetworkHost() {

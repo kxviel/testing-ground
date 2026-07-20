@@ -148,8 +148,6 @@
                   managed="false"
                   styleClass="memory-post-game-bar">
                 <Label fx:id="resultLabel" wrapText="true" styleClass="memory-post-result" HBox.hgrow="ALWAYS"/>
-                <Button text="Play Again" onAction="#onPostPlayAgain" styleClass="memory-primary-button"/>
-                <Button text="Main Menu" onAction="#onPostMainMenu" styleClass="memory-secondary-button"/>
             </HBox>
 
             <Region VBox.vgrow="ALWAYS"/>
