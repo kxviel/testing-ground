@@ -233,7 +233,7 @@ class GameChoiceFxmlSmokeTest {
                             () -> resource + " did not stack its secondary panel");
                 }
 
-                String headerSelector = resource.contains("tetris") ? ".game-side-title" : ".memory-game-title";
+                String headerSelector = resource.contains("tetris") ? ".status-line" : ".memory-game-title";
                 Node header = root.lookup(headerSelector);
                 assertNotNull(header);
                 if (!compact) {

@@ -6,6 +6,7 @@ import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerSide;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.Rotation;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisGameStatus;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisCell;
+import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisItemType;
 import seda_project.control_alt_defeat.gamebox.util.SafeText;
 
 import java.util.HashSet;
@@ -70,6 +71,10 @@ public record TetrisGameState(
 
     public TetrisGameState spawnObject(PlayerSide side, TetrisBoardObject object) {
         return updatePlayer(side, player -> player.withBoardObject(object), false, false);
+    }
+
+    public TetrisGameState queueShapeFirst(PlayerSide side, PieceShape shape) {
+        return updatePlayer(side, player -> player.queueShapeFirst(shape), false, false);
     }
 
     public TetrisGameState moveLeft(PlayerSide side) {
@@ -163,19 +168,32 @@ public record TetrisGameState(
         return switch (object.type()) {
             case SPEED_UP_OPPONENT -> next.withPlayer(
                     opponentSide,
-                    opponent.withEffects(opponent.effects().withGravityPercent(FAST_GRAVITY_PERCENT, OBJECT_EFFECT_TICKS)));
+                    opponent.withEffects(opponent.effects().withGravityPercent(
+                            FAST_GRAVITY_PERCENT,
+                            OBJECT_EFFECT_TICKS,
+                            TetrisItemType.SPEED_UP_OPPONENT)));
             case SLOW_SELF -> next.withPlayer(
                     side,
-                    actor.withEffects(actor.effects().withGravityPercent(SLOW_GRAVITY_PERCENT, OBJECT_EFFECT_TICKS)));
+                    actor.withEffects(actor.effects().withGravityPercent(
+                            SLOW_GRAVITY_PERCENT,
+                            OBJECT_EFFECT_TICKS,
+                            TetrisItemType.SLOW_SELF)));
             case ROTATION_DELAY_OPPONENT -> next.withPlayer(
                     opponentSide,
-                    opponent.withEffects(opponent.effects().withRotationDelay(OBJECT_EFFECT_TICKS)));
+                    opponent.withEffects(opponent.effects().withRotationDelay(
+                            OBJECT_EFFECT_TICKS,
+                            TetrisItemType.ROTATION_DELAY_OPPONENT)));
             case ROTATION_DELAY_SELF -> next.withPlayer(
                     side,
-                    actor.withEffects(actor.effects().withRotationDelay(OBJECT_EFFECT_TICKS)));
+                    actor.withEffects(actor.effects().withRotationDelay(
+                            OBJECT_EFFECT_TICKS,
+                            TetrisItemType.ROTATION_DELAY_SELF)));
             case SLOW_OPPONENT -> next.withPlayer(
                     opponentSide,
-                    opponent.withEffects(opponent.effects().withGravityPercent(SLOW_GRAVITY_PERCENT, OBJECT_EFFECT_TICKS)));
+                    opponent.withEffects(opponent.effects().withGravityPercent(
+                            SLOW_GRAVITY_PERCENT,
+                            OBJECT_EFFECT_TICKS,
+                            TetrisItemType.SLOW_OPPONENT)));
             case RADIUS_BOMB -> next.withPlayer(
                     side,
                     actor.withBoard(actor.board().destroyRadius(object.position(), EXPLOSION_RADIUS)));
@@ -323,6 +341,23 @@ public record TetrisGameState(
         int minRow = mirroredCells.stream().mapToInt(BoardPosition::row).min().orElse(0);
         int minColumn = mirroredCells.stream().mapToInt(BoardPosition::column).min().orElse(0);
         BoardPosition anchor = new BoardPosition(minRow, minColumn);
+
+        if (sourcePiece.shape().type().isBomb()) {
+            PieceShape bombShape = new PieceShape(
+                    sourcePiece.shape().type(),
+                    sourcePiece.shape().name(),
+                    mirroredCells.stream()
+                            .map(position -> new BoardPosition(
+                                    position.row() - minRow,
+                                    position.column() - minColumn))
+                            .toList());
+            TetrisPiece bombPiece = new TetrisPiece(
+                    bombShape,
+                    anchor,
+                    Rotation.SPAWN,
+                    sourcePiece.colorIndex());
+            return mirroredBoard.canPlace(bombPiece) ? bombPiece : null;
+        }
 
         for (PieceShape shape : config.availableShapes()) {
             for (Rotation rotation : Rotation.values()) {

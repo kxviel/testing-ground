@@ -17,8 +17,6 @@
 <?import javafx.scene.layout.VBox?>
 
 <StackPane alignment="CENTER"
-           prefWidth="1226.0"
-           prefHeight="576.0"
            maxWidth="Infinity"
            maxHeight="Infinity"
            styleClass="memory-game-root"
@@ -80,7 +78,6 @@
             <StackPane fx:id="boardGridWrapper"
                        alignment="CENTER"
                        minWidth="0.0"
-                       prefWidth="826.0"
                        maxWidth="Infinity"
                        maxHeight="Infinity"
                        styleClass="memory-grid-wrap"
@@ -151,8 +148,6 @@
                   managed="false"
                   styleClass="memory-post-game-bar">
                 <Label fx:id="resultLabel" wrapText="true" styleClass="memory-post-result" HBox.hgrow="ALWAYS"/>
-                <Button text="Play Again" onAction="#onPostPlayAgain" styleClass="memory-primary-button"/>
-                <Button text="Main Menu" onAction="#onPostMainMenu" styleClass="memory-secondary-button"/>
             </HBox>
 
             <Region VBox.vgrow="ALWAYS"/>

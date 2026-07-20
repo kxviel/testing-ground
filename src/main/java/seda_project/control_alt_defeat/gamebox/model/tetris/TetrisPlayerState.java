@@ -3,6 +3,7 @@ package seda_project.control_alt_defeat.gamebox.model.tetris;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.GravityDirection;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerSide;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerStatus;
+import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PieceType;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.Rotation;
 
 import java.util.List;
@@ -254,6 +255,27 @@ public record TetrisPlayerState(
 
         TetrisBoard lockedBoard = board.lockPiece(activePiece);
         GravityDirection direction = gravityDirection == null ? side.gravityDirection() : gravityDirection;
+
+        PieceType pieceType = activePiece.shape().type();
+        if (pieceType.isBomb()) {
+            BoardPosition impact = activePiece.boardCells().getFirst();
+            TetrisBoard bombBoard = pieceType == PieceType.RADIUS_BOMB
+                    ? lockedBoard.destroyRadius(impact, 3)
+                    : lockedBoard.destroyAlongGravity(impact, direction);
+
+            // Bomb effects are special-object effects, not ordinary line clears:
+            // they do not award a line-clear point or send rows to the opponent.
+            return copy(
+                    bombBoard,
+                    null,
+                    score,
+                    status,
+                    finalScore,
+                    boardObject,
+                    effects,
+                    queuedShapes);
+        }
+
         int clearedLines;
         TetrisBoard clearedBoard;
 

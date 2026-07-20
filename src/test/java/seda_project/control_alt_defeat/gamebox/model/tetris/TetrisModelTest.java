@@ -22,6 +22,7 @@ import seda_project.control_alt_defeat.gamebox.model.tetris.enums.Rotation;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisCell;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisGameStatus;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisItemType;
+import seda_project.control_alt_defeat.gamebox.network.tetris.TetrisStateSnapshot;
 import seda_project.control_alt_defeat.gamebox.util.SafeText;
 
 class TetrisModelTest {
@@ -95,20 +96,26 @@ class TetrisModelTest {
         TetrisGameState spedUpOpponent = triggerBottomObject(TetrisItemType.SPEED_UP_OPPONENT);
         assertEquals(50, spedUpOpponent.topPlayer().effects().gravityPercent());
         assertEquals(100, spedUpOpponent.topPlayer().effects().gravityTicks());
+        assertEquals(TetrisItemType.SPEED_UP_OPPONENT, spedUpOpponent.topPlayer().effects().gravityEffectType());
         assertEquals(275, spedUpOpponent.topPlayer().effects().gravityMillis(550));
 
         TetrisGameState slowedSelf = triggerBottomObject(TetrisItemType.SLOW_SELF);
         assertEquals(200, slowedSelf.bottomPlayer().effects().gravityPercent());
         assertEquals(100, slowedSelf.bottomPlayer().effects().gravityTicks());
+        assertEquals(TetrisItemType.SLOW_SELF, slowedSelf.bottomPlayer().effects().gravityEffectType());
         assertEquals(1_100, slowedSelf.bottomPlayer().effects().gravityMillis(550));
 
         TetrisGameState slowedOpponent = triggerBottomObject(TetrisItemType.SLOW_OPPONENT);
         assertEquals(200, slowedOpponent.topPlayer().effects().gravityPercent());
         assertEquals(100, slowedOpponent.topPlayer().effects().gravityTicks());
+        assertEquals(TetrisItemType.SLOW_OPPONENT, slowedOpponent.topPlayer().effects().gravityEffectType());
         assertEquals(1_100, slowedOpponent.topPlayer().effects().gravityMillis(550));
 
         TetrisGameState delayedOpponent = triggerBottomObject(TetrisItemType.ROTATION_DELAY_OPPONENT);
         assertEquals(100, delayedOpponent.topPlayer().effects().rotationEffectTicks());
+        assertEquals(
+                TetrisItemType.ROTATION_DELAY_OPPONENT,
+                delayedOpponent.topPlayer().effects().rotationEffectType());
         Rotation opponentRotation = delayedOpponent.topPlayer().activePiece().rotation();
         TetrisGameState queuedOpponentRotation = delayedOpponent.rotateClockwise(PlayerSide.TOP);
         assertEquals(opponentRotation, queuedOpponentRotation.topPlayer().activePiece().rotation());
@@ -118,6 +125,7 @@ class TetrisModelTest {
 
         TetrisGameState delayedSelf = triggerBottomObject(TetrisItemType.ROTATION_DELAY_SELF);
         assertEquals(100, delayedSelf.bottomPlayer().effects().rotationEffectTicks());
+        assertEquals(TetrisItemType.ROTATION_DELAY_SELF, delayedSelf.bottomPlayer().effects().rotationEffectType());
 
         TetrisGameState afterEffect = spedUpOpponent;
         for (int tick = 0; tick < 100; tick++) {
@@ -125,6 +133,40 @@ class TetrisModelTest {
         }
         assertEquals(100, afterEffect.topPlayer().effects().gravityPercent());
         assertEquals(0, afterEffect.topPlayer().effects().gravityTicks());
+        assertNull(afterEffect.topPlayer().effects().gravityEffectType());
+    }
+
+    @Test
+    void activeEffectSourcesSurviveNetworkSnapshots() {
+        TetrisEffectState effects = new TetrisEffectState(
+                200,
+                37,
+                23,
+                2,
+                TetrisItemType.SLOW_SELF,
+                TetrisItemType.ROTATION_DELAY_OPPONENT);
+        TetrisGameState state = runningState(
+                new TetrisPlayerState(
+                        "Bottom",
+                        PlayerSide.BOTTOM,
+                        new TetrisBoard(),
+                        null,
+                        0,
+                        PlayerStatus.PLAYING,
+                        null,
+                        null,
+                        effects,
+                        List.of()),
+                TetrisPlayerState.create("Top", PlayerSide.TOP));
+
+        TetrisGameState restored = TetrisStateSnapshot.deserialize(
+                TetrisStateSnapshot.serialize(state),
+                TetrisGameConfig.defaultConfig());
+
+        assertEquals(TetrisItemType.SLOW_SELF, restored.bottomPlayer().effects().gravityEffectType());
+        assertEquals(TetrisItemType.ROTATION_DELAY_OPPONENT, restored.bottomPlayer().effects().rotationEffectType());
+        assertEquals(37, restored.bottomPlayer().effects().gravityTicks());
+        assertEquals(23, restored.bottomPlayer().effects().rotationEffectTicks());
     }
 
     @Test
@@ -186,6 +228,137 @@ class TetrisModelTest {
         assertEquals(PieceType.I, teleported.topPlayer().queuedShapes().getFirst().type());
         assertEquals(4, teleported.bottomPlayer().score());
         assertEquals(2, teleported.topPlayer().score());
+    }
+
+    @Test
+    void bombShapesUseNormalSpawnMovementAndQueuePriority() {
+        PieceShape bombShape = PieceShape.bombShape(PieceType.RADIUS_BOMB);
+        TetrisPlayerState spawned = TetrisPlayerState.create("Bottom", PlayerSide.BOTTOM)
+                .spawnPiece(bombShape, -1, GravityDirection.DOWN);
+
+        assertEquals(PieceType.RADIUS_BOMB, spawned.activePiece().shape().type());
+        assertEquals(new BoardPosition(0, 4), spawned.activePiece().position());
+        assertEquals(new BoardPosition(1, 4), spawned.applyGravity(GravityDirection.DOWN)
+                .activePiece().position());
+
+        TetrisPlayerState queued = TetrisPlayerState.create("Bottom", PlayerSide.BOTTOM)
+                .spawnPiece(PieceShape.standardShape(PieceType.O), -1, GravityDirection.DOWN)
+                .queueShapeFirst(PieceShape.standardShape(PieceType.I));
+        TetrisGameState prioritized = runningState(
+                queued,
+                TetrisPlayerState.create("Top", PlayerSide.TOP))
+                .queueShapeFirst(PlayerSide.BOTTOM, bombShape)
+                .applyGravity(PlayerSide.BOTTOM);
+
+        assertEquals(PieceType.RADIUS_BOMB, prioritized.bottomPlayer().queuedShapes().getFirst().type());
+    }
+
+    @Test
+    void radiusBombUsesEuclideanRadiusOnlyWhenItLocks() {
+        TetrisBoard board = boardWithFilledCells(
+                new BoardPosition(12, 6), // sqrt(8) <= 3: inside the circle
+                new BoardPosition(13, 4), // distance 3: inside the circle
+                new BoardPosition(13, 5)); // sqrt(10) > 3: outside the circle
+        TetrisPiece bomb = new TetrisPiece(
+                PieceShape.bombShape(PieceType.RADIUS_BOMB),
+                new BoardPosition(10, 4),
+                Rotation.SPAWN);
+        TetrisPlayerState player = new TetrisPlayerState(
+                "Bottom", PlayerSide.BOTTOM, board, bomb, 0, PlayerStatus.PLAYING, null);
+
+        TetrisPlayerState cleared = player.lockActivePiece(GravityDirection.DOWN);
+
+        assertNull(cleared.activePiece());
+        assertEquals(TetrisCell.EMPTY, cleared.board().cellAt(new BoardPosition(10, 4)));
+        assertEquals(TetrisCell.EMPTY, cleared.board().cellAt(new BoardPosition(12, 6)));
+        assertEquals(TetrisCell.EMPTY, cleared.board().cellAt(new BoardPosition(13, 4)));
+        assertEquals(TetrisCell.FILLED, cleared.board().cellAt(new BoardPosition(13, 5)));
+    }
+
+    @Test
+    void columnBombClearsOnlyAheadInHorizontalMode() {
+        TetrisCell[][] cells = new TetrisCell[TetrisBoard.HORIZONTAL_ROWS][TetrisBoard.HORIZONTAL_COLUMNS];
+        for (TetrisCell[] row : cells) {
+            Arrays.fill(row, TetrisCell.EMPTY);
+        }
+        cells[4][0] = TetrisCell.FILLED;
+        cells[4][19] = TetrisCell.FILLED;
+        cells[3][10] = TetrisCell.FILLED;
+
+        TetrisBoard board = new TetrisBoard(cells);
+        TetrisPiece bomb = new TetrisPiece(
+                PieceShape.bombShape(PieceType.COLUMN_BOMB),
+                new BoardPosition(4, 10),
+                Rotation.SPAWN);
+        TetrisPlayerState player = new TetrisPlayerState(
+                "Bottom", PlayerSide.BOTTOM, board, bomb, 0, PlayerStatus.PLAYING, null);
+
+        TetrisPlayerState cleared = player.lockActivePiece(GravityDirection.RIGHT);
+
+        assertEquals(TetrisCell.FILLED, cleared.board().cellAt(new BoardPosition(4, 0)));
+        assertEquals(TetrisCell.EMPTY, cleared.board().cellAt(new BoardPosition(4, 19)));
+        assertEquals(TetrisCell.FILLED, cleared.board().cellAt(new BoardPosition(3, 10)));
+    }
+
+    @Test
+    void columnBombClearsOnlyBelowInVerticalMode() {
+        TetrisBoard board = boardWithFilledCells(
+                new BoardPosition(2, 4),
+                new BoardPosition(18, 4));
+        TetrisPiece bomb = new TetrisPiece(
+                PieceShape.bombShape(PieceType.COLUMN_BOMB),
+                new BoardPosition(10, 4),
+                Rotation.SPAWN);
+        TetrisPlayerState player = new TetrisPlayerState(
+                "Bottom", PlayerSide.BOTTOM, board, bomb, 0, PlayerStatus.PLAYING, null);
+
+        TetrisPlayerState cleared = player.lockActivePiece(GravityDirection.DOWN);
+
+        assertEquals(TetrisCell.FILLED, cleared.board().cellAt(new BoardPosition(2, 4)));
+        assertEquals(TetrisCell.EMPTY, cleared.board().cellAt(new BoardPosition(18, 4)));
+    }
+
+    @Test
+    void columnBombClearsOnlyAheadForLeftGravity() {
+        TetrisCell[][] cells = new TetrisCell[TetrisBoard.HORIZONTAL_ROWS][TetrisBoard.HORIZONTAL_COLUMNS];
+        for (TetrisCell[] row : cells) {
+            Arrays.fill(row, TetrisCell.EMPTY);
+        }
+        cells[4][0] = TetrisCell.FILLED;
+        cells[4][19] = TetrisCell.FILLED;
+
+        TetrisPiece bomb = new TetrisPiece(
+                PieceShape.bombShape(PieceType.COLUMN_BOMB),
+                new BoardPosition(4, 10),
+                Rotation.SPAWN);
+        TetrisPlayerState player = new TetrisPlayerState(
+                "Top", PlayerSide.TOP, new TetrisBoard(cells), bomb, 0, PlayerStatus.PLAYING, null);
+
+        TetrisPlayerState cleared = player.lockActivePiece(GravityDirection.LEFT);
+
+        assertEquals(TetrisCell.EMPTY, cleared.board().cellAt(new BoardPosition(4, 0)));
+        assertEquals(TetrisCell.FILLED, cleared.board().cellAt(new BoardPosition(4, 19)));
+    }
+
+    @Test
+    void bombActivePieceRoundTripsThroughTheNetworkSnapshot() {
+        TetrisPiece bomb = new TetrisPiece(
+                PieceShape.bombShape(PieceType.COLUMN_BOMB),
+                new BoardPosition(4, 7),
+                Rotation.RIGHT,
+                3);
+        TetrisGameState state = runningState(
+                new TetrisPlayerState("Bottom", PlayerSide.BOTTOM, new TetrisBoard(), bomb,
+                        2, PlayerStatus.PLAYING, null),
+                TetrisPlayerState.create("Top", PlayerSide.TOP));
+
+        TetrisGameState restored = TetrisStateSnapshot.deserialize(
+                TetrisStateSnapshot.serialize(state),
+                TetrisGameConfig.defaultConfig());
+
+        assertEquals(PieceType.COLUMN_BOMB, restored.bottomPlayer().activePiece().shape().type());
+        assertEquals(new BoardPosition(4, 7), restored.bottomPlayer().activePiece().position());
+        assertEquals(Rotation.RIGHT, restored.bottomPlayer().activePiece().rotation());
     }
 
     @Test

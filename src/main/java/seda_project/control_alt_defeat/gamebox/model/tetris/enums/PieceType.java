@@ -8,5 +8,11 @@ public enum PieceType {
     Z,
     J,
     L,
-    CUSTOM
+    CUSTOM,
+    RADIUS_BOMB,
+    COLUMN_BOMB;
+
+    public boolean isBomb() {
+        return this == RADIUS_BOMB || this == COLUMN_BOMB;
+    }
 }

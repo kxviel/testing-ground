@@ -305,7 +305,11 @@ public final class TetrisStateSnapshot {
                 + ","
                 + safeEffects.rotationEffectTicks()
                 + ","
-                + safeEffects.rotationLagTicks();
+                + safeEffects.rotationLagTicks()
+                + ","
+                + serializeEffectType(safeEffects.gravityEffectType())
+                + ","
+                + serializeEffectType(safeEffects.rotationEffectType());
     }
 
     private static TetrisEffectState deserializeEffects(String value) {
@@ -313,15 +317,42 @@ public final class TetrisStateSnapshot {
             return TetrisEffectState.none();
         }
 
-        String[] parts = value.split(",", 5);
-        if (parts.length > 4) {
+        String[] parts = value.split(",", 7);
+        if (parts.length > 6) {
             throw new IllegalArgumentException("Effect state has too many fields.");
         }
         return new TetrisEffectState(
                 parts.length > 0 ? parseInt(parts[0], TetrisEffectState.NORMAL_GRAVITY_PERCENT) : TetrisEffectState.NORMAL_GRAVITY_PERCENT,
                 parts.length > 1 ? parseInt(parts[1], 0) : 0,
                 parts.length > 2 ? parseInt(parts[2], 0) : 0,
-                parts.length > 3 ? parseInt(parts[3], 0) : 0);
+                parts.length > 3 ? parseInt(parts[3], 0) : 0,
+                parts.length > 4 ? parseEffectType(parts[4], true) : null,
+                parts.length > 5 ? parseEffectType(parts[5], false) : null);
+    }
+
+    private static String serializeEffectType(TetrisItemType type) {
+        return type == null ? "-" : type.name();
+    }
+
+    private static TetrisItemType parseEffectType(String value, boolean gravityEffect) {
+        if (value == null || value.isBlank() || "-".equals(value)) {
+            return null;
+        }
+        try {
+            TetrisItemType type = TetrisItemType.valueOf(value);
+            if (gravityEffect) {
+                return switch (type) {
+                    case SPEED_UP_OPPONENT, SLOW_SELF, SLOW_OPPONENT -> type;
+                    default -> null;
+                };
+            }
+            return switch (type) {
+                case ROTATION_DELAY_OPPONENT, ROTATION_DELAY_SELF -> type;
+                default -> null;
+            };
+        } catch (IllegalArgumentException exception) {
+            return null;
+        }
     }
 
     private static String serializeQueue(List<PieceShape> shapes) {

@@ -66,8 +66,8 @@ class ResponsiveFxmlLayoutTest {
     void hexSetupHeaderScrollsWithTheRestOfTheScreen() throws Exception {
         String fxml = read("/hexchess/HexChessSetup.fxml");
         assertFalse(fxml.contains("<top>"));
-        assertTrue(fxml.indexOf("POSITION BUILDER") > fxml.indexOf("<ScrollPane"));
-        assertTrue(fxml.indexOf("POSITION BUILDER") < fxml.lastIndexOf("</ScrollPane>"));
+        assertTrue(fxml.indexOf("Custom Position Builder") > fxml.indexOf("<ScrollPane"));
+        assertTrue(fxml.indexOf("Custom Position Builder") < fxml.lastIndexOf("</ScrollPane>"));
     }
 
     @Test

@@ -48,25 +48,6 @@
     -fx-background-color: -sh-background;
 }
 
-.game-choice-root,
-.game-choice-main,
-.game-menu-shell,
-.memory-menu-root,
-.memory-menu-viewport,
-.memory-game-root,
-.tetris-menu-root,
-.tetris-menu-main,
-.tetris-game-root,
-.tetris-game-main,
-.hex-menu-root,
-.hex-menu-main,
-.hex-game-root,
-.hex-game-main {
-    -fx-background-image: url("images/game-bg.png");
-    -fx-background-position: center center;
-    -fx-background-repeat: no-repeat;
-    -fx-background-size: cover;
-}
 
 .app-scroll,
 .app-scroll > .viewport {

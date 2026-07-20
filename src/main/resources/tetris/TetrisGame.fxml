@@ -50,10 +50,9 @@
                        maxHeight="Infinity"
                        maxWidth="Infinity"
                        styleClass="tetris-board-zone">
-                <VBox alignment="CENTER" fillWidth="false" styleClass="boards-stack">
-                    <GridPane fx:id="topBoardGrid" rotate="180" styleClass="tetris-board"/>
-                    <GridPane fx:id="bottomBoardGrid" styleClass="tetris-board"/>
-                </VBox>
+                <!-- boards managed/reparented dynamically by TetrisGameController -->
+                <GridPane fx:id="topBoardGrid" visible="false" managed="false" styleClass="tetris-board"/>
+                <GridPane fx:id="bottomBoardGrid" visible="false" managed="false" styleClass="tetris-board"/>
             </StackPane>
 
             <ScrollPane GridPane.columnIndex="1"
@@ -72,55 +71,12 @@
                       styleClass="tetris-game-info-panel">
 
                 <VBox styleClass="game-sidebar-header">
-                    <Label text="Zetris" styleClass="game-side-title"/>
-                    <Label fx:id="configLabel" text="Pieces: Standard" styleClass="subtitle"/>
-                    <Label fx:id="resultLabel" text="Game running." styleClass="status-line" wrapText="true"/>
+                    <Label fx:id="statusLineLabel" text="Game running." styleClass="status-line"/>
                 </VBox>
 
                 <Separator styleClass="game-separator"/>
 
-                <VBox spacing="10" styleClass="score-section">
-                    <Label text="Points" styleClass="field-title"/>
-
-                    <HBox alignment="CENTER_LEFT" spacing="12">
-                        <VBox maxWidth="Infinity" spacing="6" styleClass="player-score-card" HBox.hgrow="ALWAYS">
-                            <Label fx:id="topScoreLabel"
-                                   text="The Outer God: 0"
-                                   minHeight="24"
-                                   maxWidth="Infinity"
-                                   styleClass="score-label"
-                                   style="-fx-text-fill: #7A4A00; -fx-font-weight: 900;"/>
-                            <Label fx:id="topSpeedLabel"
-                                   text="Speed: 550 ms/step"
-                                   maxWidth="Infinity"
-                                   styleClass="player-speed-label"/>
-                        </VBox>
-
-                        <VBox maxWidth="Infinity" spacing="6" styleClass="player-score-card" HBox.hgrow="ALWAYS">
-                            <Label fx:id="bottomScoreLabel"
-                                   text="The Old Monk: 0"
-                                   minHeight="24"
-                                   maxWidth="Infinity"
-                                   styleClass="score-label"
-                                   style="-fx-text-fill: #0A235A; -fx-font-weight: 900;"/>
-                            <Label fx:id="bottomSpeedLabel"
-                                   text="Speed: 550 ms/step"
-                                   maxWidth="Infinity"
-                                   styleClass="player-speed-label"/>
-                        </VBox>
-                    </HBox>
-                </VBox>
-
-                <Separator styleClass="game-separator"/>
-
-                <VBox styleClass="keymap-block">
-                    <Label fx:id="keymapTitleLabel" text="Controls" styleClass="field-title"/>
-                    <Label fx:id="keymapLabel" text="" styleClass="keymap-label" wrapText="true"/>
-                </VBox>
-
-                <Separator styleClass="game-separator"/>
-
-                <VBox spacing="10" VBox.vgrow="ALWAYS">
+                <VBox spacing="10" VBox.vgrow="ALWAYS" maxHeight="Infinity">
                     <Label text="Special Objects" styleClass="field-title"/>
 
                     <ScrollPane fitToWidth="true"
@@ -130,49 +86,49 @@
                                 VBox.vgrow="ALWAYS"
                                 styleClass="object-scroll">
                         <content>
-                            <GridPane styleClass="object-legend-grid">
+                            <GridPane fx:id="objectLegendGrid" styleClass="object-legend-grid">
                                 <columnConstraints>
                                     <ColumnConstraints minWidth="24" prefWidth="24"/>
                                     <ColumnConstraints hgrow="ALWAYS"/>
                                 </columnConstraints>
 
-                                <Label text="🏃" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                                <StackPane styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
                                 <Label text="Opponent 2x faster (10s)" styleClass="object-description" wrapText="true"
                                        GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
-                                <Label text="🐌" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                                <StackPane styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
                                 <Label text="You 2x slower (10s)" styleClass="object-description" wrapText="true"
                                        GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
-                                <Label text="😵‍💫" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                                <StackPane styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
                                 <Label text="Opponent rotation lags 2s per press (10s)" styleClass="object-description" wrapText="true"
                                        GridPane.columnIndex="1" GridPane.rowIndex="2"/>
 
-                                <Label text="🌀" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                                <StackPane styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
                                 <Label text="Your rotation lags 2s per press (10s)" styleClass="object-description" wrapText="true"
                                        GridPane.columnIndex="1" GridPane.rowIndex="3"/>
 
-                                <Label text="🐌" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+                                <StackPane styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
                                 <Label text="Opponent 2x slower (10s)" styleClass="object-description" wrapText="true"
                                        GridPane.columnIndex="1" GridPane.rowIndex="4"/>
 
-                                <Label text="💥" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
+                                <StackPane styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
                                 <Label text="Radius bomb: clears nearby blocks within 3 cells" styleClass="object-description" wrapText="true"
                                        GridPane.columnIndex="1" GridPane.rowIndex="5"/>
 
-                                <Label text="⚡" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="6"/>
+                                <StackPane styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="6"/>
                                 <Label text="Column bomb: clears along your gravity direction" styleClass="object-description" wrapText="true"
                                        GridPane.columnIndex="1" GridPane.rowIndex="6"/>
 
-                                <Label text="🛸" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="7"/>
+                                <StackPane styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="7"/>
                                 <Label text="Teleport: sends your falling piece to the opponent next" styleClass="object-description" wrapText="true"
                                        GridPane.columnIndex="1" GridPane.rowIndex="7"/>
 
-                                <Label text="🔄" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="8"/>
+                                <StackPane styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="8"/>
                                 <Label text="Player swap: swaps boards and falling pieces" styleClass="object-description" wrapText="true"
                                        GridPane.columnIndex="1" GridPane.rowIndex="8"/>
 
-                                <Label text="🔀" styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="9"/>
+                                <StackPane styleClass="object-symbol" GridPane.columnIndex="0" GridPane.rowIndex="9"/>
                                 <Label text="Swap falling pieces only" styleClass="object-description" wrapText="true"
                                        GridPane.columnIndex="1" GridPane.rowIndex="9"/>
                             </GridPane>
@@ -183,8 +139,8 @@
                 <Separator styleClass="game-separator"/>
 
                 <HBox styleClass="game-actions">
-                    <Button fx:id="restartButton" text="Restart" onAction="#onRestart"
-                            visible="false" managed="false" maxWidth="Infinity"
+                    <Button fx:id="restartButton" text="↻  Restart" onAction="#onRestart"
+                            maxWidth="Infinity"
                             styleClass="btn-outline" HBox.hgrow="ALWAYS"/>
                     <Button text="Quit to Menu" onAction="#onBackToMenu" maxWidth="Infinity"
                             styleClass="btn-primary" HBox.hgrow="ALWAYS"/>

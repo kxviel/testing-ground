@@ -57,6 +57,90 @@ public final class ResponsiveLayout {
         update.run();
     }
 
+    /**
+     * Binds a two-column GridPane where the primary (board/content) column grows
+     * to fill all available space, and the secondary (sidebar) column has a
+     * responsive clamped width — 22% of the grid width, pinned between
+     * {@code sidebarMin} and {@code sidebarMax} pixels.
+     *
+     * <p>Falls back to a single stacked column below {@link #COMPACT_BREAKPOINT}.
+     */
+    public static void bindSidebarGrid(GridPane grid, double sidebarMin, double sidebarMax) {
+        if (grid == null) {
+            throw new IllegalArgumentException("grid must not be null");
+        }
+
+        Node primary = findChildInColumn(grid, 0);
+        Node secondary = findChildInColumn(grid, 1);
+        if (primary == null || secondary == null) {
+            throw new IllegalArgumentException("grid must contain children in columns 0 and 1");
+        }
+
+        double desktopHgap = grid.getHgap();
+        double desktopVgap = grid.getVgap();
+        double desktopPrefH = grid.getPrefHeight();
+        boolean[] compact = {false};
+        double[] lastSidebarW = {-1};
+
+        Runnable update = () -> {
+            boolean shouldCompact = isCompact(grid.getWidth());
+            double desiredW = Math.min(sidebarMax, Math.max(sidebarMin, grid.getWidth() * 0.22));
+
+            if (compact[0] == shouldCompact
+                    && !grid.getColumnConstraints().isEmpty()
+                    && Math.abs(lastSidebarW[0] - desiredW) < 1.0) {
+                return;
+            }
+            compact[0] = shouldCompact;
+            lastSidebarW[0] = desiredW;
+
+            if (shouldCompact) {
+                grid.getColumnConstraints().setAll(List.of(column(100.0)));
+                GridPane.setConstraints(primary, 0, 0);
+                GridPane.setConstraints(secondary, 0, 1);
+                GridPane.setHgrow(primary, Priority.ALWAYS);
+                GridPane.setHgrow(secondary, Priority.ALWAYS);
+            } else {
+                ColumnConstraints boardCol = new ColumnConstraints();
+                boardCol.setHgrow(Priority.ALWAYS);
+                boardCol.setMinWidth(0);
+                boardCol.setFillWidth(true);
+
+                ColumnConstraints sidebarCol = new ColumnConstraints();
+                sidebarCol.setHgrow(Priority.NEVER);
+                sidebarCol.setMinWidth(desiredW);
+                sidebarCol.setMaxWidth(desiredW);
+                sidebarCol.setPrefWidth(desiredW);
+                sidebarCol.setFillWidth(true);
+
+                grid.getColumnConstraints().setAll(boardCol, sidebarCol);
+                GridPane.setConstraints(primary, 0, 0);
+                GridPane.setConstraints(secondary, 1, 0);
+                GridPane.setHgrow(primary, Priority.ALWAYS);
+                GridPane.setHgrow(secondary, Priority.NEVER);
+            }
+
+            GridPane.setVgrow(primary, Priority.ALWAYS);
+            GridPane.setVgrow(secondary, Priority.ALWAYS);
+            setFlexibleWidth(primary);
+            setFlexibleWidth(secondary);
+            grid.setHgap(shouldCompact ? 0.0 : desktopHgap);
+            grid.setVgap(shouldCompact ? COMPACT_GAP : desktopVgap);
+            grid.setPrefHeight(shouldCompact ? Region.USE_COMPUTED_SIZE : desktopPrefH);
+
+            if (shouldCompact) {
+                if (!grid.getStyleClass().contains(COMPACT_STYLE_CLASS)) {
+                    grid.getStyleClass().add(COMPACT_STYLE_CLASS);
+                }
+            } else {
+                grid.getStyleClass().remove(COMPACT_STYLE_CLASS);
+            }
+        };
+
+        grid.widthProperty().addListener((ignored, previous, current) -> update.run());
+        update.run();
+    }
+
     private static Node findChildInColumn(GridPane grid, int column) {
         return grid.getChildren().stream()
                 .filter(child -> columnIndex(child) == column)
