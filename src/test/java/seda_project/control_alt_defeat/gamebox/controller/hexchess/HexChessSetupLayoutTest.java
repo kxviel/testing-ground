@@ -101,6 +101,9 @@ class HexChessSetupLayoutTest {
         assertInside(boardEditorPanel, visibleBounds,
                 "Board Editor container at " + width + "x" + height);
         assertInside(canvasFrame, visibleBounds, "canvas at " + width + "x" + height);
+        assertTrue(canvasFrame.getHeight() >= 300.0,
+                () -> "board canvas collapsed at " + width + "x" + height
+                        + ": height=" + canvasFrame.getHeight());
         assertInside(sidePanel, visibleBounds, "players panel at " + width + "x" + height);
         assertInside(actions, visibleBounds, "Back/Start row at " + width + "x" + height);
         assertTrue(scroll.getVmax() <= 1.0,

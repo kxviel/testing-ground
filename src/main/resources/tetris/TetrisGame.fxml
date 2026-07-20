@@ -71,7 +71,11 @@
                       styleClass="tetris-game-info-panel">
 
                 <VBox styleClass="game-sidebar-header">
-                    <Label fx:id="statusLineLabel" text="Game running." styleClass="status-line"/>
+                    <Label fx:id="statusLineLabel"
+                           text="Game running."
+                           maxWidth="Infinity"
+                           wrapText="true"
+                           styleClass="status-line"/>
                 </VBox>
 
                 <Separator styleClass="game-separator"/>

@@ -76,6 +76,7 @@
                            minHeight="0"
                            maxWidth="Infinity"
                            maxHeight="Infinity"
+                           VBox.vgrow="ALWAYS"
                            styleClass="canvas-frame">
                     <Canvas fx:id="boardCanvas"/>
                 </StackPane>

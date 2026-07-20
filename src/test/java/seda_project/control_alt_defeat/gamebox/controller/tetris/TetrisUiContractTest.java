@@ -93,13 +93,13 @@ class TetrisUiContractTest {
     }
 
     @Test
-    void opponentBoardUsesTheBlueThemePalette() throws Exception {
+    void boardsUseTheBlueAndPurpleThemePalettes() throws Exception {
         String css = read("/tetris/TetrisMenu.css");
 
         assertTrue(css.contains("-opponent-accent: #5d7fbd"));
         assertTrue(css.contains(".tetris-board-opponent .board-cell"));
-        assertEquals("#5D7FBD", TetrisGameController.blockColor(PlayerSide.TOP, 0));
-        assertEquals("#7873B8", TetrisGameController.blockColor(PlayerSide.BOTTOM, 0));
+        assertEquals("#DDD4F5", TetrisGameController.blockColor(PlayerSide.TOP, 0));
+        assertEquals("#B3D4F5", TetrisGameController.blockColor(PlayerSide.BOTTOM, 0));
 
         GridPane board = new GridPane();
         TetrisGameController.applyBoardTheme(board, PlayerSide.TOP);
@@ -240,7 +240,12 @@ class TetrisUiContractTest {
     void gameSidebarShowsLiveSpeedForBothPlayersAndEverySpecialObject() throws Exception {
         String fxml = read("/tetris/TetrisGame.fxml");
 
-        assertTrue(fxml.contains("fx:id=\"statusLineLabel\""));
+        int statusLineStart = fxml.indexOf("fx:id=\"statusLineLabel\"");
+        int statusLineEnd = fxml.indexOf("/>", statusLineStart);
+        assertTrue(statusLineStart >= 0 && statusLineEnd > statusLineStart);
+        String statusLine = fxml.substring(statusLineStart, statusLineEnd);
+        assertTrue(statusLine.contains("maxWidth=\"Infinity\""));
+        assertTrue(statusLine.contains("wrapText=\"true\""));
         assertFalse(fxml.contains("Zetris"));
         assertFalse(fxml.contains("Points"));
         assertFalse(fxml.contains("Controls"));
