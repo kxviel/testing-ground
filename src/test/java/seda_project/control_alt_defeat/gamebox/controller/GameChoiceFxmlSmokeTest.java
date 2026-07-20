@@ -664,6 +664,35 @@ class GameChoiceFxmlSmokeTest {
                             content.lookup(screen.anchorSelectors()[0]),
                             size[0],
                             size[1]);
+                    assertCenteredBox(
+                            screen.resource(),
+                            content.lookup(".game-choice-frame"),
+                            content.lookup(".game-choice-main"));
+                }
+
+                FXMLLoader hexLoader = new FXMLLoader(
+                        GameChoiceFxmlSmokeTest.class.getResource("/hexchess/HexChessGame.fxml"));
+                Parent hexGame = hexLoader.load();
+                ResponsiveViewport hexViewport = new ResponsiveViewport(hexGame);
+                new Scene(hexViewport, 1_920.0, 1_080.0).getStylesheets().add(
+                        GameChoiceFxmlSmokeTest.class.getResource("/Theme.css").toExternalForm());
+                Canvas boardCanvas = (Canvas) hexLoader.getNamespace().get("boardCanvas");
+                StackPane boardZone = (StackPane) hexLoader.getNamespace().get("boardZone");
+
+                for (double[] size : resizeCycle) {
+                    layoutResponsiveViewport(hexViewport, hexGame, size[0], size[1]);
+                    assertNodeInsideNode(
+                            "/hexchess/HexChessGame.fxml (resize cycle)",
+                            "boardCanvas",
+                            boardCanvas,
+                            "boardZone",
+                            boardZone);
+                    assertNodeInsideViewport(
+                            "/hexchess/HexChessGame.fxml (resize cycle)",
+                            "boardCanvas",
+                            boardCanvas,
+                            size[0],
+                            size[1]);
                 }
             } catch (Throwable throwable) {
                 errorRef.set(throwable);
@@ -805,6 +834,26 @@ class GameChoiceFxmlSmokeTest {
                         && childBounds.getMaxY() <= parentBounds.getMaxY() + 1.0,
                 () -> resource + " places " + childName + " outside " + parentName
                         + ": child=" + childBounds + ", parent=" + parentBounds);
+    }
+
+    private static void assertCenteredBox(String resource, Node child, Node parent) {
+        assertNotNull(child, () -> resource + " is missing its centered box");
+        assertNotNull(parent, () -> resource + " is missing the box container");
+        Bounds childBounds = child.localToScene(child.getBoundsInLocal());
+        Bounds parentBounds = parent.localToScene(parent.getBoundsInLocal());
+
+        assertTrue(childBounds.getHeight() < parentBounds.getHeight() - 1.0,
+                () -> resource + " stretches its centered box vertically");
+        assertEquals(
+                (parentBounds.getMinX() + parentBounds.getMaxX()) / 2.0,
+                (childBounds.getMinX() + childBounds.getMaxX()) / 2.0,
+                3.0,
+                () -> resource + " does not center its box horizontally");
+        assertEquals(
+                (parentBounds.getMinY() + parentBounds.getMaxY()) / 2.0,
+                (childBounds.getMinY() + childBounds.getMaxY()) / 2.0,
+                3.0,
+                () -> resource + " does not center its box vertically");
     }
 
     private static Parent loadOnFxThread(String resource) throws Exception {

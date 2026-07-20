@@ -189,6 +189,7 @@ public class HexChessSetupController implements RouteDataReceiver {
             return;
         }
 
+        boardCanvas.setManaged(false);
         canvasFrame.widthProperty().addListener((observable, oldValue, newValue) -> resizeBoardCanvas());
         canvasFrame.heightProperty().addListener((observable, oldValue, newValue) -> resizeBoardCanvas());
         Platform.runLater(this::resizeBoardCanvas);
@@ -203,6 +204,8 @@ public class HexChessSetupController implements RouteDataReceiver {
         double hexSize = fitHexSize(size.width(), size.height());
         canvasBoard = createCanvasBoard(hexSize, size.width(), size.height());
         canvasBoard.attach(boardCanvas, this::onCellClicked);
+        Insets insets = canvasInsets();
+        boardCanvas.relocate(insets.getLeft(), insets.getTop());
         drawBoard();
     }
 
@@ -214,17 +217,21 @@ public class HexChessSetupController implements RouteDataReceiver {
             return new CanvasSize(FALLBACK_CANVAS_WIDTH, FALLBACK_CANVAS_HEIGHT);
         }
 
-        Insets insets = canvasFrame.getInsets();
-        double horizontalInsets = insets == null || (insets.getLeft() + insets.getRight()) <= 0
-                ? BOARD_CONTENT_PADDING * 2
-                : insets.getLeft() + insets.getRight();
-        double verticalInsets = insets == null || (insets.getTop() + insets.getBottom()) <= 0
-                ? BOARD_CONTENT_PADDING * 2
-                : insets.getTop() + insets.getBottom();
+        Insets insets = canvasInsets();
 
         return new CanvasSize(
-                Math.max(1.0, frameWidth - horizontalInsets),
-                Math.max(1.0, frameHeight - verticalInsets));
+                Math.max(1.0, frameWidth - insets.getLeft() - insets.getRight()),
+                Math.max(1.0, frameHeight - insets.getTop() - insets.getBottom()));
+    }
+
+    private Insets canvasInsets() {
+        Insets insets = canvasFrame.getInsets();
+        if (insets == null
+                || (insets.getLeft() + insets.getRight() <= 0
+                && insets.getTop() + insets.getBottom() <= 0)) {
+            return new Insets(BOARD_CONTENT_PADDING);
+        }
+        return insets;
     }
 
     private double fitHexSize(double width, double height) {

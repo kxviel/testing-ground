@@ -40,7 +40,7 @@
             <StackPane fx:id="gameChoiceCard"
                        prefHeight="-1"
                        prefWidth="620"
-                       maxHeight="Infinity"
+                       maxHeight="-Infinity"
                        maxWidth="900"
                        styleClass="game-choice-frame">
                 <VBox alignment="TOP_CENTER"
