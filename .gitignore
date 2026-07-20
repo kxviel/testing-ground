@@ -33,3 +33,5 @@ replay_pid*
 # LaTeX
 /auxil/
 /out/
+
+/graphify-out/
