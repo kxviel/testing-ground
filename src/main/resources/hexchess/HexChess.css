@@ -296,8 +296,70 @@
 }
 
 .turn-display {
-    -fx-font-size: 26px;
+    -fx-font-size: 23px;
     -fx-font-weight: 800;
+}
+
+.turn-detail {
+    -fx-font-size: 17px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -sh-muted-foreground;
+}
+
+.setup-sidebar-section {
+    -fx-spacing: 8;
+}
+
+.hex-setup-sidebar > .separator {
+    -fx-padding: 4 0;
+}
+
+.board-guide-card {
+    -fx-background-color: rgba(255, 252, 247, 0.94);
+    -fx-background-radius: 8px;
+    -fx-border-color: #d9c29e;
+    -fx-border-radius: 8px;
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(gaussian, rgba(80, 48, 24, 0.12), 12, 0.12, 0, 3);
+    -fx-padding: 14 16;
+}
+
+.board-guide-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -sh-card-foreground;
+}
+
+.board-guide-copy {
+    -fx-font-size: 13px;
+    -fx-text-fill: #6f4937;
+}
+
+.board-guide-legal,
+.board-guide-last-move,
+.board-guide-check,
+.board-guide-promotion {
+    -fx-alignment: center;
+    -fx-font-size: 18px;
+    -fx-font-weight: 800;
+    -fx-min-width: 20px;
+    -fx-pref-width: 20px;
+}
+
+.board-guide-legal {
+    -fx-text-fill: #176b45;
+}
+
+.board-guide-last-move {
+    -fx-text-fill: #753cff;
+}
+
+.board-guide-check {
+    -fx-text-fill: #c72c41;
+}
+
+.board-guide-promotion {
+    -fx-text-fill: #b87800;
 }
 
 .hex-game-main .hex-board-zone {

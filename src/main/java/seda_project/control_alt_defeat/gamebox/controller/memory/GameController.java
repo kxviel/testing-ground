@@ -4,9 +4,7 @@ import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -26,6 +24,7 @@ import seda_project.control_alt_defeat.gamebox.network.GameClient;
 import seda_project.control_alt_defeat.gamebox.network.GameServer;
 import seda_project.control_alt_defeat.gamebox.network.memory.MemoryProtocol;
 import seda_project.control_alt_defeat.gamebox.network.memory.MemoryStateSnapshot;
+import seda_project.control_alt_defeat.gamebox.ui.GameDialogs;
 import seda_project.control_alt_defeat.gamebox.ui.TimedStatus;
 import seda_project.control_alt_defeat.gamebox.util.ResponsiveLayout;
 import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
@@ -356,10 +355,10 @@ public class GameController implements RouteDataReceiver {
             return;
         inputLocked = true;
         statusLabel.setText("Connection lost!");
-        Alert a = new Alert(Alert.AlertType.WARNING,
-                "The connection to the other player was lost.", ButtonType.OK);
-        a.setTitle("Connection Lost");
-        a.showAndWait();
+        GameDialogs.warning(
+                gameLayout,
+                "Connection Lost",
+                "The connection to the other player was lost.");
         returnToMainMenu(null);
     }
 
@@ -769,16 +768,15 @@ public class GameController implements RouteDataReceiver {
 
     @FXML
     private void onQuit() {
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
-                "Are you sure you want to quit?", ButtonType.YES, ButtonType.NO);
-        confirm.setTitle("Quit Game");
-        confirm.showAndWait().ifPresent(btn -> {
-            if (btn == ButtonType.YES) {
-                stopMismatchPause();
-                sendQuit();
-                returnToMainMenu(null);
-            }
-        });
+        if (!GameDialogs.confirm(
+                gameLayout,
+                "Leave Match",
+                "Leave this match and return to the Memory Game menu?")) {
+            return;
+        }
+        stopMismatchPause();
+        sendQuit();
+        returnToMainMenu(null);
     }
 
     private void returnToMainMenu(String statusMessage) {

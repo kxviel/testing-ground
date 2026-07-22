@@ -5,11 +5,10 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
@@ -30,6 +29,7 @@ import seda_project.control_alt_defeat.gamebox.network.GameClient;
 import seda_project.control_alt_defeat.gamebox.network.GameServer;
 import seda_project.control_alt_defeat.gamebox.network.hexchess.HexChessProtocol;
 import seda_project.control_alt_defeat.gamebox.network.hexchess.HexChessStateSnapshot;
+import seda_project.control_alt_defeat.gamebox.ui.GameDialogs;
 import seda_project.control_alt_defeat.gamebox.util.ResponsiveLayout;
 import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
 import seda_project.control_alt_defeat.gamebox.util.Router;
@@ -64,13 +64,15 @@ public class HexChessGameController implements RouteDataReceiver {
     @FXML
     private Label turnLabel;
     @FXML
+    private Label turnDetailLabel;
+    @FXML
     private Label statusLabel;
     @FXML
     private Label scoreLabel;
     @FXML
     private Label lastMoveLabel;
     @FXML
-    private Label drawOfferLabel;
+    private Node boardGuideSection;
     @FXML
     private Button offerDrawButton;
     @FXML
@@ -101,9 +103,24 @@ public class HexChessGameController implements RouteDataReceiver {
     public void initialize() {
         ResponsiveLayout.bindSidebarGrid(gameMain, 320.0, 420.0);
         UiVisibility.bindVisibleWhenTextPresent(statusLabel);
-        UiVisibility.bindVisibleWhenTextPresent(drawOfferLabel);
+        UiVisibility.bindVisibleWhenTextPresent(turnDetailLabel);
+        gameMain.widthProperty().addListener((ignored, previous, current) -> updateBoardGuideVisibility());
+        Platform.runLater(this::updateBoardGuideVisibility);
         bindBoardResize();
         startGame(setup);
+    }
+
+    private void updateBoardGuideVisibility() {
+        CanvasSize available = canvasSize();
+        double fittedHexSize = fitHexSize(available.width(), available.height());
+        double sideClearance = (available.width()
+                - HexChessCanvasBoard.boardWidth(fittedHexSize)) / 2.0;
+        boolean showGuide = boardZone != null
+                && boardZone.getWidth() > 0.0
+                && boardZone.getHeight() >= 560.0
+                && sideClearance >= 232.0;
+        UiVisibility.setVisibleManaged(boardGuideSection, showGuide);
+        updateTurnLabels();
     }
 
     private void bindBoardResize() {
@@ -129,6 +146,7 @@ public class HexChessGameController implements RouteDataReceiver {
         Insets insets = canvasInsets();
         boardCanvas.relocate(insets.getLeft(), insets.getTop());
         drawBoard();
+        updateBoardGuideVisibility();
     }
 
     private CanvasSize canvasSize() {
@@ -219,6 +237,11 @@ public class HexChessGameController implements RouteDataReceiver {
 
     @FXML
     private void onResign() {
+        if (!gameState.isActive()
+                || !confirm("Resign Match", "Resign this match? Your opponent will receive one point.")) {
+            return;
+        }
+
         if (isNetworkClient()) {
             joinClient.send(HexChessProtocol.simple(HexChessProtocol.RESIGN));
             return;
@@ -229,6 +252,10 @@ public class HexChessGameController implements RouteDataReceiver {
 
     @FXML
     private void onRestart() {
+        if (!confirm("Restart Match", "Restart this match from its starting position?")) {
+            return;
+        }
+
         if (isNetworkClient()) {
             joinClient.send(HexChessProtocol.simple(HexChessProtocol.RESTART));
             gameState = gameState.withStatusMessage("Restart requested. Waiting for host...");
@@ -249,9 +276,7 @@ public class HexChessGameController implements RouteDataReceiver {
     }
 
     private boolean confirm(String title, String message) {
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, message, ButtonType.YES, ButtonType.NO);
-        confirm.setTitle(title);
-        return confirm.showAndWait().filter(ButtonType.YES::equals).isPresent();
+        return GameDialogs.confirm(boardCanvas, title, message);
     }
 
     private void startGame(HexChessGameSetup nextSetup) {
@@ -368,12 +393,10 @@ public class HexChessGameController implements RouteDataReceiver {
         }
 
         ChoiceDialog<PromotionChoice> dialog = new ChoiceDialog<>(choices.getFirst(), choices);
-        if (boardCanvas.getScene() != null) {
-            dialog.initOwner(boardCanvas.getScene().getWindow());
-        }
         dialog.setTitle("Promotion");
         dialog.setHeaderText("Choose promotion piece");
         dialog.setContentText("Promote to:");
+        GameDialogs.style(dialog, boardCanvas);
 
         return dialog.showAndWait()
                 .flatMap(choice -> matchingMoves.stream()
@@ -389,7 +412,7 @@ public class HexChessGameController implements RouteDataReceiver {
         }
 
         botThinking = true;
-        statusLabel.setText("Bot thinking...");
+        renderLabels();
 
         PauseTransition pause = new PauseTransition(BOT_DELAY);
         pause.setOnFinished(event -> {
@@ -620,21 +643,15 @@ public class HexChessGameController implements RouteDataReceiver {
 
     private void renderLabels() {
         modeLabel.setText(modeText());
-        turnLabel.setText(gameState.isActive()
-                ? gameState.turn().displayName() + " to move"
-                : "Game over");
-        statusLabel.setText(gameState.statusMessage());
+        updateTurnLabels();
+        statusLabel.setText(statusText());
         scoreLabel.setText("White " + formatScore(gameState.whiteScore())
                 + " : " + formatScore(gameState.blackScore()) + " Black");
         lastMoveLabel.setText(gameState.lastMove() == null
-                ? "Last move: none"
+                ? "No moves yet"
                 : "Last move: " + gameState.lastMove().move().notation());
 
-        boolean drawOfferVisible = gameState.drawOfferBy() != null;
         boolean canAnswerDrawOffer = gameState.hasDrawOfferFor(drawResponderColor());
-        drawOfferLabel.setText(drawOfferVisible
-                ? gameState.drawOfferBy().displayName() + " offered a draw."
-                : "");
         UiVisibility.setVisibleManaged(acceptDrawButton, canAnswerDrawOffer);
         UiVisibility.setVisibleManaged(declineDrawButton, canAnswerDrawOffer);
 
@@ -649,6 +666,47 @@ public class HexChessGameController implements RouteDataReceiver {
             restartButton.setDisable(gameState.status() == HexGameStatus.DISCONNECTED
                     || gameState.status() == HexGameStatus.ERROR);
         }
+    }
+
+    private void updateTurnLabels() {
+        if (turnLabel == null || turnDetailLabel == null) {
+            return;
+        }
+
+        if (!gameState.isActive()) {
+            turnLabel.setText("Game over");
+            turnDetailLabel.setText("");
+            return;
+        }
+
+        HexPieceColor turn = gameState.turn();
+        String player = playerName(turn);
+        String color = turn.displayName();
+        turnLabel.setText(player);
+        if (botThinking && setup.mode() == HexGameMode.BOT && turn == HexPieceColor.BLACK) {
+            turnDetailLabel.setText(color + " \u00b7 thinking\u2026");
+            return;
+        }
+        turnDetailLabel.setText(color + " to move");
+    }
+
+    private String statusText() {
+        String message = gameState.statusMessage();
+        if (message == null || message.isBlank()) {
+            return "";
+        }
+
+        String routineTurnMessage = gameState.turn().displayName() + " to move.";
+        return gameState.isActive() && message.equals(routineTurnMessage)
+                ? ""
+                : message;
+    }
+
+    private String playerName(HexPieceColor color) {
+        if (setup.mode() == HexGameMode.BOT && color == HexPieceColor.BLACK) {
+            return "Bot";
+        }
+        return color == HexPieceColor.WHITE ? setup.whiteName() : setup.blackName();
     }
 
     private void restartMatch(String message) {
@@ -690,6 +748,9 @@ public class HexChessGameController implements RouteDataReceiver {
     private void drawPiece(GraphicsContext graphics, HexCoordinate coordinate) {
         HexPiece piece = gameState.board().pieceAt(coordinate).orElse(null);
         canvasBoard.drawPiece(graphics, coordinate, piece);
+        if (selectedMoves.stream().anyMatch(move -> move.to().equals(coordinate))) {
+            canvasBoard.drawLegalMoveMarker(graphics, coordinate, piece != null);
+        }
     }
 
     private boolean isLastMoveCell(HexCoordinate coordinate) {

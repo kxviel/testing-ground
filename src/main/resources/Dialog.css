@@ -1,0 +1,104 @@
+.game-dialog {
+    -fx-background-color: -sh-popover;
+    -fx-border-color: -sh-border;
+    -fx-border-width: 1px;
+    -fx-font-family: "Source Sans 3";
+    -fx-min-width: 460px;
+    -fx-padding: 20px;
+}
+
+.game-dialog > .content.label {
+    -fx-font-size: 16px;
+    -fx-font-weight: 500;
+    -fx-padding: 8px 12px 18px 8px;
+    -fx-text-fill: -sh-popover-foreground;
+    -fx-wrap-text: true;
+}
+
+.game-dialog > .button-bar {
+    -fx-padding: 8px 0 0 0;
+}
+
+.game-dialog > .button-bar > .container {
+    -fx-spacing: 10px;
+}
+
+.game-dialog .button {
+    -fx-background-insets: 0;
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
+    -fx-border-width: 1px;
+    -fx-cursor: hand;
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+    -fx-min-height: 42px;
+    -fx-min-width: 96px;
+    -fx-padding: 9px 20px;
+}
+
+.game-dialog .button.game-dialog-primary {
+    -fx-background-color: -sh-primary;
+    -fx-border-color: -sh-primary;
+    -fx-text-fill: -sh-primary-foreground;
+}
+
+.game-dialog .button.game-dialog-primary:hover,
+.game-dialog .button.game-dialog-primary:focused {
+    -fx-background-color: derive(-sh-primary, 14%);
+    -fx-border-color: derive(-sh-primary, 14%);
+    -fx-text-fill: -sh-primary-foreground;
+}
+
+.game-dialog .button.game-dialog-secondary {
+    -fx-background-color: -sh-card;
+    -fx-border-color: -sh-input;
+    -fx-text-fill: -sh-foreground;
+}
+
+.game-dialog .button.game-dialog-secondary:hover,
+.game-dialog .button.game-dialog-secondary:focused {
+    -fx-background-color: -sh-accent;
+    -fx-border-color: -sh-ring;
+    -fx-text-fill: -sh-accent-foreground;
+}
+
+.game-dialog-icon {
+    -fx-alignment: center;
+    -fx-background-radius: 999px;
+    -fx-border-radius: 999px;
+    -fx-border-width: 2px;
+    -fx-font-size: 25px;
+    -fx-font-weight: 800;
+    -fx-min-height: 46px;
+    -fx-min-width: 46px;
+    -fx-pref-height: 46px;
+    -fx-pref-width: 46px;
+}
+
+.game-dialog-question-icon {
+    -fx-background-color: -sh-accent;
+    -fx-border-color: -sh-primary;
+    -fx-text-fill: -sh-primary;
+}
+
+.game-dialog-warning-icon {
+    -fx-background-color: #FEF3C7;
+    -fx-border-color: #D97706;
+    -fx-text-fill: #B45309;
+}
+
+.game-dialog .header-panel {
+    -fx-background-color: transparent;
+    -fx-padding: 0 0 12px 0;
+}
+
+.game-dialog .header-panel .label {
+    -fx-font-size: 19px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -sh-popover-foreground;
+}
+
+.game-dialog .combo-box {
+    -fx-min-height: 40px;
+    -fx-pref-width: 220px;
+}

@@ -271,7 +271,9 @@ public record HexGameState(
                         nextTurn,
                         nextEnPassantTarget,
                         nextDoubleMoveEligibleSquares));
-        boolean drawOfferRevokedByMove = drawOfferBy != null;
+        boolean drawOfferRevokedByMove = drawOfferBy != null
+                && movingPiece.color() != drawOfferBy;
+        HexPieceColor nextDrawOfferBy = drawOfferRevokedByMove ? null : drawOfferBy;
 
         return resolveAfterMove(
                 nextBoard,
@@ -281,7 +283,7 @@ public record HexGameState(
                 nextHalfMoveClock,
                 nextRepetitions,
                 nextDoubleMoveEligibleSquares,
-                null,
+                nextDrawOfferBy,
                 drawOfferRevokedByMove);
     }
 

@@ -33,6 +33,7 @@ final class HexChessCanvasBoard {
     public static final Color STROKE_BASE = Color.web("#6b4a28");
     public static final Color STROKE_SELECTED = Color.web("#0f62fe");
     public static final Color NOTATION_COLOR = Color.rgb(23, 23, 23, 0.45);
+    private static final Color LEGAL_MOVE_MARKER = Color.web("#176b45");
     private static final double MAX_PIECE_SIZE_RATIO = 1.5;
 
     private static final String FONT_FAMILY = "Source Sans 3";
@@ -153,6 +154,34 @@ final class HexChessCanvasBoard {
         double x = center.getX() - imageWidth / 2.0;
         double y = center.getY() - imageHeight / 2.0;
         graphics.drawImage(image, x, y, imageWidth, imageHeight);
+    }
+
+    void drawLegalMoveMarker(GraphicsContext graphics, HexCoordinate coordinate, boolean occupied) {
+        Point2D center = cellCenters.get(coordinate);
+        if (center == null) {
+            return;
+        }
+
+        graphics.save();
+        if (occupied) {
+            double diameter = hexSize * 1.28;
+            graphics.setStroke(LEGAL_MOVE_MARKER);
+            graphics.setLineWidth(Math.max(2.0, hexSize * 0.11));
+            graphics.strokeOval(
+                    center.getX() - diameter / 2.0,
+                    center.getY() - diameter / 2.0,
+                    diameter,
+                    diameter);
+        } else {
+            double diameter = Math.max(6.0, hexSize * 0.30);
+            graphics.setFill(LEGAL_MOVE_MARKER);
+            graphics.fillOval(
+                    center.getX() - diameter / 2.0,
+                    center.getY() - diameter / 2.0,
+                    diameter,
+                    diameter);
+        }
+        graphics.restore();
     }
 
     private Optional<CellShape> cellShape(HexCoordinate coordinate) {

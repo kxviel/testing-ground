@@ -105,6 +105,10 @@ class HexChessSetupLayoutTest {
                 () -> "board canvas collapsed at " + width + "x" + height
                         + ": height=" + canvasFrame.getHeight());
         assertInside(sidePanel, visibleBounds, "players panel at " + width + "x" + height);
+        assertTrue(sidePanel.lookupAll(".separator").stream()
+                        .allMatch(separator -> separator.getBoundsInParent().getHeight() >= 8.0),
+                () -> "setup sidebar separators need enough vertical breathing room at "
+                        + width + "x" + height);
         assertInside(actions, visibleBounds, "Back/Start row at " + width + "x" + height);
         assertTrue(scroll.getVmax() <= 1.0,
                 () -> "setup should fit without vertical scrolling at " + width + "x" + height

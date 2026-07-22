@@ -10,6 +10,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
@@ -48,9 +49,41 @@
                        maxWidth="Infinity"
                        styleClass="hex-board-zone">
                 <Canvas fx:id="boardCanvas"/>
+
+                <VBox fx:id="boardGuideSection"
+                      visible="false"
+                      managed="false"
+                      mouseTransparent="true"
+                      maxWidth="220"
+                      spacing="7"
+                      StackPane.alignment="CENTER_LEFT"
+                      styleClass="board-guide-card">
+                    <Label text="Board guide" styleClass="board-guide-title"/>
+                    <Label text="Select a piece, then choose a marker."
+                           maxWidth="Infinity"
+                           wrapText="true"
+                           styleClass="board-guide-copy"/>
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="●" styleClass="board-guide-legal"/>
+                        <Label text="Legal move" styleClass="board-guide-copy"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="⬡" styleClass="board-guide-last-move"/>
+                        <Label text="Last move" styleClass="board-guide-copy"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="⬡" styleClass="board-guide-check"/>
+                        <Label text="King in check" styleClass="board-guide-copy"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="★" styleClass="board-guide-promotion"/>
+                        <Label text="Promotion square" styleClass="board-guide-copy"/>
+                    </HBox>
+                </VBox>
             </StackPane>
 
-            <ScrollPane GridPane.columnIndex="1"
+            <ScrollPane fx:id="infoScrollPane"
+                        GridPane.columnIndex="1"
                         GridPane.hgrow="ALWAYS"
                         GridPane.vgrow="ALWAYS"
                         fitToHeight="true"
@@ -62,21 +95,22 @@
                         styleClass="app-scroll">
                 <VBox maxHeight="Infinity"
                       maxWidth="Infinity"
-                      spacing="18"
+                      spacing="14"
                       styleClass="hex-game-info-panel">
 
                 <VBox styleClass="hex-game-header">
                     <Label text="Live Match" styleClass="eyebrow"/>
                     <Label text="Chexsagon" styleClass="title"/>
-                    <Label fx:id="modeLabel" styleClass="subtitle"/>
+                    <Label fx:id="modeLabel" maxWidth="Infinity" wrapText="true" styleClass="subtitle"/>
                 </VBox>
 
                 <Separator/>
 
                 <VBox styleClass="sidebar-section">
                     <Label text="Turn" styleClass="panel-label"/>
-                    <Label fx:id="turnLabel" styleClass="turn-display"/>
-                    <Label fx:id="statusLabel" wrapText="true"
+                    <Label fx:id="turnLabel" maxWidth="Infinity" wrapText="true" styleClass="turn-display"/>
+                    <Label fx:id="turnDetailLabel" maxWidth="Infinity" wrapText="true" styleClass="turn-detail"/>
+                    <Label fx:id="statusLabel" maxWidth="Infinity" wrapText="true"
                            styleClass="status-box"/>
                 </VBox>
 
@@ -86,7 +120,6 @@
                     <Label text="Points" styleClass="panel-label"/>
                     <Label fx:id="scoreLabel" styleClass="stat-line"/>
                     <Label fx:id="lastMoveLabel" wrapText="true" styleClass="stat-line"/>
-                    <Label fx:id="drawOfferLabel" wrapText="true" styleClass="stat-line"/>
                 </VBox>
 
                 <Separator/>

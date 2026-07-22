@@ -8,9 +8,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.Node;
@@ -48,6 +46,7 @@ import seda_project.control_alt_defeat.gamebox.network.GameClient;
 import seda_project.control_alt_defeat.gamebox.network.GameServer;
 import seda_project.control_alt_defeat.gamebox.network.tetris.TetrisProtocol;
 import seda_project.control_alt_defeat.gamebox.network.tetris.TetrisStateSnapshot;
+import seda_project.control_alt_defeat.gamebox.ui.GameDialogs;
 import seda_project.control_alt_defeat.gamebox.util.ResponsiveLayout;
 import seda_project.control_alt_defeat.gamebox.util.RouteDataReceiver;
 import seda_project.control_alt_defeat.gamebox.util.Router;
@@ -416,10 +415,10 @@ public class TetrisGameController implements RouteDataReceiver {
     }
 
     private boolean confirmQuit() {
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
-                "Quit this match and return to the Zetris menu?", ButtonType.YES, ButtonType.NO);
-        confirm.setTitle("Quit Match");
-        return confirm.showAndWait().filter(ButtonType.YES::equals).isPresent();
+        return GameDialogs.confirm(
+                gameRoot,
+                "Leave Match",
+                "Leave this match and return to the Zetris menu?");
     }
 
     @FXML

@@ -68,7 +68,11 @@
                 <HBox alignment="CENTER_LEFT" styleClass="board-header">
                     <VBox spacing="2">
                         <Label text="Board Editor" styleClass="section-title"/>
-                        <Label text="Click a cell to place the selected piece." styleClass="section-copy"/>
+                        <Label fx:id="setupInstructionLabel"
+                               text="Select a piece and click a cell to place it. Right-click a cell or use Remove Piece to erase it."
+                               maxWidth="Infinity"
+                               wrapText="true"
+                               styleClass="section-copy"/>
                     </VBox>
                 </HBox>
                 <StackPane fx:id="canvasFrame"
@@ -87,8 +91,8 @@
                   GridPane.vgrow="ALWAYS"
                   minWidth="0"
                   maxWidth="Infinity"
-                  styleClass="hex-side-panel">
-                <VBox styleClass="sidebar-section">
+                  styleClass="hex-side-panel,hex-setup-sidebar">
+                <VBox styleClass="sidebar-section,setup-sidebar-section">
                     <Label text="Players" styleClass="panel-label"/>
                     <GridPane styleClass="hex-form-grid">
                         <columnConstraints>
@@ -138,26 +142,43 @@
 
                 <Separator/>
 
-                <VBox styleClass="sidebar-section">
+                <VBox styleClass="sidebar-section,setup-sidebar-section">
                     <Label text="Placement" styleClass="panel-label"/>
+                    <Label fx:id="pieceColorLabel" text="Piece color" styleClass="field-title"/>
                     <ComboBox fx:id="colorChoiceBox" maxWidth="Infinity"/>
+                    <Label fx:id="pieceTypeLabel" text="Piece type" styleClass="field-title"/>
                     <ComboBox fx:id="typeChoiceBox" maxWidth="Infinity"/>
-                    <Label fx:id="selectedLabel" text="Selected: none" wrapText="true" styleClass="stat-line"/>
-                    <Button text="Remove Piece" onAction="#onRemovePiece" maxWidth="Infinity" styleClass="btn-outline"/>
+                    <Label fx:id="selectedLabel" text="Selected cell: none" wrapText="true" styleClass="stat-line"/>
+                    <Button fx:id="removePieceButton"
+                            text="Remove Piece"
+                            onAction="#onRemovePiece"
+                            disable="true"
+                            maxWidth="Infinity"
+                            styleClass="btn-outline"/>
                 </VBox>
 
                 <Separator/>
 
-                <VBox styleClass="sidebar-section">
-                    <Label text="Position State" styleClass="panel-label"/>
+                <VBox styleClass="sidebar-section,setup-sidebar-section">
+                    <Label fx:id="sideToMoveLabel" text="Side to move" styleClass="panel-label"/>
                     <ComboBox fx:id="turnChoiceBox" maxWidth="Infinity"/>
                     <HBox styleClass="button-row">
-                        <Button text="Standard" onAction="#onLoadStandard" maxWidth="Infinity"
+                        <Button fx:id="loadStandardButton"
+                                text="Load Standard Position"
+                                onAction="#onLoadStandard"
+                                maxWidth="Infinity"
                                 styleClass="btn-outline" HBox.hgrow="ALWAYS"/>
-                        <Button text="Clear" onAction="#onClearBoard" maxWidth="Infinity"
+                        <Button fx:id="clearBoardButton"
+                                text="Clear Board"
+                                onAction="#onClearBoard"
+                                maxWidth="Infinity"
                                 styleClass="btn-danger" HBox.hgrow="ALWAYS"/>
                     </HBox>
-                    <Label fx:id="validationLabel" wrapText="true" minHeight="56" styleClass="status-box"/>
+                    <Label fx:id="validationLabel"
+                           minHeight="56"
+                           maxWidth="Infinity"
+                           wrapText="true"
+                           styleClass="status-box"/>
                 </VBox>
 
                 <Separator/>

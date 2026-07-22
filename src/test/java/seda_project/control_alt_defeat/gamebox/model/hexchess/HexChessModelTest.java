@@ -545,6 +545,34 @@ class HexChessModelTest {
         assertFalse(offered.hasDrawOfferFor(HexPieceColor.WHITE));
     }
 
+    @Test
+    void drawOffer_remainsPendingWhenOfferingPlayerMoves() {
+        HexGameState offered = HexGameState.standard().offerDraw(HexPieceColor.WHITE);
+
+        HexGameState afterWhiteMove = offered.play(new HexMove(
+                HexCoordinate.of("b1"),
+                HexCoordinate.of("b2")));
+
+        assertEquals(HexPieceColor.WHITE, afterWhiteMove.drawOfferBy());
+        assertTrue(afterWhiteMove.hasDrawOfferFor(HexPieceColor.BLACK));
+        assertFalse(afterWhiteMove.statusMessage().contains("revoked"));
+    }
+
+    @Test
+    void drawOffer_isRevokedWhenOpponentMoves() {
+        HexGameState offered = HexGameState.standard().offerDraw(HexPieceColor.WHITE);
+        HexGameState afterWhiteMove = offered.play(new HexMove(
+                HexCoordinate.of("b1"),
+                HexCoordinate.of("b2")));
+
+        HexGameState afterBlackMove = afterWhiteMove.play(new HexMove(
+                HexCoordinate.of("b7"),
+                HexCoordinate.of("b6")));
+
+        assertNull(afterBlackMove.drawOfferBy());
+        assertTrue(afterBlackMove.statusMessage().contains("Draw offer revoked after move."));
+    }
+
     // ─────────────────────────────────────────────────────────────
     // HexGameState – failed / disconnected terminal states
     // ─────────────────────────────────────────────────────────────

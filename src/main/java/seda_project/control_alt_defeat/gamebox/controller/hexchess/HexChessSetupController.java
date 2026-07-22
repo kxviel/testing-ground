@@ -15,6 +15,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.util.StringConverter;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexBoard;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexBoardGeometry;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexChessGameSetup;
@@ -64,6 +65,8 @@ public class HexChessSetupController implements RouteDataReceiver {
     private Label validationLabel;
     @FXML
     private Button startButton;
+    @FXML
+    private Button removePieceButton;
 
     private HexChessCanvasBoard canvasBoard = createCanvasBoard(
             BASE_HEX_SIZE,
@@ -78,6 +81,7 @@ public class HexChessSetupController implements RouteDataReceiver {
     public void initialize() {
         ResponsiveLayout.bindTwoColumnGrid(setupMain, 60.0);
         UiInputGuards.limitPlayerNames(playerOneNameField, playerTwoNameField);
+        configureChoiceLabels();
         colorChoiceBox.getItems().setAll(HexPieceColor.values());
         colorChoiceBox.getSelectionModel().select(HexPieceColor.WHITE);
         typeChoiceBox.getItems().setAll(HexPieceType.KING, HexPieceType.QUEEN, HexPieceType.ROOK,
@@ -90,6 +94,60 @@ public class HexChessSetupController implements RouteDataReceiver {
         bindBoardResize();
         attachBoardHandlers();
         render();
+    }
+
+    private void configureChoiceLabels() {
+        StringConverter<HexPieceColor> colorConverter = new StringConverter<>() {
+            @Override
+            public String toString(HexPieceColor color) {
+                return color == null ? "" : color.displayName();
+            }
+
+            @Override
+            public HexPieceColor fromString(String value) {
+                if (value == null) {
+                    return null;
+                }
+                return java.util.Arrays.stream(HexPieceColor.values())
+                        .filter(color -> color.displayName().equalsIgnoreCase(value.trim())
+                                || color.name().equalsIgnoreCase(value.trim()))
+                        .findFirst()
+                        .orElse(null);
+            }
+        };
+        colorChoiceBox.setConverter(colorConverter);
+        turnChoiceBox.setConverter(colorConverter);
+        typeChoiceBox.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(HexPieceType type) {
+                return pieceTypeText(type);
+            }
+
+            @Override
+            public HexPieceType fromString(String value) {
+                if (value == null) {
+                    return null;
+                }
+                return java.util.Arrays.stream(HexPieceType.values())
+                        .filter(type -> pieceTypeText(type).equalsIgnoreCase(value.trim())
+                                || type.name().equalsIgnoreCase(value.trim()))
+                        .findFirst()
+                        .orElse(null);
+            }
+        });
+    }
+
+    private static String pieceTypeText(HexPieceType type) {
+        return switch (type) {
+            case KING -> "King";
+            case QUEEN -> "Queen";
+            case ROOK -> "Rook";
+            case BISHOP -> "Bishop";
+            case KNIGHT -> "Knight";
+            case PAWN -> "Pawn";
+            case CUSTOM -> "Custom";
+            case null -> "";
+        };
     }
 
     @Override
@@ -252,6 +310,7 @@ public class HexChessSetupController implements RouteDataReceiver {
     private void onCellClicked(HexCoordinate coordinate, MouseButton button) {
         if (!HexBoardGeometry.isValid(coordinate) || button == null) {
             validationLabel.setText("Select a valid board cell.");
+            updateRemovePieceButton();
             return;
         }
         selectedCoordinate = coordinate;
@@ -274,6 +333,7 @@ public class HexChessSetupController implements RouteDataReceiver {
             colorChoiceBox.getSelectionModel().select(HexPieceColor.WHITE);
             typeChoiceBox.getSelectionModel().select(HexPieceType.KING);
             validationLabel.setText("Choose a piece color and type first.");
+            updateRemovePieceButton();
             return;
         }
         HexPiece piece = new HexPiece(selectedColor, selectedType);
@@ -284,6 +344,7 @@ public class HexChessSetupController implements RouteDataReceiver {
             validationLabel.getStyleClass().setAll("status-box", "status-box-warn");
             startButton.setDisable(true);
             boardCanvas.requestFocus();
+            updateRemovePieceButton();
             return;
         }
         board = candidateBoard;
@@ -292,8 +353,9 @@ public class HexChessSetupController implements RouteDataReceiver {
     }
 
     private void removeSelectedPiece() {
-        if (selectedCoordinate == null) {
-            validationLabel.setText("Select a cell first.");
+        if (selectedCoordinate == null || board.pieceAt(selectedCoordinate).isEmpty()) {
+            validationLabel.setText("Select a cell containing a piece first.");
+            updateRemovePieceButton();
             return;
         }
 
@@ -325,8 +387,8 @@ public class HexChessSetupController implements RouteDataReceiver {
 
     private void renderValidation() {
         selectedLabel.setText(selectedCoordinate == null
-                ? "Selected: none"
-                : "Selected: " + selectedCoordinate.notation());
+                ? "Selected cell: none"
+                : "Selected cell: " + selectedCoordinate.notation());
         HexPositionValidation validation = HexPositionValidator.validate(
                 board,
                 turnChoiceBox.getSelectionModel().getSelectedItem());
@@ -336,6 +398,14 @@ public class HexChessSetupController implements RouteDataReceiver {
                 validation.isValid() ? "status-box-good" : "status-box-warn");
         if (startButton != null) {
             startButton.setDisable(!validation.isValid());
+        }
+        updateRemovePieceButton();
+    }
+
+    private void updateRemovePieceButton() {
+        if (removePieceButton != null) {
+            removePieceButton.setDisable(selectedCoordinate == null
+                    || board.pieceAt(selectedCoordinate).isEmpty());
         }
     }
 
