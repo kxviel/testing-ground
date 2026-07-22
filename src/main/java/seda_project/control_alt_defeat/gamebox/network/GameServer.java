@@ -28,7 +28,7 @@ public class GameServer extends AbstractGameConnection {
      */
     public void listen(int port, Consumer<String> onMessage, Runnable onDisconnect) throws IOException {
         if (port < 0 || port > 65_535) {
-            throw new IllegalArgumentException("Port must be between 0 and 65535.");
+            throw new IOException("Port must be between 0 and 65535.");
         }
         close();
         setMessageListener(onMessage);
