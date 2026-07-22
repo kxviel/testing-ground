@@ -1,6 +1,7 @@
 package seda_project.control_alt_defeat.gamebox.model.hexchess;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public final class HexPositionKey {
@@ -9,6 +10,14 @@ public final class HexPositionKey {
     }
 
     public static String from(HexBoard board, HexPieceColor turn, HexCoordinate enPassantTarget) {
+        return from(board, turn, enPassantTarget, Set.of());
+    }
+
+    public static String from(
+            HexBoard board,
+            HexPieceColor turn,
+            HexCoordinate enPassantTarget,
+            Set<HexCoordinate> doubleMoveEligibleSquares) {
         String pieces = board.pieces()
                 .entrySet()
                 .stream()
@@ -17,7 +26,16 @@ public final class HexPositionKey {
                         + entry.getValue().color().name().charAt(0)
                         + entry.getValue().type().symbol())
                 .collect(Collectors.joining("/"));
+        String doubleMoveRights = doubleMoveEligibleSquares == null
+                ? "-"
+                : doubleMoveEligibleSquares.stream()
+                        .sorted()
+                        .map(HexCoordinate::notation)
+                        .collect(Collectors.joining(","));
 
-        return pieces + "|" + turn.name() + "|" + (enPassantTarget == null ? "-" : enPassantTarget.notation());
+        return pieces
+                + "|" + turn.name()
+                + "|" + (enPassantTarget == null ? "-" : enPassantTarget.notation())
+                + "|" + (doubleMoveRights.isEmpty() ? "-" : doubleMoveRights);
     }
 }

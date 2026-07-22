@@ -4,12 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
@@ -42,6 +44,7 @@ class GameNetworkEndToEndTest {
 
         server.listen(0, serverMessages::add, () -> {
         });
+        int port = server.localPort();
         Thread acceptThread = new Thread(() -> {
             try {
                 server.waitForClient();
@@ -55,10 +58,14 @@ class GameNetworkEndToEndTest {
         acceptThread.start();
 
         try {
-            client.connect("127.0.0.1", server.localPort(), clientMessages::add, () -> {
+            client.connect("127.0.0.1", port, clientMessages::add, () -> {
             });
             assertTrue(serverAccepted.await(5, TimeUnit.SECONDS));
             assertNull(serverError.get());
+            assertThrows(IOException.class, () -> {
+                try (Socket ignored = new Socket("127.0.0.1", port)) {
+                }
+            });
 
             String join = MemoryProtocol.join("Player Two");
             client.send(join);

@@ -170,6 +170,33 @@ class TetrisModelTest {
     }
 
     @Test
+    void networkSnapshotSynchronizesElapsedGameTimeAndAcceptsLegacyPayloads() {
+        TetrisGameState state = TetrisGameState.create(new TetrisGameSetup(
+                "Bottom",
+                "Top",
+                TetrisGameConfig.defaultConfig())).running();
+        int elapsedGameMillis = 45_000;
+
+        String snapshot = TetrisStateSnapshot.serialize(state, elapsedGameMillis);
+        TetrisStateSnapshot.SnapshotData restored = TetrisStateSnapshot.deserializeWithTiming(
+                snapshot,
+                TetrisGameConfig.defaultConfig());
+
+        assertEquals(elapsedGameMillis, restored.elapsedGameMillis());
+        assertEquals(TetrisGameStatus.RUNNING, restored.state().status());
+        assertEquals(
+                state.config().gravityMillisAtElapsed(elapsedGameMillis),
+                restored.state().config().gravityMillisAtElapsed(restored.elapsedGameMillis()));
+
+        String legacySnapshot = snapshot.substring(0, snapshot.lastIndexOf('|'));
+        TetrisStateSnapshot.SnapshotData restoredLegacy = TetrisStateSnapshot.deserializeWithTiming(
+                legacySnapshot,
+                TetrisGameConfig.defaultConfig());
+        assertEquals(0, restoredLegacy.elapsedGameMillis());
+        assertEquals(TetrisGameStatus.RUNNING, restoredLegacy.state().status());
+    }
+
+    @Test
     void rotationDelayAppliesQueuedRotationAfterTwoSeconds() {
         TetrisGameState delayed = triggerBottomObject(TetrisItemType.ROTATION_DELAY_SELF);
         Rotation beforeQueuedRotation = delayed.bottomPlayer().activePiece().rotation();

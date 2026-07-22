@@ -26,6 +26,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -38,6 +39,8 @@ import seda_project.control_alt_defeat.gamebox.controller.memory.GameController;
 import seda_project.control_alt_defeat.gamebox.controller.memory.MemoryGameRouteData;
 import seda_project.control_alt_defeat.gamebox.controller.tetris.TetrisGameController;
 import seda_project.control_alt_defeat.gamebox.model.memory.BoardVariant;
+import seda_project.control_alt_defeat.gamebox.model.memory.Card;
+import seda_project.control_alt_defeat.gamebox.model.memory.GameModel;
 import seda_project.control_alt_defeat.gamebox.network.GameServer;
 import seda_project.control_alt_defeat.gamebox.network.hexchess.HexChessProtocol;
 import seda_project.control_alt_defeat.gamebox.util.ResponsiveLayout;
@@ -159,11 +162,24 @@ class GameChoiceFxmlSmokeTest {
                         GameChoiceFxmlSmokeTest.class.getResource("/memory/MemoryMenu.fxml"));
                 menuLoader.load();
                 TextField kField = (TextField) menuLoader.getNamespace().get("kField");
+                Button applyK = (Button) menuLoader.getNamespace().get("btnApplyK");
                 Button localGame = (Button) menuLoader.getNamespace().get("btnLocalGame");
                 Label kError = (Label) menuLoader.getNamespace().get("kErrorLabel");
                 kField.setText("3");
                 localGame.fire();
                 assertTrue(kError.getText().contains("Click Apply"));
+
+                kField.selectAll();
+                kField.replaceSelection("-1");
+                assertEquals("-1", kField.getText());
+                applyK.fire();
+                assertTrue(kError.getText().contains("between 1 and 45"));
+
+                kField.selectAll();
+                kField.replaceSelection("abc");
+                assertEquals("abc", kField.getText());
+                applyK.fire();
+                assertTrue(kError.getText().contains("whole number"));
 
                 FXMLLoader hexLoader = new FXMLLoader(
                         GameChoiceFxmlSmokeTest.class.getResource("/hexchess/HexChessGame.fxml"));
@@ -183,6 +199,76 @@ class GameChoiceFxmlSmokeTest {
         if (errorRef.get() != null) {
             throw new AssertionError(errorRef.get());
         }
+    }
+
+    @Test
+    void memoryInstructionReflectsConfiguredGroupSize() throws Exception {
+        CountDownLatch latch = new CountDownLatch(1);
+        AtomicReference<Throwable> errorRef = new AtomicReference<>();
+
+        Platform.runLater(() -> {
+            try {
+                assertMemoryInstruction(1, "Find every unique card.");
+                assertMemoryInstruction(2, "Find all the matching pairs.");
+                assertMemoryInstruction(3, "Find all matching groups of 3.");
+                assertMemoryInstruction(45, "Find all matching groups of 45.");
+            } catch (Throwable throwable) {
+                errorRef.set(throwable);
+            } finally {
+                latch.countDown();
+            }
+        });
+
+        assertTrue(latch.await(10, TimeUnit.SECONDS));
+        if (errorRef.get() != null) {
+            throw new AssertionError(errorRef.get());
+        }
+    }
+
+    @Test
+    void allFortyFiveMemoryCardFacesLoadThroughJavaFx() throws Exception {
+        CountDownLatch latch = new CountDownLatch(1);
+        AtomicReference<Throwable> errorRef = new AtomicReference<>();
+
+        Platform.runLater(() -> {
+            try {
+                GameModel model = new GameModel(new BoardVariant(1, 45, "All Icons"));
+                List<String> symbols = model.getCards().stream()
+                        .map(Card::getSymbol)
+                        .distinct()
+                        .toList();
+                assertEquals(45, symbols.size());
+
+                for (String symbol : symbols) {
+                    var resource = GameChoiceFxmlSmokeTest.class.getResource("/icons/" + symbol);
+                    assertNotNull(resource, () -> "Missing card-face resource: " + symbol);
+                    Image image = new Image(resource.toExternalForm(), false);
+                    assertFalse(image.isError(), () -> "Unreadable PNG resource: " + symbol);
+                    assertEquals(50.0, image.getWidth(), () -> "Unexpected icon width: " + symbol);
+                    assertEquals(50.0, image.getHeight(), () -> "Unexpected icon height: " + symbol);
+                }
+            } catch (Throwable throwable) {
+                errorRef.set(throwable);
+            } finally {
+                latch.countDown();
+            }
+        });
+
+        assertTrue(latch.await(10, TimeUnit.SECONDS));
+        if (errorRef.get() != null) {
+            throw new AssertionError(errorRef.get());
+        }
+    }
+
+    private static void assertMemoryInstruction(int k, String expected) throws Exception {
+        FXMLLoader loader = new FXMLLoader(
+                GameChoiceFxmlSmokeTest.class.getResource("/memory/GameBoard.fxml"));
+        loader.load();
+        GameController controller = loader.getController();
+        controller.setRouteData(MemoryGameRouteData.local(
+                new BoardVariant(k, 1, "Instruction Test"), "Player One", "Player Two"));
+        Label instruction = (Label) loader.getNamespace().get("matchingInstructionLabel");
+        assertEquals(expected, instruction.getText());
     }
 
     private static void assertGameViewport(

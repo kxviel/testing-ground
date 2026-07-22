@@ -72,7 +72,9 @@
                     </ImageView>
                 </StackPane>
                 <Label text="Memory Match" styleClass="memory-game-title"/>
-                <Label text="Find all the matching pairs." styleClass="memory-game-muted"/>
+                <Label fx:id="matchingInstructionLabel"
+                       text="Configure a game to see the match size."
+                       styleClass="memory-game-muted"/>
             </VBox>
 
             <StackPane fx:id="boardGridWrapper"

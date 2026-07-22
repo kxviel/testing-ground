@@ -27,26 +27,41 @@ import static seda_project.control_alt_defeat.gamebox.network.SnapshotCodec.pars
 
 public final class TetrisStateSnapshot {
 
+    public record SnapshotData(TetrisGameState state, int elapsedGameMillis) {
+        public SnapshotData {
+            elapsedGameMillis = Math.max(0, elapsedGameMillis);
+        }
+    }
+
     private TetrisStateSnapshot() {
     }
 
     public static String serialize(TetrisGameState state) {
+        return serialize(state, 0);
+    }
+
+    public static String serialize(TetrisGameState state, int elapsedGameMillis) {
         return String.join("|",
                 encode(state.config().serialize()),
                 state.status().name(),
                 encode(serializePlayer(state.bottomPlayer())),
-                encode(serializePlayer(state.topPlayer())));
+                encode(serializePlayer(state.topPlayer())),
+                String.valueOf(Math.max(0, elapsedGameMillis)));
     }
 
     public static TetrisGameState deserialize(String value, TetrisGameConfig fallbackConfig) {
+        return deserializeWithTiming(value, fallbackConfig).state();
+    }
+
+    public static SnapshotData deserializeWithTiming(String value, TetrisGameConfig fallbackConfig) {
         if (value == null || value.isBlank()) {
-            return fallbackState(fallbackConfig);
+            return fallbackSnapshot(fallbackConfig);
         }
 
         try {
-            String[] parts = value.split("\\|", 4);
-            if (parts.length != 4) {
-                return fallbackState(fallbackConfig);
+            String[] parts = value.split("\\|", 5);
+            if (parts.length != 4 && parts.length != 5) {
+                return fallbackSnapshot(fallbackConfig);
             }
 
             TetrisGameConfig config = TetrisGameConfig.deserialize(decode(parts[0]));
@@ -57,10 +72,13 @@ public final class TetrisStateSnapshot {
             TetrisPlayerState bottom = deserializePlayer(decode(parts[2]), PlayerSide.BOTTOM);
             TetrisPlayerState top = deserializePlayer(decode(parts[3]), PlayerSide.TOP);
             TetrisGameStatus status = parseStatus(parts[1]);
+            int elapsedGameMillis = parts.length == 5 ? Math.max(0, parseInt(parts[4], 0)) : 0;
 
-            return new TetrisGameState(bottom, top, config, status);
+            return new SnapshotData(
+                    new TetrisGameState(bottom, top, config, status),
+                    elapsedGameMillis);
         } catch (RuntimeException e) {
-            return fallbackState(fallbackConfig);
+            return fallbackSnapshot(fallbackConfig);
         }
     }
 
@@ -463,5 +481,9 @@ public final class TetrisStateSnapshot {
                 null,
                 fallbackConfig == null ? TetrisGameConfig.defaultConfig() : fallbackConfig,
                 TetrisGameStatus.READY);
+    }
+
+    private static SnapshotData fallbackSnapshot(TetrisGameConfig fallbackConfig) {
+        return new SnapshotData(fallbackState(fallbackConfig), 0);
     }
 }

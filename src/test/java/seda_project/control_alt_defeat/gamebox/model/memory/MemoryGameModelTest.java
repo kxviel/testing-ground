@@ -22,7 +22,7 @@ class MemoryGameModelTest {
     // ─────────────────────────────────────────────────────────────
 
     /** Symbols long enough to fill a k=2, n=4 board (8 cards). */
-    private static final String SYM = "card_faces/angry.png";
+    private static final String SYM = "card_faces/icons8-aang-50.png";
 
     private static List<String> symbols(int count) {
         return Collections.nCopies(count, SYM);
@@ -299,11 +299,11 @@ class MemoryGameModelTest {
     void selectCard_mismatch_setsResultButKeepsCardsOpen() {
         // Use different symbols so cards do NOT match
         List<String> syms = new ArrayList<>();
-        syms.add("card_faces/angry.png");
-        syms.add("card_faces/troll.png");
+        syms.add("card_faces/icons8-aang-50.png");
+        syms.add("card_faces/icons8-batman-50.png");
         // pad to k*n=4, rows*cols=2*2
-        syms.add("card_faces/angry.png");
-        syms.add("card_faces/troll.png");
+        syms.add("card_faces/icons8-aang-50.png");
+        syms.add("card_faces/icons8-batman-50.png");
         GameModel model = new GameModel(2, 2, 2, 2, syms, 0);
 
         model.selectCard(0); // angry
@@ -318,8 +318,8 @@ class MemoryGameModelTest {
     @Test
     void closeOpenCards_afterMismatch_flipsFaceDownAndSwitchesPlayer() {
         List<String> syms = List.of(
-                "card_faces/angry.png", "card_faces/troll.png",
-                "card_faces/angry.png", "card_faces/troll.png");
+                "card_faces/icons8-aang-50.png", "card_faces/icons8-batman-50.png",
+                "card_faces/icons8-aang-50.png", "card_faces/icons8-batman-50.png");
         GameModel model = new GameModel(2, 2, 2, 2, syms, 0);
 
         model.selectCard(0);
@@ -447,8 +447,8 @@ class MemoryGameModelTest {
 
     @Test
     void isSupportedSymbol_recognisesKnownSymbols() {
-        assertTrue(GameModel.isSupportedSymbol("card_faces/angry.png"));
-        assertTrue(GameModel.isSupportedSymbol("card_faces/super-mario.png"));
+        assertTrue(GameModel.isSupportedSymbol("card_faces/icons8-aang-50.png"));
+        assertTrue(GameModel.isSupportedSymbol("card_faces/icons8-woody-woodpecker-50.png"));
     }
 
     @Test
@@ -568,6 +568,62 @@ class MemoryGameModelTest {
         }
     }
 
+    @Test
+    void everyGeneratedVariantUsesExactlyKCopiesOfEachAvailableIcon() {
+        for (int k = 1; k <= BoardVariant.MAX_CARDS; k++) {
+            int configuredK = k;
+            for (BoardVariant variant : BoardVariant.computeVariants(k)) {
+                GameModel model = new GameModel(variant);
+                List<String> distinctSymbols = model.getCards().stream()
+                        .map(Card::getSymbol)
+                        .distinct()
+                        .toList();
+
+                assertEquals(variant.n, distinctSymbols.size(),
+                        () -> "Wrong unique-symbol count for k=" + configuredK + " " + variant.difficulty);
+                distinctSymbols.forEach(symbol -> {
+                    long copies = model.getCards().stream()
+                            .map(Card::getSymbol)
+                            .filter(symbol::equals)
+                            .count();
+                    assertEquals((long) configuredK, copies,
+                            () -> "Wrong multiplicity for " + symbol + " at k=" + configuredK);
+                    assertNotNull(MemoryGameModelTest.class.getResource("/icons/" + symbol),
+                            () -> "Missing card-face resource: " + symbol);
+                });
+            }
+        }
+    }
+
+    @Test
+    void everyGeneratedVariantCompletesCleanlyAcrossRepeatedRounds() {
+        for (int k = 1; k <= BoardVariant.MAX_CARDS; k++) {
+            for (BoardVariant variant : BoardVariant.computeVariants(k)) {
+                for (int round = 0; round < 10; round++) {
+                    GameModel model = new GameModel(variant);
+                    List<String> symbols = model.getCards().stream()
+                            .map(Card::getSymbol)
+                            .distinct()
+                            .toList();
+
+                    for (String symbol : symbols) {
+                        model.getCards().stream()
+                                .filter(card -> symbol.equals(card.getSymbol()))
+                                .mapToInt(Card::getId)
+                                .forEach(cardId -> assertNotEquals(
+                                        GameModel.SelectResult.IGNORED,
+                                        model.selectCard(cardId)));
+                    }
+
+                    assertTrue(model.isGameOver(),
+                            () -> "Round did not finish for k=" + variant.k + " " + variant.difficulty);
+                    assertEquals(variant.n, model.getScore(0));
+                    assertEquals(0, model.getScore(1));
+                }
+            }
+        }
+    }
+
     // ─────────────────────────────────────────────────────────────
     // GameModel via BoardVariant constructor
     // ─────────────────────────────────────────────────────────────
@@ -603,8 +659,8 @@ class MemoryGameModelTest {
     @Test
     void playerSwitchesAfterMismatch() {
         List<String> mixed = List.of(
-                "card_faces/angry.png", "card_faces/troll.png",
-                "card_faces/angry.png", "card_faces/troll.png");
+                "card_faces/icons8-aang-50.png", "card_faces/icons8-batman-50.png",
+                "card_faces/icons8-aang-50.png", "card_faces/icons8-batman-50.png");
         GameModel model = new GameModel(2, 2, 2, 2, mixed, 0);
 
         assertEquals(0, model.getCurrentPlayer());

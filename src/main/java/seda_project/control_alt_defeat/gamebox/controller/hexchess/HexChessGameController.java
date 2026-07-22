@@ -260,7 +260,7 @@ public class HexChessGameController implements RouteDataReceiver {
 
     private void startGame(HexChessGameSetup nextSetup, String statusMessage) {
         setup = nextSetup == null ? HexChessGameSetup.local() : nextSetup;
-        gameState = HexGameState.create(setup.initialBoard(), setup.startingTurn(), !setup.customPosition());
+        gameState = HexGameState.create(setup.initialBoard(), setup.startingTurn(), true);
         if (statusMessage != null) {
             gameState = gameState.withStatusMessage(statusMessage);
         }
@@ -542,7 +542,15 @@ public class HexChessGameController implements RouteDataReceiver {
 
     private void applySnapshot(String snapshot) {
         try {
-            gameState = HexChessStateSnapshot.deserialize(snapshot);
+            HexChessStateSnapshot.MatchSnapshot match = HexChessStateSnapshot.deserializeMatch(snapshot);
+            gameState = match.gameState();
+            setup = new HexChessGameSetup(
+                    match.whiteName(),
+                    match.blackName(),
+                    setup.mode(),
+                    setup.initialBoard(),
+                    setup.startingTurn(),
+                    setup.customPosition());
             clearSelection();
             render();
         } catch (RuntimeException e) {
@@ -582,13 +590,18 @@ public class HexChessGameController implements RouteDataReceiver {
 
     private void broadcastStateIfHost() {
         if (isNetworkHost() && hostServer.isConnected()) {
-            hostServer.send(HexChessProtocol.state(HexChessStateSnapshot.serialize(gameState)));
+            hostServer.send(HexChessProtocol.state(HexChessStateSnapshot.serialize(
+                    gameState,
+                    setup.whiteName(),
+                    setup.blackName())));
         }
     }
 
     private void sendStartStateIfHost() {
         if (isNetworkHost() && hostServer.isConnected()) {
-            hostServer.send(HexChessProtocol.start(setup, HexChessStateSnapshot.serialize(gameState)));
+            hostServer.send(HexChessProtocol.start(
+                    setup,
+                    HexChessStateSnapshot.serialize(gameState, setup.whiteName(), setup.blackName())));
         }
     }
 

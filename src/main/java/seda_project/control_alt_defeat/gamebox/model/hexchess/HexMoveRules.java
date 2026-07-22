@@ -47,19 +47,22 @@ public final class HexMoveRules {
                 .collect(java.util.stream.Collectors.toUnmodifiableSet());
     }
 
-    static boolean usesStandardDoubleMoveRules(Set<HexCoordinate> doubleMoveEligibleSquares) {
-        return standardDoubleMoveEligibleSquares().equals(doubleMoveEligibleSquares);
+    static Set<HexCoordinate> initialDoubleMoveEligibleSquares(HexBoard board) {
+        if (board == null) {
+            return Set.of();
+        }
+
+        return Stream.concat(
+                        eligiblePawnStarts(board, WHITE_PAWN_STARTS, HexPieceColor.WHITE),
+                        eligiblePawnStarts(board, BLACK_PAWN_STARTS, HexPieceColor.BLACK))
+                .collect(java.util.stream.Collectors.toUnmodifiableSet());
     }
 
     static Set<HexCoordinate> updateDoubleMoveEligibility(
             Set<HexCoordinate> current,
             HexMove move,
             HexCoordinate capturedAt) {
-        if (usesStandardDoubleMoveRules(current)) {
-            return current;
-        }
-
-        Set<HexCoordinate> next = new LinkedHashSet<>(current);
+        Set<HexCoordinate> next = new LinkedHashSet<>(current == null ? Set.of() : current);
         next.remove(move.from());
         next.remove(move.to());
         if (capturedAt != null) {
@@ -76,8 +79,17 @@ public final class HexMoveRules {
             return false;
         }
 
-        return usesStandardDoubleMoveRules(doubleMoveEligibleSquares)
-                || doubleMoveEligibleSquares != null && doubleMoveEligibleSquares.contains(coordinate);
+        return doubleMoveEligibleSquares != null && doubleMoveEligibleSquares.contains(coordinate);
+    }
+
+    private static Stream<HexCoordinate> eligiblePawnStarts(
+            HexBoard board,
+            List<HexCoordinate> starts,
+            HexPieceColor color) {
+        return starts.stream()
+                .filter(start -> board.pieceAt(start)
+                        .filter(piece -> piece.color() == color && piece.type() == HexPieceType.PAWN)
+                        .isPresent());
     }
 
     static List<HexPieceType> promotionOptionsAt(HexCoordinate target, HexPieceColor color) {

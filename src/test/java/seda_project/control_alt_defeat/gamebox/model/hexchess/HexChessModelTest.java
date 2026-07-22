@@ -1,11 +1,13 @@
 package seda_project.control_alt_defeat.gamebox.model.hexchess;
 
 import org.junit.jupiter.api.Test;
+import seda_project.control_alt_defeat.gamebox.network.hexchess.HexChessStateSnapshot;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -817,5 +819,86 @@ class HexChessModelTest {
     @Test
     void bishopDirections_hasSixDirections() {
         assertEquals(6, HexDirection.bishopDirections().size());
+    }
+
+    @Test
+    void customStandardPosition_retainsInitialPawnDoubleMoves() {
+        HexGameState state = HexGameState.create(HexBoard.standard(), HexPieceColor.WHITE, true);
+
+        List<HexCoordinate> destinations = state.legalMovesFrom(HexCoordinate.of("b1"))
+                .stream()
+                .map(HexMove::to)
+                .toList();
+
+        assertTrue(destinations.contains(HexCoordinate.of("b2")));
+        assertTrue(destinations.contains(HexCoordinate.of("b3")));
+    }
+
+    @Test
+    void movedPawn_cannotInheritDoubleMoveRightFromAnotherStartingSquare() {
+        HexBoard board = HexBoard.empty()
+                .withPiece(HexCoordinate.of("a1"), new HexPiece(HexPieceColor.WHITE, HexPieceType.KING))
+                .withPiece(HexCoordinate.of("l6"), new HexPiece(HexPieceColor.BLACK, HexPieceType.KING))
+                .withPiece(HexCoordinate.of("d3"), new HexPiece(HexPieceColor.WHITE, HexPieceType.PAWN))
+                .withPiece(HexCoordinate.of("e4"), new HexPiece(HexPieceColor.BLACK, HexPieceType.ROOK));
+        HexGameState state = HexGameState.create(board, HexPieceColor.WHITE, true)
+                .play(new HexMove(HexCoordinate.of("d3"), HexCoordinate.of("e4")))
+                .play(new HexMove(HexCoordinate.of("l6"), HexCoordinate.of("i7")));
+
+        List<HexCoordinate> destinations = state.legalMovesFrom(HexCoordinate.of("e4"))
+                .stream()
+                .map(HexMove::to)
+                .toList();
+
+        assertTrue(destinations.contains(HexCoordinate.of("e5")));
+        assertFalse(destinations.contains(HexCoordinate.of("e6")));
+    }
+
+    @Test
+    void positionKey_distinguishesPawnDoubleMoveRights() {
+        HexBoard board = HexBoard.standard();
+        String withRight = HexPositionKey.from(
+                board,
+                HexPieceColor.WHITE,
+                null,
+                Set.of(HexCoordinate.of("b1")));
+        String withoutRight = HexPositionKey.from(board, HexPieceColor.WHITE, null, Set.of());
+
+        assertNotEquals(withRight, withoutRight);
+    }
+
+    @Test
+    void networkSnapshot_roundTripsPlayerNamesWithGameState() {
+        HexGameState state = HexGameState.standard()
+                .play(new HexMove(HexCoordinate.of("b1"), HexCoordinate.of("b3")));
+
+        String serialized = HexChessStateSnapshot.serialize(state, "Alice", "Bob");
+        HexChessStateSnapshot.MatchSnapshot restored = HexChessStateSnapshot.deserializeMatch(serialized);
+
+        assertEquals(state, restored.gameState());
+        assertEquals("Alice", restored.whiteName());
+        assertEquals("Bob", restored.blackName());
+    }
+
+    @Test
+    void create_terminalPositions_preservesResolutionScores() {
+        HexBoard checkmate = HexBoard.empty()
+                .withPiece(HexCoordinate.of("a1"), new HexPiece(HexPieceColor.WHITE, HexPieceType.KING))
+                .withPiece(HexCoordinate.of("b3"), new HexPiece(HexPieceColor.WHITE, HexPieceType.QUEEN))
+                .withPiece(HexCoordinate.of("a3"), new HexPiece(HexPieceColor.BLACK, HexPieceType.KING));
+        HexGameState checkmateState = HexGameState.create(checkmate, HexPieceColor.BLACK, false);
+
+        assertEquals(HexGameStatus.CHECKMATE, checkmateState.status());
+        assertEquals(1.0, checkmateState.whiteScore());
+        assertEquals(0.0, checkmateState.blackScore());
+
+        HexBoard stalemate = checkmate
+                .withoutPiece(HexCoordinate.of("b3"))
+                .withPiece(HexCoordinate.of("c6"), new HexPiece(HexPieceColor.WHITE, HexPieceType.QUEEN));
+        HexGameState stalemateState = HexGameState.create(stalemate, HexPieceColor.BLACK, false);
+
+        assertEquals(HexGameStatus.STALEMATE, stalemateState.status());
+        assertEquals(0.75, stalemateState.whiteScore());
+        assertEquals(0.25, stalemateState.blackScore());
     }
 }

@@ -188,7 +188,7 @@ public class TetrisGameController implements RouteDataReceiver {
             StackPane.setAlignment(content, Pos.TOP_LEFT);
         }
 
-        private void update(TetrisPlayerState player, int gravityMillis) {
+        private void update(TetrisPlayerState player) {
             Color accent = Color.web(playerPieceAccent(player));
             Color lightTint = tint(accent, 0.12);
             Color outerBorder = tint(accent, 0.35);
@@ -206,7 +206,7 @@ public class TetrisGameController implements RouteDataReceiver {
                     + "; -fx-border-width: 1 1 1 4;");
             playerName.setStyle("-fx-text-fill: " + colorHex(nameColor) + ";");
             playerName.setText(player.playerName());
-            stats.setText("Score: " + player.score() + "  ·  " + gravityMillis + " ms/step");
+            stats.setText("Score: " + player.score());
             activeEffects.getChildren().setAll(activeEffectChips(player.effects()).stream()
                     .map(TetrisGameController::createActiveEffectChip)
                     .toList());
@@ -223,9 +223,12 @@ public class TetrisGameController implements RouteDataReceiver {
      */
     private final class BoardSlot extends StackPane {
         private static final double CARD_INSET = 4.0;
+        private static final double CARD_BOARD_GAP = 8.0;
+        private final GridPane board;
         private final PlayerCard playerCard;
 
         private BoardSlot(GridPane board, PlayerCard playerCard) {
+            this.board = board;
             this.playerCard = playerCard;
             setAlignment(Pos.CENTER);
             setMinSize(0, 0);
@@ -252,11 +255,63 @@ public class TetrisGameController implements RouteDataReceiver {
             playerCard.root.setMaxWidth(cardWidth);
             double cardHeight = playerCard.root.prefHeight(cardWidth);
             double availableHeight = Math.max(0.0, getHeight() - 2.0 * CARD_INSET);
+            double renderedCardHeight = Math.min(cardHeight, availableHeight);
+            double cardX = CARD_INSET;
+            double cardY = CARD_INSET;
+
+            Bounds boardBounds = board.getBoundsInParent();
+            if (rectanglesIntersect(
+                    cardX, cardY, cardWidth, renderedCardHeight,
+                    boardBounds.getMinX(), boardBounds.getMinY(),
+                    boardBounds.getWidth(), boardBounds.getHeight())) {
+                double aboveY = boardBounds.getMinY() - CARD_BOARD_GAP - renderedCardHeight;
+                double leftX = boardBounds.getMinX() - CARD_BOARD_GAP - cardWidth;
+                double rightX = boardBounds.getMaxX() + CARD_BOARD_GAP;
+                double belowY = boardBounds.getMaxY() + CARD_BOARD_GAP;
+
+                if (aboveY >= CARD_INSET) {
+                    cardX = clampPosition(boardBounds.getMinX(), cardWidth, getWidth());
+                    cardY = aboveY;
+                } else if (leftX >= CARD_INSET) {
+                    cardX = leftX;
+                    cardY = clampPosition(boardBounds.getMinY(), renderedCardHeight, getHeight());
+                } else if (rightX + cardWidth <= getWidth() - CARD_INSET) {
+                    cardX = rightX;
+                    cardY = clampPosition(boardBounds.getMinY(), renderedCardHeight, getHeight());
+                } else if (belowY + renderedCardHeight <= getHeight() - CARD_INSET) {
+                    cardX = clampPosition(boardBounds.getMinX(), cardWidth, getWidth());
+                    cardY = belowY;
+                } else {
+                    double shiftedBoardY = CARD_INSET + renderedCardHeight + CARD_BOARD_GAP;
+                    if (shiftedBoardY + boardBounds.getHeight() <= getHeight() - CARD_INSET) {
+                        board.relocate(board.getLayoutX(), shiftedBoardY);
+                        cardX = clampPosition(boardBounds.getMinX(), cardWidth, getWidth());
+                    } else {
+                        renderedCardHeight = Math.max(0.0,
+                                boardBounds.getMinY() - CARD_BOARD_GAP - CARD_INSET);
+                    }
+                }
+            }
+
             playerCard.root.resizeRelocate(
-                    CARD_INSET,
-                    CARD_INSET,
+                    cardX,
+                    cardY,
                     cardWidth,
-                    Math.min(cardHeight, availableHeight));
+                    renderedCardHeight);
+        }
+
+        private double clampPosition(double preferred, double extent, double containerExtent) {
+            return Math.max(CARD_INSET,
+                    Math.min(preferred, Math.max(CARD_INSET, containerExtent - CARD_INSET - extent)));
+        }
+
+        private boolean rectanglesIntersect(
+                double firstX, double firstY, double firstWidth, double firstHeight,
+                double secondX, double secondY, double secondWidth, double secondHeight) {
+            return firstX < secondX + secondWidth
+                    && firstX + firstWidth > secondX
+                    && firstY < secondY + secondHeight
+                    && firstY + firstHeight > secondY;
         }
     }
 
@@ -277,7 +332,7 @@ public class TetrisGameController implements RouteDataReceiver {
     private int bottomGravityElapsedMs;
     private int topGravityElapsedMs;
     private int elapsedGameMs;
-    private final AtomicReference<TetrisGameState> pendingClientState = new AtomicReference<>();
+    private final AtomicReference<TetrisStateSnapshot.SnapshotData> pendingClientState = new AtomicReference<>();
     private final AtomicBoolean clientStateRenderScheduled = new AtomicBoolean();
 
     @Override
@@ -558,7 +613,7 @@ public class TetrisGameController implements RouteDataReceiver {
 
     private StackPane centeredBoardSlot(GridPane board, TetrisPlayerState player) {
         PlayerCard card = new PlayerCard(player.side());
-        card.update(player, effectiveGravityMs(player));
+        card.update(player);
         if (player.side() == PlayerSide.TOP) {
             topPlayerCard = card;
         } else {
@@ -692,16 +747,12 @@ public class TetrisGameController implements RouteDataReceiver {
 
     private void renderLabels() {
         if (bottomPlayerCard != null) {
-            bottomPlayerCard.update(gameState.bottomPlayer(), effectiveGravityMs(gameState.bottomPlayer()));
+            bottomPlayerCard.update(gameState.bottomPlayer());
         }
         if (topPlayerCard != null) {
-            topPlayerCard.update(gameState.topPlayer(), effectiveGravityMs(gameState.topPlayer()));
+            topPlayerCard.update(gameState.topPlayer());
         }
         renderResult();
-    }
-
-    static String speedText(int gravityMillis) {
-        return "Speed: " + gravityMillis + " ms/step";
     }
 
     private static String controlScheme(PlayerSide side) {
@@ -828,8 +879,8 @@ public class TetrisGameController implements RouteDataReceiver {
             }
         }
 
-        if (radiusPreview && bombPosition != null) {
-            Circle preview = createRadiusPreview(grid, bombPosition, player, cellSize, view);
+        if (radiusPreview && activeBombCell != null) {
+            Circle preview = createRadiusPreview(activeBombCell, cellSize);
             grid.getChildren().add(preview);
             // The circle intentionally sits above settled cells, but the solid
             // bomb square must remain the topmost item at its center.
@@ -879,30 +930,27 @@ public class TetrisGameController implements RouteDataReceiver {
     }
 
     private static Circle createRadiusPreview(
-            GridPane grid,
-            BoardPosition bombPosition,
-            TetrisPlayerState player,
-            double cellSize,
-            BoardView view) {
-        double radius = (BOMB_RADIUS_CELLS + 0.5) * cellSize;
+            StackPane bombCell,
+            double cellSize) {
+        double radius = radiusPreviewRadius(cellSize);
         Circle preview = new Circle(radius);
         preview.setFill(Color.web(BOMB_PREVIEW_COLOR, BOMB_PREVIEW_OPACITY));
         preview.setStroke(Color.web(BOMB_COLOR));
         preview.setStrokeWidth(2.0);
         preview.setMouseTransparent(true);
         preview.setManaged(false);
-
-        double cellStep = cellSize + CELL_GAP;
-        double leftInset = grid.getInsets().getLeft();
-        double topInset = grid.getInsets().getTop();
-        double centerX = leftInset
-                + view.visualColumn(bombPosition.column(), player.board().columns()) * cellStep
-                + cellSize / 2.0;
-        double centerY = topInset
-                + view.visualRow(bombPosition.row(), player.board().rows()) * cellStep
-                + cellSize / 2.0;
-        preview.relocate(centerX - radius, centerY - radius);
+        preview.centerXProperty().bind(
+                bombCell.layoutXProperty().add(bombCell.widthProperty().divide(2.0)));
+        preview.centerYProperty().bind(
+                bombCell.layoutYProperty().add(bombCell.heightProperty().divide(2.0)));
         return preview;
+    }
+
+    static double radiusPreviewRadius(double cellSize) {
+        double safeCellSize = Math.max(0.0, cellSize);
+        double cellStep = safeCellSize + CELL_GAP;
+        double halfCell = safeCellSize / 2.0;
+        return Math.hypot(BOMB_RADIUS_CELLS * cellStep + halfCell, halfCell);
     }
 
     private static void paintBombCell(StackPane cell, PieceType type, double cellSize) {
@@ -1191,7 +1239,7 @@ public class TetrisGameController implements RouteDataReceiver {
             if (fields.size() != 1) {
                 return;
             }
-            pendingClientState.set(TetrisStateSnapshot.deserialize(fields.getFirst(), setup.config()));
+            pendingClientState.set(TetrisStateSnapshot.deserializeWithTiming(fields.getFirst(), setup.config()));
             scheduleClientStateRender();
         } else if (TetrisProtocol.isType(message, TetrisProtocol.QUIT)
                 || TetrisProtocol.isType(message, TetrisProtocol.ERROR)) {
@@ -1206,9 +1254,10 @@ public class TetrisGameController implements RouteDataReceiver {
             return;
         }
         Platform.runLater(() -> {
-            TetrisGameState latest = pendingClientState.getAndSet(null);
+            TetrisStateSnapshot.SnapshotData latest = pendingClientState.getAndSet(null);
             if (latest != null && !networkClosed) {
-                gameState = latest;
+                gameState = latest.state();
+                elapsedGameMs = latest.elapsedGameMillis();
                 render();
             }
             clientStateRenderScheduled.set(false);
@@ -1233,13 +1282,13 @@ public class TetrisGameController implements RouteDataReceiver {
 
     private void sendState() {
         if (isLanHost() && !networkClosed) {
-            hostServer.send(TetrisProtocol.state(TetrisStateSnapshot.serialize(gameState)));
+            hostServer.send(TetrisProtocol.state(TetrisStateSnapshot.serialize(gameState, elapsedGameMs)));
         }
     }
 
     private void sendRestartState() {
         if (isLanHost() && !networkClosed) {
-            hostServer.send(TetrisProtocol.restartState(TetrisStateSnapshot.serialize(gameState)));
+            hostServer.send(TetrisProtocol.restartState(TetrisStateSnapshot.serialize(gameState, elapsedGameMs)));
         }
     }
 

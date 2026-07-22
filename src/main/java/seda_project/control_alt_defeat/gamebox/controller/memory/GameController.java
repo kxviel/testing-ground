@@ -81,6 +81,8 @@ public class GameController implements RouteDataReceiver {
     @FXML
     private Label gamePhaseLabel;
     @FXML
+    private Label matchingInstructionLabel;
+    @FXML
     private Label statusLabel;
     @FXML
     private GridPane cardGrid;
@@ -362,6 +364,7 @@ public class GameController implements RouteDataReceiver {
     }
 
     private void buildBoard() {
+        updateMatchingInstruction();
         cardGrid.getChildren().clear();
         int total = model.getCards().size();
         cardButtons = new Button[total];
@@ -373,6 +376,16 @@ public class GameController implements RouteDataReceiver {
         IntStream.range(0, total)
                 .forEach(this::addCardButton);
         Platform.runLater(this::resizeBoard);
+    }
+
+    private void updateMatchingInstruction() {
+        int groupSize = model.getK();
+        String instruction = switch (groupSize) {
+            case 1 -> "Find every unique card.";
+            case 2 -> "Find all the matching pairs.";
+            default -> "Find all matching groups of " + groupSize + ".";
+        };
+        matchingInstructionLabel.setText(instruction);
     }
 
     private void addCardButton(int idx) {

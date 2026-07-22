@@ -11,6 +11,7 @@ import seda_project.control_alt_defeat.gamebox.model.hexchess.HexPieceColor;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexPieceType;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexPositionValidation;
 import seda_project.control_alt_defeat.gamebox.model.hexchess.HexPositionValidator;
+import seda_project.control_alt_defeat.gamebox.util.SafeText;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -25,13 +26,18 @@ import static seda_project.control_alt_defeat.gamebox.network.SnapshotCodec.pars
 
 public final class HexChessStateSnapshot {
 
-    private static final int SNAPSHOT_FIELD_COUNT = 12;
+    private static final int LEGACY_SNAPSHOT_FIELD_COUNT = 12;
+    private static final int SNAPSHOT_FIELD_COUNT = 14;
     private static final int LAST_MOVE_FIELD_COUNT = 9;
 
     private HexChessStateSnapshot() {
     }
 
     public static String serialize(HexGameState state) {
+        return serialize(state, SafeText.PLAYER_ONE_NAME, SafeText.PLAYER_TWO_NAME);
+    }
+
+    public static String serialize(HexGameState state, String whiteName, String blackName) {
         return String.join("~",
                 serializeBoard(state.board()),
                 state.turn().name(),
@@ -44,16 +50,22 @@ public final class HexChessStateSnapshot {
                 String.valueOf(state.whiteScore()),
                 String.valueOf(state.blackScore()),
                 serializeCoordinateSet(state.doubleMoveEligibleSquares()),
-                serializeRepetitionCounts(state.repetitionCounts()));
+                serializeRepetitionCounts(state.repetitionCounts()),
+                encode(SafeText.playerName(whiteName, SafeText.PLAYER_ONE_NAME)),
+                encode(SafeText.playerName(blackName, SafeText.PLAYER_TWO_NAME)));
     }
 
     public static HexGameState deserialize(String value) {
+        return deserializeMatch(value).gameState();
+    }
+
+    public static MatchSnapshot deserializeMatch(String value) {
         if (value == null || value.isBlank()) {
             throw new IllegalArgumentException("Snapshot is empty.");
         }
 
         String[] parts = value.split("~", SNAPSHOT_FIELD_COUNT + 1);
-        if (parts.length != SNAPSHOT_FIELD_COUNT) {
+        if (parts.length != LEGACY_SNAPSHOT_FIELD_COUNT && parts.length != SNAPSHOT_FIELD_COUNT) {
             throw new IllegalArgumentException("Snapshot has wrong field count.");
         }
 
@@ -77,6 +89,12 @@ public final class HexChessStateSnapshot {
         double blackScore = parseDouble(parts[9]);
         Set<HexCoordinate> doubleMoveEligibleSquares = deserializeCoordinateSet(parts[10]);
         Map<String, Integer> repetitionCounts = deserializeRepetitionCounts(parts[11]);
+        String whiteName = parts.length == SNAPSHOT_FIELD_COUNT
+                ? deserializePlayerName(parts[12], SafeText.PLAYER_ONE_NAME)
+                : SafeText.PLAYER_ONE_NAME;
+        String blackName = parts.length == SNAPSHOT_FIELD_COUNT
+                ? deserializePlayerName(parts[13], SafeText.PLAYER_TWO_NAME)
+                : SafeText.PLAYER_TWO_NAME;
 
         if (halfMoveClock < 0 || halfMoveClock > HexGameState.MAX_HALF_MOVE_CLOCK) {
             throw new IllegalArgumentException("Half-move clock is outside the supported range.");
@@ -85,19 +103,30 @@ public final class HexChessStateSnapshot {
             throw new IllegalArgumentException("Score is outside the supported range.");
         }
 
-        return new HexGameState(
-                board,
-                turn,
-                status,
-                statusMessage,
-                lastMove,
-                enPassantTarget,
-                drawOfferBy,
-                halfMoveClock,
-                repetitionCounts,
-                doubleMoveEligibleSquares,
-                whiteScore,
-                blackScore);
+        return new MatchSnapshot(
+                new HexGameState(
+                        board,
+                        turn,
+                        status,
+                        statusMessage,
+                        lastMove,
+                        enPassantTarget,
+                        drawOfferBy,
+                        halfMoveClock,
+                        repetitionCounts,
+                        doubleMoveEligibleSquares,
+                        whiteScore,
+                        blackScore),
+                whiteName,
+                blackName);
+    }
+
+    private static String deserializePlayerName(String value, String fallback) {
+        String decoded = decode(value);
+        if (decoded.length() > SafeText.MAX_PLAYER_NAME_CHARS) {
+            throw new IllegalArgumentException("Player name exceeds the supported length.");
+        }
+        return SafeText.playerName(decoded, fallback);
     }
 
     private static String serializeBoard(HexBoard board) {
@@ -286,6 +315,9 @@ public final class HexChessStateSnapshot {
             }
         }
         return Map.copyOf(counts);
+    }
+
+    public record MatchSnapshot(HexGameState gameState, String whiteName, String blackName) {
     }
 
 }

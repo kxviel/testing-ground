@@ -50,6 +50,7 @@ public class GameServer extends AbstractGameConnection {
         }
 
         Socket clientSocket = listeningSocket.accept();
+        closeServerSocket();
         try {
             prepareConnection(clientSocket);
             log.info("Client connected from {}", clientSocket.getRemoteSocketAddress());

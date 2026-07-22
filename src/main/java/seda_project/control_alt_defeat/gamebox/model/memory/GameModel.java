@@ -9,29 +9,51 @@ import java.util.stream.IntStream;
 public class GameModel {
 
     private static final String[] SYMBOL_POOL = {
-            "card_faces/angry.png",
-            "card_faces/bad-piggies.png",
-            "card_faces/troll.png",
-            "card_faces/codw.png",
-            "card_faces/shrek.png",
-            "card_faces/heart-color.png",
-            "card_faces/cs.png",
-            "card_faces/butt.png",
-            "card_faces/elden-ring.png",
-            "card_faces/hand.png",
-            "card_faces/five-nights-at-freddys.png",
-            "card_faces/greek-helmet.png",
-            "card_faces/mage-staff.png",
-            "card_faces/minecraft-logo.png",
-            "card_faces/minecraft-pig.png",
-            "card_faces/monster-face.png",
-            "card_faces/pixel-cat.png",
-            "card_faces/pixel-star.png",
-            "card_faces/scary-tree.png",
-            "card_faces/turkey.png",
-            "card_faces/spartan-helmet.png",
-            "card_faces/super-mario.png",
-            "card_faces/ultra-ball.png"
+            "card_faces/icons8-aang-50.png",
+            "card_faces/icons8-amethyst-universe-50.png",
+            "card_faces/icons8-batman-50.png",
+            "card_faces/icons8-bendy-50.png",
+            "card_faces/icons8-bt21-chimmy-50.png",
+            "card_faces/icons8-bt21-mang-50.png",
+            "card_faces/icons8-c-3po-50.png",
+            "card_faces/icons8-cylon-head-new-50.png",
+            "card_faces/icons8-eric-cartman-50.png",
+            "card_faces/icons8-fortnite-llama-50.png",
+            "card_faces/icons8-fursona-50.png",
+            "card_faces/icons8-futurama-nibbler-50.png",
+            "card_faces/icons8-grey-50.png",
+            "card_faces/icons8-house-stark-50.png",
+            "card_faces/icons8-hulk-50.png",
+            "card_faces/icons8-iron-man-50.png",
+            "card_faces/icons8-jeffy-50.png",
+            "card_faces/icons8-jerry-50.png",
+            "card_faces/icons8-jetpack-joyride-50.png",
+            "card_faces/icons8-lightsaber-50.png",
+            "card_faces/icons8-logan-x-men-50.png",
+            "card_faces/icons8-magic-lamp-50.png",
+            "card_faces/icons8-millennium-rod-50.png",
+            "card_faces/icons8-money-heist-dali-50.png",
+            "card_faces/icons8-mongrol-50.png",
+            "card_faces/icons8-neo-50.png",
+            "card_faces/icons8-popeye-50.png",
+            "card_faces/icons8-pumbaa-50.png",
+            "card_faces/icons8-rick-sanchez-50.png",
+            "card_faces/icons8-s.h.i.e.l.d-50.png",
+            "card_faces/icons8-scooby-doo-50.png",
+            "card_faces/icons8-scooby-doo-daphne-blake-50.png",
+            "card_faces/icons8-scooby-doo-velma-dinkley-50.png",
+            "card_faces/icons8-spider-man-head-50.png",
+            "card_faces/icons8-spider-man-old-50.png",
+            "card_faces/icons8-star-track-lokirrim-partol-ship-50.png",
+            "card_faces/icons8-stormtrooper-50.png",
+            "card_faces/icons8-superman-50.png",
+            "card_faces/icons8-superman-dc-50.png",
+            "card_faces/icons8-the-flash-sign-50.png",
+            "card_faces/icons8-timon-50.png",
+            "card_faces/icons8-tom-50.png",
+            "card_faces/icons8-tricorder-50.png",
+            "card_faces/icons8-walter-white-50.png",
+            "card_faces/icons8-woody-woodpecker-50.png"
     };
 
     private final int k;
@@ -64,7 +86,7 @@ public class GameModel {
         int total = n * k;
         this.remainingCards = total;
         List<String> symbols = IntStream.range(0, total)
-                .mapToObj(i -> SYMBOL_POOL[(i / k) % SYMBOL_POOL.length])
+                .mapToObj(i -> SYMBOL_POOL[i / k])
                 .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
         Collections.shuffle(symbols);
 

@@ -118,7 +118,7 @@ public class MemoryMenuController implements RouteDataReceiver {
         ResponsiveLayout.bindTwoColumnGrid(memoryMenuLayout, 60.0);
         timedStatus = new TimedStatus(statusLabel);
         discoveredGameList = new DiscoveredGameListController(availableGamesList);
-        UiInputGuards.limitWholeNumber(kField, 2);
+        UiInputGuards.limitText(kField, 10);
         UiInputGuards.limitPlayerNames(playerOneNameField, playerTwoNameField);
         variantRows = List.of(
                 new VariantRow(variant1Radio, variant1TitleLabel, variant1MetaLabel),

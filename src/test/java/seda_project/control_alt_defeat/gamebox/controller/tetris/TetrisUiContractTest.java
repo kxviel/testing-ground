@@ -30,6 +30,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -37,12 +38,16 @@ import seda_project.control_alt_defeat.gamebox.model.tetris.BoardPosition;
 import seda_project.control_alt_defeat.gamebox.model.tetris.PieceShape;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisBoard;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisBoardObject;
+import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisEffectState;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameConfig;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameSetup;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisGameState;
+import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisPiece;
 import seda_project.control_alt_defeat.gamebox.model.tetris.TetrisPlayerState;
+import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PieceType;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerSide;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerStatus;
+import seda_project.control_alt_defeat.gamebox.model.tetris.enums.Rotation;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisItemType;
 import seda_project.control_alt_defeat.gamebox.util.ResponsiveViewport;
 
@@ -215,6 +220,168 @@ class TetrisUiContractTest {
     }
 
     @Test
+    void playerCardsAvoidBoardsWithLongNamesAndActiveEffects() throws Exception {
+        CountDownLatch latch = new CountDownLatch(1);
+        AtomicReference<Throwable> failure = new AtomicReference<>();
+
+        Platform.runLater(() -> {
+            TetrisGameController controller = null;
+            try {
+                FXMLLoader loader = new FXMLLoader(
+                        TetrisUiContractTest.class.getResource("/tetris/TetrisGame.fxml"));
+                Parent root = loader.load();
+                controller = loader.getController();
+                TetrisGameConfig config = new TetrisGameConfig(
+                        List.of("Standard"),
+                        List.of(),
+                        TetrisGameConfig.DEFAULT_GRAVITY_MILLIS,
+                        false,
+                        true);
+                controller.setRouteData(new TetrisGameSetup("Bottom", "Top", config));
+
+                ResponsiveViewport viewport = new ResponsiveViewport(root);
+                Scene scene = new Scene(viewport, 1366, 768);
+                scene.getStylesheets().add(
+                        TetrisUiContractTest.class.getResource("/Theme.css").toExternalForm());
+                viewport.resize(1366, 768);
+                pulse(viewport);
+
+                TetrisGameState state = controllerState(controller);
+                TetrisPlayerState bottom = withRichPlayerCard(
+                        state.bottomPlayer(),
+                        new TetrisEffectState(
+                                200, 100, 100, 0,
+                                TetrisItemType.SLOW_SELF,
+                                TetrisItemType.ROTATION_DELAY_SELF));
+                TetrisPlayerState top = withRichPlayerCard(
+                        state.topPlayer(),
+                        new TetrisEffectState(
+                                50, 100, 100, 0,
+                                TetrisItemType.SPEED_UP_OPPONENT,
+                                TetrisItemType.ROTATION_DELAY_OPPONENT));
+                setControllerState(controller, new TetrisGameState(bottom, top, config, state.status()));
+                render(controller);
+                pulse(viewport);
+
+                GridPane topBoard = (GridPane) loader.getNamespace().get("topBoardGrid");
+                GridPane bottomBoard = (GridPane) loader.getNamespace().get("bottomBoardGrid");
+                assertCardDoesNotOverlapBoard(topBoard, "horizontal top rich card");
+                assertCardDoesNotOverlapBoard(bottomBoard, "horizontal bottom rich card");
+            } catch (Throwable throwable) {
+                failure.set(throwable);
+            } finally {
+                stopGameLoop(controller);
+                latch.countDown();
+            }
+        });
+
+        assertTrue(latch.await(20, TimeUnit.SECONDS));
+        if (failure.get() != null) {
+            throw new AssertionError(failure.get());
+        }
+    }
+
+    @Test
+    void radiusPreviewFullyEnclosesOutermostAffectedCells() {
+        for (double cellSize : new double[] {12.0, 14.0, 21.45, 32.80}) {
+            double cellStep = cellSize + 1.0;
+            double halfCell = cellSize / 2.0;
+            double outerCornerDistance = Math.hypot(3.0 * cellStep + halfCell, halfCell);
+
+            assertEquals(
+                    outerCornerDistance,
+                    TetrisGameController.radiusPreviewRadius(cellSize),
+                    0.0001,
+                    "preview radius for cell size " + cellSize);
+        }
+    }
+
+    @Test
+    void radiusPreviewIsCenteredOnBombCellInBothBoardOrientations() throws Exception {
+        CountDownLatch latch = new CountDownLatch(1);
+        AtomicReference<Throwable> failure = new AtomicReference<>();
+
+        Platform.runLater(() -> {
+            TetrisGameController controller = null;
+            try {
+                for (boolean horizontalMode : new boolean[] {false, true}) {
+                    FXMLLoader loader = new FXMLLoader(
+                            TetrisUiContractTest.class.getResource("/tetris/TetrisGame.fxml"));
+                    Parent root = loader.load();
+                    controller = loader.getController();
+                    TetrisGameConfig config = new TetrisGameConfig(
+                            List.of("Standard"),
+                            List.of(),
+                            TetrisGameConfig.DEFAULT_GRAVITY_MILLIS,
+                            false,
+                            horizontalMode);
+                    controller.setRouteData(new TetrisGameSetup("Bottom", "Top", config));
+                    stopGameLoop(controller);
+
+                    ResponsiveViewport viewport = new ResponsiveViewport(root);
+                    Scene scene = new Scene(viewport, 1366, 768);
+                    scene.getStylesheets().add(
+                            TetrisUiContractTest.class.getResource("/Theme.css").toExternalForm());
+                    viewport.resize(1366, 768);
+                    pulse(viewport);
+
+                    TetrisGameState state = controllerState(controller);
+                    BoardPosition position = horizontalMode
+                            ? new BoardPosition(5, 10)
+                            : new BoardPosition(10, 5);
+                    TetrisPiece bomb = new TetrisPiece(
+                            PieceShape.bombShape(PieceType.RADIUS_BOMB),
+                            position,
+                            Rotation.SPAWN);
+                    TetrisPlayerState bottom = state.bottomPlayer().withActivePiece(bomb);
+                    setControllerState(controller,
+                            new TetrisGameState(bottom, state.topPlayer(), config, state.status()));
+                    render(controller);
+                    pulse(viewport);
+
+                    GridPane board = (GridPane) loader.getNamespace().get("bottomBoardGrid");
+                    Circle preview = board.getChildren().stream()
+                            .filter(Circle.class::isInstance)
+                            .map(Circle.class::cast)
+                            .findFirst()
+                            .orElseThrow();
+                    StackPane bombCell = board.getChildren().stream()
+                            .filter(StackPane.class::isInstance)
+                            .map(StackPane.class::cast)
+                            .filter(cell -> cell.getStyleClass().contains("board-cell-bomb"))
+                            .findFirst()
+                            .orElseThrow();
+
+                    Bounds previewBounds = preview.localToScene(preview.getBoundsInLocal());
+                    Bounds bombBounds = bombCell.localToScene(bombCell.getBoundsInLocal());
+                    String context = horizontalMode ? "horizontal" : "vertical";
+                    assertEquals(
+                            (bombBounds.getMinX() + bombBounds.getMaxX()) / 2.0,
+                            (previewBounds.getMinX() + previewBounds.getMaxX()) / 2.0,
+                            0.01,
+                            context + " preview center x");
+                    assertEquals(
+                            (bombBounds.getMinY() + bombBounds.getMaxY()) / 2.0,
+                            (previewBounds.getMinY() + previewBounds.getMaxY()) / 2.0,
+                            0.01,
+                            context + " preview center y");
+                    controller = null;
+                }
+            } catch (Throwable throwable) {
+                failure.set(throwable);
+            } finally {
+                stopGameLoop(controller);
+                latch.countDown();
+            }
+        });
+
+        assertTrue(latch.await(20, TimeUnit.SECONDS));
+        if (failure.get() != null) {
+            throw new AssertionError(failure.get());
+        }
+    }
+
+    @Test
     void networkBoardsUseTheSameEqualSizeLayoutsAsLocalMode() throws Exception {
         CountDownLatch latch = new CountDownLatch(1);
         AtomicReference<Throwable> failure = new AtomicReference<>();
@@ -237,7 +404,7 @@ class TetrisUiContractTest {
     }
 
     @Test
-    void gameSidebarShowsLiveSpeedForBothPlayersAndEverySpecialObject() throws Exception {
+    void gameSidebarShowsScoresWithoutSpeedForBothPlayersAndEverySpecialObject() throws Exception {
         String fxml = read("/tetris/TetrisGame.fxml");
 
         int statusLineStart = fxml.indexOf("fx:id=\"statusLineLabel\"");
@@ -250,8 +417,6 @@ class TetrisUiContractTest {
         assertFalse(fxml.contains("Points"));
         assertFalse(fxml.contains("Controls"));
         assertFalse(fxml.contains("maxHeight=\"200\""));
-        assertEquals("Speed: 320 ms/step", TetrisGameController.speedText(320));
-
         for (TetrisItemType type : TetrisItemType.values()) {
             assertNotNull(type.icon(), () -> type + " must have a vector icon");
         }
@@ -510,6 +675,8 @@ class TetrisUiContractTest {
                     "WASD: A / D move, W drop, S rotate", context + " top card");
             assertPlayerCard((StackPane) bottomBoard.getParent(), "Bottom", PlayerSide.BOTTOM,
                     "Arrow keys: ← / → move, ↓ drop, ↑ rotate", context + " bottom card");
+            assertCardDoesNotOverlapBoard(topBoard, context + " top card");
+            assertCardDoesNotOverlapBoard(bottomBoard, context + " bottom card");
 
             // Recorded from the pre-overlay implementation at these same viewports.
             if (width == 1366.0 && height == 768.0) {
@@ -658,7 +825,7 @@ class TetrisUiContractTest {
         assertEquals(4.0, card.getLayoutX(), 0.1, context + " inset x");
         assertEquals(4.0, card.getLayoutY(), 0.1, context + " inset y");
         assertEquals(expectedPlayer, ((Label) card.lookup(".player-card-name")).getText(), context + " player");
-        assertEquals("Score: 0  ·  550 ms/step",
+        assertEquals("Score: 0",
                 ((Label) card.lookup(".player-card-stats")).getText(), context + " stats");
         assertEquals(expectedControls, ((Label) card.lookup(".player-card-controls")).getText(),
                 context + " controls");
@@ -689,6 +856,57 @@ class TetrisUiContractTest {
         assertFalse(topCard.localToScene(topCard.getBoundsInLocal())
                         .intersects(bottomCard.localToScene(bottomCard.getBoundsInLocal())),
                 context + " cards overlap");
+    }
+
+    private static void assertCardDoesNotOverlapBoard(GridPane board, String context) {
+        StackPane slot = (StackPane) board.getParent();
+        StackPane card = slot.getChildren().stream()
+                .filter(StackPane.class::isInstance)
+                .map(StackPane.class::cast)
+                .filter(candidate -> candidate.getStyleClass().contains("player-card"))
+                .findFirst()
+                .orElseThrow();
+        assertFalse(
+                card.localToScene(card.getBoundsInLocal())
+                        .intersects(board.localToScene(board.getBoundsInLocal())),
+                context + " overlaps playable grid cells");
+    }
+
+    private static TetrisPlayerState withRichPlayerCard(
+            TetrisPlayerState player,
+            TetrisEffectState effects) {
+        return new TetrisPlayerState(
+                "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+                player.side(),
+                player.board(),
+                player.activePiece(),
+                player.score(),
+                player.status(),
+                player.finalScore(),
+                player.boardObject(),
+                effects,
+                player.queuedShapes());
+    }
+
+    private static void setControllerState(
+            TetrisGameController controller,
+            TetrisGameState state) throws ReflectiveOperationException {
+        Field field = TetrisGameController.class.getDeclaredField("gameState");
+        field.setAccessible(true);
+        field.set(controller, state);
+    }
+
+    private static void render(TetrisGameController controller) throws ReflectiveOperationException {
+        Method method = TetrisGameController.class.getDeclaredMethod("render");
+        method.setAccessible(true);
+        method.invoke(controller);
+    }
+
+    private static void pulse(ResponsiveViewport viewport) {
+        for (int pulse = 0; pulse < 3; pulse++) {
+            viewport.applyCss();
+            viewport.layout();
+        }
     }
 
     private static void assertOverlayUpright(GridPane board, String context) {
