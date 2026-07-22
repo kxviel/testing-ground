@@ -110,7 +110,7 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>${javafx.maven.version}</version>
                 <configuration>
-                    <mainClass>seda_project.control_alt_defeat.gamebox.Launcher</mainClass>
+                    <mainClass>seda.project.control.alt.defeat.gamebox/seda_project.control_alt_defeat.gamebox.Launcher</mainClass>
                     <launcher>gamebox</launcher>
                     <jlinkImageName>gamebox</jlinkImageName>
                     <stripDebug>true</stripDebug>

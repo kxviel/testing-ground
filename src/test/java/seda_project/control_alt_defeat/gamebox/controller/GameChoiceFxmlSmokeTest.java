@@ -567,6 +567,16 @@ class GameChoiceFxmlSmokeTest {
                 CheckBox customPieceCheckBox =
                         (CheckBox) tetrisLoader.getNamespace().get("customPieceCheckBox");
                 customPieceCheckBox.fire();
+                GridPane customPieceGrid =
+                        (GridPane) tetrisLoader.getNamespace().get("customPieceGrid");
+                Button saveCustomPieceButton =
+                        (Button) tetrisLoader.getNamespace().get("saveCustomPieceButton");
+                for (int pieceSize = 1; pieceSize <= 3; pieceSize++) {
+                    for (int cell = 0; cell < pieceSize; cell++) {
+                        ((Button) customPieceGrid.getChildren().get(cell)).fire();
+                    }
+                    saveCustomPieceButton.fire();
+                }
                 assertResponsiveContent(
                         new ResponsiveScreen(
                                 "/tetris/TetrisMenu.fxml (custom editor)",

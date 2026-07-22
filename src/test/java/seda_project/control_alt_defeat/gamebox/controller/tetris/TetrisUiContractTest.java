@@ -21,6 +21,8 @@ import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Background;
@@ -74,9 +76,65 @@ class TetrisUiContractTest {
 
         assertTrue(fxml.contains("fx:id=\"customPieceCheckBox\""));
         assertTrue(fxml.contains("fx:id=\"customPieceGrid\""));
+        assertTrue(fxml.contains("fx:id=\"customPiecePreviewRow\""));
+        assertTrue(fxml.contains("fx:id=\"customPieceCountLabel\""));
         assertTrue(fxml.contains("fx:id=\"speedChoiceBox\""));
         assertTrue(fxml.contains("fx:id=\"dualPieceCheckBox\""));
         assertTrue(fxml.contains("fx:id=\"horizontalModeCheckBox\""));
+    }
+
+    @Test
+    void customEditorShowsThreeSavedPreviewsAndAllowsRemoval() throws Exception {
+        CountDownLatch latch = new CountDownLatch(1);
+        AtomicReference<Throwable> failure = new AtomicReference<>();
+
+        Platform.runLater(() -> {
+            try {
+                FXMLLoader loader = new FXMLLoader(
+                        TetrisUiContractTest.class.getResource("/tetris/TetrisMenu.fxml"));
+                Parent root = loader.load();
+                Scene scene = new Scene(root, 1080, 720);
+                scene.getStylesheets().add(
+                        TetrisUiContractTest.class.getResource("/Theme.css").toExternalForm());
+                root.applyCss();
+                root.layout();
+
+                CheckBox customCheckBox = (CheckBox) loader.getNamespace().get("customPieceCheckBox");
+                GridPane editor = (GridPane) loader.getNamespace().get("customPieceGrid");
+                Button save = (Button) loader.getNamespace().get("saveCustomPieceButton");
+                Label count = (Label) loader.getNamespace().get("customPieceCountLabel");
+                HBox previews = (HBox) loader.getNamespace().get("customPiecePreviewRow");
+                customCheckBox.fire();
+
+                assertEquals(3, TetrisGameConfig.MAX_CUSTOM_PIECES);
+                for (int pieceSize = 1; pieceSize <= TetrisGameConfig.MAX_CUSTOM_PIECES; pieceSize++) {
+                    for (int cell = 0; cell < pieceSize; cell++) {
+                        ((Button) editor.getChildren().get(cell)).fire();
+                    }
+                    save.fire();
+                    assertEquals("Saved pieces (" + pieceSize + "/3)", count.getText());
+                    assertEquals(pieceSize, previews.getChildren().size());
+                }
+
+                assertTrue(save.isDisabled());
+                VBox firstPreview = (VBox) previews.getChildren().getFirst();
+                Button remove = (Button) firstPreview.getChildren().get(2);
+                remove.fire();
+
+                assertEquals("Saved pieces (2/3)", count.getText());
+                assertEquals(2, previews.getChildren().size());
+                assertFalse(save.isDisabled());
+            } catch (Throwable throwable) {
+                failure.set(throwable);
+            } finally {
+                latch.countDown();
+            }
+        });
+
+        assertTrue(latch.await(10, TimeUnit.SECONDS));
+        if (failure.get() != null) {
+            throw new AssertionError(failure.get());
+        }
     }
 
     @Test

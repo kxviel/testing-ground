@@ -167,11 +167,23 @@
                                       HBox.hgrow="ALWAYS"
                                       styleClass="menu-custom-editor">
                                     <Separator/>
-                                    <Label text="Custom Piece" styleClass="field-title"/>
-                                    <GridPane fx:id="customPieceGrid" alignment="CENTER_LEFT" styleClass="custom-piece-grid"/>
-                                    <HBox styleClass="button-row">
-                                        <Button text="Clear" onAction="#onClearCustomPiece" styleClass="btn-outline"/>
-                                        <Button text="Save" onAction="#onSaveCustomPiece" styleClass="btn-primary"/>
+                                    <HBox alignment="TOP_LEFT" styleClass="custom-piece-workspace">
+                                        <VBox styleClass="custom-piece-builder">
+                                            <Label text="Create custom piece" styleClass="field-title"/>
+                                            <GridPane fx:id="customPieceGrid" alignment="CENTER_LEFT" styleClass="custom-piece-grid"/>
+                                            <HBox styleClass="button-row">
+                                                <Button text="Clear" onAction="#onClearCustomPiece" styleClass="btn-outline"/>
+                                                <Button fx:id="saveCustomPieceButton" text="Save" onAction="#onSaveCustomPiece" styleClass="btn-primary"/>
+                                            </HBox>
+                                        </VBox>
+
+                                        <VBox minWidth="0" HBox.hgrow="ALWAYS" styleClass="custom-piece-saved-section">
+                                            <Label fx:id="customPieceCountLabel" text="Saved pieces (0/3)" styleClass="field-title"/>
+                                            <HBox fx:id="customPiecePreviewRow" alignment="TOP_LEFT" styleClass="custom-piece-preview-row"/>
+                                            <Label text="Save up to 3 connected pieces. Use Remove to replace one."
+                                                   wrapText="true"
+                                                   styleClass="custom-piece-help"/>
+                                        </VBox>
                                     </HBox>
                                     <Label fx:id="customPieceStatusLabel" text="" wrapText="true" styleClass="status-line"/>
                                 </VBox>

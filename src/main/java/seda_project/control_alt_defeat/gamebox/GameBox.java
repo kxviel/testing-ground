@@ -35,7 +35,6 @@ public class GameBox extends Application {
         stage.setOnCloseRequest(e -> cleanExit());
         stage.show();
         WindowManager.applyCurrentSettings(stage);
-        logger.debug("Startup completed");
     }
 
     private void loadFonts() {
@@ -60,7 +59,6 @@ public class GameBox extends Application {
     }
 
     public static void cleanExit() {
-        logger.debug("Shutting down");
         Platform.exit();
         System.exit(0);
     }

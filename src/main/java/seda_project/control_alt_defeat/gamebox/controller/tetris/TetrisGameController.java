@@ -147,9 +147,6 @@ public class TetrisGameController implements RouteDataReceiver {
     private BoardArrangement currentArrangement = null;
     private PlayerCard topPlayerCard;
     private PlayerCard bottomPlayerCard;
-    // Cache for gating the debug log — only print when zone dimensions actually change.
-    private double lastLoggedZoneH = -1;
-    private double lastLoggedZoneW = -1;
 
     private record ActiveEffectChip(TetrisItemType type, String label, int remainingTicks) {}
 
@@ -530,9 +527,6 @@ public class TetrisGameController implements RouteDataReceiver {
             return desired;
         }
         currentArrangement = desired;
-        // Reset the log cache so the debug line fires once for the new arrangement.
-        lastLoggedZoneH = -1;
-        lastLoggedZoneW = -1;
         rebuildBoardZoneLayout(desired);
         return desired;
     }
@@ -647,9 +641,6 @@ public class TetrisGameController implements RouteDataReceiver {
         }
 
         final double cellSize;
-        final boolean fits;
-        final String layoutDesc;
-
         if (arrangement == BoardArrangement.LOCAL_SIDE_BY_SIDE) {
             // Two boards placed horizontally: each board gets roughly half the zone width.
             // Height is the full zone height (one board tall, not two).
@@ -670,11 +661,6 @@ public class TetrisGameController implements RouteDataReceiver {
                 if (cs <= MIN_CELL_SIZE) break;
             }
             cellSize = cs;
-            double bH = rows * cs + Math.max(0, rows - 1) * CELL_GAP + BOARD_CHROME;
-            double bW = cols * cs + Math.max(0, cols - 1) * CELL_GAP + BOARD_CHROME;
-            double totalW = 2.0 * bW + SIDE_SPACING;
-            fits = totalW <= zoneW && bH <= zoneH;
-            layoutDesc = String.format("totalW=%.1f boardH=%.1f", totalW, bH);
 
         } else {
             // LOCAL_STACKED: two boards stacked vertically — each board gets half the zone height.
@@ -693,27 +679,6 @@ public class TetrisGameController implements RouteDataReceiver {
                 if (cs <= MIN_CELL_SIZE) break;
             }
             cellSize = cs;
-            double bH = rows * cs + Math.max(0, rows - 1) * CELL_GAP + BOARD_CHROME;
-            double totalH = 2.0 * bH + SIDE_SPACING;
-            fits = totalH <= zoneH;
-            layoutDesc = String.format("totalBoardH=%.1f", totalH);
-        }
-
-        // Debug log — gated on dimension change so it is SILENT during game ticks.
-        // Only prints when zoneH or zoneW shifts by more than 0.5px (i.e. a real resize).
-        boolean dimChanged = Math.abs(zoneH - lastLoggedZoneH) > 0.5
-                          || Math.abs(zoneW - lastLoggedZoneW) > 0.5;
-        if (dimChanged) {
-            lastLoggedZoneH = zoneH;
-            lastLoggedZoneW = zoneW;
-            double boardZoneActualH = boardZone != null ? boardZone.getHeight()  : -1;
-            double boardZoneLayoutY = boardZone != null ? boardZone.getLayoutY() : -1;
-            System.out.printf("[Zetris diag] viewportH=%.1f boardZoneH=%.1f boardZoneLayoutY=%.1f%n",
-                    viewportH, boardZoneActualH, boardZoneLayoutY);
-            System.out.printf("[Zetris layout] %s zoneH=%.1f zoneW=%.1f horizontalMode=%b "
-                    + "rows=%d cols=%d cellSize=%.2f %s fits=%b%n",
-                    arrangement, zoneH, zoneW, setup.config().horizontalMode(),
-                    rows, cols, cellSize, layoutDesc, fits);
         }
 
         return cellSize;

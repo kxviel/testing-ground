@@ -23,7 +23,7 @@ public record TetrisGameConfig(
     public static final int GRAVITY_RAMP_INTERVAL_MILLIS = 15_000;
     public static final int GRAVITY_RAMP_STEP_MILLIS = 20;
     public static final int MIN_DYNAMIC_GRAVITY_MILLIS = 80;
-    public static final int MAX_CUSTOM_PIECES = 32;
+    public static final int MAX_CUSTOM_PIECES = 3;
     private static final int MIN_GRAVITY_MILLIS = 180;
     private static final int MAX_GRAVITY_MILLIS = 1_100;
 

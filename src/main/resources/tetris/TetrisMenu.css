@@ -247,6 +247,68 @@
     -fx-pref-width: 20;
 }
 
+.custom-piece-workspace {
+    -fx-spacing: 20;
+}
+
+.custom-piece-builder,
+.custom-piece-saved-section {
+    -fx-spacing: 8;
+}
+
+.custom-piece-saved-section {
+    -fx-padding: 0 0 0 4;
+}
+
+.custom-piece-preview-row {
+    -fx-spacing: 8;
+}
+
+.custom-piece-preview-card {
+    -fx-alignment: top-center;
+    -fx-background-color: -sh-card;
+    -fx-background-radius: 6px;
+    -fx-border-color: -sh-border;
+    -fx-border-radius: 6px;
+    -fx-padding: 7;
+}
+
+.custom-piece-preview-title {
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -sh-card-foreground;
+}
+
+.custom-piece-preview-grid {
+    -fx-hgap: 1;
+    -fx-vgap: 1;
+}
+
+.custom-piece-preview-cell {
+    -fx-background-color: -sh-muted;
+    -fx-border-color: -sh-input;
+    -fx-min-height: 7;
+    -fx-min-width: 7;
+    -fx-pref-height: 7;
+    -fx-pref-width: 7;
+}
+
+.custom-piece-preview-cell-filled {
+    -fx-background-color: -game-accent;
+    -fx-border-color: -game-accent;
+}
+
+.custom-piece-remove-button {
+    -fx-font-size: 11px;
+    -fx-min-height: 24;
+    -fx-padding: 3 7;
+}
+
+.custom-piece-help {
+    -fx-font-size: 12px;
+    -fx-text-fill: -sh-muted-foreground;
+}
+
 .custom-cell-selected {
     -fx-background-color: -game-accent;
     -fx-border-color: -game-accent;

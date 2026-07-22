@@ -11,6 +11,9 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import seda_project.control_alt_defeat.gamebox.model.tetris.BoardPosition;
@@ -80,11 +83,17 @@ public class TetrisMenuController implements RouteDataReceiver {
     private Label statusLabel;
     @FXML
     private Label customPieceStatusLabel;
+    @FXML
+    private Label customPieceCountLabel;
 
     @FXML
     private VBox customEditorBox;
     @FXML
     private GridPane customPieceGrid;
+    @FXML
+    private HBox customPiecePreviewRow;
+    @FXML
+    private Button saveCustomPieceButton;
     @FXML
     private ListView<LanDiscoveryService.DiscoveredGame> availableGamesList;
 
@@ -107,6 +116,7 @@ public class TetrisMenuController implements RouteDataReceiver {
         ResponsiveLayout.bindTwoColumnGrid(tetrisMenuMain, 60.0);
         UiInputGuards.limitPlayerNames(playerOneNameField, playerTwoNameField);
         buildCustomPieceGrid();
+        refreshCustomPiecePreviews();
         discoveredGameList = new DiscoveredGameListController(availableGamesList);
         speedChoiceBox.getItems().setAll("Slow", "Normal", "Fast");
         speedChoiceBox.getSelectionModel().select("Normal");
@@ -160,7 +170,12 @@ public class TetrisMenuController implements RouteDataReceiver {
             customPieces.add(shape);
             customPieceCheckBox.setSelected(true);
             clearCustomPieceEditor();
-            customPieceStatusLabel.setText("Saved custom piece " + customPieces.size() + ".");
+            refreshCustomPiecePreviews();
+            int remaining = TetrisGameConfig.MAX_CUSTOM_PIECES - customPieces.size();
+            customPieceStatusLabel.setText(remaining == 0
+                    ? "Saved Piece " + customPieces.size() + ". Maximum of 3 reached."
+                    : "Saved Piece " + customPieces.size() + ". " + remaining
+                            + (remaining == 1 ? " slot remains." : " slots remain."));
         } catch (IllegalArgumentException e) {
             customPieceStatusLabel.setText(e.getMessage());
         }
@@ -310,6 +325,50 @@ public class TetrisMenuController implements RouteDataReceiver {
         }
     }
 
+    private void refreshCustomPiecePreviews() {
+        customPieceCountLabel.setText("Saved pieces (" + customPieces.size()
+                + "/" + TetrisGameConfig.MAX_CUSTOM_PIECES + ")");
+        customPiecePreviewRow.getChildren().setAll(IntStream.range(0, customPieces.size())
+                .mapToObj(index -> createCustomPiecePreview(customPieces.get(index), index))
+                .toList());
+        saveCustomPieceButton.setDisable(customPieces.size() >= TetrisGameConfig.MAX_CUSTOM_PIECES);
+    }
+
+    private VBox createCustomPiecePreview(PieceShape shape, int index) {
+        Label title = new Label("Piece " + (index + 1));
+        title.getStyleClass().add("custom-piece-preview-title");
+
+        GridPane previewGrid = new GridPane();
+        previewGrid.getStyleClass().add("custom-piece-preview-grid");
+        for (int row = 0; row < CUSTOM_EDITOR_SIZE; row++) {
+            for (int column = 0; column < CUSTOM_EDITOR_SIZE; column++) {
+                Region cell = new Region();
+                cell.getStyleClass().add("custom-piece-preview-cell");
+                if (shape.cells().contains(new BoardPosition(row, column))) {
+                    cell.getStyleClass().add("custom-piece-preview-cell-filled");
+                }
+                previewGrid.add(cell, column, row);
+            }
+        }
+
+        Button removeButton = new Button("Remove");
+        removeButton.getStyleClass().addAll("btn-outline", "custom-piece-remove-button");
+        removeButton.setOnAction(event -> removeCustomPiece(index));
+
+        VBox card = new VBox(4, title, new StackPane(previewGrid), removeButton);
+        card.getStyleClass().add("custom-piece-preview-card");
+        return card;
+    }
+
+    private void removeCustomPiece(int index) {
+        if (index < 0 || index >= customPieces.size()) {
+            return;
+        }
+        customPieces.remove(index);
+        refreshCustomPiecePreviews();
+        customPieceStatusLabel.setText("Removed saved piece. You can save another piece.");
+    }
+
     private void updateCustomEditorVisibility() {
         boolean shown = customPieceCheckBox.isSelected();
         UiVisibility.setVisibleManaged(customEditorBox, shown);
@@ -317,7 +376,7 @@ public class TetrisMenuController implements RouteDataReceiver {
         if (!shown) {
             customPieceStatusLabel.setText("");
         } else if (customPieces.isEmpty()) {
-            customPieceStatusLabel.setText("Draw a connected piece and save it.");
+            customPieceStatusLabel.setText("Draw a connected piece. You can save up to 3.");
         }
     }
 
