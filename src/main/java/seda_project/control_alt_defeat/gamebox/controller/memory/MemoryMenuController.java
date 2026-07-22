@@ -188,8 +188,8 @@ public class MemoryMenuController implements RouteDataReceiver {
         if (visible) {
             BoardVariant variant = currentVariants.get(index);
             row.title().setText(variant.difficulty);
-            row.meta().setText(variant.totalCards + " cards · "
-                    + variant.rows + "×" + variant.cols);
+            row.meta().setText(variant.totalCards + " cards on a "
+                    + variant.rows + " \u00D7 " + variant.cols + " grid");
         }
     }
 

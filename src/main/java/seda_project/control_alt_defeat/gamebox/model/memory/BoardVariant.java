@@ -90,6 +90,6 @@ public class BoardVariant {
 
     @Override
     public String toString() {
-        return difficulty + ": " + totalCards + " cards (" + rows + "×" + cols + ")";
+        return difficulty + ": " + totalCards + " cards (" + rows + "\u00D7" + cols + ")";
     }
 }
