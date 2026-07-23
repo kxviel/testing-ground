@@ -12,6 +12,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.function.Consumer;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -107,7 +108,13 @@ abstract class AbstractGameConnection implements Closeable {
                 }
             } catch (IOException e) {
                 if (running && socket == connectionSocket) {
-                    log.warn("{} read loop ended: {}", logName, e.getMessage());
+                    if (e instanceof SocketException) {
+                        // A peer closing or resetting its socket is a normal LAN
+                        // disconnect, not an application failure.
+                        log.debug("{} peer disconnected: {}", logName, e.getMessage());
+                    } else {
+                        log.warn("{} read loop ended: {}", logName, e.getMessage());
+                    }
                     notifyDisconnect();
                 }
             } finally {
