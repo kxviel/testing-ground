@@ -9,11 +9,13 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -33,6 +35,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.stage.Stage;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -51,6 +54,8 @@ import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerSide;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.PlayerStatus;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.Rotation;
 import seda_project.control_alt_defeat.gamebox.model.tetris.enums.TetrisItemType;
+import seda_project.control_alt_defeat.gamebox.network.GameServer;
+import seda_project.control_alt_defeat.gamebox.network.tetris.TetrisProtocol;
 import seda_project.control_alt_defeat.gamebox.util.ResponsiveViewport;
 
 class TetrisUiContractTest {
@@ -81,6 +86,83 @@ class TetrisUiContractTest {
         assertTrue(fxml.contains("fx:id=\"speedChoiceBox\""));
         assertTrue(fxml.contains("fx:id=\"dualPieceCheckBox\""));
         assertTrue(fxml.contains("fx:id=\"horizontalModeCheckBox\""));
+    }
+
+    @Test
+    void lanJoinAutomaticallyStartsHostWithoutASecondButtonClick() throws Exception {
+        CountDownLatch setupComplete = new CountDownLatch(1);
+        AtomicReference<Throwable> failure = new AtomicReference<>();
+        AtomicReference<Stage> stageRef = new AtomicReference<>();
+        AtomicReference<RecordingGameServer> serverRef = new AtomicReference<>();
+
+        Platform.runLater(() -> {
+            try {
+                FXMLLoader loader = new FXMLLoader(
+                        TetrisUiContractTest.class.getResource("/tetris/TetrisMenu.fxml"));
+                Parent root = loader.load();
+                TetrisMenuController controller = loader.getController();
+                Stage stage = new Stage();
+                Scene menuScene = new Scene(root);
+                menuScene.getStylesheets().add(
+                        TetrisUiContractTest.class.getResource("/Theme.css").toExternalForm());
+                stage.setScene(menuScene);
+                stage.show();
+                RecordingGameServer server = new RecordingGameServer();
+
+                setPrivateField(controller, "hostServer", server);
+                setPrivateField(controller, "hostName", "Host");
+                setPrivateField(controller, "hostConfig", TetrisGameConfig.defaultConfig());
+
+                Method onHostMessage = TetrisMenuController.class.getDeclaredMethod(
+                        "onHostMessage", String.class);
+                onHostMessage.setAccessible(true);
+                onHostMessage.invoke(controller, TetrisProtocol.join("Joiner"));
+
+                stageRef.set(stage);
+                serverRef.set(server);
+            } catch (Throwable throwable) {
+                failure.set(throwable);
+            } finally {
+                setupComplete.countDown();
+            }
+        });
+
+        assertTrue(setupComplete.await(5, TimeUnit.SECONDS));
+        if (failure.get() != null) {
+            throw new AssertionError(failure.get());
+        }
+
+        CountDownLatch assertionComplete = new CountDownLatch(1);
+        Platform.runLater(() -> {
+            RecordingGameServer server = serverRef.get();
+            Stage stage = stageRef.get();
+            try {
+                assertNotNull(server);
+                assertNotNull(stage);
+                assertTrue(server.messages().stream()
+                        .anyMatch(message -> TetrisProtocol.isType(message, TetrisProtocol.START)));
+                assertNotNull(stage.getScene().getRoot().lookup(".tetris-game-root"));
+            } catch (Throwable throwable) {
+                failure.set(throwable);
+            } finally {
+                if (server != null) {
+                    server.disconnect();
+                }
+                if (stage != null) {
+                    stage.close();
+                }
+                assertionComplete.countDown();
+            }
+        });
+
+        assertTrue(assertionComplete.await(10, TimeUnit.SECONDS));
+        if (failure.get() != null) {
+            throw new AssertionError(failure.get());
+        }
+
+        CountDownLatch disconnectProcessed = new CountDownLatch(1);
+        Platform.runLater(disconnectProcessed::countDown);
+        assertTrue(disconnectProcessed.await(5, TimeUnit.SECONDS));
     }
 
     @Test
@@ -667,6 +749,13 @@ class TetrisUiContractTest {
         return (TetrisGameState) field.get(controller);
     }
 
+    private static void setPrivateField(Object target, String fieldName, Object value)
+            throws ReflectiveOperationException {
+        Field field = target.getClass().getDeclaredField(fieldName);
+        field.setAccessible(true);
+        field.set(target, value);
+    }
+
     private static void assertWideGrid(GridPane grid) {
         int maxColumn = grid.getChildren().stream()
                 .mapToInt(node -> GridPane.getColumnIndex(node) == null ? 0 : GridPane.getColumnIndex(node))
@@ -989,6 +1078,48 @@ class TetrisUiContractTest {
             method.invoke(controller);
         } catch (ReflectiveOperationException exception) {
             throw new AssertionError("Could not stop Tetris test loop.", exception);
+        }
+    }
+
+    private static final class RecordingGameServer extends GameServer {
+        private final List<String> messages = new ArrayList<>();
+        private Runnable disconnectListener = () -> {
+        };
+        private boolean connected = true;
+
+        @Override
+        public void send(String message) {
+            messages.add(message);
+        }
+
+        @Override
+        public void setMessageListener(Consumer<String> messageListener) {
+            // The controller callback is not needed for this one-way handshake test.
+        }
+
+        @Override
+        public void setDisconnectListener(Runnable listener) {
+            disconnectListener = listener == null ? () -> {
+            } : listener;
+        }
+
+        @Override
+        public boolean isConnected() {
+            return connected;
+        }
+
+        @Override
+        public void close() {
+            connected = false;
+        }
+
+        private List<String> messages() {
+            return List.copyOf(messages);
+        }
+
+        private void disconnect() {
+            connected = false;
+            disconnectListener.run();
         }
     }
 }

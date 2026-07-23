@@ -22,7 +22,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 abstract class AbstractGameConnection implements Closeable {
 
     private static final int READ_TIMEOUT_MS = 5_000;
-    private static final int MAX_MESSAGES_PER_SECOND = 30;
+    /*
+     * Real-time games can legitimately combine gravity snapshots, held-key
+     * repeats, and control messages. Keep a bounded abuse guard, but leave
+     * enough headroom for normal LAN play on a responsive keyboard.
+     */
+    static final int MAX_MESSAGES_PER_SECOND = 120;
     private static final int MAX_CHARS_PER_SECOND = 512 * 1024;
     private static final int MAX_OUTBOUND_MESSAGES = 32;
     private static final long GRACEFUL_CLOSE_TIMEOUT_MS = 500;

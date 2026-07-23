@@ -215,7 +215,7 @@ public class TetrisMenuController implements RouteDataReceiver {
             return;
         }
 
-        startHostGame(event);
+        startHostGame(Router.stageFrom(event));
     }
 
     @FXML
@@ -481,7 +481,7 @@ public class TetrisMenuController implements RouteDataReceiver {
         thread.start();
     }
 
-    private void startHostGame(ActionEvent event) {
+    private void startHostGame(Stage stage) {
         if (gameStarted) {
             return;
         }
@@ -489,6 +489,12 @@ public class TetrisMenuController implements RouteDataReceiver {
         GameServer gameServer = hostServer;
         if (gameServer == null || !gameServer.isConnected()) {
             statusLabel.setText("Wait for " + PLAYER_TWO + " to join first.");
+            return;
+        }
+
+        if (stage == null) {
+            statusLabel.setText(joinedPlayerName + " joined. Press Start Game.");
+            updateHostLanButton();
             return;
         }
 
@@ -500,7 +506,7 @@ public class TetrisMenuController implements RouteDataReceiver {
         hostServer = null;
         UiVisibility.setVisibleManaged(cancelHostingButton, false);
         udpDiscovery.close();
-        Router.goTo(event,
+        Router.goTo(stage,
                 "/tetris/TetrisGame.fxml",
                 TetrisGameRouteData.host(TetrisGameSetup.host(hostName, joinedPlayerName, hostConfig), gameServer));
     }
@@ -656,7 +662,8 @@ public class TetrisMenuController implements RouteDataReceiver {
 
             udpDiscovery.stopAdvertising();
             updateHostLanButton();
-            statusLabel.setText(joinedPlayerName + " joined. Press Start Game.");
+            statusLabel.setText(joinedPlayerName + " joined. Starting game...");
+            startHostGame(currentStage());
         });
     }
 
@@ -800,5 +807,14 @@ public class TetrisMenuController implements RouteDataReceiver {
         }
         navigationPending = true;
         return true;
+    }
+
+    private Stage currentStage() {
+        if (statusLabel == null
+                || statusLabel.getScene() == null
+                || !(statusLabel.getScene().getWindow() instanceof Stage stage)) {
+            return null;
+        }
+        return stage;
     }
 }

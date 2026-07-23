@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -77,6 +78,41 @@ class AdversarialInputRobustnessTest {
             assertTrue(disconnected.await(5, TimeUnit.SECONDS));
             assertFalse(server.isConnected());
             assertFalse(handlerInvoked.get());
+        } finally {
+            server.close();
+        }
+    }
+
+    @Test
+    void sustainedMessageFloodStillTriggersTheLanSafetyLimit() throws Exception {
+        GameServer server = new GameServer();
+        CountDownLatch disconnected = new CountDownLatch(1);
+        CountDownLatch accepted = new CountDownLatch(1);
+        AtomicInteger handledMessages = new AtomicInteger();
+        server.listen(0, message -> handledMessages.incrementAndGet(), disconnected::countDown);
+
+        Thread acceptThread = new Thread(() -> {
+            try {
+                server.waitForClient();
+            } catch (IOException ignored) {
+            } finally {
+                accepted.countDown();
+            }
+        }, "message-flood-accept");
+        acceptThread.setDaemon(true);
+        acceptThread.start();
+
+        try (Socket rawClient = new Socket("127.0.0.1", server.localPort());
+                PrintWriter writer = new PrintWriter(
+                        new OutputStreamWriter(rawClient.getOutputStream(), StandardCharsets.UTF_8), true)) {
+            assertTrue(accepted.await(5, TimeUnit.SECONDS));
+            for (int index = 0; index <= AbstractGameConnection.MAX_MESSAGES_PER_SECOND; index++) {
+                writer.println("PING:" + index);
+            }
+
+            assertTrue(disconnected.await(5, TimeUnit.SECONDS));
+            assertFalse(server.isConnected());
+            assertEquals(AbstractGameConnection.MAX_MESSAGES_PER_SECOND, handledMessages.get());
         } finally {
             server.close();
         }

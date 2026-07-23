@@ -125,6 +125,27 @@ class GameChoiceFxmlSmokeTest {
     }
 
     @Test
+    void everyScreenCanBeConstructedAndDisposedRepeatedly() throws Exception {
+        String[] screens = {
+                "/GameChoice.fxml",
+                "/memory/MemoryMenu.fxml",
+                "/memory/GameBoard.fxml",
+                "/tetris/TetrisMenu.fxml",
+                "/tetris/TetrisGame.fxml",
+                "/hexchess/HexChessMenu.fxml",
+                "/hexchess/HexChessGame.fxml",
+                "/hexchess/HexChessSetup.fxml"
+        };
+
+        for (int cycle = 0; cycle < 5; cycle++) {
+            for (String screen : screens) {
+                assertNotNull(loadOnFxThread(screen),
+                        () -> "FXML failed during repeated construction: " + screen);
+            }
+        }
+    }
+
+    @Test
     void tetrisAndHexChessHostingCanBeCancelled() throws Exception {
         assertHostingCanBeCancelled("/tetris/TetrisMenu.fxml");
         assertHostingCanBeCancelled("/hexchess/HexChessMenu.fxml");

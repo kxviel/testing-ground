@@ -2,6 +2,7 @@ package seda_project.control_alt_defeat.gamebox.controller.tetris;
 
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
+import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -64,6 +65,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class TetrisGameController implements RouteDataReceiver {
 
     private static final int GAME_TICK_MS = 100;
+    private static final int LAN_STATE_SYNC_INTERVAL_MS = 50;
     private static final double MIN_CELL_SIZE = 14;
     private static final double MAX_CELL_SIZE = 80;
     private static final double CELL_GAP = 1;
@@ -328,6 +330,8 @@ public class TetrisGameController implements RouteDataReceiver {
     private int bottomGravityElapsedMs;
     private int topGravityElapsedMs;
     private int elapsedGameMs;
+    private PauseTransition pendingStateSend;
+    private long lastStateSentNanos;
     private final AtomicReference<TetrisStateSnapshot.SnapshotData> pendingClientState = new AtomicReference<>();
     private final AtomicBoolean clientStateRenderScheduled = new AtomicBoolean();
 
@@ -434,6 +438,7 @@ public class TetrisGameController implements RouteDataReceiver {
     }
 
     private void startNewGame() {
+        cancelPendingStateSend();
         bottomGravityElapsedMs = 0;
         topGravityElapsedMs = 0;
         elapsedGameMs = 0;
@@ -1245,19 +1250,55 @@ public class TetrisGameController implements RouteDataReceiver {
     }
 
     private void sendState() {
-        if (isLanHost() && !networkClosed) {
-            hostServer.send(TetrisProtocol.state(TetrisStateSnapshot.serialize(gameState, elapsedGameMs)));
+        if (!isLanHost() || networkClosed) {
+            return;
+        }
+
+        long now = System.nanoTime();
+        long minimumIntervalNanos = LAN_STATE_SYNC_INTERVAL_MS * 1_000_000L;
+        long elapsedNanos = lastStateSentNanos == 0 ? minimumIntervalNanos : now - lastStateSentNanos;
+        if (elapsedNanos >= minimumIntervalNanos) {
+            cancelPendingStateSend();
+            sendStateImmediately();
+            return;
+        }
+
+        if (pendingStateSend == null) {
+            pendingStateSend = new PauseTransition(
+                    Duration.millis((minimumIntervalNanos - elapsedNanos) / 1_000_000.0));
+            pendingStateSend.setOnFinished(event -> {
+                pendingStateSend = null;
+                sendStateImmediately();
+            });
+            pendingStateSend.play();
         }
     }
 
     private void sendRestartState() {
         if (isLanHost() && !networkClosed) {
+            cancelPendingStateSend();
             hostServer.send(TetrisProtocol.restartState(TetrisStateSnapshot.serialize(gameState, elapsedGameMs)));
+            lastStateSentNanos = System.nanoTime();
+        }
+    }
+
+    private void sendStateImmediately() {
+        if (isLanHost() && !networkClosed) {
+            hostServer.send(TetrisProtocol.state(TetrisStateSnapshot.serialize(gameState, elapsedGameMs)));
+            lastStateSentNanos = System.nanoTime();
+        }
+    }
+
+    private void cancelPendingStateSend() {
+        if (pendingStateSend != null) {
+            pendingStateSend.stop();
+            pendingStateSend = null;
         }
     }
 
     private void closeNetwork(boolean sendQuit) {
         networkClosed = true;
+        cancelPendingStateSend();
 
         if (hostServer != null) {
             if (sendQuit && hostServer.isConnected()) {

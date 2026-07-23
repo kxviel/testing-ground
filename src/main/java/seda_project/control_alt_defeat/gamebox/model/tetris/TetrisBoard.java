@@ -18,8 +18,8 @@ public class TetrisBoard {
     public static final int HORIZONTAL_COLUMNS = 20;
     public static final int MIN_ROWS = 4;
     public static final int MIN_COLUMNS = 4;
-    public static final int MAX_ROWS = 24;
-    public static final int MAX_COLUMNS = 24;
+    public static final int MAX_ROWS = 30;
+    public static final int MAX_COLUMNS = 30;
 
     private final int rows;
     private final int columns;

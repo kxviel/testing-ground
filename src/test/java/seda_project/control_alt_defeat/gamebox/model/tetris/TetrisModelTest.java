@@ -242,6 +242,49 @@ class TetrisModelTest {
     }
 
     @Test
+    void lineClearingCanGrowVerticalAndHorizontalBoardsToThirty() {
+        TetrisCell[][] verticalCells = new TetrisCell[29][TetrisBoard.DEFAULT_COLUMNS];
+        for (TetrisCell[] row : verticalCells) {
+            Arrays.fill(row, TetrisCell.EMPTY);
+        }
+        for (int column = 2; column < TetrisBoard.DEFAULT_COLUMNS; column++) {
+            verticalCells[28][column] = TetrisCell.FILLED;
+        }
+
+        TetrisPlayerState bottom = new TetrisPlayerState(
+                "Bottom",
+                PlayerSide.BOTTOM,
+                new TetrisBoard(verticalCells),
+                new TetrisPiece(
+                        PieceShape.standardShape(PieceType.O),
+                        new BoardPosition(27, 0),
+                        Rotation.SPAWN),
+                0,
+                PlayerStatus.PLAYING,
+                null);
+        TetrisGameState verticalResult = runningState(
+                bottom,
+                TetrisPlayerState.create("Top", PlayerSide.TOP))
+                .applyGravity(PlayerSide.BOTTOM);
+
+        assertEquals(1, verticalResult.bottomPlayer().score());
+        assertEquals(30, verticalResult.bottomPlayer().board().rows());
+        assertEquals(19, verticalResult.topPlayer().board().rows());
+
+        TetrisGameState restoredLanState = TetrisStateSnapshot.deserialize(
+                TetrisStateSnapshot.serialize(verticalResult),
+                verticalResult.config());
+        assertEquals(30, restoredLanState.bottomPlayer().board().rows());
+        assertEquals(19, restoredLanState.topPlayer().board().rows());
+
+        TetrisBoard horizontalBoard = new TetrisBoard(TetrisBoard.HORIZONTAL_ROWS, 29)
+                .addColumnsAtRight(10);
+        assertEquals(30, horizontalBoard.columns());
+        assertEquals(30, new TetrisBoard(100, 100).rows());
+        assertEquals(30, new TetrisBoard(100, 100).columns());
+    }
+
+    @Test
     void teleportSendsTheControlledFallingShapeToOpponentNext() {
         TetrisPlayerState bottom = playerWithObject(
                 PlayerSide.BOTTOM, new TetrisBoard(), PieceType.I, 4, TetrisItemType.TELEPORT);
